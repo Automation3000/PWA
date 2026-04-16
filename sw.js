@@ -19,15 +19,36 @@ if (workbox.navigationPreload.isSupported()) {
   workbox.navigationPreload.enable();
 }
 
-// Asset Caching (Purple Fix)
+// 1. ASSET CACHING (The exact format PWABuilder wants for the Purple fix)
 workbox.routing.registerRoute(
-  ({request}) => request.destination === 'image' || request.destination === 'script' || request.destination === 'style',
-  new workbox.strategies.CacheFirst({
-    cacheName: 'assets-cache',
+  ({request}) => request.destination === 'style' || request.destination === 'script' || request.destination === 'worker',
+  new workbox.strategies.StaleWhileRevalidate({
+    cacheName: 'assets',
+    plugins: [
+      new workbox.cacheableResponse.CacheableResponsePlugin({
+        statuses: [200],
+      }),
+    ],
   })
 );
 
-// Background Sync (Purple Fix)
+workbox.routing.registerRoute(
+  ({request}) => request.destination === 'image',
+  new workbox.strategies.CacheFirst({
+    cacheName: 'images',
+    plugins: [
+      new workbox.cacheableResponse.CacheableResponsePlugin({
+        statuses: [200],
+      }),
+      new workbox.expiration.ExpirationPlugin({
+        maxEntries: 50,
+        maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Days
+      }),
+    ],
+  })
+);
+
+// 2. Background Sync
 const bgSyncPlugin = new workbox.backgroundSync.BackgroundSyncPlugin('offline-queue', {
   maxRetentionTime: 24 * 60
 });
@@ -39,14 +60,14 @@ workbox.routing.registerRoute(
   'POST'
 );
 
-// Periodic Background Sync (Purple Fix)
+// 3. Periodic Background Sync
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'content-sync') {
     console.log('Periodic sync triggered!');
   }
 });
 
-// Push Notifications
+// 4. Push Notifications
 self.addEventListener('push', function(event) {
   if (event.data) {
     const options = {
@@ -58,7 +79,7 @@ self.addEventListener('push', function(event) {
   }
 });
 
-// Default Offline Routing
+// 5. Default Offline Routing
 workbox.routing.registerRoute(
   new RegExp('/*'),
   new workbox.strategies.StaleWhileRevalidate({
