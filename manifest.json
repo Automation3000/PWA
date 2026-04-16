@@ -1,13 +1,21 @@
 {
   "id": "/p/tabreed.html",
-  "name": "Automation 3000 Tabreed",
+  "name": "Automation App",
   "short_name": "Automation",
-  "description": "Industrial Automation, Instrumentation tools, and Offline Reading hub by Automation 3000.",
+  "description": "Industrial Automation, Instrumentation tools, and Offline Reading hub.",
+  "lang": "en-US",
+  "dir": "ltr",
   "start_url": "https://www.automation3000.com/p/tabreed.html",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#005bb5",
+  "categories": ["education", "productivity", "utilities"],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "prefer_related_applications": false,
+  "related_applications": [],
   "icons": [
     {
       "src": "https://automation3000.github.io/PWA/icon-192.png",
@@ -34,6 +42,15 @@
       "sizes": "1920x1080",
       "type": "image/png",
       "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Offline Reading",
+      "short_name": "Offline",
+      "description": "View saved offline posts",
+      "url": "https://www.automation3000.com/p/tabreed.html#offline",
+      "icons": [{"src": "https://automation3000.github.io/PWA/icon-192.png", "sizes": "192x192"}]
     }
   ]
 }
