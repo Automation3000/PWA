@@ -1,6 +1,6 @@
 {
   "id": "/p/tabreed.html",
-  "name": "Automation App",
+  "name": "Automation 3000 Tabreed",
   "short_name": "Automation",
   "description": "Industrial Automation, Instrumentation tools, and Offline Reading hub.",
   "lang": "en-US",
@@ -8,14 +8,75 @@
   "start_url": "https://www.automation3000.com/p/tabreed.html",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "minimal-ui"],
+  "display_override": ["window-controls-overlay", "tabbed", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#005bb5",
   "categories": ["education", "productivity", "utilities"],
   "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "prefer_related_applications": false,
-  "related_applications": [],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.automation3000.app",
+      "id": "com.automation3000.app"
+    }
+  ],
+  "scope_extensions": [
+    {
+      "origin": "*.automation3000.com"
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "https://www.automation3000.com/p/tabreed.html",
+      "accept": {
+        "text/plain": [".txt"],
+        "application/pdf": [".pdf"]
+      }
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+automation",
+      "url": "https://www.automation3000.com/p/tabreed.html?command=%s"
+    }
+  ],
+  "share_target": {
+    "action": "https://www.automation3000.com/p/tabreed.html",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "note_taking": {
+    "new_note_url": "https://www.automation3000.com/p/tabreed.html?note=new"
+  },
+  "widgets": [
+    {
+      "name": "Automation Tools",
+      "short_name": "AutoTools",
+      "description": "Quick access to Tabreed tools",
+      "tag": "tabreed-widget",
+      "template_url": "https://www.automation3000.com/p/tabreed.html",
+      "ms_acss": "https://automation3000.github.io/PWA/widget.json",
+      "icons": [
+        {
+          "src": "https://automation3000.github.io/PWA/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
   "icons": [
     {
       "src": "https://automation3000.github.io/PWA/icon-192.png",
@@ -50,7 +111,13 @@
       "short_name": "Offline",
       "description": "View saved offline posts",
       "url": "https://www.automation3000.com/p/tabreed.html#offline",
-      "icons": [{"src": "https://automation3000.github.io/PWA/icon-192.png", "sizes": "192x192"}]
+      "icons": [
+        {
+          "src": "https://automation3000.github.io/PWA/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
