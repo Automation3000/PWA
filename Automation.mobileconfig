@@ -10,34 +10,34 @@
             <key>IsRemovable</key>
             <true/>
             <key>Label</key>
-            <string>Tabreed</string>
+            <string>Automation 3000</string>
             <key>PayloadDescription</key>
-            <string>Configures Web Clip</string>
+            <string>Automation 3000 Web App</string>
             <key>PayloadDisplayName</key>
-            <string>Web Clip</string>
+            <string>Automation App</string>
             <key>PayloadIdentifier</key>
-            <string>com.automation3000.tabreed</string>
+            <string>com.automation3000.app</string>
             <key>PayloadType</key>
             <string>com.apple.webClip.managed</string>
             <key>PayloadUUID</key>
-            <string>A1B2C3D4-E5F6-7890-1234-567890ABCDEF</string>
+            <string>B2C3D4E5-F6A7-8B90-1234-567890ABCDEF</string>
             <key>PayloadVersion</key>
-            <integer>1</integer>
+            <integer>3</integer>
             <key>URL</key>
             <string>https://www.automation3000.com/p/tabreed.html</string>
         </dict>
     </array>
     <key>PayloadDisplayName</key>
-    <string>Tabreed App</string>
+    <string>Automation App Installer</string>
     <key>PayloadIdentifier</key>
-    <string>com.automation3000.tabreed.profile</string>
+    <string>com.automation3000.profile</string>
     <key>PayloadRemovalDisallowed</key>
     <false/>
     <key>PayloadType</key>
     <string>Configuration</string>
     <key>PayloadUUID</key>
-    <string>09876543-210A-BCDE-F123-4567890ABCDE</string>
+    <string>C3D4E5F6-A7B8-9C0D-1234-567890ABCDEF</string>
     <key>PayloadVersion</key>
-    <integer>1</integer>
+    <integer>3</integer>
 </dict>
 </plist>
