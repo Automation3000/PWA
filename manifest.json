@@ -1,9 +1,11 @@
 {
-  "name": "Automation App",
+  "id": "/p/tabreed.html",
+  "name": "Automation 3000 Tabreed",
   "short_name": "Automation",
   "description": "Industrial Automation, Instrumentation tools, and Offline Reading hub by Automation 3000.",
   "start_url": "https://www.automation3000.com/p/tabreed.html",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#005bb5",
   "icons": [
@@ -18,6 +20,20 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://automation3000.github.io/PWA/screen1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "https://automation3000.github.io/PWA/screen2.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
     }
   ]
 }
