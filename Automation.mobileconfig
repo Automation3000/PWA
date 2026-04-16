@@ -22,7 +22,7 @@
             <key>PayloadUUID</key>
             <string>B2C3D4E5-F6A7-8B90-1234-567890ABCDEF</string>
             <key>PayloadVersion</key>
-            <integer>3</integer>
+            <integer>1</integer>
             <key>URL</key>
             <string>https://www.automation3000.com/p/tabreed.html</string>
         </dict>
@@ -38,6 +38,6 @@
     <key>PayloadUUID</key>
     <string>C3D4E5F6-A7B8-9C0D-1234-567890ABCDEF</string>
     <key>PayloadVersion</key>
-    <integer>3</integer>
+    <integer>1</integer>
 </dict>
 </plist>
