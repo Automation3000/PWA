@@ -19,17 +19,17 @@ if (workbox.navigationPreload.isSupported()) {
   workbox.navigationPreload.enable();
 }
 
-// 1. Asset Caching (Purple Fix: Cache app assets like images, scripts)
+// Asset Caching (Purple Fix)
 workbox.routing.registerRoute(
   ({request}) => request.destination === 'image' || request.destination === 'script' || request.destination === 'style',
-  new workbox.strategies.StaleWhileRevalidate({
+  new workbox.strategies.CacheFirst({
     cacheName: 'assets-cache',
   })
 );
 
-// 2. Background Sync (Purple Fix: Resilient to poor network)
+// Background Sync (Purple Fix)
 const bgSyncPlugin = new workbox.backgroundSync.BackgroundSyncPlugin('offline-queue', {
-  maxRetentionTime: 24 * 60 // Retry for max of 24 Hours
+  maxRetentionTime: 24 * 60
 });
 workbox.routing.registerRoute(
   /\/api\/.*\/*.json/,
@@ -39,7 +39,14 @@ workbox.routing.registerRoute(
   'POST'
 );
 
-// 3. Push Notifications (Purple Fix: Setup notification listener)
+// Periodic Background Sync (Purple Fix)
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'content-sync') {
+    console.log('Periodic sync triggered!');
+  }
+});
+
+// Push Notifications
 self.addEventListener('push', function(event) {
   if (event.data) {
     const options = {
@@ -51,7 +58,7 @@ self.addEventListener('push', function(event) {
   }
 });
 
-// 4. Default Offline Routing
+// Default Offline Routing
 workbox.routing.registerRoute(
   new RegExp('/*'),
   new workbox.strategies.StaleWhileRevalidate({
