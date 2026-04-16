@@ -8,7 +8,7 @@
   "start_url": "https://www.automation3000.com/p/tabreed.html",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["window-controls-overlay", "tabbed", "minimal-ui"],
+  "display_override": ["tabbed", "window-controls-overlay", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#005bb5",
@@ -24,7 +24,7 @@
   ],
   "scope_extensions": [
     {
-      "origin": "*.automation3000.com"
+      "origin": "https://*.automation3000.com"
     }
   ],
   "file_handlers": [
@@ -93,14 +93,14 @@
   ],
   "screenshots": [
     {
-      "src": "https://automation3000.github.io/PWA/screen1.png",
-      "sizes": "1080x1920",
+      "src": "https://automation3000.github.io/PWA/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "https://automation3000.github.io/PWA/screen2.png",
-      "sizes": "1920x1080",
+      "src": "https://automation3000.github.io/PWA/icon-512.png",
+      "sizes": "512x512",
       "type": "image/png",
       "form_factor": "wide"
     }
