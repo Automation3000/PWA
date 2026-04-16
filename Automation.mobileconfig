@@ -10,13 +10,13 @@
             <key>IsRemovable</key>
             <true/>
             <key>Label</key>
-            <string>Automation 3000</string>
+            <string>Automation App</string>
             <key>PayloadDescription</key>
-            <string>Automation 3000 Web App</string>
+            <string>Automation Web App</string>
             <key>PayloadDisplayName</key>
             <string>Automation App</string>
             <key>PayloadIdentifier</key>
-            <string>com.automation3000.app</string>
+            <string>com.automation.app</string>
             <key>PayloadType</key>
             <string>com.apple.webClip.managed</string>
             <key>PayloadUUID</key>
@@ -28,7 +28,7 @@
         </dict>
     </array>
     <key>PayloadDisplayName</key>
-    <string>Automation App Installer</string>
+    <string>Automation App</string>
     <key>PayloadIdentifier</key>
     <string>com.automation3000.profile</string>
     <key>PayloadRemovalDisallowed</key>
