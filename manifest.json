@@ -1,6 +1,6 @@
 {
   "id": "/p/tabreed.html",
-  "name": "Automation App",
+  "name": "Automation 3000 Tabreed",
   "short_name": "Automation",
   "description": "Industrial Automation, Instrumentation tools, and Offline Reading hub.",
   "lang": "en-US",
@@ -8,7 +8,11 @@
   "start_url": "https://www.automation3000.com/p/tabreed.html",
   "scope": "/",
   "display": "standalone",
-  "display_override": ["tabbed", "window-controls-overlay", "minimal-ui"],
+  "display_override": [
+    "tabbed",
+    "window-controls-overlay",
+    "minimal-ui"
+  ],
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#005bb5",
@@ -24,7 +28,10 @@
   ],
   "scope_extensions": [
     {
-      "origin": "https://*.automation3000.com"
+      "origin": "https://www.automation3000.com"
+    },
+    {
+      "origin": "https://automation3000.github.io"
     }
   ],
   "file_handlers": [
