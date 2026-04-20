@@ -18,7 +18,7 @@
     
     <style>
         /* ======================================================== */
-        /* EXACT SAP FIORI THEME CSS                                */
+        /* EXACT SAP FIORI THEME CSS (NO CHANGES)                   */
         /* ======================================================== */
         :root {
             --bg-color: #e4edf5; 
@@ -38,19 +38,13 @@
         body, html { width: 100%; height: 100%; background-color: var(--bg-color); overflow-x: hidden; }
 
         /* HEADER */
-        .fiori-header {
-            background-color: var(--header-bg); color: var(--header-text); height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-        }
+        .fiori-header { background-color: var(--header-bg); color: var(--header-text); height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; }
         .header-left { display: flex; align-items: center; gap: 12px; }
         .logo-img { width: 28px; height: 28px; border-radius: 4px; object-fit: contain; background: white; padding: 2px;}
         .header-title { font-size: 15px; font-weight: 600; letter-spacing: 0.5px;}
-
         .header-actions button { background: transparent; border: none; color: var(--header-text); font-size: 16px; cursor: pointer; margin-left: 15px; transition: color 0.2s; }
         .header-actions button:hover { color: #8cb6ea; }
-
-        .install-badge {
-            background: transparent; color: white; border: none; padding: 5px 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
-        }
+        .install-badge { background: transparent; color: white; border: none; padding: 5px 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
         /* LAUNCHPAD */
         #launchpad-view { padding: 70px 30px 40px; height: 100%; overflow-y: auto; transition: opacity 0.4s ease; }
@@ -63,13 +57,10 @@
         }
 
         /* TILES */
-        .tile {
-            background: var(--tile-bg); border-radius: 4px; height: 176px; padding: 16px; position: relative; cursor: pointer; box-shadow: var(--shadow); border: 1px solid transparent; transition: var(--transition); display: flex; flex-direction: column; overflow: hidden;
-        }
+        .tile { background: var(--tile-bg); border-radius: 4px; height: 176px; padding: 16px; position: relative; cursor: pointer; box-shadow: var(--shadow); border: 1px solid transparent; transition: var(--transition); display: flex; flex-direction: column; overflow: hidden; }
         .tile:hover { transform: translateY(-4px); box-shadow: var(--hover-shadow); border-color: var(--primary-blue); }
         .tile::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: transparent; transition: var(--transition); }
         .tile:hover::before { background: linear-gradient(90deg, #0a6ed1, #00c6ff); }
-
         .tile-title { font-size: 15px; font-weight: 600; color: var(--tile-text); line-height: 1.2; margin-bottom: 6px; word-wrap: break-word; }
         .tile-subtitle { font-size: 12px; color: var(--tile-subtext); font-weight: 400; }
         .tile-icon { position: absolute; bottom: 16px; left: 16px; font-size: 24px; color: var(--primary-blue); transition: var(--transition); }
@@ -78,20 +69,36 @@
         .status-ready { color: #2b7d2b; } 
         .status-dev { color: #bb0000; }   
 
-        /* APP CONTAINER (IFRAME/NATIVE VIEW) */
+        /* APP CONTAINER */
         #app-view { display: none; width: 100%; height: 100%; background: var(--bg-color); position: absolute; top: 0; left: 0; z-index: 2000; flex-direction: column; }
         .app-view-header { height: 48px; background: var(--header-bg); color: white; display: flex; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .back-btn { background: none; border: none; color: white; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; transition: color 0.2s; }
         .back-btn:hover { color: #8cb6ea; }
         .active-app-title { margin-left: 20px; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.3); padding-left: 20px;}
         
+        /* IFRAME LAYOUT */
         .iframe-container { flex: 1; width: 100%; position: relative; background: #fff; }
-        .full-screen-iframe { width: 100%; height: 100%; border: none; }
-
+        .full-screen-iframe { width: 100%; height: 100%; border: none; display: none; }
         .iframe-loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--primary-blue); }
         .spinner { width: 30px; height: 30px; border: 3px solid #cdd4da; border-top: 3px solid var(--primary-blue); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+        /* ======================================================== */
+        /* NATIVE MASTER INSTRUMENT LIST CSS (NO IFRAME)            */
+        /* ======================================================== */
+        #native-instrument-list { display: none; flex-direction: column; height: 100%; width: 100%; background: var(--bg-color); }
+        .native-toolbar { padding: 12px 16px; background: white; display: flex; gap: 10px; border-bottom: 1px solid #cdd4da; }
+        .native-search { flex: 1; padding: 8px 12px; border: 1px solid #cdd4da; border-radius: 4px; font-size: 14px; outline: none; }
+        .native-search:focus { border-color: var(--primary-blue); }
+        .native-btn { padding: 8px 15px; background: var(--primary-blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .native-table-container { flex: 1; overflow: auto; padding: 16px; }
+        
+        .native-table { width: 100%; background: white; border-collapse: collapse; box-shadow: var(--shadow); border-radius: 4px; overflow: hidden; min-width: 600px; }
+        .native-table th { background: #f2f7fa; padding: 12px; text-align: left; font-size: 13px; color: var(--tile-subtext); border-bottom: 2px solid #cdd4da; }
+        .native-table td { padding: 12px; border-bottom: 1px solid #edf2f5; font-size: 14px; color: var(--tile-text); }
+        .native-tag { background: #e8f0fe; color: var(--primary-blue); padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+        
+        .offline-status { display: none; background: #e53e3e; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -101,25 +108,22 @@
             <i class="fas fa-bars" style="cursor: pointer; font-size: 16px; margin-right: 8px;"></i>
             <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" alt="Logo" class="logo-img">
             <span class="header-title">Home <i class="fas fa-angle-down" style="font-size: 11px; margin-left: 4px;"></i></span>
+            <span class="offline-status" id="offline-badge">OFFLINE MODE</span>
         </div>
         <div class="header-actions" style="display: flex; align-items: center;">
-            <button class="install-badge" onclick="startSmartInstall()">
-                <i class="fas fa-download"></i> Install App
-            </button>
-            <button><i class="fas fa-search"></i></button>
+            <button class="install-badge" onclick="startSmartInstall()"><i class="fas fa-download"></i> Install App</button>
             <button><i class="fas fa-user-circle"></i></button>
         </div>
     </header>
 
     <div id="launchpad-view">
-        
         <h2 class="group-title">Automation & Control</h2>
         <div class="tile-grid">
-            <div class="tile" onclick="openApp('Master Instrument List', 'https://script.google.com/macros/s/AKfycbzh070iKhGTwOF69T92J3a3dFytqtayGqAFa2k1Cd75A-k8uL7I6IhIJh3yEPsQ6qZw0Q/exec?key=AI1')">
+            <div class="tile" onclick="openApp('Master Instrument List', 'NATIVE_APP')">
                 <div class="tile-title">Master Instrument List</div>
-                <div class="tile-subtitle">AI1 Database</div>
+                <div class="tile-subtitle">AI1 Database (Offline Sync)</div>
                 <i class="fas fa-clipboard-list tile-icon"></i>
-                <div class="tile-status status-ready"><i class="fas fa-check-circle"></i> Online</div>
+                <div class="tile-status status-ready"><i class="fas fa-check-circle"></i> Native</div>
             </div>
 
             <div class="tile" onclick="openApp('PingLogger Ultimate', '#')">
@@ -145,7 +149,6 @@
                 <i class="fas fa-sync tile-icon" style="color: #6a6d70;"></i>
                 <div class="tile-status" style="color: #6a6d70;"><i class="fas fa-exchange-alt"></i> 0 Pending</div>
             </div>
-
             <div class="tile" onclick="alert('Settings Panel')">
                 <div class="tile-title">App Settings</div>
                 <div class="tile-subtitle">Manage Cache & Data</div>
@@ -161,70 +164,168 @@
             </button>
             <div class="active-app-title" id="activeAppTitle">App Name</div>
         </div>
+
         <div class="iframe-container" id="iframeWrapper">
             <div class="iframe-loader" id="appLoader">
                 <div class="spinner"></div>
-                <p style="font-weight: 600; font-size: 14px;">Loading App...</p>
+                <p style="font-weight: 600; font-size: 14px; margin-top:10px;">Loading...</p>
+            </div>
+            <iframe id="active-iframe" class="full-screen-iframe"></iframe>
+        </div>
+
+        <div id="native-instrument-list">
+            <div class="native-toolbar">
+                <input type="text" id="searchInput" class="native-search" placeholder="Search instruments, location..." oninput="filterNativeTable()">
+                <button class="native-btn" onclick="syncInstrumentData()"><i class="fas fa-sync-alt" id="sync-icon"></i> <span id="sync-text">Sync</span></button>
+            </div>
+            <div class="native-table-container">
+                <table class="native-table">
+                    <thead>
+                        <tr>
+                            <th>Instrument Name</th>
+                            <th>Location</th>
+                            <th>Expiry Date</th>
+                            <th>Updated By</th>
+                        </tr>
+                    </thead>
+                    <tbody id="native-table-body">
+                        <tr><td colspan="4" style="text-align:center; padding: 20px;">No data loaded yet.</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script>
-        // SPA Navigation
+        // CONFIG
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzh070iKhGTwOF69T92J3a3dFytqtayGqAFa2k1Cd75A-k8uL7I6IhIJh3yEPsQ6qZw0Q/exec";
+        const GAS_SECRET = "AI1";
+        let inventoryCache = [];
+
+        // --- NAVIGATION LOGIC ---
         function openApp(appName, url) {
-            if(url === '#') {
-                alert(appName + " is currently under development or runs as a desktop tool.");
-                return;
-            }
+            if(url === '#') { alert(appName + " runs as a desktop tool."); return; }
 
             document.getElementById('launchpad-view').style.display = 'none';
             document.getElementById('app-view').style.display = 'flex';
             document.getElementById('activeAppTitle').innerText = appName;
             
-            const wrapper = document.getElementById('iframeWrapper');
+            const iframeWrapper = document.getElementById('iframeWrapper');
+            const nativeWrapper = document.getElementById('native-instrument-list');
+            const iframe = document.getElementById('active-iframe');
             const loader = document.getElementById('appLoader');
-            
-            const oldIframe = document.getElementById('active-iframe');
-            if(oldIframe) oldIframe.remove();
-            const oldError = document.getElementById('offline-error-msg');
-            if(oldError) oldError.remove();
 
-            // Offline Check for Iframes
-            if (!navigator.onLine && url.includes('script.google.com')) {
-                loader.style.display = 'none';
-                const errorDiv = document.createElement('div');
-                errorDiv.id = 'offline-error-msg';
-                errorDiv.style.cssText = "display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#32363a; text-align:center; padding:20px;";
-                errorDiv.innerHTML = `
-                    <i class="fas fa-wifi-slash" style="font-size: 40px; color: #bb0000; margin-bottom: 15px;"></i>
-                    <h3 style="font-weight:600; margin-bottom:8px;">Offline Mode</h3>
-                    <p style="color:#6a6d70; font-size: 14px;">Connect to internet to load this Google App.</p>
-                `;
-                wrapper.appendChild(errorDiv);
-                return;
+            // Route: Native Offline App vs Iframe App
+            if(url === 'NATIVE_APP') {
+                iframeWrapper.style.display = 'none';
+                nativeWrapper.style.display = 'flex';
+                loadNativeInstruments(); // Load from memory instantly
+            } else {
+                nativeWrapper.style.display = 'none';
+                iframeWrapper.style.display = 'block';
+                
+                // Offline Check for Iframe
+                if(!navigator.onLine) {
+                    loader.style.display = 'none';
+                    iframe.style.display = 'none';
+                    alert("Iframe apps require an internet connection.");
+                    return;
+                }
+                
+                loader.style.display = 'flex';
+                iframe.style.display = 'none';
+                iframe.src = url;
+                iframe.onload = () => { loader.style.display = 'none'; iframe.style.display = 'block'; };
             }
-
-            loader.style.display = 'flex';
-            const iframe = document.createElement('iframe');
-            iframe.id = 'active-iframe';
-            iframe.className = 'full-screen-iframe';
-            iframe.src = url;
-            iframe.style.display = 'none';
-
-            iframe.onload = function() {
-                loader.style.display = 'none';
-                iframe.style.display = 'block';
-            };
-
-            wrapper.appendChild(iframe);
         }
 
         function closeApp() {
             document.getElementById('app-view').style.display = 'none';
             document.getElementById('launchpad-view').style.display = 'block';
-            const oldIframe = document.getElementById('active-iframe');
-            if(oldIframe) oldIframe.remove();
+            document.getElementById('active-iframe').src = ''; // Clear memory
         }
+
+        // --- NATIVE MASTER INSTRUMENT LOGIC (OFFLINE FIRST) ---
+        function loadNativeInstruments() {
+            // 1. Get from Local Storage instantly (Zero-second load)
+            const savedData = localStorage.getItem("tabreed_instruments_v1");
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                inventoryCache = parsed.data || [];
+                renderNativeTable(inventoryCache);
+            }
+            
+            // 2. Background Sync if online
+            if (navigator.onLine) { syncInstrumentData(true); }
+        }
+
+        async function syncInstrumentData(isBackground = false) {
+            if (!navigator.onLine) { alert("You are offline. Showing cached data."); return; }
+
+            const syncIcon = document.getElementById('sync-icon');
+            const syncText = document.getElementById('sync-text');
+            syncIcon.classList.add('fa-spin');
+            if(!isBackground) syncText.innerText = "Syncing...";
+
+            try {
+                // Fetch JSON from Google Apps Script
+                const response = await fetch(`${GAS_API_URL}?key=${GAS_SECRET}&api=true`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    localStorage.setItem("tabreed_instruments_v1", JSON.stringify(result)); // Save to memory
+                    inventoryCache = result.data;
+                    renderNativeTable(inventoryCache);
+                }
+            } catch (error) {
+                console.error("Sync Failed:", error);
+            } finally {
+                syncIcon.classList.remove('fa-spin');
+                syncText.innerText = "Sync";
+            }
+        }
+
+        function renderNativeTable(data) {
+            const tbody = document.getElementById('native-table-body');
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">No records found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td style="font-weight: 600;">${item.name || '-'}</td>
+                    <td><span class="native-tag">${item.location || 'Unknown'}</span></td>
+                    <td>${item.expiry || '-'}</td>
+                    <td style="font-size: 12px; color: var(--tile-subtext);">${item.updatedBy || 'System'}</td>
+                </tr>
+            `).join('');
+        }
+
+        function filterNativeTable() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = inventoryCache.filter(item => 
+                (item.name || "").toLowerCase().includes(term) || 
+                (item.location || "").toLowerCase().includes(term)
+            );
+            renderNativeTable(filtered);
+        }
+
+        // --- NETWORK LISTENER FOR OFFLINE BADGE ---
+        function updateNetworkStatus() {
+            const badge = document.getElementById('offline-badge');
+            if (!navigator.onLine) {
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+                if(document.getElementById('native-instrument-list').style.display === 'flex') {
+                    syncInstrumentData(true); // Auto sync when net comes back
+                }
+            }
+        }
+        window.addEventListener('online', updateNetworkStatus);
+        window.addEventListener('offline', updateNetworkStatus);
+        updateNetworkStatus(); // Check on load
 
         // PWA Install Script
         let deferredPrompt;
