@@ -4,441 +4,199 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#e4edf5">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Automation Hub">
-    
     <link rel="manifest" href="./manifest.json" />
     <link rel="apple-touch-icon" href="icon-192.png" />
-    
     <title>Automation & Control Hub</title>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* ======================================================== */
-        /* SAP FIORI INSPIRED THEME CSS                             */
-        /* ======================================================== */
-        :root {
-            --bg-color: #e4edf5; /* Classic SAP Light Blue/Grey */
-            --header-bg: #3f5161; /* SAP Header Dark */
-            --header-text: #ffffff;
-            --tile-bg: #ffffff;
-            --tile-text: #32363a;
-            --tile-subtext: #6a6d70;
-            --primary-blue: #0a6ed1; /* Tabreed / SAP Blue */
-            --hover-blue: #085caf;
-            --shadow: 0 1px 4px rgba(0,0,0,0.15);
-            --hover-shadow: 0 8px 16px rgba(10, 110, 209, 0.2);
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body, html {
-            width: 100%; height: 100%;
-            background-color: var(--bg-color);
-            overflow-x: hidden;
-        }
-
-        /* --- FIORI HEADER --- */
-        .fiori-header {
-            background-color: var(--header-bg);
-            color: var(--header-text);
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 16px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 1000;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo-img { width: 30px; height: 30px; border-radius: 4px; object-fit: contain; background: white; padding: 2px;}
-        .header-title { font-size: 16px; font-weight: 600; letter-spacing: 0.5px;}
-
-        .header-actions button {
-            background: transparent;
-            border: none;
-            color: var(--header-text);
-            font-size: 18px;
-            cursor: pointer;
-            margin-left: 15px;
-            transition: color 0.2s;
-        }
-        .header-actions button:hover { color: #8cb6ea; }
-
-        /* --- INSTALL BADGE (Eye-catching) --- */
-        .install-badge {
-            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
-            color: white;
-            border: none;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 114, 255, 0.4);
-            animation: pulse-glow 2s infinite;
-        }
-
-        @keyframes pulse-glow {
-            0% { box-shadow: 0 0 0 0 rgba(0, 114, 255, 0.4); }
-            70% { box-shadow: 0 0 0 8px rgba(0, 114, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(0, 114, 255, 0); }
-        }
-
-        /* --- MAIN LAUNCHPAD --- */
-        #launchpad-view {
-            padding: 70px 30px 40px;
-            height: 100%;
-            overflow-y: auto;
-            transition: opacity 0.4s ease;
-        }
-
-        .group-title {
-            font-size: 20px;
-            font-weight: 400;
-            color: var(--tile-text);
-            margin-bottom: 15px;
-            border-bottom: 1px solid #cdd4da;
-            padding-bottom: 8px;
-            margin-top: 10px;
-        }
-
-        /* --- TILE GRID --- */
-        .tile-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(176px, 176px));
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-
-        /* Responsive grid for mobile */
-        @media (max-width: 600px) {
-            #launchpad-view { padding: 60px 15px 30px; }
-            .tile-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        }
-
-        /* --- SAP STYLE TILE --- */
-        .tile {
-            background: var(--tile-bg);
-            border-radius: 4px;
-            height: 176px;
-            padding: 16px;
-            position: relative;
-            cursor: pointer;
-            box-shadow: var(--shadow);
-            border: 1px solid transparent;
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* Advance Coloring on Hover */
-        .tile:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--hover-shadow);
-            border-color: var(--primary-blue);
-        }
-
-        .tile::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-            background: transparent; transition: var(--transition);
-        }
-        .tile:hover::before {
-            background: linear-gradient(90deg, #0a6ed1, #00c6ff);
-        }
-
-        .tile-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--tile-text);
-            line-height: 1.2;
-            margin-bottom: 6px;
-            word-wrap: break-word;
-        }
-
-        .tile-subtitle {
-            font-size: 12px;
-            color: var(--tile-subtext);
-            font-weight: 400;
-        }
-
-        .tile-icon {
-            position: absolute;
-            bottom: 16px;
-            left: 16px;
-            font-size: 28px;
-            color: var(--primary-blue);
-            transition: var(--transition);
-        }
-
-        .tile:hover .tile-icon {
-            transform: scale(1.1);
-            color: #00c6ff;
-        }
-
-        .tile-status {
-            position: absolute;
-            bottom: 16px;
-            right: 16px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .status-ready { color: #2b7d2b; } /* SAP Green */
-        .status-dev { color: #bb0000; }   /* SAP Red */
-
-        /* --- APP CONTAINER (IFRAME VIEW) --- */
-        #app-view {
-            display: none;
-            width: 100%; height: 100%;
-            background: #fff;
-            position: absolute; top: 0; left: 0; z-index: 2000;
-            flex-direction: column;
-        }
-
-        .app-view-header {
-            height: 48px; background: var(--header-bg); color: white;
-            display: flex; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .back-btn {
-            background: none; border: none; color: white; font-size: 16px; cursor: pointer;
-            display: flex; align-items: center; gap: 8px; font-weight: 600; transition: color 0.2s;
-        }
-        .back-btn:hover { color: #8cb6ea; }
+        /* FIORI THEME CSS */
+        :root { --bg-color: #e4edf5; --header-bg: #3f5161; --header-text: #ffffff; --tile-bg: #ffffff; --tile-text: #32363a; --primary-blue: #0a6ed1; --shadow: 0 1px 4px rgba(0,0,0,0.15); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--bg-color); }
         
-        .active-app-title { margin-left: 20px; font-size: 16px; border-left: 1px solid rgba(255,255,255,0.3); padding-left: 20px;}
+        .fiori-header { background-color: var(--header-bg); color: white; height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .logo-img { width: 30px; height: 30px; border-radius: 4px; }
+        .install-badge { background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); color: white; border: none; padding: 5px 12px; border-radius: 20px; font-weight: 700; cursor: pointer; }
 
-        .iframe-container { flex: 1; width: 100%; position: relative; }
-        .full-screen-iframe { width: 100%; height: 100%; border: none; }
+        /* LAUNCHPAD */
+        #launchpad-view { padding: 70px 20px 40px; }
+        .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+        .tile { background: var(--tile-bg); padding: 16px; border-radius: 4px; box-shadow: var(--shadow); height: 140px; position: relative; cursor: pointer; transition: 0.3s; }
+        .tile:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); border-bottom: 3px solid var(--primary-blue); }
+        .tile-title { font-weight: 600; color: var(--tile-text); font-size: 15px; }
+        .tile-icon { position: absolute; bottom: 15px; left: 15px; font-size: 24px; color: var(--primary-blue); }
+        .status { position: absolute; bottom: 15px; right: 15px; font-size: 11px; font-weight: bold; color: #2b7d2b; }
 
-        /* Loader inside Iframe view */
-        .iframe-loader {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--primary-blue);
-        }
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid #cdd4da; border-top: 4px solid var(--primary-blue);
-            border-radius: 50%; animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* --- SMART INSTALL MODAL --- */
-        #pwa-modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center;
-        }
-        .pwa-content {
-            background: #fff; padding: 25px; border-radius: 8px; width: 85%; max-width: 350px;
-            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        .pwa-content h3 { margin-bottom: 15px; color: var(--tile-text); font-weight: 600;}
-        .pwa-content p { color: var(--tile-subtext); font-size: 14px; margin-bottom: 20px; line-height: 1.5;}
-        .pwa-close {
-            background: var(--primary-blue); color: white; border: none; padding: 10px 20px;
-            border-radius: 4px; font-weight: 600; cursor: pointer; width: 100%;
-        }
-
+        /* NATIVE APP VIEW (NO IFRAME) */
+        #app-view { display: none; padding-top: 50px; height: 100vh; overflow-y: auto; background: white; }
+        .app-header { display: flex; align-items: center; padding: 15px; background: #f2f7fa; border-bottom: 1px solid #cdd4da; position: sticky; top: 48px; z-index: 100; }
+        .back-btn { background: var(--primary-blue); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        
+        /* NATIVE TABLE CSS */
+        .table-container { padding: 15px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th { background: var(--header-bg); color: white; padding: 12px; text-align: left; font-size: 14px; }
+        td { padding: 12px; border-bottom: 1px solid #ddd; font-size: 14px; color: var(--tile-text); }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .tag { background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        
+        .loader-text { text-align: center; padding: 20px; color: var(--primary-blue); font-weight: bold; }
+        .offline-badge { background: #ea4335; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 10px; display: none; }
     </style>
 </head>
 <body>
 
     <header class="fiori-header">
-        <div class="header-left">
-            <i class="fas fa-bars" style="cursor: pointer; font-size: 18px; margin-right: 5px;"></i>
-            <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" alt="Logo" class="logo-img">
-            <span class="header-title">Home <i class="fas fa-angle-down" style="font-size: 12px; margin-left: 4px;"></i></span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" class="logo-img">
+            <strong>Home</strong> <span id="offline-indicator" class="offline-badge">OFFLINE</span>
         </div>
-        <div class="header-actions">
-            <button class="install-badge" onclick="startSmartInstall()" id="installBtn">
-                <i class="fas fa-download"></i> Install App
-            </button>
-            <button><i class="fas fa-search"></i></button>
-            <button><i class="fas fa-user-circle"></i></button>
-        </div>
+        <button class="install-badge" onclick="startSmartInstall()"><i class="fas fa-download"></i> Install</button>
     </header>
 
     <div id="launchpad-view">
-        
-        <h2 class="group-title">Automation & Control</h2>
+        <h2 style="margin-bottom:15px; color:var(--tile-text); font-weight:400; font-size:18px; border-bottom:1px solid #ccc; padding-bottom:5px;">Automation Tools</h2>
         <div class="tile-grid">
-            
-            <div class="tile" onclick="openApp('Master Instrument List', 'https://script.google.com/macros/s/AKfycbzh070iKhGTwOF69T92J3a3dFytqtayGqAFa2k1Cd75A-k8uL7I6IhIJh3yEPsQ6qZw0Q/exec?key=AI1')">
+            <div class="tile" onclick="openNativeApp('instruments')">
                 <div class="tile-title">Master Instrument List</div>
-                <div class="tile-subtitle">AI1 Database</div>
+                <div style="font-size:12px; color:#666;">Native API Mode</div>
                 <i class="fas fa-clipboard-list tile-icon"></i>
-                <div class="tile-status status-ready"><i class="fas fa-check-circle"></i> Online</div>
+                <div class="status"><i class="fas fa-bolt"></i> Fast</div>
             </div>
-
-            <div class="tile" onclick="openApp('PingLogger Ultimate', '#')">
-                <div class="tile-title">PingLogger Ultimate</div>
-                <div class="tile-subtitle">Network Monitor</div>
-                <i class="fas fa-network-wired tile-icon"></i>
-                <div class="tile-status status-ready"><i class="fas fa-check-circle"></i> Ready</div>
-            </div>
-
-            <div class="tile" onclick="openApp('Drawing Tool', 'https://draw.automation3000.com/?key=Dubai@123')">
-                <div class="tile-title">Drawing Hub</div>
-                <div class="tile-subtitle">Schematics & P&ID</div>
-                <i class="fas fa-pen-nib tile-icon"></i>
-                <div class="tile-status status-dev"><i class="fas fa-tools"></i> Dev</div>
-            </div>
-
-        </div>
-
-        <h2 class="group-title">Offline Tools & Sync</h2>
-        <div class="tile-grid">
             
-            <div class="tile" onclick="alert('Offline Queue System will be built natively here.')">
-                <div class="tile-title">Pending Syncs</div>
-                <div class="tile-subtitle">Data waiting for network</div>
-                <i class="fas fa-sync tile-icon" style="color: #6a6d70;"></i>
-                <div class="tile-status" style="color: #6a6d70;">0 Pending</div>
+            <div class="tile" onclick="alert('Drawing tool under construction')">
+                <div class="tile-title">Drawing Hub</div>
+                <i class="fas fa-pen-nib tile-icon"></i>
             </div>
-
-            <div class="tile" onclick="alert('Settings Panel')">
-                <div class="tile-title">App Settings</div>
-                <div class="tile-subtitle">Manage Cache & Data</div>
-                <i class="fas fa-cog tile-icon" style="color: #6a6d70;"></i>
-            </div>
-
         </div>
     </div>
 
     <div id="app-view">
-        <div class="app-view-header">
-            <button class="back-btn" onclick="closeApp()">
-                <i class="fas fa-arrow-left"></i> Back to Launchpad
-            </button>
-            <div class="active-app-title" id="activeAppTitle">App Name</div>
+        <div class="app-header">
+            <button class="back-btn" onclick="closeApp()"><i class="fas fa-arrow-left"></i> Back</button>
+            <h3 style="margin-left: 15px; color: var(--tile-text);">Master Instrument List</h3>
+            <button onclick="fetchDataFromAPI()" style="margin-left:auto; background:none; border:none; color:var(--primary-blue); font-size:18px; cursor:pointer;"><i class="fas fa-sync-alt"></i></button>
         </div>
-        <div class="iframe-container" id="iframeWrapper">
-            <div class="iframe-loader" id="appLoader">
-                <div class="spinner"></div>
-                <p style="font-weight: 600;">Loading Environment...</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="pwa-modal">
-        <div class="pwa-content">
-            <h3 id="pwa-modal-title">Install App</h3>
-            <p id="pwa-modal-text">Instructions generating...</p>
-            <button class="pwa-close" onclick="document.getElementById('pwa-modal').style.display='none'">Got it, Close</button>
+        
+        <div class="table-container">
+            <div id="table-loader" class="loader-text">Loading Data... Please wait.</div>
+            <table id="instrument-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Instrument</th>
+                        <th>Location</th>
+                        <th>Expiry</th>
+                        <th>Updated By</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // --- 1. SPA Navigation Logic ---
-        function openApp(appName, url) {
-            if(url === '#') {
-                alert(appName + " is currently running as a standalone desktop app or under development.");
-                return;
-            }
+        // YAHAN APNA LATEST APPS SCRIPT WEB APP URL DALEIN
+        const API_URL = "https://script.google.com/macros/s/AKfycbzh070iKhGTwOF69T92J3a3dFytqtayGqAFa2k1Cd75A-k8uL7I6IhIJh3yEPsQ6qZw0Q/exec";
+        const SECRET_KEY = "AI1";
 
-            // UI Transitions
+        // Navigation
+        function openNativeApp(appId) {
             document.getElementById('launchpad-view').style.display = 'none';
-            document.getElementById('app-view').style.display = 'flex';
-            document.getElementById('activeAppTitle').innerText = appName;
-            
-            const wrapper = document.getElementById('iframeWrapper');
-            const loader = document.getElementById('appLoader');
-            loader.style.display = 'flex';
-
-            // Clean previous iframe
-            const oldIframe = document.getElementById('active-iframe');
-            if(oldIframe) oldIframe.remove();
-
-            // Create new iframe
-            const iframe = document.createElement('iframe');
-            iframe.id = 'active-iframe';
-            iframe.className = 'full-screen-iframe';
-            iframe.src = url;
-            iframe.style.display = 'none';
-
-            // Hide loader when iframe loads
-            iframe.onload = function() {
-                loader.style.display = 'none';
-                iframe.style.display = 'block';
-            };
-
-            wrapper.appendChild(iframe);
+            document.getElementById('app-view').style.display = 'block';
+            if(appId === 'instruments') loadOfflineDataFirst();
         }
 
         function closeApp() {
             document.getElementById('app-view').style.display = 'none';
             document.getElementById('launchpad-view').style.display = 'block';
-            
-            // Destroy iframe to save memory
-            const oldIframe = document.getElementById('active-iframe');
-            if(oldIframe) oldIframe.remove();
         }
 
-        // --- 2. Smart PWA Install Logic (From previous code) ---
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
+        // --- THE MAGIC: OFFLINE FIRST LOGIC ---
+        function loadOfflineDataFirst() {
+            const table = document.getElementById('instrument-table');
+            const loader = document.getElementById('table-loader');
+            
+            // 1. Check Mobile Memory (localStorage)
+            const savedData = localStorage.getItem('tabreed_inventory');
+            if(savedData) {
+                renderTable(JSON.parse(savedData));
+                table.style.display = 'table';
+                loader.style.display = 'none';
+            } else {
+                table.style.display = 'none';
+                loader.style.display = 'block';
+            }
+
+            // 2. Fetch Fresh data in background (If online)
+            if(navigator.onLine) {
+                fetchDataFromAPI();
+            } else {
+                showOfflineBadge(true);
+            }
+        }
+
+        // Fetch from Google Apps Script API
+        async function fetchDataFromAPI() {
+            const loader = document.getElementById('table-loader');
+            if(!localStorage.getItem('tabreed_inventory')) loader.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_URL}?key=${SECRET_KEY}&action=getItems`);
+                const json = await response.json();
+                
+                if(json.success) {
+                    // Save to memory
+                    localStorage.setItem('tabreed_inventory', JSON.stringify(json.data));
+                    renderTable(json.data);
+                    document.getElementById('instrument-table').style.display = 'table';
+                    loader.style.display = 'none';
+                    showOfflineBadge(false);
+                } else {
+                    alert("API Error: " + json.error);
+                }
+            } catch(e) {
+                console.error("Fetch failed, you are likely offline.", e);
+                showOfflineBadge(true);
+            }
+        }
+
+        // Render Table HTML
+        function renderTable(dataArray) {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = dataArray.map(item => `
+                <tr>
+                    <td style="font-weight: 600;">${item.name}</td>
+                    <td><span class="tag">${item.location}</span></td>
+                    <td>${item.expiry || '-'}</td>
+                    <td style="font-size: 12px; color: #666;">${item.updatedBy || '-'}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Network Status Listeners
+        window.addEventListener('offline', () => showOfflineBadge(true));
+        window.addEventListener('online', () => {
+            showOfflineBadge(false);
+            fetchDataFromAPI(); // Auto sync when back online
         });
 
-        window.startSmartInstall = async function() {
-            const androidApkLink = "./Automation.apk"; // Update paths for GitHub Pages
-            const iosProfileLink = "./Automation.mobileconfig";
-            
-            const modal = document.getElementById('pwa-modal');
-            const modalTitle = document.getElementById('pwa-modal-title');
-            const modalText = document.getElementById('pwa-modal-text');
+        function showOfflineBadge(isOffline) {
+            document.getElementById('offline-indicator').style.display = isOffline ? 'inline-block' : 'none';
+        }
 
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            let os = "Desktop";
-            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) os = "iOS";
-            else if (/android/i.test(userAgent)) os = "Android";
+        // PWA Install Logic
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+        function startSmartInstall() {
+            if (deferredPrompt) { deferredPrompt.prompt(); }
+            else { alert('App is already installed or open in browser menu to install.'); }
+        }
 
-            if (os === "Android") {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if(outcome === 'accepted') deferredPrompt = null;
-                } else {
-                    modalTitle.innerText = "APK Download";
-                    modalText.innerHTML = "Downloading APK.<br><br>Tap <b>'Install'</b> when done. Allow unknown sources if asked.";
-                    modal.style.display = 'flex';
-                    // window.location.href = androidApkLink; 
-                }
-            } else if (os === "iOS") {
-                modalTitle.innerText = "iOS Profile Setup";
-                modalText.innerHTML = "1. Open <b>Settings</b>.<br>2. Tap <b>'Profile Downloaded'</b>.<br>3. Tap <b>Install</b>.";
-                modal.style.display = 'flex';
-                // window.location.href = iosProfileLink;
-            } else {
-                modalTitle.innerText = "Desktop Detected";
-                modalText.innerHTML = "This Fiori Dashboard can be installed as a desktop PWA. Check your address bar for the install icon ⊕.";
-                modal.style.display = 'flex';
-            }
-        };
-
-        // --- 3. Service Worker Registration ---
+        // Register Service Worker
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                // Ensure sw.js is created in your GitHub repo root
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Failed:', err));
-            });
+            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Failed', err));
         }
     </script>
 </body>
