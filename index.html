@@ -3,337 +3,501 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#3f5161">
+    <meta name="theme-color" content="#1a73e8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Automation Hub">
-    
     <link rel="manifest" href="./manifest.json" />
-    <link rel="apple-touch-icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" />
-    
-    <title>Automation & Control Hub</title>
-    
+    <title>TABREED</title>
+    <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
         /* ======================================================== */
-        /* 1. SAP FIORI THEME (FOR HOME DASHBOARD ONLY)             */
+        /* 1. SAP FIORI THEME (FOR HOME LAUNCHPAD ONLY)             */
         /* ======================================================== */
-        :root {
-            --bg-color: #e4edf5; --header-bg: #3f5161; --header-text: #ffffff;
-            --tile-bg: #ffffff; --tile-text: #32363a; --tile-subtext: #6a6d70;
-            --primary-blue: #0a6ed1; --shadow: 0 1px 4px rgba(0,0,0,0.15);
-            --hover-shadow: 0 8px 16px rgba(10, 110, 209, 0.2);
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body, html { width: 100%; height: 100%; background-color: var(--bg-color); overflow-x: hidden; }
-
-        .fiori-header { background-color: var(--header-bg); color: var(--header-text); height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: fixed; top: 0; width: 100%; z-index: 1000; }
-        .logo-img { width: 28px; height: 28px; border-radius: 4px; object-fit: contain; background: white; padding: 2px;}
-        .install-badge { background: transparent; color: white; border: none; padding: 5px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
-
-        #launchpad-view { padding: 70px 30px 40px; height: 100%; overflow-y: auto; }
-        .group-title { font-size: 18px; color: var(--tile-text); margin-bottom: 15px; border-bottom: 1px solid #cdd4da; padding-bottom: 8px; margin-top: 10px; }
+        #fiori-wrapper { background-color: #e4edf5; width: 100%; height: 100vh; overflow-y: auto; font-family: 'Segoe UI', Tahoma, sans-serif; display: block; }
+        .fiori-header { background-color: #3f5161; color: #ffffff; height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000; }
+        .fiori-logo-img { width: 28px; height: 28px; border-radius: 4px; background: white; padding: 2px;}
+        .fiori-install-badge { background: transparent; color: white; border: none; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        #launchpad-view { padding: 30px; }
+        .group-title { font-size: 18px; color: #32363a; margin-bottom: 15px; border-bottom: 1px solid #cdd4da; padding-bottom: 8px; }
         .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 176px)); gap: 12px; margin-bottom: 30px; }
-        @media (max-width: 600px) { #launchpad-view { padding: 60px 15px 30px; } .tile-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
-
-        .tile { background: var(--tile-bg); border-radius: 4px; height: 176px; padding: 16px; position: relative; cursor: pointer; box-shadow: var(--shadow); border: 1px solid transparent; transition: var(--transition); display: flex; flex-direction: column; overflow: hidden; }
-        .tile:hover { transform: translateY(-4px); box-shadow: var(--hover-shadow); border-color: var(--primary-blue); }
-        .tile::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: transparent; transition: var(--transition); }
+        @media (max-width: 600px) { #launchpad-view { padding: 20px 15px; } .tile-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+        .tile { background: #ffffff; border-radius: 4px; height: 176px; padding: 16px; position: relative; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.15); transition: all 0.3s; display: flex; flex-direction: column; overflow: hidden; border: 1px solid transparent; }
+        .tile:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(10, 110, 209, 0.2); border-color: #0a6ed1; }
+        .tile::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: transparent; transition: all 0.3s; }
         .tile:hover::before { background: linear-gradient(90deg, #0a6ed1, #00c6ff); }
-        .tile-title { font-size: 15px; font-weight: 600; color: var(--tile-text); margin-bottom: 6px; word-wrap: break-word; }
-        .tile-subtitle { font-size: 12px; color: var(--tile-subtext); }
-        .tile-icon { position: absolute; bottom: 16px; left: 16px; font-size: 24px; color: var(--primary-blue); transition: var(--transition); }
+        .tile-title { font-size: 15px; font-weight: 600; color: #32363a; margin-bottom: 6px; }
+        .tile-subtitle { font-size: 12px; color: #6a6d70; }
+        .tile-icon { position: absolute; bottom: 16px; left: 16px; font-size: 24px; color: #0a6ed1; transition: all 0.3s; }
         .tile:hover .tile-icon { transform: scale(1.1); color: #00c6ff; }
         .tile-status { position: absolute; bottom: 16px; right: 16px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; color: #2b7d2b;}
 
-        /* APP VIEW WRAPPER */
-        #app-view { display: none; width: 100%; height: 100vh; position: absolute; top: 0; left: 0; z-index: 2000; flex-direction: column; overflow-y: auto; }
+        /* ======================================================== */
+        /* 2. ORIGINAL PREMIUM THEME (APP CONTAINER)                */
+        /* ======================================================== */
+        #premium-wrapper { display: none; width: 100%; height: 100vh; overflow-y: auto; }
         
-        #fiori-app-header { height: 48px; background: var(--header-bg); color: white; display: flex; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        :root {
+            --primary: #1a73e8; --primary-dark: #0d62d9; --primary-light: #e8f0fe;
+            --secondary: #34a853; --warning: #f9ab00; --danger: #ea4335;
+            --dark: #202124; --light: #f8f9fa; --gray: #5f6368; --border: #dadce0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1); --radius: 12px; --radius-sm: 8px; --transition: all 0.3s ease;
+        }
+        .premium-body-bg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%); min-height: 100vh; color: var(--dark); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        .app-container { max-width: 1200px; margin: 0 auto; margin-bottom: 50px; display: flex; flex-direction: column; min-height: 100vh; }
+        .app-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
+        .header-content { display: flex; align-items: center; justify-content: space-between; }
+        .brand { display: flex; align-items: center; gap: 0.75rem; }
+        .logo { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid #e0e0e0; cursor:pointer;}
+        .connection-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f9ab00; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .search-container { padding: 1rem; margin: 1rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
+        .search-box { position: relative; }
+        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 16px; }
+        .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
+        .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
+        .action-btn { background: white; border: none; flex: 1; min-width: 80px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: 700; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); }
+        .stats-grid { display: flex; gap: 0.75rem; padding: 0 1rem; margin-bottom: 1rem; }
+        .stat-card { background: white; flex: 1; padding: 1.5rem 0.5rem; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 110px; }
+        .stat-card .number { font-size: 2rem; font-weight: 800; line-height: 1; margin-bottom: 8px; }
+        .stat-label { font-size: 0.85rem; font-weight: 600; color: var(--gray); }
+        .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .table-container { overflow-x: auto; }
+        .inventory-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
+        .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; z-index: 2000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
+        .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
+        .form-group input, .form-group select { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; }
+        .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
+        .btn-primary { flex: 1; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-secondary { flex: 1; padding: 1rem; background: var(--light); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; }
+
+        @media (max-width: 480px) {
+            .modal-overlay { padding: 0; }
+            .modal { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100vh !important; border-radius: 0 !important; margin: 0 !important; }
+            .modal-actions { flex-direction: column; padding-bottom: 30px; }
+            .quick-actions { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .toast-container { position: fixed; top: 1rem; right: 1rem; left: 1rem; z-index: 3000; }
+        .toast { background: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-left: 4px solid var(--primary); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        @media print {
+            .inventory-table { width: 100% !important; font-size: 10px !important; }
+            .inventory-table th, .inventory-table td { padding: 5px !important; }
+            .action-btn, button, .app-header { display: none !important; } 
+        }
+        
+        .skeleton-row td { padding: 1rem; border-bottom: 1px solid var(--border); }
+        .skeleton-cell { height: 20px; border-radius: 4px; background: #e0e0e0; animation: pulse-skeleton 1.5s infinite ease-in-out; }
+        @keyframes pulse-skeleton { 0% { background-color: #eee; } 50% { background-color: #d4d4d4; } 100% { background-color: #eee; } }
+
+        /* IFRAME SUPPORT FOR OTHER APPS */
+        .iframe-container { display:none; flex: 1; width: 100%; height:100vh; position: relative; background: #fff; }
+        .full-screen-iframe { width: 100%; height: 100%; border: none; }
+        .fiori-app-header { height: 48px; background: var(--header-bg); color: white; display: none; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .back-btn { background: none; border: none; color: white; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
-        .active-app-title { margin-left: 20px; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.3); padding-left: 20px;}
-
-        .iframe-container { flex: 1; width: 100%; background: #fff; position: relative; }
-        .full-screen-iframe { width: 100%; height: 100%; border: none; display: none; }
-        .iframe-loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--primary-blue); }
-        .spinner { width: 30px; height: 30px; border: 3px solid #cdd4da; border-top: 3px solid var(--primary-blue); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* ======================================================== */
-        /* 2. EXACT ORIGINAL THEME (FOR MASTER INSTRUMENT LIST)     */
-        /* ======================================================== */
-        .orig-theme-bg { background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%); min-height: 100vh; padding: 20px 15px; display: none; flex-direction: column; gap: 15px; }
-        .orig-container { max-width: 1200px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 15px; }
-        
-        .orig-header { background: rgba(255, 255, 255, 0.95); padding: 1rem 1.5rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .orig-logo { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid #e0e0e0; overflow: hidden;}
-        
-        .orig-search-box { background: white; padding: 1rem; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: relative; }
-        .orig-search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border: 2px solid #dadce0; border-radius: 12px; font-size: 16px; outline: none; box-sizing: border-box; }
-        .orig-search-box i { position: absolute; left: 2rem; top: 50%; transform: translateY(-50%); color: #5f6368; }
-
-        .orig-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
-        .orig-btn { background: white; border: none; flex: 1; min-width: 90px; padding: 0.8rem 0.4rem; border-radius: 12px; display: flex; flex-direction: column; align-items: center; font-size: 0.75rem; font-weight: 700; box-shadow: 0 2px 10px rgba(0,0,0,0.1); cursor: pointer; color: #202124; }
-        
-        .orig-table-wrapper { background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-x: auto; }
-        .orig-table { width: 100%; border-collapse: collapse; min-width: 700px; text-align: left; }
-        .orig-table th { background: #f8f9fa; padding: 1rem; font-size: 0.85rem; border-bottom: 2px solid #dadce0; color: #202124; }
-        .orig-table td { padding: 1rem; border-bottom: 1px solid #dadce0; font-size: 0.9rem; color: #202124; }
-        
-        .orig-tag { padding: 4px 10px; background: #e8f0fe; color: #1a73e8; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
-        .orig-update-btn { padding: 6px 16px; background: #1a73e8; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight:600; font-size:13px; }
-        
-        .orig-offline-badge { display: none; background: #ea4335; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; margin-left: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <header class="fiori-header" id="main-header">
-        <div class="header-left">
-            <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" class="logo-img">
-            <span class="header-title">Home</span>
-        </div>
-        <button class="install-badge" onclick="startSmartInstall()"><i class="fas fa-download"></i> Install App</button>
-    </header>
-
-    <div id="launchpad-view">
-        <h2 class="group-title">Automation & Control</h2>
-        <div class="tile-grid">
-            
-            <div class="tile" onclick="openApp('Master Instrument List', 'NATIVE_APP')">
-                <div class="tile-title">Master Instrument List</div>
-                <div class="tile-subtitle">AI1 Database</div>
-                <i class="fas fa-clipboard-list tile-icon"></i>
-                <div class="tile-status status-ready"><i class="fas fa-bolt"></i> Fast Offline</div>
+    <div id="fiori-wrapper">
+        <header class="fiori-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" class="fiori-logo-img">
+                <span style="font-size:15px; font-weight:600;">Home</span>
             </div>
+            <button class="fiori-install-badge" onclick="startSmartInstall()"><i class="fas fa-download"></i> Install App</button>
+        </header>
 
-            <div class="tile" onclick="openApp('PingLogger Ultimate', '#')">
-                <div class="tile-title">PingLogger Ultimate</div>
-                <div class="tile-subtitle">Network Monitor</div>
-                <i class="fas fa-network-wired tile-icon"></i>
-                <div class="tile-status status-ready"><i class="fas fa-check-circle"></i> Ready</div>
-            </div>
+        <div id="launchpad-view">
+            <h2 class="group-title">Automation & Control</h2>
+            <div class="tile-grid">
+                <div class="tile" onclick="openApp('NATIVE_INSTRUMENT')">
+                    <div class="tile-title">Master Instrument List</div>
+                    <div class="tile-subtitle">AI1 Database</div>
+                    <i class="fas fa-clipboard-list tile-icon"></i>
+                    <div class="tile-status status-ready"><i class="fas fa-bolt"></i> Native</div>
+                </div>
 
-            <div class="tile" onclick="openApp('Drawing Hub', 'https://draw.automation3000.com/?key=Dubai@123')">
-                <div class="tile-title">Drawing Hub</div>
-                <div class="tile-subtitle">Schematics & P&ID</div>
-                <i class="fas fa-pen-nib tile-icon"></i>
-                <div class="tile-status status-ready" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
+                <div class="tile" onclick="openApp('PingLogger Ultimate', '#')">
+                    <div class="tile-title">PingLogger Ultimate</div>
+                    <div class="tile-subtitle">Network Monitor</div>
+                    <i class="fas fa-network-wired tile-icon"></i>
+                    <div class="tile-status status-ready"><i class="fas fa-check-circle"></i> Ready</div>
+                </div>
+
+                <div class="tile" onclick="openApp('IFRAME', 'https://draw.automation3000.com/?key=Dubai@123')">
+                    <div class="tile-title">Drawing Hub</div>
+                    <div class="tile-subtitle">Schematics & P&ID</div>
+                    <i class="fas fa-pen-nib tile-icon"></i>
+                    <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="app-view">
-        
-        <div id="fiori-app-header">
-            <button class="back-btn" onclick="closeApp()"><i class="fas fa-arrow-left"></i> Back to Launchpad</button>
-            <div class="active-app-title" id="activeAppTitle">App Name</div>
-        </div>
+    <div id="fiori-iframe-header" class="fiori-app-header">
+        <button class="back-btn" onclick="closeApp()"><i class="fas fa-arrow-left"></i> Back to Launchpad</button>
+        <div style="margin-left: 20px; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.3); padding-left: 20px;">Drawing Hub</div>
+    </div>
+    <div id="iframeWrapper" class="iframe-container">
+        <iframe id="active-iframe" class="full-screen-iframe"></iframe>
+    </div>
 
-        <div class="iframe-container" id="iframeWrapper">
-            <div class="iframe-loader" id="appLoader">
-                <div class="spinner"></div><p style="font-weight: 600; margin-top:10px;">Loading...</p>
-            </div>
-            <iframe id="active-iframe" class="full-screen-iframe"></iframe>
-        </div>
-
-        <div id="native-instrument-list" class="orig-theme-bg">
-            <div class="orig-container">
-                
-                <div class="orig-header">
-                    <div style="display:flex; align-items:center; gap: 15px;">
-                        <button onclick="closeApp()" style="background:none; border:none; cursor:pointer; font-size:20px; color:#1a73e8;"><i class="fas fa-arrow-left"></i></button>
-                        <div class="orig-logo"><img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" style="width:100%;"></div>
-                        <div>
-                            <h1 style="font-size:1.1rem; margin:0; color:#202124;">TABREED : Master Instrument List AI1 <span id="orig-offline-badge" class="orig-offline-badge">OFFLINE</span></h1>
-                            <p style="font-size:0.7rem; color:#5f6368; margin:0;">Automation & Control Department</p>
+    <div id="premium-wrapper" class="premium-body-bg">
+        <div class="app-container">
+            <header class="app-header">
+                <div class="header-content">
+                    <div class="brand">
+                        <button onclick="closeApp()" style="background:none; border:none; cursor:pointer; font-size:20px; color:var(--primary); margin-right:10px;"><i class="fas fa-arrow-left"></i></button>
+                        <div class="logo" onclick="toggleDevName()" title="Developer details"><img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                        <div class="brand-text">
+                            <h1 style="font-size: 1.1rem; margin:0;">TABREED : Master Instrument List AI1</h1>
+                            <p id="dev-subtitle" style="font-size: 0.7rem; color: var(--gray); margin:0;">Automation & Control Department</p>
                         </div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:5px; font-size:0.8rem; color:#202124; font-weight:600;">
-                        <span id="orig-status-dot" style="width:8px; height:8px; background:#34a853; border-radius:50%;"></span> <span id="orig-status-text">Online</span>
+                    <div class="connection-status" id="connectionStatus">
+                        <span class="status-dot"></span><span class="status-text">Wait...</span>
                     </div>
                 </div>
+            </header>
 
-                <div class="orig-search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search instrument or location..." oninput="filterOrigTable()">
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search instrument or location...">
                 </div>
+            </div>
 
-                <div class="orig-actions">
-                    <button class="orig-btn" onclick="syncInstrumentData()"><i class="fas fa-sync-alt" id="sync-icon" style="color: #1a73e8; font-size:16px; margin-bottom: 5px;"></i><span id="sync-text">Refresh</span></button>
-                    
-                    <div class="orig-btn" style="padding: 0;">
-                        <i class="fas fa-filter" style="color: #34a853; font-size:16px; margin-top: 8px;"></i>
-                        <select id="origLocationFilter" onchange="filterOrigLocation(this.value)" style="width: 100%; border: none; background: transparent; font-size: 0.75rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0; outline:none;">
-                            <option value="ALL">All Locations</option>
-                        </select>
-                    </div>
-
-                    <button class="orig-btn" onclick="alert('Update Modal will be restored soon!')"><i class="fas fa-plus-circle" style="color: #6200ee; font-size:16px; margin-bottom: 5px;"></i><span>Add Entry</span></button>
-                    <button class="orig-btn" onclick="alert('Stats View active!')"><i class="fas fa-chart-pie" style="color: #f9ab00; font-size:16px; margin-bottom: 5px;"></i><span>Stats</span></button>
-                    <button class="orig-btn" onclick="alert('History Log loading...')"><i class="fas fa-history" style="color: #673ab7; font-size:16px; margin-bottom: 5px;"></i><span>View History</span></button>
-                    <button class="orig-btn" onclick="alert('Generating PDF...')"><i class="fas fa-file-pdf" style="color: #202124; font-size:16px; margin-bottom: 5px;"></i><span>Download PDF</span></button>
+            <div class="quick-actions">
+                <button class="action-btn" onclick="loadInventory()"><i class="fas fa-sync-alt" style="color: var(--primary); margin-bottom: 5px;"></i><span>Refresh</span></button>
+                <div class="action-btn" style="padding: 0;">
+                    <i class="fas fa-filter" style="color: var(--secondary); margin-top: 8px;"></i>
+                    <select id="locationFilter" onchange="filterByLocation(this.value)" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0;">
+                        <option value="ALL">All Locations</option>
+                    </select>
                 </div>
+                <button class="action-btn" onclick="openAddModal()"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
+                <button class="action-btn" onclick="showStats()"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
+                <button class="action-btn" onclick="showHistoryPage()"><i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i><span>View History</span></button>
+                <button class="action-btn" onclick="exportData()"><i class="fas fa-file-pdf" style="color: var(--dark); margin-bottom: 5px;"></i><span>Download PDF</span></button>
+            </div>
 
-                <div class="orig-table-wrapper">
-                    <table class="orig-table">
-                        <thead>
-                            <tr>
-                                <th>Instrument</th>
-                                <th>Location</th>
-                                <th>Action</th>
-                                <th>Expiry</th>
-                                <th>Updated By</th>
-                            </tr>
-                        </thead>
-                        <tbody id="orig-table-body">
-                            <tr><td colspan="5" style="text-align:center; padding: 20px;">Fetching Data...</td></tr>
-                        </tbody>
+            <div class="stats-grid" style="display: none;">
+                <div class="stat-card" style="display: none;"><div class="number" id="totalItems">0</div><div class="stat-label">Total Items</div></div>
+                <div class="stat-card"><div class="number" id="warningItems">0</div><div class="stat-label">Expiring Soon</div></div>
+            </div>
+
+            <section class="inventory-section">
+                <div class="table-container">
+                    <table class="inventory-table">
+                        <thead><tr><th>Instrument</th><th>Location</th><th>Action</th><th>Expiry</th><th>Updated By</th></tr></thead>
+                        <tbody id="tableBody"></tbody>
                     </table>
                 </div>
+            </section>
+        </div>
 
+        <div class="modal-overlay" id="updateModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3><i class="fas fa-edit"></i> Update Instrument Location & Details</h3>
+                    <span onclick="closeModal()" style="cursor:pointer; font-size: 1.5rem;">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group"><label>Instrument Name</label><input type="text" id="modalItemName" readonly style="background: #eee;"></div>
+                    <div class="form-group">
+                        <label>Current Location *</label>
+                        <select id="modalLocation" onchange="handleLocationChange(this.value)"></select>
+                        <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px; border-color: var(--secondary);">
+                        <small id="locationHint" style="display:none; color: var(--secondary);">Typing new location...</small>
+                    </div>
+                    <div class="form-group"><label>Expiry Date (Optional)</label><input type="date" id="modalExpiry" style="cursor: pointer;"><small style="color: var(--gray); font-size: 0.7rem;">Select date from the calendar</small></div>
+                    <div class="form-group"><label>Updated By *</label><input type="text" id="modalUpdatedBy" placeholder="Your Name"></div>
+                    <div class="modal-actions">
+                        <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
+                        <button class="btn-secondary" onclick="closeModal()">CANCEL</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="historyPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:5000; overflow-y:auto;">
+            <header class="app-header">
+                <div class="header-content">
+                    <div class="brand">
+                        <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px;"><i class="fas fa-arrow-left fa-lg"></i></button>
+                        <h1 style="font-size: 1.1rem; margin:0;">Update History</h1>
+                    </div>
+                    <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;"><i class="fas fa-sync-alt"></i></button>
+                </div>
+            </header>
+            <div class="search-container"><div class="search-box"><i class="fas fa-search search-icon"></i><input type="text" id="historySearch" placeholder="Filter history by tag or user..." oninput="filterHistory()"></div></div>
+            <div class="table-container" style="padding:10px;">
+                <table class="inventory-table">
+                    <thead><tr><th>Date & Time</th><th>Instrument</th><th>From Location</th><th>To Location</th><th>Updated By</th></tr></thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
 
+    <div class="toast-container" id="toastContainer"></div>
+
     <script>
-        // LATEST GAS API URL
+        // LATEST GOOGLE SCRIPT URL FOR GITHUB API
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw0nKm-j24HwBwVd2u9ji3gqEtQ7j2dtQZmqEd0oA15mmB7nHMtGYOgUfhMrL7TjEc8cQ/exec";
-        const GAS_SECRET = "AI1";
-        let inventoryCache = [];
-
+        
         // --- NAVIGATION LOGIC ---
-        function openApp(appName, url) {
-            if(url === '#') { alert(appName + " runs as a desktop tool."); return; }
-
-            document.getElementById('launchpad-view').style.display = 'none';
-            document.getElementById('main-header').style.display = 'none';
-            document.getElementById('app-view').style.display = 'flex';
-            
-            const iframeWrapper = document.getElementById('iframeWrapper');
-            const nativeWrapper = document.getElementById('native-instrument-list');
-            const fioriHeader = document.getElementById('fiori-app-header');
-
-            if(url === 'NATIVE_APP') {
-                fioriHeader.style.display = 'none'; // Hide Dark Header
-                iframeWrapper.style.display = 'none';
-                nativeWrapper.style.display = 'flex'; // Show Premium Theme
-                document.getElementById('app-view').style.background = 'transparent';
-                loadNativeInstruments(); 
+        function openApp(type, url) {
+            document.getElementById('fiori-wrapper').style.display = 'none';
+            if(type === 'NATIVE_INSTRUMENT') {
+                document.getElementById('premium-wrapper').style.display = 'block';
+                loadInventory();
+            } else if (type === 'IFRAME') {
+                document.getElementById('fiori-iframe-header').style.display = 'flex';
+                document.getElementById('iframeWrapper').style.display = 'block';
+                document.getElementById('active-iframe').src = url;
             } else {
-                fioriHeader.style.display = 'flex'; // Show Dark Header
-                nativeWrapper.style.display = 'none';
-                iframeWrapper.style.display = 'block';
-                document.getElementById('activeAppTitle').innerText = appName;
-                document.getElementById('app-view').style.background = 'var(--bg-color)';
-                
-                const iframe = document.getElementById('active-iframe');
-                if(!navigator.onLine) { alert("Iframe apps require an internet connection."); return; }
-                iframe.src = url;
-                iframe.onload = () => { iframe.style.display = 'block'; document.getElementById('appLoader').style.display='none'; };
+                alert("This app is currently running as a standalone desktop app or under development.");
+                document.getElementById('fiori-wrapper').style.display = 'block';
             }
         }
-
         function closeApp() {
-            document.getElementById('app-view').style.display = 'none';
-            document.getElementById('launchpad-view').style.display = 'block';
-            document.getElementById('main-header').style.display = 'flex';
-            document.getElementById('active-iframe').src = ''; 
+            document.getElementById('premium-wrapper').style.display = 'none';
+            document.getElementById('fiori-iframe-header').style.display = 'none';
+            document.getElementById('iframeWrapper').style.display = 'none';
+            document.getElementById('active-iframe').src = '';
+            document.getElementById('fiori-wrapper').style.display = 'block';
         }
 
-        // --- NATIVE MASTER INSTRUMENT LOGIC (OFFLINE FIRST) ---
-        function loadNativeInstruments() {
-            const savedData = localStorage.getItem("tabreed_instruments_v1");
-            if (savedData) {
-                const parsed = JSON.parse(savedData);
-                inventoryCache = parsed.data || [];
-                renderOrigTable(inventoryCache);
-                updateLocationsDropdown(inventoryCache);
+        // --- ALL ORIGINAL JAVASCRIPT FUNCTIONS (CONVERTED TO FETCH FOR GITHUB) ---
+        let inventoryData = []; let locations = []; let currentItem = null; let fullHistoryData = []; let isEditMode = false;
+
+        document.addEventListener('DOMContentLoaded', () => { setupSearch(); });
+
+        function loadInventory() {
+            const tbody = document.getElementById('tableBody');
+            const savedDataStr = localStorage.getItem("localTabreedInventory");
+            
+            if (savedDataStr) {
+                const res = JSON.parse(savedDataStr);
+                inventoryData = res.data; locations = res.locations;
+                document.getElementById('totalItems').textContent = res.totalItems;
+                document.getElementById('warningItems').textContent = res.stats.warningItems;
+                updateLocationsDropdown(); renderTable(inventoryData); updateStatus(navigator.onLine);
+            } else {
+                let skeletonHTML = '';
+                for(let i = 0; i < 6; i++) { skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 85%;"></div></td><td><div class="skeleton-cell" style="width: 60%; border-radius: 12px;"></div></td><td><div class="skeleton-cell" style="width: 60px; height: 32px;"></div></td><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 50%;"></div></td></tr>`; }
+                tbody.innerHTML = skeletonHTML;
             }
-            if (navigator.onLine) { syncInstrumentData(true); }
-            updateNetworkUI();
+
+            if(navigator.onLine) {
+                fetch(`${GAS_API_URL}?key=AI1&action=getItems`).then(r => r.json()).then(res => {
+                    if(res.success) {
+                        localStorage.setItem("localTabreedInventory", JSON.stringify(res));
+                        inventoryData = res.data; locations = res.locations;
+                        document.getElementById('totalItems').textContent = res.totalItems; document.getElementById('warningItems').textContent = res.stats.warningItems;
+                        updateLocationsDropdown(); renderTable(inventoryData); updateStatus(true);
+                    }
+                }).catch(e => { updateStatus(false); });
+            } else { updateStatus(false); }
         }
 
-        async function syncInstrumentData(isBackground = false) {
-            if (!navigator.onLine) { alert("You are offline. Data fetched from phone memory."); return; }
-
-            const syncIcon = document.getElementById('sync-icon');
-            const syncText = document.getElementById('sync-text');
-            syncIcon.classList.add('fa-spin');
-            if(!isBackground) syncText.innerText = "Syncing...";
-
-            try {
-                const response = await fetch(`${GAS_API_URL}?key=${GAS_SECRET}&api=true`);
-                const result = await response.json();
-                
-                if (result.success && result.data) {
-                    localStorage.setItem("tabreed_instruments_v1", JSON.stringify(result));
-                    inventoryCache = result.data;
-                    renderOrigTable(inventoryCache);
-                    updateLocationsDropdown(inventoryCache);
-                } else {
-                    if(!isBackground) alert("API Error: " + (result.error || "Unknown Error"));
-                }
-            } catch (error) {
-                console.error("Sync Failed:", error);
-            } finally {
-                syncIcon.classList.remove('fa-spin');
-                syncText.innerText = "Refresh";
-            }
-        }
-
-        function renderOrigTable(data) {
-            const tbody = document.getElementById('orig-table-body');
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px;">No records found. Hit Refresh.</td></tr>`;
-                return;
-            }
-
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
             tbody.innerHTML = data.map(item => `
                 <tr>
-                    <td style="font-weight: 600;">${item.name || '-'}</td>
-                    <td><span class="orig-tag">${item.location || 'Unknown'}</span></td>
-                    <td><button class="orig-update-btn" onclick="alert('Update tool for ${item.name} will open here.')">Update</button></td>
-                    <td>${item.expiry || '-'}</td>
-                    <td style="font-size: 12px; color: #5f6368;">${item.updatedBy || 'System'}</td>
+                    <td style="font-weight:600;">${item.name}</td>
+                    <td><span class="location-tag">${item.location}</span></td>
+                    <td><button onclick="openUpdateModal('${item.name}','${item.location}','${item.expiry}')" style="padding:6px 12px; background:var(--primary); color:white; border:none; border-radius:4px;">Update</button></td>
+                    <td style="font-size:0.8rem;">${item.expiry || '-'}</td>
+                    <td style="font-size:0.8rem; color:var(--gray);">${item.updatedBy || '-'}</td>
                 </tr>
             `).join('');
         }
 
-        function updateLocationsDropdown(data) {
-            const locations = [...new Set(data.map(item => item.location).filter(Boolean))].sort();
-            const select = document.getElementById('origLocationFilter');
-            select.innerHTML = `<option value="ALL">All Locations</option>` + locations.map(loc => `<option value="${loc}">${loc}</option>`).join('');
+        let isFullNameShowing = false; let logoClickCount = 0; let clickTimer;
+        function toggleDevName() {
+            const subtitle = document.getElementById('dev-subtitle');
+            logoClickCount++;
+            clearTimeout(clickTimer); 
+            if (logoClickCount >= 6) {
+                showToast('⚙️ Developer Mode: Hard Resetting System...', 'warning');
+                localStorage.removeItem("localTabreedInventory"); localStorage.removeItem("localTabreedHistory");
+                fetch(`${GAS_API_URL}?key=AI1&action=clearCache`).then(() => window.location.reload());
+                logoClickCount = 0; return;
+            }
+            clickTimer = setTimeout(() => { logoClickCount = 0; }, 500); 
+            subtitle.style.opacity = '0';
+            setTimeout(() => {
+                if (!isFullNameShowing) { subtitle.innerHTML = 'Developed by <strong>Abdul Majeed Ansari [ 41764 ]</strong>'; isFullNameShowing = true; } 
+                else { subtitle.innerHTML = 'Automation & Control Department'; isFullNameShowing = false; }
+                subtitle.style.opacity = '1';
+            }, 150); 
         }
 
-        function filterOrigTable() {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = inventoryCache.filter(item => (item.name || "").toLowerCase().includes(term) || (item.location || "").toLowerCase().includes(term));
-            renderOrigTable(filtered);
+        function setupSearch() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase();
+                const selectedLoc = document.getElementById('locationFilter').value;
+                const filtered = inventoryData.filter(i => {
+                    const matchesSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term);
+                    const matchesLoc = selectedLoc === "ALL" || i.location === selectedLoc;
+                    return matchesSearch && matchesLoc;
+                });
+                renderTable(filtered);
+            });
         }
 
-        function filterOrigLocation(loc) {
-            if (loc === "ALL") { renderOrigTable(inventoryCache); } 
-            else { renderOrigTable(inventoryCache.filter(item => item.location === loc)); }
+        function filterByLocation(selectedLoc) {
+            if (selectedLoc === "ALL") { renderTable(inventoryData); } else { renderTable(inventoryData.filter(item => item.location === selectedLoc)); }
+            showToast(`Filtering: ${selectedLoc}`, 'success');
         }
 
-        function updateNetworkUI() {
-            const isOffline = !navigator.onLine;
-            document.getElementById('orig-offline-badge').style.display = isOffline ? 'inline-block' : 'none';
-            document.getElementById('orig-status-dot').style.background = isOffline ? '#ea4335' : '#34a853';
-            document.getElementById('orig-status-text').innerText = isOffline ? 'Offline' : 'Online';
+        function openAddModal() {
+            isEditMode = false; currentItem = null;
+            document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument';
+            document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'white';
+            document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = '';
+            document.getElementById('updateModal').classList.add('active');
         }
 
-        window.addEventListener('online', () => { updateNetworkUI(); if(document.getElementById('native-instrument-list').style.display === 'flex') syncInstrumentData(true); });
-        window.addEventListener('offline', updateNetworkUI);
+        function openUpdateModal(name, loc, exp) {
+            isEditMode = true; currentItem = name;
+            document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Details';
+            document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee';
+            document.getElementById('modalLocation').value = loc;
+            if (exp && exp !== 'null' && exp !== '-' && exp !== 'undefined') { const parts = exp.split('.'); if (parts.length === 3) { document.getElementById('modalExpiry').value = `${parts[2]}-${parts[1]}-${parts[0]}`; } } else { document.getElementById('modalExpiry').value = ''; }
+            document.getElementById('modalUpdatedBy').value = ''; document.getElementById('updateModal').classList.add('active'); document.body.style.overflow = 'hidden';
+        }
 
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
-        function startSmartInstall() { if (deferredPrompt) { deferredPrompt.prompt(); } else { alert('App installed/Open in Safari menu.'); } }
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(e => console.log(e)); }
+        function closeModal() {
+            document.getElementById('modalLocation').style.display = 'block'; document.getElementById('customLocation').style.display = 'none'; document.getElementById('customLocation').value = '';
+            document.getElementById('locationHint').style.display = 'none'; document.getElementById('updateModal').classList.remove('active'); document.body.style.overflow = 'auto'; document.getElementById('modalExpiry').value = '';
+        }
+
+        function updateLocationsDropdown() {
+            const modalSelect = document.getElementById('modalLocation');
+            let modalOptions = locations.map(l => `<option value="${l}">${l}</option>`).join('');
+            modalOptions += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`;
+            modalSelect.innerHTML = modalOptions;
+            const filterSelect = document.getElementById('locationFilter');
+            let filterOptions = `<option value="ALL">All Locations</option>`; filterOptions += locations.map(l => `<option value="${l}">${l}</option>`).join('');
+            filterSelect.innerHTML = filterOptions;
+        }
+
+        function handleLocationChange(value) {
+            const customInput = document.getElementById('customLocation'); const hint = document.getElementById('locationHint');
+            if(value === "NOT_LISTED") { document.getElementById('modalLocation').style.display = 'none'; customInput.style.display = 'block'; hint.style.display = 'block'; customInput.focus(); } 
+            else { customInput.style.display = 'none'; hint.style.display = 'none'; }
+        }
+
+        function submitUpdate() {
+            if(!navigator.onLine) { return showToast("You are offline. Cannot save changes.", "error"); }
+            
+            const name = document.getElementById('modalItemName').value;
+            let loc = document.getElementById('modalLocation').value;
+            const customLoc = document.getElementById('customLocation').value;
+            if(loc === "NOT_LISTED") { if(!customLoc) return showToast('Please type the new location name', 'error'); loc = customLoc; }
+            
+            let exp = document.getElementById('modalExpiry').value; 
+            if (exp) { const d = new Date(exp); exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`; }
+            const user = document.getElementById('modalUpdatedBy').value;
+            if(!name || !user) return showToast('Name and Updated By are required!', 'error');
+
+            const btn = document.getElementById('submitUpdateBtn'); btn.disabled = true; btn.textContent = 'Processing...';
+
+            let url = `${GAS_API_URL}?key=AI1&action=${isEditMode ? 'update' : 'add'}&itemName=${encodeURIComponent(currentItem || '')}&name=${encodeURIComponent(name)}&location=${encodeURIComponent(loc)}&newLocation=${encodeURIComponent(loc)}&expiry=${encodeURIComponent(exp)}&newExpiry=${encodeURIComponent(exp)}&user=${encodeURIComponent(user)}&updatedBy=${encodeURIComponent(user)}`;
+
+            fetch(url).then(r => r.json()).then(res => {
+                btn.disabled = false; btn.textContent = 'SAVE CHANGES';
+                if(res.success) { showToast('Saved Successfully!', 'success'); closeModal(); loadInventory(); } 
+                else { showToast(res.error, 'error'); }
+            }).catch(e => { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; showToast('Network Error', 'error'); });
+        }
+
+        function showToast(msg, type) {
+            const container = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = 'toast';
+            t.style.borderLeftColor = type === 'success' ? 'var(--secondary)' : 'var(--danger)';
+            t.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> <span>${msg}</span>`;
+            container.appendChild(t); setTimeout(() => t.remove(), 3000);
+        }
+
+        function updateStatus(online) {
+            const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335';
+            document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline';
+        }
+        window.addEventListener('online', () => updateStatus(true)); window.addEventListener('offline', () => updateStatus(false));
+
+        function showStats() { showToast(`Current Inventory: ${inventoryData.length} items across ${locations.length} Locations.`, 'success'); }
+        
+        function exportData() {
+            showToast('Preparing PDF Engine...', 'success');
+            if (typeof html2pdf === 'undefined') {
+                const script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+                script.onload = () => generatePDF(); document.body.appendChild(script);
+            } else { generatePDF(); }
+        }
+
+        function generatePDF() {
+            const element = document.querySelector('.inventory-section'); 
+            const now = new Date(); const fileName = `List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}_${now.getHours()}-${now.getMinutes()}.pdf`;
+            const opt = { margin: [10, 10, 10, 10], filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+            showToast('Generating PDF...', 'success');
+            html2pdf().set(opt).from(element).save().then(() => showToast('PDF Downloaded!', 'success')).catch(err => { showToast('PDF Export Failed', 'error'); });
+        }
+
+        function showHistoryPage() { document.getElementById('historyPage').style.display = 'block'; document.body.style.overflow = 'hidden'; loadHistoryData(); }
+        function closeHistoryPage() { document.getElementById('historyPage').style.display = 'none'; document.body.style.overflow = 'auto'; }
+
+        function loadHistoryData() {
+            const tbody = document.getElementById('historyTableBody');
+            const savedHistoryStr = localStorage.getItem("localTabreedHistory");
+            
+            if (savedHistoryStr) {
+                const res = JSON.parse(savedHistoryStr); fullHistoryData = res.data; renderHistoryTable(res.data);
+            } else {
+                let skeletonHTML = '';
+                for(let i = 0; i < 5; i++) { skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 80%;"></div></td><td><div class="skeleton-cell" style="width: 90%;"></div></td><td><div class="skeleton-cell" style="width: 70%; border-radius: 12px;"></div></td><td><div class="skeleton-cell" style="width: 70%; border-radius: 12px;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td></tr>`; }
+                tbody.innerHTML = skeletonHTML;
+            }
+            
+            if(navigator.onLine) {
+                fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => {
+                    if(res.success) { localStorage.setItem("localTabreedHistory", JSON.stringify(res)); fullHistoryData = res.data; renderHistoryTable(res.data); }
+                }).catch(e => console.error("History fetch error", e));
+            }
+        }
+
+        function renderHistoryTable(data) {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${log.time}</td><td style="font-weight:600;">${log.item}</td><td><span class="location-tag" style="background:#f0f0f0; color:#666;">${log.oldLoc}</span></td><td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${log.newLoc}</span></td><td style="font-size:0.8rem;">${log.user}</td></tr>`).join('');
+        }
+
+        function filterHistory() {
+            const term = document.getElementById('historySearch').value.toLowerCase();
+            const filtered = fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term) || (log.oldLoc || "").toLowerCase().includes(term) || (log.newLoc || "").toLowerCase().includes(term));
+            renderHistoryTable(filtered);
+        }
+
+        // --- PWA INSTALLATION ---
+        let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+        function startSmartInstall() { if (deferredPrompt) { deferredPrompt.prompt(); } else { alert('App is already installed, or use your browser menu to "Add to Home Screen".'); } }
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Failed', err)); }
     </script>
 </body>
 </html>
