@@ -14,7 +14,7 @@
     
     <style>
         /* ======================================================== */
-        /* 1. SAP FIORI THEME (FOR HOME LAUNCHPAD ONLY)             */
+        /* 1. SAP FIORI LAUNCHPAD THEME                             */
         /* ======================================================== */
         #fiori-wrapper { background-color: #e4edf5; width: 100%; height: 100vh; overflow-y: auto; font-family: 'Segoe UI', Tahoma, sans-serif; display: block; }
         .fiori-header { background-color: #3f5161; color: #ffffff; height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000; }
@@ -46,31 +46,36 @@
             --shadow: 0 2px 10px rgba(0,0,0,0.1); --radius: 12px; --radius-sm: 8px; --transition: all 0.3s ease;
         }
         .premium-body-bg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%); min-height: 100vh; color: var(--dark); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
-        .app-container { max-width: 1200px; margin: 0 auto; margin-bottom: 50px; display: flex; flex-direction: column; min-height: 100vh; }
-        .app-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
+        .app-container { max-width: 1200px; margin: 0 auto; margin-bottom: 50px; display: flex; flex-direction: column; padding: 15px; gap: 15px; }
+        
+        .app-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow); position: sticky; top: 15px; z-index: 1000; }
         .header-content { display: flex; align-items: center; justify-content: space-between; }
         .brand { display: flex; align-items: center; gap: 0.75rem; }
         .logo { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid #e0e0e0; cursor:pointer;}
-        .connection-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; }
+        .connection-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight:600; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f9ab00; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .search-container { padding: 1rem; margin: 1rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
+        
+        .search-container { padding: 1rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
         .search-box { position: relative; }
-        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 16px; }
+        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 16px; outline: none; }
         .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
-        .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
+        
+        .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
         .action-btn { background: white; border: none; flex: 1; min-width: 80px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: 700; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); }
-        .stats-grid { display: flex; gap: 0.75rem; padding: 0 1rem; margin-bottom: 1rem; }
+        .stats-grid { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
         .stat-card { background: white; flex: 1; padding: 1.5rem 0.5rem; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 110px; }
         .stat-card .number { font-size: 2rem; font-weight: 800; line-height: 1; margin-bottom: 8px; }
         .stat-label { font-size: 0.85rem; font-weight: 600; color: var(--gray); }
-        .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        
+        .inventory-section { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
         .table-container { overflow-x: auto; }
         .inventory-table { width: 100%; border-collapse: collapse; min-width: 500px; }
         .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
         .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
         .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
         
+        /* Modals & Toasts */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; z-index: 2000; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
         .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
@@ -78,27 +83,14 @@
         .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; }
         .form-group { margin-bottom: 1.2rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
-        .form-group input, .form-group select { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; }
+        .form-group input, .form-group select { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; outline:none;}
         .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
         .btn-primary { flex: 1; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
         .btn-secondary { flex: 1; padding: 1rem; background: var(--light); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; }
 
-        @media (max-width: 480px) {
-            .modal-overlay { padding: 0; }
-            .modal { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100vh !important; border-radius: 0 !important; margin: 0 !important; }
-            .modal-actions { flex-direction: column; padding-bottom: 30px; }
-            .quick-actions { grid-template-columns: repeat(2, 1fr); }
-        }
-
         .toast-container { position: fixed; top: 1rem; right: 1rem; left: 1rem; z-index: 3000; }
         .toast { background: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-left: 4px solid var(--primary); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; }
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        @media print {
-            .inventory-table { width: 100% !important; font-size: 10px !important; }
-            .inventory-table th, .inventory-table td { padding: 5px !important; }
-            .action-btn, button, .app-header { display: none !important; } 
-        }
         
         .skeleton-row td { padding: 1rem; border-bottom: 1px solid var(--border); }
         .skeleton-cell { height: 20px; border-radius: 4px; background: #e0e0e0; animation: pulse-skeleton 1.5s infinite ease-in-out; }
@@ -107,8 +99,9 @@
         /* IFRAME SUPPORT FOR OTHER APPS */
         .iframe-container { display:none; flex: 1; width: 100%; height:100vh; position: relative; background: #fff; }
         .full-screen-iframe { width: 100%; height: 100%; border: none; }
-        .fiori-app-header { height: 48px; background: var(--header-bg); color: white; display: none; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .fiori-app-header { height: 48px; background: #3f5161; color: white; display: none; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .back-btn { background: none; border: none; color: white; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        .offline-queue-badge { background: #bb0000; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; display: none; margin-left: 10px; }
     </style>
 </head>
 <body>
@@ -129,7 +122,7 @@
                     <div class="tile-title">Master Instrument List</div>
                     <div class="tile-subtitle">AI1 Database</div>
                     <i class="fas fa-clipboard-list tile-icon"></i>
-                    <div class="tile-status status-ready"><i class="fas fa-bolt"></i> Native</div>
+                    <div class="tile-status status-ready"><i class="fas fa-bolt"></i> Fast Offline</div>
                 </div>
 
                 <div class="tile" onclick="openApp('PingLogger Ultimate', '#')">
@@ -144,6 +137,16 @@
                     <div class="tile-subtitle">Schematics & P&ID</div>
                     <i class="fas fa-pen-nib tile-icon"></i>
                     <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
+                </div>
+            </div>
+
+            <h2 class="group-title">Offline Tools & Sync</h2>
+            <div class="tile-grid">
+                <div class="tile" onclick="processSyncQueue(true)">
+                    <div class="tile-title">Pending Syncs</div>
+                    <div class="tile-subtitle">Data waiting for network</div>
+                    <i class="fas fa-sync tile-icon" style="color: #6a6d70;"></i>
+                    <div class="tile-status" style="color: #ea4335;" id="pending-sync-tile">0 Pending</div>
                 </div>
             </div>
         </div>
@@ -165,7 +168,7 @@
                         <button onclick="closeApp()" style="background:none; border:none; cursor:pointer; font-size:20px; color:var(--primary); margin-right:10px;"><i class="fas fa-arrow-left"></i></button>
                         <div class="logo" onclick="toggleDevName()" title="Developer details"><img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" style="width: 100%; height: 100%; object-fit: contain;"></div>
                         <div class="brand-text">
-                            <h1 style="font-size: 1.1rem; margin:0;">TABREED : Master Instrument List AI1</h1>
+                            <h1 style="font-size: 1.1rem; margin:0;">TABREED : Master Instrument List AI1 <span id="queue-badge" class="offline-queue-badge"></span></h1>
                             <p id="dev-subtitle" style="font-size: 0.7rem; color: var(--gray); margin:0;">Automation & Control Department</p>
                         </div>
                     </div>
@@ -186,7 +189,7 @@
                 <button class="action-btn" onclick="loadInventory()"><i class="fas fa-sync-alt" style="color: var(--primary); margin-bottom: 5px;"></i><span>Refresh</span></button>
                 <div class="action-btn" style="padding: 0;">
                     <i class="fas fa-filter" style="color: var(--secondary); margin-top: 8px;"></i>
-                    <select id="locationFilter" onchange="filterByLocation(this.value)" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0;">
+                    <select id="locationFilter" onchange="filterByLocation(this.value)" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0; outline:none;">
                         <option value="ALL">All Locations</option>
                     </select>
                 </div>
@@ -214,7 +217,7 @@
         <div class="modal-overlay" id="updateModal">
             <div class="modal">
                 <div class="modal-header">
-                    <h3><i class="fas fa-edit"></i> Update Instrument Location & Details</h3>
+                    <h3><i class="fas fa-edit"></i> Update Details</h3>
                     <span onclick="closeModal()" style="cursor:pointer; font-size: 1.5rem;">&times;</span>
                 </div>
                 <div class="modal-body">
@@ -258,10 +261,17 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // LATEST GOOGLE SCRIPT URL FOR GITHUB API
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw0nKm-j24HwBwVd2u9ji3gqEtQ7j2dtQZmqEd0oA15mmB7nHMtGYOgUfhMrL7TjEc8cQ/exec";
         
-        // --- NAVIGATION LOGIC ---
+        let inventoryData = []; let locations = []; let currentItem = null; let fullHistoryData = []; let isEditMode = false;
+
+        document.addEventListener('DOMContentLoaded', () => { 
+            setupSearch(); 
+            updatePendingTile();
+            processSyncQueue(); // Check sync queue on load
+        });
+
+        // --- ROUTING ---
         function openApp(type, url) {
             document.getElementById('fiori-wrapper').style.display = 'none';
             if(type === 'NATIVE_INSTRUMENT') {
@@ -270,9 +280,10 @@
             } else if (type === 'IFRAME') {
                 document.getElementById('fiori-iframe-header').style.display = 'flex';
                 document.getElementById('iframeWrapper').style.display = 'block';
+                if(!navigator.onLine) alert("Iframe requires network connection.");
                 document.getElementById('active-iframe').src = url;
             } else {
-                alert("This app is currently running as a standalone desktop app or under development.");
+                alert("This app is currently running as a standalone desktop app.");
                 document.getElementById('fiori-wrapper').style.display = 'block';
             }
         }
@@ -284,11 +295,7 @@
             document.getElementById('fiori-wrapper').style.display = 'block';
         }
 
-        // --- ALL ORIGINAL JAVASCRIPT FUNCTIONS (CONVERTED TO FETCH FOR GITHUB) ---
-        let inventoryData = []; let locations = []; let currentItem = null; let fullHistoryData = []; let isEditMode = false;
-
-        document.addEventListener('DOMContentLoaded', () => { setupSearch(); });
-
+        // --- DATA LOAD ---
         function loadInventory() {
             const tbody = document.getElementById('tableBody');
             const savedDataStr = localStorage.getItem("localTabreedInventory");
@@ -296,8 +303,6 @@
             if (savedDataStr) {
                 const res = JSON.parse(savedDataStr);
                 inventoryData = res.data; locations = res.locations;
-                document.getElementById('totalItems').textContent = res.totalItems;
-                document.getElementById('warningItems').textContent = res.stats.warningItems;
                 updateLocationsDropdown(); renderTable(inventoryData); updateStatus(navigator.onLine);
             } else {
                 let skeletonHTML = '';
@@ -310,7 +315,6 @@
                     if(res.success) {
                         localStorage.setItem("localTabreedInventory", JSON.stringify(res));
                         inventoryData = res.data; locations = res.locations;
-                        document.getElementById('totalItems').textContent = res.totalItems; document.getElementById('warningItems').textContent = res.stats.warningItems;
                         updateLocationsDropdown(); renderTable(inventoryData); updateStatus(true);
                     }
                 }).catch(e => { updateStatus(false); });
@@ -323,49 +327,122 @@
                 <tr>
                     <td style="font-weight:600;">${item.name}</td>
                     <td><span class="location-tag">${item.location}</span></td>
-                    <td><button onclick="openUpdateModal('${item.name}','${item.location}','${item.expiry}')" style="padding:6px 12px; background:var(--primary); color:white; border:none; border-radius:4px;">Update</button></td>
+                    <td><button onclick="openUpdateModal('${item.name}','${item.location}','${item.expiry}')" style="padding:6px 12px; background:var(--primary); color:white; border:none; border-radius:4px; font-weight:600; font-size:13px;">Update</button></td>
                     <td style="font-size:0.8rem;">${item.expiry || '-'}</td>
                     <td style="font-size:0.8rem; color:var(--gray);">${item.updatedBy || '-'}</td>
                 </tr>
             `).join('');
         }
 
-        let isFullNameShowing = false; let logoClickCount = 0; let clickTimer;
-        function toggleDevName() {
-            const subtitle = document.getElementById('dev-subtitle');
-            logoClickCount++;
-            clearTimeout(clickTimer); 
-            if (logoClickCount >= 6) {
-                showToast('⚙️ Developer Mode: Hard Resetting System...', 'warning');
-                localStorage.removeItem("localTabreedInventory"); localStorage.removeItem("localTabreedHistory");
-                fetch(`${GAS_API_URL}?key=AI1&action=clearCache`).then(() => window.location.reload());
-                logoClickCount = 0; return;
+        // --- OFFLINE SYNC SYSTEM ---
+        function submitUpdate() {
+            const name = document.getElementById('modalItemName').value;
+            let loc = document.getElementById('modalLocation').value;
+            const customLoc = document.getElementById('customLocation').value;
+            if(loc === "NOT_LISTED") { if(!customLoc) return showToast('Please type the new location name', 'error'); loc = customLoc; }
+            
+            let exp = document.getElementById('modalExpiry').value; 
+            if (exp) { const d = new Date(exp); exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`; }
+            const user = document.getElementById('modalUpdatedBy').value;
+            if(!name || !user) return showToast('Name and Updated By are required!', 'error');
+
+            const btn = document.getElementById('submitUpdateBtn'); btn.disabled = true; btn.textContent = 'Processing...';
+
+            let actionParams = {
+                action: isEditMode ? 'update' : 'add',
+                itemName: currentItem || '',
+                name: name, location: loc, newLocation: loc,
+                expiry: exp, newExpiry: exp,
+                user: user, updatedBy: user
+            };
+
+            // OPTIMISTIC LOCAL UPDATE (UI updates instantly)
+            if(isEditMode) {
+                let idx = inventoryData.findIndex(i => i.name === currentItem);
+                if(idx !== -1) { inventoryData[idx].location = loc; inventoryData[idx].expiry = exp; inventoryData[idx].updatedBy = user; }
+            } else {
+                inventoryData.push({name: name, location: loc, expiry: exp, updatedBy: user});
             }
-            clickTimer = setTimeout(() => { logoClickCount = 0; }, 500); 
-            subtitle.style.opacity = '0';
-            setTimeout(() => {
-                if (!isFullNameShowing) { subtitle.innerHTML = 'Developed by <strong>Abdul Majeed Ansari [ 41764 ]</strong>'; isFullNameShowing = true; } 
-                else { subtitle.innerHTML = 'Automation & Control Department'; isFullNameShowing = false; }
-                subtitle.style.opacity = '1';
-            }, 150); 
+            renderTable(inventoryData);
+            
+            // Sync Logic
+            if(navigator.onLine) {
+                // Online: Direct fetch
+                let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
+                fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => {
+                    btn.disabled = false; btn.textContent = 'SAVE CHANGES';
+                    if(res.success) { showToast('Saved Successfully!', 'success'); closeModal(); loadInventory(); } 
+                    else { showToast(res.error, 'error'); }
+                }).catch(e => { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; showToast('Network Error', 'error'); });
+            } else {
+                // Offline: Add to Queue
+                let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
+                queue.push(actionParams);
+                localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue));
+                
+                btn.disabled = false; btn.textContent = 'SAVE CHANGES';
+                showToast('Saved Offline! Will sync automatically when internet is back.', 'warning');
+                updatePendingTile();
+                closeModal();
+            }
         }
+
+        async function processSyncQueue(manual = false) {
+            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
+            if (queue.length === 0) { if(manual) showToast("No pending syncs.", "success"); return; }
+            if (!navigator.onLine) { if(manual) showToast("Still offline.", "error"); return; }
+
+            showToast(`Syncing ${queue.length} offline changes...`, 'warning');
+            
+            for (let i = 0; i < queue.length; i++) {
+                let task = queue[i];
+                let query = Object.keys(task).map(k => `${k}=${encodeURIComponent(task[k])}`).join('&');
+                try {
+                    let res = await fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json());
+                    if(!res.success) console.error("Sync failed for record", task.name);
+                } catch(e) {
+                    showToast("Sync interrupted by network error.", "error");
+                    return; // Stop queue, try later
+                }
+            }
+            
+            localStorage.removeItem('tabreed_sync_queue');
+            updatePendingTile();
+            showToast('All offline changes synced to Google!', 'success');
+            loadInventory();
+        }
+
+        function updatePendingTile() {
+            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
+            const count = queue.length;
+            document.getElementById('pending-sync-tile').innerText = count + " Pending";
+            
+            const badge = document.getElementById('queue-badge');
+            if(count > 0) { badge.innerText = count + " offline syncs pending"; badge.style.display = 'inline-block'; }
+            else { badge.style.display = 'none'; }
+        }
+
+        // --- UI HELPER FUNCTIONS ---
+        function updateStatus(online) {
+            const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335';
+            document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline';
+            if(online) processSyncQueue(); // Auto sync on connection restore
+        }
+        window.addEventListener('online', () => updateStatus(true)); 
+        window.addEventListener('offline', () => updateStatus(false));
 
         function setupSearch() {
             document.getElementById('searchInput').addEventListener('input', (e) => {
-                const term = e.target.value.toLowerCase();
-                const selectedLoc = document.getElementById('locationFilter').value;
+                const term = e.target.value.toLowerCase(); const selectedLoc = document.getElementById('locationFilter').value;
                 const filtered = inventoryData.filter(i => {
-                    const matchesSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term);
-                    const matchesLoc = selectedLoc === "ALL" || i.location === selectedLoc;
-                    return matchesSearch && matchesLoc;
+                    const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term);
+                    const matchLoc = selectedLoc === "ALL" || i.location === selectedLoc; return matchSearch && matchLoc;
                 });
                 renderTable(filtered);
             });
         }
-
         function filterByLocation(selectedLoc) {
-            if (selectedLoc === "ALL") { renderTable(inventoryData); } else { renderTable(inventoryData.filter(item => item.location === selectedLoc)); }
-            showToast(`Filtering: ${selectedLoc}`, 'success');
+            if (selectedLoc === "ALL") renderTable(inventoryData); else renderTable(inventoryData.filter(item => item.location === selectedLoc));
         }
 
         function openAddModal() {
@@ -382,66 +459,34 @@
             document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee';
             document.getElementById('modalLocation').value = loc;
             if (exp && exp !== 'null' && exp !== '-' && exp !== 'undefined') { const parts = exp.split('.'); if (parts.length === 3) { document.getElementById('modalExpiry').value = `${parts[2]}-${parts[1]}-${parts[0]}`; } } else { document.getElementById('modalExpiry').value = ''; }
-            document.getElementById('modalUpdatedBy').value = ''; document.getElementById('updateModal').classList.add('active'); document.body.style.overflow = 'hidden';
+            document.getElementById('modalUpdatedBy').value = ''; document.getElementById('updateModal').classList.add('active');
         }
 
         function closeModal() {
             document.getElementById('modalLocation').style.display = 'block'; document.getElementById('customLocation').style.display = 'none'; document.getElementById('customLocation').value = '';
-            document.getElementById('locationHint').style.display = 'none'; document.getElementById('updateModal').classList.remove('active'); document.body.style.overflow = 'auto'; document.getElementById('modalExpiry').value = '';
+            document.getElementById('locationHint').style.display = 'none'; document.getElementById('updateModal').classList.remove('active'); document.getElementById('modalExpiry').value = '';
         }
 
         function updateLocationsDropdown() {
             const modalSelect = document.getElementById('modalLocation');
-            let modalOptions = locations.map(l => `<option value="${l}">${l}</option>`).join('');
-            modalOptions += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`;
-            modalSelect.innerHTML = modalOptions;
+            let modalOpts = locations.map(l => `<option value="${l}">${l}</option>`).join(''); modalOpts += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`; modalSelect.innerHTML = modalOpts;
             const filterSelect = document.getElementById('locationFilter');
-            let filterOptions = `<option value="ALL">All Locations</option>`; filterOptions += locations.map(l => `<option value="${l}">${l}</option>`).join('');
-            filterSelect.innerHTML = filterOptions;
+            let filterOpts = `<option value="ALL">All Locations</option>`; filterOpts += locations.map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts;
         }
 
         function handleLocationChange(value) {
-            const customInput = document.getElementById('customLocation'); const hint = document.getElementById('locationHint');
-            if(value === "NOT_LISTED") { document.getElementById('modalLocation').style.display = 'none'; customInput.style.display = 'block'; hint.style.display = 'block'; customInput.focus(); } 
-            else { customInput.style.display = 'none'; hint.style.display = 'none'; }
-        }
-
-        function submitUpdate() {
-            if(!navigator.onLine) { return showToast("You are offline. Cannot save changes.", "error"); }
-            
-            const name = document.getElementById('modalItemName').value;
-            let loc = document.getElementById('modalLocation').value;
-            const customLoc = document.getElementById('customLocation').value;
-            if(loc === "NOT_LISTED") { if(!customLoc) return showToast('Please type the new location name', 'error'); loc = customLoc; }
-            
-            let exp = document.getElementById('modalExpiry').value; 
-            if (exp) { const d = new Date(exp); exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`; }
-            const user = document.getElementById('modalUpdatedBy').value;
-            if(!name || !user) return showToast('Name and Updated By are required!', 'error');
-
-            const btn = document.getElementById('submitUpdateBtn'); btn.disabled = true; btn.textContent = 'Processing...';
-
-            let url = `${GAS_API_URL}?key=AI1&action=${isEditMode ? 'update' : 'add'}&itemName=${encodeURIComponent(currentItem || '')}&name=${encodeURIComponent(name)}&location=${encodeURIComponent(loc)}&newLocation=${encodeURIComponent(loc)}&expiry=${encodeURIComponent(exp)}&newExpiry=${encodeURIComponent(exp)}&user=${encodeURIComponent(user)}&updatedBy=${encodeURIComponent(user)}`;
-
-            fetch(url).then(r => r.json()).then(res => {
-                btn.disabled = false; btn.textContent = 'SAVE CHANGES';
-                if(res.success) { showToast('Saved Successfully!', 'success'); closeModal(); loadInventory(); } 
-                else { showToast(res.error, 'error'); }
-            }).catch(e => { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; showToast('Network Error', 'error'); });
+            const cInput = document.getElementById('customLocation'); const hint = document.getElementById('locationHint');
+            if(value === "NOT_LISTED") { document.getElementById('modalLocation').style.display = 'none'; cInput.style.display = 'block'; hint.style.display = 'block'; cInput.focus(); } 
+            else { cInput.style.display = 'none'; hint.style.display = 'none'; }
         }
 
         function showToast(msg, type) {
             const container = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = 'toast';
-            t.style.borderLeftColor = type === 'success' ? 'var(--secondary)' : 'var(--danger)';
+            t.style.borderLeftColor = type === 'success' ? 'var(--secondary)' : 'var(--warning)';
+            if(type==='error') t.style.borderLeftColor = 'var(--danger)';
             t.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> <span>${msg}</span>`;
             container.appendChild(t); setTimeout(() => t.remove(), 3000);
         }
-
-        function updateStatus(online) {
-            const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335';
-            document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline';
-        }
-        window.addEventListener('online', () => updateStatus(true)); window.addEventListener('offline', () => updateStatus(false));
 
         function showStats() { showToast(`Current Inventory: ${inventoryData.length} items across ${locations.length} Locations.`, 'success'); }
         
@@ -452,52 +497,39 @@
                 script.onload = () => generatePDF(); document.body.appendChild(script);
             } else { generatePDF(); }
         }
-
         function generatePDF() {
-            const element = document.querySelector('.inventory-section'); 
-            const now = new Date(); const fileName = `List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}_${now.getHours()}-${now.getMinutes()}.pdf`;
+            const el = document.querySelector('.inventory-section'); const now = new Date(); const fileName = `List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}_${now.getHours()}-${now.getMinutes()}.pdf`;
             const opt = { margin: [10, 10, 10, 10], filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-            showToast('Generating PDF...', 'success');
-            html2pdf().set(opt).from(element).save().then(() => showToast('PDF Downloaded!', 'success')).catch(err => { showToast('PDF Export Failed', 'error'); });
+            html2pdf().set(opt).from(el).save().then(() => showToast('PDF Downloaded!', 'success')).catch(err => { showToast('PDF Export Failed', 'error'); });
         }
 
-        function showHistoryPage() { document.getElementById('historyPage').style.display = 'block'; document.body.style.overflow = 'hidden'; loadHistoryData(); }
-        function closeHistoryPage() { document.getElementById('historyPage').style.display = 'none'; document.body.style.overflow = 'auto'; }
+        let isFullNameShowing = false; let logoClickCount = 0; let clickTimer;
+        function toggleDevName() {
+            const subtitle = document.getElementById('dev-subtitle'); logoClickCount++; clearTimeout(clickTimer); 
+            if (logoClickCount >= 6) { localStorage.removeItem("localTabreedInventory"); fetch(`${GAS_API_URL}?key=AI1&action=clearCache`).then(() => window.location.reload()); return; }
+            clickTimer = setTimeout(() => { logoClickCount = 0; }, 500); subtitle.style.opacity = '0';
+            setTimeout(() => { subtitle.innerHTML = !isFullNameShowing ? 'Developed by <strong>Abdul Majeed Ansari [ 41764 ]</strong>' : 'Automation & Control Department'; isFullNameShowing = !isFullNameShowing; subtitle.style.opacity = '1'; }, 150); 
+        }
 
+        // --- HISTORY ---
+        function showHistoryPage() { document.getElementById('historyPage').style.display = 'block'; loadHistoryData(); }
+        function closeHistoryPage() { document.getElementById('historyPage').style.display = 'none'; }
         function loadHistoryData() {
-            const tbody = document.getElementById('historyTableBody');
-            const savedHistoryStr = localStorage.getItem("localTabreedHistory");
-            
-            if (savedHistoryStr) {
-                const res = JSON.parse(savedHistoryStr); fullHistoryData = res.data; renderHistoryTable(res.data);
-            } else {
-                let skeletonHTML = '';
-                for(let i = 0; i < 5; i++) { skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 80%;"></div></td><td><div class="skeleton-cell" style="width: 90%;"></div></td><td><div class="skeleton-cell" style="width: 70%; border-radius: 12px;"></div></td><td><div class="skeleton-cell" style="width: 70%; border-radius: 12px;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td></tr>`; }
-                tbody.innerHTML = skeletonHTML;
-            }
-            
             if(navigator.onLine) {
                 fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => {
                     if(res.success) { localStorage.setItem("localTabreedHistory", JSON.stringify(res)); fullHistoryData = res.data; renderHistoryTable(res.data); }
-                }).catch(e => console.error("History fetch error", e));
+                });
+            } else {
+                const saved = localStorage.getItem("localTabreedHistory"); if (saved) { fullHistoryData = JSON.parse(saved).data; renderHistoryTable(fullHistoryData); }
             }
         }
+        function renderHistoryTable(data) { document.getElementById('historyTableBody').innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${log.time}</td><td style="font-weight:600;">${log.item}</td><td><span class="location-tag" style="background:#f0f0f0; color:#666;">${log.oldLoc}</span></td><td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${log.newLoc}</span></td><td style="font-size:0.8rem;">${log.user}</td></tr>`).join(''); }
+        function filterHistory() { const term = document.getElementById('historySearch').value.toLowerCase(); renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term) || (log.oldLoc || "").toLowerCase().includes(term) || (log.newLoc || "").toLowerCase().includes(term))); }
 
-        function renderHistoryTable(data) {
-            const tbody = document.getElementById('historyTableBody');
-            tbody.innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${log.time}</td><td style="font-weight:600;">${log.item}</td><td><span class="location-tag" style="background:#f0f0f0; color:#666;">${log.oldLoc}</span></td><td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${log.newLoc}</span></td><td style="font-size:0.8rem;">${log.user}</td></tr>`).join('');
-        }
-
-        function filterHistory() {
-            const term = document.getElementById('historySearch').value.toLowerCase();
-            const filtered = fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term) || (log.oldLoc || "").toLowerCase().includes(term) || (log.newLoc || "").toLowerCase().includes(term));
-            renderHistoryTable(filtered);
-        }
-
-        // --- PWA INSTALLATION ---
+        // --- INSTALL ---
         let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
-        function startSmartInstall() { if (deferredPrompt) { deferredPrompt.prompt(); } else { alert('App is already installed, or use your browser menu to "Add to Home Screen".'); } }
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Failed', err)); }
+        function startSmartInstall() { if (deferredPrompt) deferredPrompt.prompt(); else alert('App is already installed, or use your browser menu to "Add to Home Screen".'); }
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Failed', err));
     </script>
 </body>
 </html>
