@@ -1,10 +1,10 @@
-const CACHE_NAME = 'tabreed-pro-v2';
+const CACHE_NAME = 'tabreed-pro-v3'; // Version change kiya taaki naya cache bane
 const STATIC_ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
+  '/',
+  '/index.html',
+  '/manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap'
+  'https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146'
 ];
 
 // 1. Install & Pre-cache (Speed badhane ke liye)
