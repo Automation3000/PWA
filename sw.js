@@ -1,8 +1,8 @@
-const CACHE_NAME = 'tabreed-pro-v3'; // Version change kiya taaki naya cache bane
+const CACHE_NAME = 'tabreed-pro-v3'; 
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  '/',                // <-- Yahan se dot hataya
+  '/index.html',      // <-- Yahan se dot hataya
+  '/manifest.json',   // <-- Yahan se dot hataya
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146'
 ];
