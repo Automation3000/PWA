@@ -85,31 +85,39 @@
         .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
         .action-btn { background: white; border: none; flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); visibility: visible; position: relative; }
 
-        /* FULL CLICKABLE DROPDOWN CSS */
         .select-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
         .action-content { pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
 
         .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
         .table-container { overflow-x: auto; }
-        .inventory-table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
-        .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
         
-        .inventory-table td:first-child, .inventory-table th:first-child { padding-left: 1.5rem; }
+        /* Fixed Layout to stop column jumping */
+        .inventory-table { width: 100%; border-collapse: collapse; min-width: 600px; table-layout: fixed; }
+        
+        /* Set fixed width percentages for columns */
+        .inventory-table th:nth-child(1) { width: 32%; padding-left: 1.5rem; }
+        .inventory-table th:nth-child(2) { width: 22%; }
+        .inventory-table th:nth-child(3) { width: 16%; }
+        .inventory-table th:nth-child(4) { width: 15%; text-align: center; }
+        .inventory-table th:nth-child(5) { width: 15%; }
+        
+        .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
+        .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; word-wrap: break-word; overflow-wrap: break-word; }
+        .inventory-table td:first-child { padding-left: 1.5rem; }
         .expiry-td { white-space: nowrap !important; }
 
-        .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
-        .expiry-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; background: #f8f9fa; color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); width: 100%; white-space: nowrap; }
+        .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .expiry-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; background: #f8f9fa; color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); width: 100%; white-space: nowrap; transition: 0.3s; }
         
-        /* Hiding Up/Down Arrows from Employee ID Number input */
         input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; z-index: 2000; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
         .modal-overlay.feedback-overlay { z-index: 2100; }
+        .modal-overlay.ack-overlay { z-index: 4000; } /* Top priority for Stats */
         
-        .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
+        .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
         .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; overflow-x: hidden; }
         
@@ -138,11 +146,12 @@
             .inventory-table td, .inventory-table th { padding: 0.5rem !important; }
             .inventory-table td:first-child, .inventory-table th:first-child { padding-left: 10px !important; }
             .update-flex-row { flex-direction: column; align-items: stretch; gap: 10px; }
+            .ack-modal { height: auto !important; max-height: 80% !important; border-radius: 16px !important; margin: 20px !important; }
         }
 
-        .toast-container { position: fixed; top: 1rem; right: 1rem; left: 1rem; z-index: 3000; }
-        .toast { background: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-left: 4px solid var(--primary); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
+        .toast { background: rgba(255,255,255,0.95); backdrop-filter: blur(5px); padding: 12px 20px; border-radius: 50px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: 600; border: 1px solid var(--border); color: var(--dark); font-size: 0.85rem; }
+        @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .skeleton-row td { padding: 1rem; border-bottom: 1px solid var(--border); }
         .skeleton-cell { height: 20px; border-radius: 4px; background: #e0e0e0; animation: pulse-skeleton 1.5s infinite ease-in-out; }
@@ -295,9 +304,6 @@
                     </select>
                 </div>
 
-                <button class="action-btn" onclick="openAddModal()" aria-label="Add new entry"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
-                <button class="action-btn" onclick="showStats()" aria-label="View statistics"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
-                
                 <div class="action-btn" style="padding: 0;">
                     <div class="action-content">
                         <i class="fas fa-hourglass-half" style="color: #1976d2; margin-bottom: 5px;"></i>
@@ -318,19 +324,22 @@
                 <div class="action-btn" style="padding: 0;">
                     <div class="action-content">
                         <i class="fas fa-tools" style="color: #e65100; margin-bottom: 5px;"></i>
-                        <span id="label-status" style="font-size: 0.65rem; text-align:center;">Goes for Cal. or Repair</span>
+                        <span id="label-status" style="font-size: 0.65rem; text-align:center;">Goes for Cal.</span>
                     </div>
-                    <select id="calibrationFilter" class="select-wrapper" onchange="applyFilters()">
+                    <select id="calibrationFilter" class="select-wrapper" onchange="updateFilterLabel(this, 'label-status', 'Goes for Cal.'); applyFilters()">
                         <option value="ALL">All Status</option>
                         <option value="Calibration/Repair">Calibration/Repair</option>
                     </select>
                 </div>
 
+                <button class="action-btn" onclick="openAddModal()" aria-label="Add new entry"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
+                
+                <button class="action-btn" onclick="showStats()" aria-label="View statistics"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
+                
+                <button class="action-btn" onclick="showHistoryPage()" aria-label="View update history"><i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i><span>View History</span></button>
+
                 <button class="action-btn" onclick="openFeedbackModal()" aria-label="Open feedback form"><i class="fas fa-comment-dots" style="color: #0b8043; margin-bottom: 5px;"></i><span>Feedback</span></button>
-                <button class="action-btn" onclick="showHistoryPage()" aria-label="View update history">
-                    <i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i>
-                    <span>View History</span>
-                </button>
+                
                 <button class="action-btn" onclick="exportData()" aria-label="Export data as PDF"><i class="fas fa-file-pdf" style="color: var(--dark); margin-bottom: 5px;"></i><span>Download PDF</span></button>
             </div>
 
@@ -426,6 +435,17 @@
             </div>
         </div>
 
+        <div class="modal-overlay ack-overlay" id="ackModalOverlay">
+            <div class="modal ack-modal" style="max-width: 320px; text-align: center; border-radius: 20px; padding: 10px;">
+                <div class="modal-body" style="padding: 20px 15px;">
+                    <div id="ackIcon" style="font-size: 3.5rem; margin-bottom: 15px;"></div>
+                    <h2 id="ackTitle" style="margin-top: 0; color: #1a202c; font-weight: 800; font-size: 1.3rem;"></h2>
+                    <p id="ackMessage" style="color: #4a5568; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px;"></p>
+                    <button class="btn-primary" onclick="document.getElementById('ackModalOverlay').classList.remove('active')" style="width: 100%; border-radius: 12px; padding: 12px; letter-spacing: 0.5px;">OK, GOT IT</button>
+                </div>
+            </div>
+        </div>
+
         <div id="historyPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:5000; overflow-y:auto;">
             <header class="app-header">
                 <div class="header-content">
@@ -447,14 +467,14 @@
                 </div>
             </div>
             <div class="table-container" style="padding:10px;">
-                <table class="inventory-table">
+                <table class="inventory-table" style="min-width: 500px;">
                     <thead>
                         <tr>
-                            <th>Date & Time</th>
-                            <th>Instrument</th>
-                            <th>From Location</th>
-                            <th>To Location</th>
-                            <th>Updated By</th>
+                            <th style="width: 20%;">Date & Time</th>
+                            <th style="width: 25%;">Instrument</th>
+                            <th style="width: 20%;">From Location</th>
+                            <th style="width: 20%;">To Location</th>
+                            <th style="width: 15%;">Updated By</th>
                         </tr>
                     </thead>
                     <tbody id="historyTableBody"></tbody>
@@ -511,23 +531,19 @@
                     if (document.getElementById('updateModal').classList.contains('active')) closeModal();
                     if (document.getElementById('feedbackModal').classList.contains('active')) closeFeedbackModal();
                     if (document.getElementById('historyPage').style.display === 'block') closeHistoryPage();
+                    if (document.getElementById('ackModalOverlay').classList.contains('active')) document.getElementById('ackModalOverlay').classList.remove('active');
                 }
             });
         });
 
         // --- SMART PWA INSTALL LOGIC (From Blogger) ---
         let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-        });
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
 
         window.startSmartInstall = async function() {
             const androidApkLink = "https://automation3000.github.io/PWA/Automation.apk";
             const iosProfileLink = "https://automation3000.github.io/PWA/Automation.mobileconfig";
-            
-            const modal = document.getElementById('pwa-instructions-modal');
-            const modalTitle = document.getElementById('pwa-modal-title');
-            const modalText = document.getElementById('pwa-modal-text');
+            const modal = document.getElementById('pwa-instructions-modal'); const modalTitle = document.getElementById('pwa-modal-title'); const modalText = document.getElementById('pwa-modal-text');
 
             const userAgent = navigator.userAgent || navigator.vendor || window.opera;
             let os = "Desktop";
@@ -536,63 +552,45 @@
 
             if (os === "Android") {
                 if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    if(outcome === 'accepted') deferredPrompt = null;
+                    deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if(outcome === 'accepted') deferredPrompt = null;
                 } else {
                     window.location.href = androidApkLink;
-                    setTimeout(() => {
-                        modalTitle.innerText = "APK Downloading...";
-                        modalText.innerHTML = "Your application is downloading.<br><br>Once complete, open the file and tap <b>'Install'</b>. If prompted, please allow installation from unknown sources.";
-                        modal.style.display = 'flex';
-                    }, 1000);
+                    setTimeout(() => { modalTitle.innerText = "APK Downloading..."; modalText.innerHTML = "Your application is downloading.<br><br>Once complete, open the file and tap <b>'Install'</b>. If prompted, please allow installation from unknown sources."; modal.style.display = 'flex'; }, 1000);
                 }
             } else if (os === "iOS") {
                 window.location.href = iosProfileLink;
-                setTimeout(() => {
-                    modalTitle.innerText = "Profile Downloaded!";
-                    modalText.innerHTML = "1. Open your iPhone <b>Settings</b>.<br>2. Tap on <b>'Profile Downloaded'</b> near the top.<br>3. Tap <b>Install</b> (Ignore the 'Not Signed' security warning, it is safe).<br><br>The application will be added to your Home Screen.";
-                    modal.style.display = 'flex';
-                }, 1500);
+                setTimeout(() => { modalTitle.innerText = "Profile Downloaded!"; modalText.innerHTML = "1. Open your iPhone <b>Settings</b>.<br>2. Tap on <b>'Profile Downloaded'</b> near the top.<br>3. Tap <b>Install</b> (Ignore the 'Not Signed' security warning, it is safe).<br><br>The application will be added to your Home Screen."; modal.style.display = 'flex'; }, 1500);
             } else {
-                modalTitle.innerText = "Desktop Environment Detected";
-                modalText.innerHTML = "This beta application is optimized for mobile devices. Please visit this URL on your smartphone to install.";
-                modal.style.display = 'flex';
+                modalTitle.innerText = "Desktop Environment Detected"; modalText.innerHTML = "This beta application is optimized for mobile devices. Please visit this URL on your smartphone to install."; modal.style.display = 'flex';
             }
         };
 
-        // --- ROUTING ---
         function openApp(type, url) {
             document.getElementById('fiori-wrapper').style.display = 'none';
-            if(type === 'NATIVE_INSTRUMENT') {
-                document.getElementById('premium-wrapper').style.display = 'block'; loadInventory();
-            } else if (type === 'IFRAME') {
-                document.getElementById('fiori-iframe-header').style.display = 'flex';
-                document.getElementById('iframeWrapper').style.display = 'block';
-                if(!navigator.onLine) showToast("Iframe requires network connection.", "warning");
-                document.getElementById('active-iframe').src = url;
-            } else {
-                showToast("This app is running natively.", "info"); document.getElementById('fiori-wrapper').style.display = 'block';
-            }
+            if(type === 'NATIVE_INSTRUMENT') { document.getElementById('premium-wrapper').style.display = 'block'; loadInventory(); } 
+            else if (type === 'IFRAME') { document.getElementById('fiori-iframe-header').style.display = 'flex'; document.getElementById('iframeWrapper').style.display = 'block'; if(!navigator.onLine) showToast("Iframe requires network connection.", "warning"); document.getElementById('active-iframe').src = url; } 
+            else { showToast("This app is running natively.", "info"); document.getElementById('fiori-wrapper').style.display = 'block'; }
         }
         function closeApp() {
-            document.getElementById('premium-wrapper').style.display = 'none';
-            document.getElementById('fiori-iframe-header').style.display = 'none';
-            document.getElementById('iframeWrapper').style.display = 'none';
-            document.getElementById('active-iframe').src = '';
-            document.getElementById('fiori-wrapper').style.display = 'block';
+            document.getElementById('premium-wrapper').style.display = 'none'; document.getElementById('fiori-iframe-header').style.display = 'none'; document.getElementById('iframeWrapper').style.display = 'none'; document.getElementById('active-iframe').src = ''; document.getElementById('fiori-wrapper').style.display = 'block';
         }
 
         function showToast(msg, type) {
             const container = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = 'toast';
             const colors = { 'success': 'var(--secondary)', 'error': 'var(--danger)', 'warning': 'var(--warning)', 'info': 'var(--primary)' };
             const icons = { 'success': 'fa-check-circle', 'error': 'fa-exclamation-circle', 'warning': 'fa-exclamation-triangle', 'info': 'fa-info-circle' };
-            t.style.borderLeftColor = colors[type] || colors['info'];
-            t.innerHTML = `<i class="fas ${icons[type] || icons['info']}" style="color:${colors[type] || colors['info']}"></i> <span>${sanitizeInput(msg)}</span>`;
-            container.appendChild(t); setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3500);
+            t.innerHTML = `<i class="fas ${icons[type] || icons['info']}" style="color:${colors[type] || colors['info']}; font-size:1.2rem;"></i> <span>${sanitizeInput(msg)}</span>`;
+            container.appendChild(t); setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 2500);
         }
 
-        // --- DATA LOAD & REFRESH ---
+        // --- NEW: CENTERED ACKNOWLEDGMENT POPUP ---
+        function showAckPopup(title, message, iconClass, iconColor) {
+            document.getElementById('ackIcon').innerHTML = `<i class="${iconClass}" style="color: ${iconColor};"></i>`;
+            document.getElementById('ackTitle').innerText = title;
+            document.getElementById('ackMessage').innerHTML = message;
+            document.getElementById('ackModalOverlay').classList.add('active');
+        }
+
         function updateFilterLabel(selectElement, labelId, defaultText) {
             let label = document.getElementById(labelId);
             if(selectElement.value === 'ALL') { label.innerText = defaultText || selectElement.options[0].text; } 
@@ -607,6 +605,7 @@
             
             document.getElementById('label-location').innerText = 'All Locations';
             document.getElementById('label-expiry').innerText = 'Expiry';
+            document.getElementById('label-status').innerText = 'Goes for Cal.';
             
             loadInventory();
         }
@@ -642,7 +641,16 @@
             if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray);">No instruments found</td></tr>'; return; }
 
             tbody.innerHTML = data.map((item, idx) => {
-                let expiryDisplay = `<span class="expiry-badge">${sanitizeInput(item.expiry || '-')}</span>`;
+                // RED DATE LOGIC IMPLEMENTED
+                let isExpired = false;
+                if (item.expiry && item.expiry !== '-') {
+                    const parts = item.expiry.split('.');
+                    const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    isExpired = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24)) < 0;
+                }
+
+                let expiryDisplay = `<span class="expiry-badge" ${isExpired ? 'style="color:var(--danger); border-color:var(--danger); background:#ffebee;"' : ''}>${sanitizeInput(item.expiry || '-')}</span>`;
+                
                 if (showExpiryAsDays && item.expiry && item.expiry !== '-') {
                     const parts = item.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
                     const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
@@ -676,14 +684,13 @@
                     document.getElementById('expiryDateContainer').style.display = 'block';
                     document.getElementById('modalExpiry').disabled = false;
                 } else {
-                    alert("Incorrect Code!");
+                    showToast("Incorrect Code!", "error");
                     slider.value = 0;
                 }
             }
         }
         function snapUnlock(slider) { if(slider.value < 100) { slider.value = 0; } }
 
-        // --- OFFLINE SYNC & UPDATE SYSTEM ---
         function submitUpdate() {
             const name = document.getElementById('modalItemName').value.trim();
             let loc = document.getElementById('modalLocation').value.trim();
@@ -799,24 +806,33 @@
 
         function showStats() { 
             const total = inventoryData.length; const locationsCount = locations.length;
-            const expiringCount = inventoryData.filter(item => { if (!item.expiry || item.expiry === '-') return false; const parts = item.expiry.split('.'); const exp = new Date(parts[2], parts[1] - 1, parts[0]); const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24)); return diff <= 30; }).length;
-            showToast(`Inventory: ${total} Items | ${locationsCount} Locations | ${expiringCount} Expiring Soon`, 'success');
+            const expiringCount = inventoryData.filter(item => {
+                if (!item.expiry || item.expiry === '-') return false;
+                const parts = item.expiry.split('.'); const exp = new Date(parts[2], parts[1] - 1, parts[0]);
+                const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24)); return diff <= 30;
+            }).length;
+            
+            let statHtml = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;">
+                    <span style="font-weight:600;">Total Instruments:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${total}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;">
+                    <span style="font-weight:600;">Total Locations:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${locationsCount}</span>
+                </div>
+                <div style="display:flex; justify-content:space-between;">
+                    <span style="font-weight:600; color:var(--danger);">Expiring Soon:</span> <span style="font-size:1.1rem; color:var(--danger); font-weight:800;">${expiringCount}</span>
+                </div>
+            `;
+            
+            // Trigger Centered Ack Modal
+            showAckPopup("Inventory Statistics", statHtml, "fas fa-chart-pie", "var(--primary)");
         }
 
         // --- ENHANCED FEEDBACK SYSTEM (DUBAI TIMESTAMP) ---
         function getDubaiTime() {
-            let d = new Date();
-            let utc = d.getTime() + (d.getTimezoneOffset() * 60000);
-            let dubaiTime = new Date(utc + (3600000 * 4)); // Dubai is UTC+4
-            
-            let day = String(dubaiTime.getDate()).padStart(2, '0');
-            let month = String(dubaiTime.getMonth() + 1).padStart(2, '0');
-            let year = dubaiTime.getFullYear();
-            
-            let hours = String(dubaiTime.getHours()).padStart(2, '0');
-            let minutes = String(dubaiTime.getMinutes()).padStart(2, '0');
-            let seconds = String(dubaiTime.getSeconds()).padStart(2, '0');
-            
+            let d = new Date(); let utc = d.getTime() + (d.getTimezoneOffset() * 60000); let dubaiTime = new Date(utc + (3600000 * 4));
+            let day = String(dubaiTime.getDate()).padStart(2, '0'); let month = String(dubaiTime.getMonth() + 1).padStart(2, '0'); let year = dubaiTime.getFullYear();
+            let hours = String(dubaiTime.getHours()).padStart(2, '0'); let minutes = String(dubaiTime.getMinutes()).padStart(2, '0'); let seconds = String(dubaiTime.getSeconds()).padStart(2, '0');
             return `${day}.${month}.${year}   ${hours}:${minutes}:${seconds}`;
         }
 
@@ -834,28 +850,21 @@
         }
 
         function submitFeedback() {
-            const empId = document.getElementById('feedbackEmpId').value.trim();
-            const empName = document.getElementById('feedbackName').value.trim();
-            const rawFeedback = document.getElementById('feedbackText').value.trim();
-
-            if (!rawFeedback || (!empId && !empName)) { showToast("Please provide details and feedback before sending.", "warning"); return; }
-
-            // Construct exact string format requested
-            const dubaiTimeStamp = getDubaiTime();
-            const combinedFeedback = `${dubaiTimeStamp} ${empId}... ${empName}.... ${rawFeedback}`;
-
+            const empId = document.getElementById('feedbackEmpId').value.trim(); const empName = document.getElementById('feedbackName').value.trim(); const rawFeedback = document.getElementById('feedbackText').value.trim();
+            if (!rawFeedback || (!empId && !empName)) { showToast("Please provide details and feedback.", "warning"); return; }
+            const dubaiTimeStamp = getDubaiTime(); const combinedFeedback = `${dubaiTimeStamp} ${empId}... ${empName}.... ${rawFeedback}`;
             const btn = document.getElementById('submitFeedbackBtn'); btn.disabled = true; btn.textContent = 'SENDING...';
 
             if (navigator.onLine) {
                 fetch(`${GAS_API_URL}?key=AI1&action=feedback&text=${encodeURIComponent(combinedFeedback)}`).then(r => r.json()).then(res => {
                         btn.disabled = false; btn.textContent = 'SEND FEEDBACK';
-                        if(res.success) { showToast("Feedback sent successfully to Automation Team!", "success"); closeFeedbackModal(); } else { showToast("Error saving feedback.", "error"); }
-                    }).catch(() => { btn.disabled = false; btn.textContent = 'SEND FEEDBACK'; showToast("Feedback sent to Automation Team!", "success"); closeFeedbackModal(); }); 
-            } else { btn.disabled = false; btn.textContent = 'SEND FEEDBACK'; showToast("You are offline. Connect to internet to send feedback.", "warning"); }
+                        if(res.success) { showAckPopup("Success!", "Feedback sent successfully to Automation Team.", "fas fa-check-circle", "var(--secondary)"); closeFeedbackModal(); } else { showToast("Error saving feedback.", "error"); }
+                    }).catch(() => { btn.disabled = false; btn.textContent = 'SEND FEEDBACK'; showAckPopup("Success!", "Feedback sent to Automation Team.", "fas fa-check-circle", "var(--secondary)"); closeFeedbackModal(); }); 
+            } else { btn.disabled = false; btn.textContent = 'SEND FEEDBACK'; showToast("You are offline. Connect to internet.", "warning"); }
         }
 
         function exportData() {
-            showToast('Preparing PDF Engine...', 'success');
+            showToast('Preparing PDF Engine...', 'info');
             if (typeof html2pdf === 'undefined') { const script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'; script.onload = () => generatePDF(); document.body.appendChild(script); } else generatePDF();
         }
         function generatePDF() {
@@ -871,10 +880,25 @@
             setTimeout(() => { subtitle.innerHTML = !isFullNameShowing ? 'Developed by <strong>Majeed [ 41764 ]</strong>' : 'Automation App'; isFullNameShowing = !isFullNameShowing; subtitle.style.opacity = '1'; }, 150);
         }
 
-        // --- HISTORY ---
+        // --- HISTORY WITH SKELETON LOADING ---
         function showHistoryPage() { document.getElementById('historyPage').style.display = 'block'; loadHistoryData(); }
         function closeHistoryPage() { document.getElementById('historyPage').style.display = 'none'; }
-        function loadHistoryData() { if (navigator.onLine) { fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => { if (res.success) { fullHistoryData = res.data || []; renderHistoryTable(res.data); } }); } }
+        
+        function loadHistoryData() { 
+            const tbody = document.getElementById('historyTableBody');
+            let skeletonHTML = ''; 
+            for(let i=0; i<8; i++){ skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 90%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 80%;"></div></td></tr>`; }
+            tbody.innerHTML = skeletonHTML;
+
+            if (navigator.onLine) { 
+                fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => { 
+                    if (res.success) { fullHistoryData = res.data || []; renderHistoryTable(res.data); } 
+                }); 
+            } else {
+                showToast("You are offline. Cannot load live history.", "warning");
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Offline</td></tr>';
+            }
+        }
         function filterHistory() { const term = document.getElementById('historySearch').value.toLowerCase().trim(); renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term))); }
         function renderHistoryTable(data) {
             const tbody = document.getElementById('historyTableBody');
