@@ -1,7 +1,7 @@
 {
   "id": "/index.html",
-  "name": "Automation & Control Hub",
-  "short_name": "TabreedHub",
+  "name": "Automation & Control App",
+  "short_name": "Automation App",
   "description": "Industrial Automation, Instrumentation tools, and SAP Launchpad Dashboard.",
   "lang": "en-US",
   "dir": "ltr",
