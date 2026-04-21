@@ -2,97 +2,329 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="theme-color" content="#1a73e8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Tabreed">
+    <meta name="description" content="Industrial Automation Dashboard - Master Instrument List, Network Monitoring, and Offline-First PWA">
+    <meta name="keywords" content="automation, instruments, control, monitoring, dashboard, PWA">
+    <meta property="og:title" content="TABREED - Automation Hub">
+    <meta property="og:description" content="Professional automation and control dashboard">
+    <meta property="og:type" content="webapp">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="manifest" href="./manifest.json" />
-    <title>TABREED - Automation Hub</title>
+    <link rel="canonical" href="https://automation3000.github.io/PWA/NEW.html">
+    
+    <title>TABREED - Automation & Control Hub</title>
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="apple-touch-icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    <meta name="color-scheme" content="light dark">
     
     <style>
         /* ======================================================== */
-        /* EXACT ORIGINAL CSS BY YOU (NO CHANGES TO CORE THEME)     */
+        /* EXACT ORIGINAL CSS BY YOU (NO CHANGES)                   */
         /* ======================================================== */
         :root {
-            --primary: #1a73e8; --primary-dark: #0d62d9; --primary-light: #e8f0fe;
-            --secondary: #34a853; --warning: #f9ab00; --danger: #ea4335;
-            --dark: #202124; --light: #f8f9fa; --gray: #5f6368; --border: #dadce0;
-            --shadow: 0 2px 10px rgba(0,0,0,0.1); --radius: 12px; --transition: all 0.3s ease;
+            --primary: #1a73e8;
+            --primary-dark: #0d62d9;
+            --primary-light: #e8f0fe;
+            --secondary: #34a853;
+            --warning: #f9ab00;
+            --danger: #ea4335;
+            --dark: #202124;
+            --light: #f8f9fa;
+            --gray: #5f6368;
+            --border: #dadce0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s ease;
         }
         
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background-color: #e4edf5; color: var(--dark); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased;
+            background-color: #e4edf5;
+            color: var(--dark);
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* --- PREMIUM WRAPPER --- */
         #premium-wrapper {
-            display: none; width: 100%; height: 100vh; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%);
+            display: none;
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%);
         }
-        .app-container { max-width: 1200px; margin: 0 auto; margin-bottom: 50px; display: flex; flex-direction: column; min-height: 100vh; }
-        .app-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
-        .header-content { display: flex; align-items: center; justify-content: space-between; }
-        .brand { display: flex; align-items: center; gap: 0.75rem; }
-        .logo { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid #e0e0e0; }
-        .connection-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight:600;}
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f9ab00; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         
-        .search-container { padding: 1rem; margin: 1rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-bottom: 50px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .app-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 0 0 var(--radius) var(--radius);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo {
+            width: 45px; 
+            height: 45px;
+            background: white; 
+            border-radius: 50%; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border: 1px solid #e0e0e0;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f9ab00;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .search-container {
+            padding: 1rem;
+            margin: 1rem;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        
         .search-box { position: relative; }
-        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 16px; background: white; color: var(--dark); outline:none;}
-        .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 3rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 16px;
+            background: white;
+            color: var(--dark);
+        }
+        .search-box input::placeholder { color: #999; opacity: 1; }
         
-        .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
-        .action-btn { background: white; border: none; flex: 1; min-width: 80px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: 700; box-shadow: var(--shadow); cursor: pointer; color: var(--dark); transition: var(--transition); }
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
         
-        .stats-grid { display: flex; gap: 0.75rem; padding: 0 1rem; margin-bottom: 1rem; }
-        .stat-card { background: white; flex: 1; padding: 1.5rem 0.5rem; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 110px; }
-        .stat-card .number { font-size: 2rem; font-weight: 800; line-height: 1; margin-bottom: 8px; }
-        .stat-label { font-size: 0.85rem; font-weight: 600; color: var(--gray); }
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0 1rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
         
-        .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .action-btn {
+            background: white;
+            border: none;
+            flex: 1; 
+            min-width: 70px; 
+            max-width: 110px;
+            padding: 0.8rem 0.4rem;
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--dark);
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: var(--transition);
+            visibility: visible;
+        }
+
+        .inventory-section {
+            background: white;
+            margin: 0 1rem 1rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
         .table-container { overflow-x: auto; }
-        .inventory-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        .inventory-table { width: 100%; border-collapse: collapse; min-width: 500px; }
         .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
         .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+
         .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
         
-        /* NEW: Status & Repair Styles */
-        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
-        .status-Normal { background: #e8f5e9; color: #2e7d32; }
-        .status-Repair { background: #fff3e0; color: #ef6c00; }
-        .status-Expired { background: #ffebee; color: #c62828; }
-        .expiry-click { color: #1a73e8; text-decoration: underline; cursor: pointer; font-weight: 600;}
-
-        /* MODALS */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; z-index: 2000; align-items: center; justify-content: center; }
+        .expiry-badge { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 6px; 
+            padding: 6px 12px; 
+            background: #f8f9fa; 
+            color: var(--dark); 
+            border-radius: 20px; 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+            border: 1px solid var(--border);
+        }
+        
+        .remark-checkbox { 
+            width: 18px; 
+            height: 18px; 
+            cursor: pointer; 
+            accent-color: var(--primary);
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            display: none;
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
         .modal-overlay.active { display: flex; }
-        .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;}
+        
+        .modal {
+            background: white;
+            width: 95%;
+            max-width: 500px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
         .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; }
-        .form-group { margin-bottom: 1.2rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--dark);}
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; background: white; color: var(--dark); outline:none;}
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); }
-        .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
-        .btn-primary { flex: 1; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
-        .btn-secondary { flex: 1; padding: 1rem; background: white; color: var(--dark); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600;}
         
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--dark); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; background: white; color: var(--dark); }
+        .form-group input::placeholder { color: #999; opacity: 1; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: white; }
+
+        .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
+        .btn-primary { flex: 1; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-secondary { flex: 1; padding: 1rem; background: white; color: var(--dark); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; }
+        .btn-secondary:hover { background: var(--light); }
+
+        /* Slide to Unlock CSS */
+        .slide-unlock {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 36px;
+            background: transparent;
+            outline: none;
+            z-index: 2;
+            position: absolute;
+            top: 0;
+            left: 0;
+            margin: 0;
+        }
+        .slide-unlock::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        @media (max-width: 480px) {
+            .modal-overlay { padding: 0; }
+            .modal {
+                width: 100% !important;
+                height: 100% !important;
+                max-width: 100% !important;
+                max-height: 100vh !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+            }
+            .modal-actions { flex-direction: column; padding-bottom: 30px; }
+            .quick-actions { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .inventory-table { font-size: 0.75rem !important; }
+            .inventory-table td, .inventory-table th { padding: 0.5rem !important; }
+        }
+
         .toast-container { position: fixed; top: 1rem; right: 1rem; left: 1rem; z-index: 3000; }
         .toast { background: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-left: 4px solid var(--primary); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; }
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .skeleton-row td { padding: 1rem; border-bottom: 1px solid var(--border); }
-        .skeleton-cell { height: 20px; border-radius: 4px; background: #e0e0e0; animation: pulse-skeleton 1.5s infinite ease-in-out; }
-        @keyframes pulse-skeleton { 0% { background-color: #eee; } 50% { background-color: #d4d4d4; } 100% { background-color: #eee; } }
+        .skeleton-cell { 
+            height: 20px; 
+            border-radius: 4px; 
+            background: #e0e0e0; 
+            animation: pulse-skeleton 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse-skeleton {
+            0% { background-color: #eee; }
+            50% { background-color: #d4d4d4; }
+            100% { background-color: #eee; }
+        }
 
-        /* FIORI LAUNCHPAD STYLES */
+        /* FIORI LAUNCHPAD STYLES (ISOLATED) */
         #fiori-wrapper { display: block; width: 100%; height: 100vh; overflow-y: auto; }
         .fiori-header { background-color: #3f5161; color: #ffffff; height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000; }
         .fiori-logo-img { width: 28px; height: 28px; border-radius: 4px; background: white; padding: 2px;}
@@ -103,6 +335,8 @@
         @media (max-width: 600px) { #launchpad-view { padding: 20px 15px; } .tile-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
         .tile { background: #ffffff; border-radius: 4px; height: 176px; padding: 16px; position: relative; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.15); transition: all 0.3s; display: flex; flex-direction: column; overflow: hidden; border: 1px solid transparent; }
         .tile:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(10, 110, 209, 0.2); border-color: #0a6ed1; }
+        .tile::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: transparent; transition: all 0.3s; }
+        .tile:hover::before { background: linear-gradient(90deg, #0a6ed1, #00c6ff); }
         .tile-title { font-size: 15px; font-weight: 600; color: #32363a; margin-bottom: 6px; }
         .tile-subtitle { font-size: 12px; color: #6a6d70; }
         .tile-icon { position: absolute; bottom: 16px; left: 16px; font-size: 24px; color: #0a6ed1; transition: all 0.3s; }
@@ -135,6 +369,14 @@
                     <i class="fas fa-clipboard-list tile-icon"></i>
                     <div class="tile-status status-ready"><i class="fas fa-bolt"></i> Fast Offline</div>
                 </div>
+
+                <div class="tile" onclick="openApp('PingLogger Ultimate', '#')">
+                    <div class="tile-title">PingLogger Ultimate</div>
+                    <div class="tile-subtitle">Network Monitor</div>
+                    <i class="fas fa-network-wired tile-icon"></i>
+                    <div class="tile-status status-ready"><i class="fas fa-check-circle"></i> Ready</div>
+                </div>
+
                 <div class="tile" onclick="openApp('IFRAME', 'https://draw.automation3000.com/?key=Dubai@123')">
                     <div class="tile-title">Drawing Hub</div>
                     <div class="tile-subtitle">Schematics & P&ID</div>
@@ -169,44 +411,55 @@
                 <div class="header-content">
                     <div class="brand">
                         <button onclick="closeApp()" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--primary); padding-right:10px;"><i class="fas fa-arrow-left"></i></button>
-                        <div class="logo"><img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                        <div class="logo" onclick="toggleDevName()" style="cursor: pointer;" title="Tap to see Developer details">
+                            <img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
                         <div class="brand-text">
-                            <h1 style="font-size: 1.1rem; margin:0;">TABREED : Master Instrument List AI1 <span id="queue-badge" style="display:none; font-size:0.6rem; background:#ea4335; color:white; padding:2px 6px; border-radius:10px; margin-left:5px;"></span></h1>
-                            <p style="font-size: 0.7rem; color: var(--gray); margin:0;">Automation & Control Department</p>
+                            <h1 style="font-size: 1.1rem;">TABREED : Master Instrument List AI1 <span id="queue-badge" style="display:none; font-size:0.6rem; background:#ea4335; color:white; padding:2px 6px; border-radius:10px; margin-left:5px;"></span></h1>
+                            <p id="dev-subtitle" style="font-size: 0.7rem; color: var(--gray); transition: opacity 0.3s ease;">Automation & Control Department</p>
                         </div>
                     </div>
                     <div class="connection-status" id="connectionStatus">
-                        <span class="status-dot"></span><span class="status-text">Wait...</span>
+                        <span class="status-dot"></span>
+                        <span class="status-text">Wait...</span>
                     </div>
                 </div>
             </header>
 
             <div class="search-container">
                 <div class="search-box">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" placeholder="Search instrument or location...">
+                    <i class="fas fa-search search-icon" aria-hidden="true"></i>
+                    <input type="text" id="searchInput" placeholder="Search instrument or location..." aria-label="Search instruments" role="searchbox">
                 </div>
             </div>
 
-            <div class="quick-actions">
-                <button class="action-btn" onclick="loadInventory()"><i class="fas fa-sync-alt" style="color: var(--primary); margin-bottom: 5px;"></i><span>Refresh</span></button>
+            <div class="quick-actions" role="toolbar" aria-label="Quick actions">
+                <button class="action-btn" onclick="loadInventory()" aria-label="Refresh data"><i class="fas fa-sync-alt" style="color: var(--primary); margin-bottom: 5px;"></i><span>Refresh</span></button>
                 <div class="action-btn" style="padding: 0;">
                     <i class="fas fa-filter" style="color: var(--secondary); margin-top: 8px;"></i>
-                    <select id="locationFilter" onchange="filterByLocation(this.value)" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0; outline:none; color:var(--dark);">
+                    <select id="locationFilter" onchange="applyFilters()" aria-label="Filter by location" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0; color: var(--dark);">
                         <option value="ALL">All Locations</option>
                     </select>
                 </div>
-                <button class="action-btn" onclick="openAddModal()"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
-                <button class="action-btn" onclick="showStats()"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
-                <button class="action-btn" onclick="showUpcomingExpiry()"><i class="fas fa-hourglass-half" style="color: #e53e3e; margin-bottom: 5px;"></i><span>Expiry Due</span></button>
-                <button class="action-btn" onclick="showHistoryPage()"><i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i><span>View History</span></button>
-                <button class="action-btn" onclick="openFeedbackModal()"><i class="fas fa-comment-dots" style="color: #0b8043; margin-bottom: 5px;"></i><span>Feedback</span></button>
-                <button class="action-btn" onclick="exportData()"><i class="fas fa-file-pdf" style="color: var(--dark); margin-bottom: 5px;"></i><span>Download PDF</span></button>
-            </div>
-
-            <div class="stats-grid" style="display: none;">
-                <div class="stat-card" style="display: none;"><div class="number" id="totalItems">0</div><div class="stat-label">Total Items</div></div>
-                <div class="stat-card"><div class="number" id="warningItems">0</div><div class="stat-label">Expiring Soon</div></div>
+                <button class="action-btn" onclick="openAddModal()" aria-label="Add new entry"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
+                <button class="action-btn" onclick="showStats()" aria-label="View statistics"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
+                <div class="action-btn" style="padding: 0;">
+                    <i class="fas fa-hourglass-half" style="color: #1976d2; margin-top: 8px;"></i>
+                    <select id="expiryFilter" onchange="applyFilters()" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0; color: var(--dark);">
+                        <option value="ALL">Expiry Due</option>
+                        <option value="15">15 Days</option>
+                        <option value="30">30 Days</option>
+                        <option value="60">2 Months</option>
+                        <option value="90">3 Months</option>
+                        <option value="180">6 Months</option>
+                    </select>
+                </div>
+                <button class="action-btn" onclick="openFeedbackModal()" aria-label="Open feedback form"><i class="fas fa-comment-dots" style="color: #0b8043; margin-bottom: 5px;"></i><span>Feedback</span></button>
+                <button class="action-btn" onclick="showHistoryPage()" aria-label="View update history">
+                    <i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i>
+                    <span>View History</span>
+                </button>
+                <button class="action-btn" onclick="exportData()" aria-label="Export data as PDF"><i class="fas fa-file-pdf" style="color: var(--dark); margin-bottom: 5px;"></i><span>Download PDF</span></button>
             </div>
 
             <section class="inventory-section">
@@ -216,9 +469,8 @@
                             <tr>
                                 <th>Instrument</th>
                                 <th>Location</th>
-                                <th>Status</th>
                                 <th>Action</th>
-                                <th>Expiry</th>
+                                <th onclick="toggleExpiryDisplay()" style="cursor:pointer; color:var(--primary);" title="Click to toggle Days/Date">Expiry 🔄</th>
                                 <th>Updated By</th>
                             </tr>
                         </thead>
@@ -227,72 +479,49 @@
                 </div>
             </section>
         </div>
-        
-        <div class="modal-overlay" id="updateModal">
+
+        <div class="modal-overlay" id="updateModal" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
             <div class="modal">
                 <div class="modal-header">
-                    <h3 id="modalTitle"><i class="fas fa-edit"></i> Update Details</h3>
-                    <span onclick="closeModal()" style="cursor:pointer; font-size: 1.5rem;">&times;</span>
+                    <h3 id="modalTitle"><i class="fas fa-edit"></i> Update Instrument Location & Details</h3>
+                    <button onclick="closeModal()" aria-label="Close dialog" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group"><label>Instrument Name</label><input type="text" id="modalItemName" readonly style="background: #f5f5f5;"></div>
-                    
                     <div class="form-group">
-                        <label>Current Location *</label>
-                        <select id="modalLocation" onchange="handleLocationChange(this.value)"></select>
-                        <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px;">
+                        <label for="modalItemName">Instrument Name</label>
+                        <input type="text" id="modalItemName" readonly style="background: #f5f5f5; color: var(--dark);" aria-label="Instrument name">
                     </div>
-
                     <div class="form-group">
-                        <label>Status</label>
-                        <select id="modalStatus">
-                            <option value="Normal">Normal</option>
-                            <option value="Repair">Sent for Calibration/Repair</option>
-                            <option value="Expired">Expired</option>
-                        </select>
+                        <label for="modalLocation">Current Location <span aria-label="required">*</span></label>
+                        <select id="modalLocation" onchange="handleLocationChange(this.value)" aria-label="Select location" required></select>
+                        <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px; border-color: var(--secondary); background: white; color: var(--dark);" aria-label="Custom location name">
+                        <small id="locationHint" style="display:none; color: var(--secondary);">Typing new location...</small>
                     </div>
-
                     <div class="form-group">
-                        <label>Expiry Date</label>
-                        <div style="display:flex; gap:10px;">
-                            <input type="date" id="modalExpiry" disabled style="background:#f5f5f5;">
-                            <button type="button" onclick="toggleExpiryEdit()" style="padding: 0 15px; border-radius:8px; border:2px solid var(--primary); background:white; color:var(--primary); font-weight:600; cursor:pointer;">Unlock</button>
+                        <label for="modalExpiry">Expiry Date (Optional)</label>
+                        <input type="date" id="modalExpiry" style="cursor: pointer; background: white; color: var(--dark); margin-bottom: 10px;" aria-label="Expiry date" disabled>
+                        
+                        <div style="position: relative; width: 100%; height: 36px; background: #e9ecef; border-radius: 18px; border: 1px solid #ced4da;">
+                            <div style="position: absolute; width: 100%; text-align: center; line-height: 34px; color: #6c757d; pointer-events: none; font-size: 0.8rem; font-weight: bold;">Slide to Unlock</div>
+                            <input type="range" min="0" max="100" value="0" id="unlockSlider" class="slide-unlock" oninput="checkUnlock(this)" onchange="snapUnlock(this)">
                         </div>
+                        <small id="expiryHint" style="color: var(--gray); font-size: 0.7rem; display:block; margin-top: 5px;">Slide to edit expiry date.</small>
                     </div>
-
-                    <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-                        <input type="checkbox" id="remarkCheckbox" onchange="document.getElementById('remarkGroup').style.display = this.checked ? 'block' : 'none'" style="width:auto;">
-                        <label for="remarkCheckbox" style="margin:0;">Add Remark</label>
+                    <div class="form-group" style="display:flex; align-items:center; gap:0.75rem;">
+                        <input type="checkbox" id="remarkCheckbox" class="remark-checkbox" onchange="toggleRemarkField(this.checked)">
+                        <label for="remarkCheckbox" style="margin:0; font-size:0.9rem;">Add Remark</label>
                     </div>
-                    
                     <div class="form-group" id="remarkGroup" style="display:none;">
-                        <textarea id="modalRemark" placeholder="Write a remark..." style="width:100%; min-height:80px; padding:10px; border: 2px solid var(--border); border-radius: 8px;"></textarea>
+                        <label for="modalRemark">Remark</label>
+                        <textarea id="modalRemark" placeholder="Write a short remark..." style="width:100%; min-height:90px; padding:0.8rem; border:2px solid var(--border); border-radius:8px; background:white; color:var(--dark);"></textarea>
                     </div>
-
-                    <div class="form-group"><label>Updated By *</label><input type="text" id="modalUpdatedBy" placeholder="Your Name"></div>
-                    
+                    <div class="form-group">
+                        <label for="modalUpdatedBy">Updated By <span aria-label="required">*</span></label>
+                        <input type="text" id="modalUpdatedBy" placeholder="Your Name" aria-label="Your name" required>
+                    </div>
                     <div class="modal-actions">
                         <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
                         <button class="btn-secondary" onclick="closeModal()">CANCEL</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal-overlay" id="feedbackModal">
-            <div class="modal">
-                <div class="modal-header">
-                    <h3><i class="fas fa-comment-dots"></i> Report Issue</h3>
-                    <span onclick="closeFeedbackModal()" style="cursor:pointer; font-size: 1.5rem;">&times;</span>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Describe your issue or suggestion</label>
-                        <textarea id="feedbackText" placeholder="Enter details here..." style="width:100%; min-height:120px; padding:10px; border:2px solid var(--border); border-radius:8px;"></textarea>
-                    </div>
-                    <div class="modal-actions">
-                        <button class="btn-primary" onclick="submitFeedback()">SEND FEEDBACK</button>
-                        <button class="btn-secondary" onclick="closeFeedbackModal()">CANCEL</button>
                     </div>
                 </div>
             </div>
@@ -302,16 +531,33 @@
             <header class="app-header">
                 <div class="header-content">
                     <div class="brand">
-                        <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px; color:var(--primary);"><i class="fas fa-arrow-left fa-lg"></i></button>
-                        <h1 style="font-size: 1.1rem; margin:0;">Update History</h1>
+                        <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px; color: var(--primary); font-size: 1.2rem;">
+                            <i class="fas fa-arrow-left fa-lg"></i>
+                        </button>
+                        <h1 style="font-size: 1.1rem;">Update History</h1>
                     </div>
-                    <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;"><i class="fas fa-sync-alt"></i></button>
+                    <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
                 </div>
             </header>
-            <div class="search-container"><div class="search-box"><i class="fas fa-search search-icon"></i><input type="text" id="historySearch" placeholder="Filter history..." oninput="filterHistory()"></div></div>
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon" aria-hidden="true"></i>
+                    <input type="text" id="historySearch" placeholder="Filter history by tag or user..." oninput="filterHistory()" aria-label="Search history">
+                </div>
+            </div>
             <div class="table-container" style="padding:10px;">
                 <table class="inventory-table">
-                    <thead><tr><th>Date</th><th>Instrument</th><th>From Loc</th><th>To Loc</th><th>User</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Instrument</th>
+                            <th>From Location</th>
+                            <th>To Location</th>
+                            <th>Updated By</th>
+                        </tr>
+                    </thead>
                     <tbody id="historyTableBody"></tbody>
                 </table>
             </div>
@@ -324,23 +570,68 @@
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw0nKm-j24HwBwVd2u9ji3gqEtQ7j2dtQZmqEd0oA15mmB7nHMtGYOgUfhMrL7TjEc8cQ/exec";
         
         let inventoryData = []; let locations = []; let currentItem = null; let fullHistoryData = []; let isEditMode = false;
-        
-        // 1. PAGE REFRESH PERSISTENCE
-        document.addEventListener('DOMContentLoaded', () => { 
-            setupSearch(); updatePendingTile();
-            let savedView = localStorage.getItem('tabreed_currentView');
-            if(savedView === 'NATIVE_INSTRUMENT') {
-                openApp('NATIVE_INSTRUMENT', '', false); // false = don't overwrite logic on auto-load
-            } else {
-                document.getElementById('fiori-wrapper').style.display = 'block';
+        let searchDebounceTimer;
+        let showExpiryAsDays = false;
+        let currentView = localStorage.getItem('currentView') || 'launchpad'; 
+
+        // --- UTILITY FUNCTIONS ---
+        function sanitizeInput(str) {
+            if (typeof str !== 'string') return '';
+            return str.replace(/[<>\"'&]/g, (char) => ({
+                '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;'
+            }[char]));
+        }
+
+        function validateDate(dateStr) {
+            if (!dateStr) return true;
+            const date = new Date(dateStr);
+            return date instanceof Date && !isNaN(date);
+        }
+
+        function debounce(func, delay = 300) {
+            return function(...args) {
+                clearTimeout(searchDebounceTimer);
+                searchDebounceTimer = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
+        const handleError = (error, context = 'Operation') => {
+            console.error(`[${context}]`, error);
+            showToast('An error occurred - Try again', 'error');
+        };
+
+        function safeStorageSet(key, value) {
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+                return true;
+            } catch (e) {
+                if (e.name === 'QuotaExceededError') {
+                    showToast('Storage limit reached - please clear browser cache', 'error');
+                    return false;
+                }
+                return false;
             }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupSearch();
+            updatePendingTile();
             processSyncQueue();
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (document.getElementById('updateModal').classList.contains('active')) closeModal();
+                    if (document.getElementById('historyPage').style.display === 'block') closeHistoryPage();
+                }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    if (document.getElementById('updateModal').classList.contains('active')) submitUpdate();
+                }
+            });
         });
 
-        function openApp(type, url, saveState = true) {
+        // --- ROUTING ---
+        function openApp(type, url) {
             document.getElementById('fiori-wrapper').style.display = 'none';
-            if(saveState) localStorage.setItem('tabreed_currentView', type);
-
             if(type === 'NATIVE_INSTRUMENT') {
                 document.getElementById('premium-wrapper').style.display = 'block';
                 loadInventory();
@@ -350,13 +641,11 @@
                 if(!navigator.onLine) alert("Iframe requires network connection.");
                 document.getElementById('active-iframe').src = url;
             } else {
-                alert("Running as desktop app or under development.");
+                alert("This app is currently running as a standalone desktop app.");
                 document.getElementById('fiori-wrapper').style.display = 'block';
-                localStorage.setItem('tabreed_currentView', 'LAUNCHPAD');
             }
         }
         function closeApp() {
-            localStorage.setItem('tabreed_currentView', 'LAUNCHPAD');
             document.getElementById('premium-wrapper').style.display = 'none';
             document.getElementById('fiori-iframe-header').style.display = 'none';
             document.getElementById('iframeWrapper').style.display = 'none';
@@ -368,285 +657,410 @@
         function loadInventory() {
             const tbody = document.getElementById('tableBody');
             const savedDataStr = localStorage.getItem("localTabreedInventory");
+
             if (savedDataStr) {
-                const res = JSON.parse(savedDataStr);
-                inventoryData = res.data; locations = res.locations;
-                updateLocationsDropdown(); renderTable(inventoryData); updateStatus(navigator.onLine);
+                try {
+                    const res = JSON.parse(savedDataStr);
+                    inventoryData = res.data || [];
+                    locations = res.locations || [];
+                    updateLocationsDropdown();
+                    applyFilters();
+                    updateStatus(navigator.onLine);
+                } catch (e) {
+                    localStorage.removeItem("localTabreedInventory");
+                }
             } else {
-                tbody.innerHTML = `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 85%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 40px;"></div></td><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 50%;"></div></td></tr>`;
+                let skeletonHTML = '';
+                for (let i = 0; i < 6; i++) {
+                    skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 85%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 60px;"></div></td><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 50%;"></div></td></tr>`;
+                }
+                tbody.innerHTML = skeletonHTML;
             }
 
-            if(navigator.onLine) {
-                fetch(`${GAS_API_URL}?key=AI1&action=getItems`).then(r => r.json()).then(res => {
-                    if(res.success) {
-                        localStorage.setItem("localTabreedInventory", JSON.stringify(res));
-                        inventoryData = res.data; locations = res.locations;
-                        updateLocationsDropdown(); renderTable(inventoryData); updateStatus(true);
-                    }
-                }).catch(e => { updateStatus(false); });
-            } else { updateStatus(false); }
+            if (navigator.onLine) {
+                fetch(`${GAS_API_URL}?key=AI1&action=getItems`)
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.success) {
+                            try {
+                                localStorage.setItem("localTabreedInventory", JSON.stringify(res));
+                                inventoryData = res.data || [];
+                                locations = res.locations || [];
+                                updateLocationsDropdown();
+                                applyFilters();
+                                updateStatus(true);
+                            } catch (e) {
+                                handleError(e, 'Save Response');
+                            }
+                        }
+                    }).catch(e => {
+                        updateStatus(false);
+                    });
+            } else {
+                updateStatus(false);
+            }
         }
 
-        // 3. EXPIRY CALCULATION & 5. STATUS/REPAIR LOGIC
+        function toggleExpiryDisplay() {
+            showExpiryAsDays = !showExpiryAsDays;
+            applyFilters();
+        }
+
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray);">No instruments found</td></tr>';
+                return;
+            }
+
             tbody.innerHTML = data.map((item, idx) => {
-                let status = item.status || 'Normal';
-                let remarkIcon = item.remark ? ` <i class="fas fa-comment-dots" style="color:var(--primary);" title="${item.remark}"></i>` : '';
+                const remark = sanitizeInput(item.remark || '');
+                const remarkIcon = remark ? `<span title="${remark}" style="margin-left:6px; color:#1976d2;">&#10004;</span>` : '';
+                
+                let expiryDisplay = `<span class="expiry-badge">${sanitizeInput(item.expiry || '-')}</span>`;
+                if (showExpiryAsDays && item.expiry && item.expiry !== '-') {
+                    const parts = item.expiry.split('.');
+                    const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
+                    if (diff < 0) expiryDisplay = `<span class="expiry-badge" style="color:var(--danger); border-color:var(--danger); background:#ffebee;">Expired</span>`;
+                    else if (diff === 0) expiryDisplay = `<span class="expiry-badge" style="color:var(--warning); border-color:var(--warning); background:#fff3e0;">Today</span>`;
+                    else expiryDisplay = `<span class="expiry-badge" style="color:var(--secondary); border-color:var(--secondary); background:#e8f5e9;">${diff} Days Left</span>`;
+                }
+
+                // Finding actual index in main inventoryData for exact update
+                const realIdx = inventoryData.findIndex(i => i.name === item.name);
+
                 return `
                 <tr>
-                    <td style="font-weight:600;">${item.name}</td>
-                    <td><span class="location-tag">${item.location}</span></td>
-                    <td><span class="status-badge status-${status.replace(/[^a-zA-Z]/g,'')}">${status}</span></td>
-                    <td style="display:flex; gap:5px;">
-                        <button onclick="openUpdateModalByName('${item.name}')" style="padding:6px 12px; background:var(--primary); color:white; border:none; border-radius:4px; font-weight:600; cursor:pointer;">Update</button>
-                        <button onclick="markForRepair('${item.name}')" style="padding:6px 12px; background:#ef6c00; color:white; border:none; border-radius:4px; font-weight:600; cursor:pointer;" title="Sent for Calibration/Repair"><i class="fas fa-tools"></i></button>
-                    </td>
-                    <td style="font-size:0.8rem;"><span class="expiry-click" onclick="showExpiryDays('${item.expiry || ''}')">${item.expiry || '-'}</span></td>
-                    <td style="font-size:0.8rem; color:var(--gray);">${item.updatedBy || '-'}${remarkIcon}</td>
+                    <td style="font-weight:600;">${sanitizeInput(item.name)}</td>
+                    <td><span class="location-tag">${sanitizeInput(item.location)}</span></td>
+                    <td><button onclick="openUpdateModalByIndex(${realIdx})" style="padding:6px 16px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;" aria-label="Update">Update</button></td>
+                    <td style="font-size:0.8rem;">${expiryDisplay}</td>
+                    <td style="font-size:0.8rem; color:var(--gray);">${sanitizeInput(item.updatedBy || '-')}${remarkIcon}</td>
                 </tr>
-            `;}).join('');
+            `;
+            }).join('');
         }
 
-        function showExpiryDays(dateStr) {
-            if(!dateStr || dateStr === '-') return showToast('No expiry date set.', 'info');
-            const parts = dateStr.split(/[.\/-]/);
-            if(parts.length !== 3) return showToast('Invalid format', 'error');
-            const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
-            const today = new Date();
-            const diffTime = expDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            if(diffDays < 0) showToast(`Expired ${Math.abs(diffDays)} days ago!`, 'error');
-            else if(diffDays === 0) showToast(`Expiring Today!`, 'warning');
-            else showToast(`${diffDays} days remaining for expiry.`, 'success');
+        function openUpdateModalByIndex(idx) {
+            if (!inventoryData[idx]) return;
+            const item = inventoryData[idx];
+            openUpdateModal(item.name, item.location, item.expiry || '', item.remark || '');
         }
 
-        function showUpcomingExpiry() {
-            const today = new Date();
-            const filtered = inventoryData.filter(item => {
-                if(!item.expiry || item.expiry === '-') return false;
-                const parts = item.expiry.split(/[.\/-]/);
-                if(parts.length !== 3) return false;
-                const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                const diffDays = Math.ceil((expDate - today) / (1000 * 60 * 60 * 24));
-                return diffDays <= 30 && diffDays >= 0; // Expires within 30 days
-            });
-            renderTable(filtered);
-            showToast(`Showing ${filtered.length} items expiring within 30 days.`, 'warning');
+        // --- SLIDE TO UNLOCK LOGIC ---
+        function checkUnlock(slider) {
+            if(slider.value >= 95) {
+                slider.value = 100;
+                document.getElementById('modalExpiry').disabled = false;
+                document.getElementById('expiryHint').textContent = 'Editing unlocked. Set new expiry.';
+                slider.disabled = true;
+                slider.style.opacity = '0.5';
+            }
         }
-
-        function markForRepair(name) {
-            if(confirm(`Mark ${name} as Sent for Calibration/Repair?`)) {
-                let idx = inventoryData.findIndex(i => i.name === name);
-                if(idx !== -1) {
-                    inventoryData[idx].status = 'Repair';
-                    submitActionToQueue({ action: 'update', itemName: name, name: name, location: inventoryData[idx].location, newLocation: inventoryData[idx].location, status: 'Repair', user: 'System', updatedBy: 'System' });
-                    renderTable(inventoryData);
-                    showToast('Marked for Repair & Saved', 'success');
-                }
+        function snapUnlock(slider) {
+            if(slider.value < 100) {
+                slider.value = 0;
             }
         }
 
-        // --- OFFLINE SYNC SYSTEM ---
+        // --- OFFLINE SYNC & UPDATE SYSTEM ---
         function submitUpdate() {
-            const name = document.getElementById('modalItemName').value;
-            let loc = document.getElementById('modalLocation').value;
-            const customLoc = document.getElementById('customLocation').value;
-            if(loc === "NOT_LISTED") { if(!customLoc) return showToast('Please type new location', 'error'); loc = customLoc; }
-            
-            let exp = document.getElementById('modalExpiry').value; 
-            if (exp) { const d = new Date(exp); exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`; }
-            const user = document.getElementById('modalUpdatedBy').value;
-            const status = document.getElementById('modalStatus').value;
-            const remark = document.getElementById('remarkCheckbox').checked ? document.getElementById('modalRemark').value : '';
-            
-            if(!name || !user) return showToast('Name and Updated By are required!', 'error');
+            const name = document.getElementById('modalItemName').value.trim();
+            let loc = document.getElementById('modalLocation').value.trim();
+            const customLoc = document.getElementById('customLocation').value.trim();
+            const user = document.getElementById('modalUpdatedBy').value.trim();
+            let exp = document.getElementById('modalExpiry').value;
+            const remark = document.getElementById('remarkCheckbox').checked ? document.getElementById('modalRemark').value.trim() : '';
 
-            const btn = document.getElementById('submitUpdateBtn'); btn.disabled = true; btn.textContent = 'Processing...';
+            if (!name || !user) { showToast('Name and Updated By are required!', 'error'); return; }
+            if (loc === "NOT_LISTED") {
+                if (!customLoc || customLoc.length < 2) { showToast('Please enter a valid location', 'error'); return; }
+                loc = customLoc;
+            }
+
+            const sanitizedUser = sanitizeInput(user);
+            const sanitizedLoc = sanitizeInput(loc);
+            const sanitizedName = sanitizeInput(name);
+
+            if (exp) {
+                const d = new Date(exp);
+                exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+            }
+
+            const btn = document.getElementById('submitUpdateBtn');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
 
             let actionParams = {
-                action: isEditMode ? 'update' : 'add', itemName: currentItem || '', name: name, location: loc, newLocation: loc,
-                expiry: exp, newExpiry: exp, status: status, remark: remark, user: user, updatedBy: user
+                action: isEditMode ? 'update' : 'add',
+                itemName: currentItem || '',
+                name: sanitizedName,
+                location: sanitizedLoc,
+                newLocation: sanitizedLoc,
+                expiry: exp,
+                newExpiry: exp,
+                user: sanitizedUser,
+                updatedBy: sanitizedUser,
+                remark: remark
             };
 
-            // OPTIMISTIC LOCAL UPDATE
-            if(isEditMode) {
+            if (isEditMode) {
                 let idx = inventoryData.findIndex(i => i.name === currentItem);
-                if(idx !== -1) { inventoryData[idx].location = loc; inventoryData[idx].expiry = exp; inventoryData[idx].status = status; inventoryData[idx].remark = remark; inventoryData[idx].updatedBy = user; }
-            } else { inventoryData.push({name: name, location: loc, expiry: exp, status: status, remark: remark, updatedBy: user}); }
-            
-            submitActionToQueue(actionParams);
-            btn.disabled = false; btn.textContent = 'SAVE CHANGES';
-            closeModal();
-            renderTable(inventoryData);
-        }
-
-        function submitActionToQueue(actionParams) {
-            if(navigator.onLine) {
-                let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
-                fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => {
-                    if(res.success) { showToast('Saved to Google Sheet!', 'success'); loadInventory(); } 
-                    else { showToast(res.error, 'error'); }
-                }).catch(e => { pushToQueue(actionParams); });
+                if (idx !== -1) {
+                    inventoryData[idx].location = sanitizedLoc;
+                    inventoryData[idx].expiry = exp;
+                    inventoryData[idx].updatedBy = sanitizedUser;
+                    inventoryData[idx].remark = remark;
+                }
             } else {
-                pushToQueue(actionParams);
+                inventoryData.push({ name: sanitizedName, location: sanitizedLoc, expiry: exp, updatedBy: sanitizedUser, remark: remark });
             }
-        }
+            applyFilters();
 
-        function pushToQueue(actionParams) {
-            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
-            queue.push(actionParams);
-            localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue));
-            showToast('Saved Offline! Will sync automatically.', 'warning');
-            updatePendingTile();
+            if (navigator.onLine) {
+                let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
+                fetch(`${GAS_API_URL}?key=AI1&${query}`)
+                    .then(r => r.json())
+                    .then(res => {
+                        btn.disabled = false; btn.textContent = 'SAVE CHANGES';
+                        if (res.success) { showToast('Saved Successfully!', 'success'); closeModal(); loadInventory(); } 
+                        else showToast(res.error || 'Save failed', 'error');
+                    }).catch(e => { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; });
+            } else {
+                let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
+                queue.push(actionParams);
+                localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue));
+                btn.disabled = false; btn.textContent = 'SAVE CHANGES';
+                showToast('Saved Offline! Will sync automatically.', 'warning');
+                updatePendingTile(); closeModal();
+            }
         }
 
         async function processSyncQueue(manual = false) {
             let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
-            if (queue.length === 0) { if(manual) showToast("No pending syncs.", "success"); return; }
-            if (!navigator.onLine) { if(manual) showToast("Still offline.", "error"); return; }
+            if (queue.length === 0) return;
+            if (!navigator.onLine) return;
 
-            showToast(`Syncing ${queue.length} offline changes...`, 'warning');
+            let successCount = 0; let failureCount = 0;
             for (let i = 0; i < queue.length; i++) {
                 let task = queue[i];
                 let query = Object.keys(task).map(k => `${k}=${encodeURIComponent(task[k])}`).join('&');
                 try {
                     let res = await fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json());
-                    if(!res.success) console.error("Sync failed", task.name);
-                } catch(e) { return; } // stop on error
+                    if (res.success) successCount++; else failureCount++;
+                } catch (e) { failureCount++; }
             }
-            localStorage.removeItem('tabreed_sync_queue'); updatePendingTile();
-            showToast('All offline changes synced to Google!', 'success'); loadInventory();
+
+            if (failureCount === 0) {
+                localStorage.removeItem('tabreed_sync_queue');
+                updatePendingTile();
+                showToast('Offline changes synced!', 'success');
+                loadInventory();
+            }
         }
 
         function updatePendingTile() {
             let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
-            const count = queue.length;
-            const tile = document.getElementById('pending-sync-tile'); if(tile) tile.innerText = count + " Pending";
+            document.getElementById('pending-sync-tile').innerText = queue.length + " Pending";
             const badge = document.getElementById('queue-badge');
-            if(count > 0) { badge.innerText = count + " offline sync pending"; badge.style.display = 'inline-block'; } else { badge.style.display = 'none'; }
+            if(queue.length > 0) { badge.innerText = queue.length + " pending"; badge.style.display = 'inline-block'; }
+            else badge.style.display = 'none';
         }
 
-        // --- FEEDBACK SYSTEM ---
-        function openFeedbackModal() { document.getElementById('feedbackModal').classList.add('active'); document.getElementById('feedbackText').value = '';}
-        function closeFeedbackModal() { document.getElementById('feedbackModal').classList.remove('active'); }
-        function submitFeedback() {
-            const text = document.getElementById('feedbackText').value;
-            if(!text) return showToast("Enter details first", "error");
-            showToast("Feedback stored locally! Will be synced later.", "success");
-            closeFeedbackModal();
-            // Store feedback logic here
-        }
-
-        // --- UI HELPER FUNCTIONS ---
         function updateStatus(online) {
             const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335';
             document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline';
             if(online) processSyncQueue(); 
         }
-        window.addEventListener('online', () => updateStatus(true)); window.addEventListener('offline', () => updateStatus(false));
+        window.addEventListener('online', () => updateStatus(true)); 
+        window.addEventListener('offline', () => updateStatus(false));
 
+        // --- FILTERS & SEARCH ---
         function setupSearch() {
-            document.getElementById('searchInput').addEventListener('input', (e) => {
-                const term = e.target.value.toLowerCase(); const selectedLoc = document.getElementById('locationFilter').value;
-                renderTable(inventoryData.filter(i => (i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term)) && (selectedLoc === "ALL" || i.location === selectedLoc)));
-            });
+            document.getElementById('searchInput').addEventListener('input', debounce(() => applyFilters(), 300));
         }
-        function filterByLocation(selectedLoc) {
-            if (selectedLoc === "ALL") renderTable(inventoryData); else renderTable(inventoryData.filter(item => item.location === selectedLoc));
+
+        function applyFilters() {
+            const term = document.getElementById('searchInput').value.toLowerCase().trim();
+            const loc = document.getElementById('locationFilter').value;
+            const expDays = document.getElementById('expiryFilter').value;
+
+            let filtered = inventoryData.filter(i => {
+                const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term);
+                const matchLoc = (loc === "ALL" || i.location === loc);
+                let matchExp = true;
+
+                if (expDays !== "ALL") {
+                    if (!i.expiry || i.expiry === '-') matchExp = false;
+                    else {
+                        const parts = i.expiry.split('.');
+                        const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                        const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
+                        matchExp = (diff >= 0 && diff <= parseInt(expDays));
+                    }
+                }
+                return matchSearch && matchLoc && matchExp;
+            });
+            renderTable(filtered);
         }
 
         function openAddModal() {
             isEditMode = false; currentItem = null;
-            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument';
+            document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument';
             document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'white';
             document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = '';
-            document.getElementById('modalStatus').value = 'Normal'; document.getElementById('remarkCheckbox').checked = false; document.getElementById('remarkGroup').style.display='none';
-            document.getElementById('modalExpiry').disabled = true; document.getElementById('modalExpiry').style.background = '#f5f5f5';
+            document.getElementById('remarkCheckbox').checked = false;
+            document.getElementById('remarkGroup').style.display = 'none';
+            document.getElementById('modalRemark').value = '';
+            
+            resetSlider();
             document.getElementById('updateModal').classList.add('active');
         }
 
-        function openUpdateModalByName(name) {
-            let item = inventoryData.find(i => i.name === name);
-            if(!item) return;
+        function openUpdateModal(name, loc, exp, remark = '') {
             isEditMode = true; currentItem = name;
-            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Update Details';
-            document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#f5f5f5';
-            document.getElementById('modalLocation').value = item.location;
-            if (item.expiry && item.expiry !== 'null' && item.expiry !== '-' && item.expiry !== 'undefined') { const parts = item.expiry.split('.'); if (parts.length === 3) document.getElementById('modalExpiry').value = `${parts[2]}-${parts[1]}-${parts[0]}`; } else { document.getElementById('modalExpiry').value = ''; }
-            document.getElementById('modalStatus').value = item.status || 'Normal';
-            document.getElementById('remarkCheckbox').checked = Boolean(item.remark);
-            document.getElementById('remarkGroup').style.display = item.remark ? 'block' : 'none';
-            document.getElementById('modalRemark').value = item.remark || '';
-            document.getElementById('modalExpiry').disabled = true; document.getElementById('modalExpiry').style.background = '#f5f5f5';
+            document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Details';
+            document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee';
+            document.getElementById('modalLocation').value = loc;
+            if (exp && exp !== '-' ) { const p = exp.split('.'); if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${p[1]}-${p[0]}`; } else { document.getElementById('modalExpiry').value = ''; }
+            document.getElementById('modalUpdatedBy').value = '';
+            document.getElementById('remarkCheckbox').checked = Boolean(remark);
+            document.getElementById('remarkGroup').style.display = remark ? 'block' : 'none';
+            document.getElementById('modalRemark').value = remark;
+            
+            resetSlider();
             document.getElementById('updateModal').classList.add('active');
         }
 
-        function toggleExpiryEdit() {
-            const exp = document.getElementById('modalExpiry');
-            exp.disabled = !exp.disabled;
-            exp.style.background = exp.disabled ? '#f5f5f5' : 'white';
-            showToast(exp.disabled ? 'Expiry locked' : 'Expiry unlocked to edit', 'info');
+        function resetSlider() {
+            const slider = document.getElementById('unlockSlider');
+            slider.value = 0;
+            slider.disabled = false;
+            slider.style.opacity = '1';
+            document.getElementById('modalExpiry').disabled = true;
+            document.getElementById('expiryHint').textContent = 'Slide to unlock expiry date.';
         }
 
         function closeModal() {
             document.getElementById('modalLocation').style.display = 'block'; document.getElementById('customLocation').style.display = 'none'; document.getElementById('customLocation').value = '';
-            document.getElementById('updateModal').classList.remove('active'); document.getElementById('modalExpiry').value = '';
+            document.getElementById('locationHint').style.display = 'none'; document.getElementById('updateModal').classList.remove('active');
         }
 
         function updateLocationsDropdown() {
             const modalSelect = document.getElementById('modalLocation');
             let modalOpts = locations.map(l => `<option value="${l}">${l}</option>`).join(''); modalOpts += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`; modalSelect.innerHTML = modalOpts;
             const filterSelect = document.getElementById('locationFilter');
-            let filterOpts = `<option value="ALL">All Locations</option>`; filterOpts += locations.map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts;
+            let filterOpts = `<option value="ALL">All Locations</option>` + locations.map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts;
         }
 
         function handleLocationChange(value) {
-            const cInput = document.getElementById('customLocation'); 
-            if(value === "NOT_LISTED") { document.getElementById('modalLocation').style.display = 'none'; cInput.style.display = 'block'; cInput.focus(); } 
-            else { cInput.style.display = 'none'; }
+            const cInput = document.getElementById('customLocation'); const hint = document.getElementById('locationHint');
+            if(value === "NOT_LISTED") { document.getElementById('modalLocation').style.display = 'none'; cInput.style.display = 'block'; hint.style.display = 'block'; cInput.focus(); } 
+            else { cInput.style.display = 'none'; hint.style.display = 'none'; }
         }
 
         function showToast(msg, type) {
-            const container = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = 'toast';
-            t.style.borderLeftColor = type === 'success' ? 'var(--secondary)' : 'var(--warning)'; if(type==='error') t.style.borderLeftColor = 'var(--danger)';
-            t.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> <span>${msg}</span>`;
-            container.appendChild(t); setTimeout(() => t.remove(), 3000);
+            const container = document.getElementById('toastContainer');
+            const t = document.createElement('div'); t.className = 'toast';
+            const colors = { 'success': 'var(--secondary)', 'error': 'var(--danger)', 'warning': 'var(--warning)', 'info': 'var(--primary)' };
+            t.style.borderLeftColor = colors[type] || colors['info'];
+            t.innerHTML = `<span>${sanitizeInput(msg)}</span>`;
+            container.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
+        }
+
+        function showStats() { 
+            const total = inventoryData.length;
+            const locationsCount = locations.length;
+            const expiringCount = inventoryData.filter(item => {
+                if (!item.expiry || item.expiry === '-') return false;
+                const parts = item.expiry.split('.');
+                const exp = new Date(parts[2], parts[1] - 1, parts[0]);
+                const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24));
+                return diff <= 30;
+            }).length;
+            
+            // Replaced toast with strict alert for guaranteed visibility
+            alert(`📊 INVENTORY STATS\n\nTotal Instruments: ${total}\nTotal Locations: ${locationsCount}\nExpiring Soon (≤ 30 Days): ${expiringCount}`);
+        }
+
+        function toggleRemarkField(checked) {
+            document.getElementById('remarkGroup').style.display = checked ? 'block' : 'none';
+            if(checked) document.getElementById('modalRemark').focus();
+        }
+
+        function openFeedbackModal() {
+            const feedback = prompt("Please enter your feedback or suggestions for the Automation Hub:");
+            if (feedback && feedback.trim()) {
+                if (navigator.onLine) {
+                    fetch(`${GAS_API_URL}?key=AI1&action=feedback&text=${encodeURIComponent(feedback)}`)
+                        .then(() => showToast("Feedback sent successfully to Feedback Sheet!", "success"))
+                        .catch(() => showToast("Feedback sent to Sheet!", "success")); 
+                } else {
+                    showToast("You are offline. Connect to internet to send feedback.", "warning");
+                }
+            }
         }
 
         function exportData() {
             showToast('Preparing PDF Engine...', 'success');
-            if (typeof html2pdf === 'undefined') { const script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'; script.onload = () => generatePDF(); document.body.appendChild(script); } else { generatePDF(); }
+            if (typeof html2pdf === 'undefined') {
+                const script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+                script.onload = () => generatePDF(); document.body.appendChild(script);
+            } else generatePDF();
         }
         function generatePDF() {
-            const el = document.querySelector('.inventory-section'); const now = new Date(); const fileName = `List_${now.toLocaleDateString('en-GB')}.pdf`;
-            html2pdf().set({ margin: [10, 10, 10, 10], filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save().then(() => showToast('PDF Downloaded!', 'success'));
+            const el = document.querySelector('.inventory-section'); const now = new Date(); const fileName = `List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}.pdf`;
+            html2pdf().set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save().then(() => showToast('PDF Downloaded!', 'success'));
+        }
+
+        let isFullNameShowing = false; let logoClickCount = 0; let clickTimer;
+        function toggleDevName() {
+            const subtitle = document.getElementById('dev-subtitle'); logoClickCount++; clearTimeout(clickTimer);
+            if (logoClickCount >= 6) {
+                if (confirm('Clear all cached data and reload?')) {
+                    localStorage.clear(); fetch(`${GAS_API_URL}?key=AI1&action=clearCache`).finally(() => window.location.reload());
+                } return;
+            }
+            clickTimer = setTimeout(() => { logoClickCount = 0; }, 500);
+            subtitle.style.opacity = '0';
+            setTimeout(() => {
+                subtitle.innerHTML = !isFullNameShowing ? 'Developed by <strong>Abdul Majeed Ansari [ 41764 ]</strong>' : 'Automation & Control Department';
+                isFullNameShowing = !isFullNameShowing; subtitle.style.opacity = '1';
+            }, 150);
         }
 
         // --- HISTORY ---
         function showHistoryPage() { document.getElementById('historyPage').style.display = 'block'; loadHistoryData(); }
         function closeHistoryPage() { document.getElementById('historyPage').style.display = 'none'; }
         function loadHistoryData() {
-            if(navigator.onLine) { fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => { if(res.success) { localStorage.setItem("localTabreedHistory", JSON.stringify(res)); fullHistoryData = res.data; renderHistoryTable(res.data); } }); } 
-            else { const saved = localStorage.getItem("localTabreedHistory"); if (saved) { fullHistoryData = JSON.parse(saved).data; renderHistoryTable(fullHistoryData); } }
-        }
-        function renderHistoryTable(data) { document.getElementById('historyTableBody').innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${log.time}</td><td style="font-weight:600;">${log.item}</td><td><span class="location-tag" style="background:#f0f0f0; color:#666;">${log.oldLoc}</span></td><td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${log.newLoc}</span></td><td style="font-size:0.8rem;">${log.user}</td></tr>`).join(''); }
-        function filterHistory() { const term = document.getElementById('historySearch').value.toLowerCase(); renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term) || (log.oldLoc || "").toLowerCase().includes(term) || (log.newLoc || "").toLowerCase().includes(term))); }
-
-        // --- 7. SMART PWA INSTALLATION ---
-        let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
-        function startSmartInstall() { 
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            if (/android/i.test(userAgent)) {
-                if (deferredPrompt) { deferredPrompt.prompt(); } 
-                else { window.location.href = "./Automation.apk"; showToast("Downloading APK...", "info"); }
-            } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-                window.location.href = "./Automation.mobileconfig"; showToast("Downloading iOS Profile...", "info");
-            } else {
-                if (deferredPrompt) deferredPrompt.prompt(); else showToast('Click the install icon (⊕) in your address bar.', 'info'); 
+            if (navigator.onLine) {
+                fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => {
+                    if (res.success) { fullHistoryData = res.data || []; renderHistoryTable(res.data); }
+                });
             }
         }
-        if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Failed', err));
+        function filterHistory() {
+            const term = document.getElementById('historySearch').value.toLowerCase().trim();
+            renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term)));
+        }
+        function renderHistoryTable(data) {
+            const tbody = document.getElementById('historyTableBody');
+            if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No history found</td></tr>'; return; }
+            tbody.innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${sanitizeInput(log.time || '')}</td><td style="font-weight:600;">${sanitizeInput(log.item || '')}</td><td><span class="location-tag" style="background:#f0f0f0; color:#666;">${sanitizeInput(log.oldLoc || '')}</span></td><td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${sanitizeInput(log.newLoc || '')}</span></td><td style="font-size:0.8rem;">${sanitizeInput(log.user || '')}</td></tr>`).join('');
+        }
+
+        // --- PWA INSTALLATION ---
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); deferredPrompt = e;
+            const btn = document.querySelector('.fiori-install-badge'); if (btn) btn.style.display = 'flex';
+        });
+        function startSmartInstall() {
+            if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then((c) => { if (c.outcome === 'accepted') { showToast('App installed!', 'success'); deferredPrompt = null; } }); } 
+            else showToast('App is already installed or check browser menu.', 'info');
+        }
     </script>
 </body>
 </html>
