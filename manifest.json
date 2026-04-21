@@ -9,15 +9,21 @@
   "dir": "ltr",
   "theme_color": "#1a73e8",
   "background_color": "#e4edf5",
-  "display": "standalone",
+  "display": "fullscreen",
   "display_override": [
     "window-controls-overlay",
     "tabbed",
     "standalone",
-    "minimal-ui"
+    "minimal-ui",
+    "fullscreen",
+    "browser"
   ],
   "orientation": "portrait",
-  "categories": ["productivity", "utilities", "business"],
+  "categories": [
+    "productivity",
+    "utilities",
+    "business"
+  ],
   "prefer_related_applications": false,
   "related_applications": [
     {
@@ -28,12 +34,42 @@
   ],
   "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
   "icons": [
-    { "src": "icon-72.png", "sizes": "72x72", "type": "image/png", "purpose": "any" },
-    { "src": "icon-96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" },
-    { "src": "icon-128.png", "sizes": "128x128", "type": "image/png", "purpose": "any" },
-    { "src": "icon-144.png", "sizes": "144x144", "type": "image/png", "purpose": "any" },
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
   ],
   "screenshots": [
     {
@@ -54,23 +90,40 @@
       "name": "Network Monitor",
       "short_name": "PingLogger",
       "description": "Open PingLogger Ultimate",
-      "url": "/NEW.html?action=pinglogger",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "url": "/Index.html?action=pinglogger",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Add Instrument",
       "short_name": "Add Item",
       "description": "Add a new instrument to the list",
-      "url": "/NEW.html?action=add",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "url": "/Index.html?action=add",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ],
   "file_handlers": [
     {
-      "action": "/NEW.html",
+      "action": "/Index.html",
       "accept": {
-        "text/plain": [".txt", ".log"],
-        "application/json": [".json"]
+        "text/plain": [
+          ".txt",
+          ".log"
+        ],
+        "application/json": [
+          ".json"
+        ]
       }
     }
   ],
@@ -78,7 +131,7 @@
     "client_mode": "focus-existing"
   },
   "share_target": {
-    "action": "/NEW.html?share=true",
+    "action": "/Index.html?share=true",
     "method": "GET",
     "params": {
       "title": "title",
@@ -94,7 +147,7 @@
   "protocol_handlers": [
     {
       "protocol": "web+tabreed",
-      "url": "/NEW.html?action=%s"
+      "url": "/Index.html?action=%s"
     }
   ],
   "widgets": [
@@ -111,6 +164,6 @@
     "preferred_width": 400
   },
   "note_taking": {
-    "new_note_url": "/NEW.html?action=new_note"
+    "new_note_url": "/Index.html?action=new_note"
   }
 }
