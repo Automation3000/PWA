@@ -1,61 +1,41 @@
 {
+  "id": "com.automation3000.tabreed",
   "name": "Automation App",
-  "short_name": "Automation App",
+  "short_name": "Tabreed",
   "description": "Industrial Automation, Instrumentation tools, and SAP Launchpad Dashboard.",
-  "start_url": "/Index.html",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#e4edf5",
+  "start_url": "/NEW.html",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
   "theme_color": "#1a73e8",
-  "icons": [
+  "background_color": "#e4edf5",
+  "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "tabbed",
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait",
+  "categories": ["productivity", "utilities", "business"],
+  "prefer_related_applications": false,
+  "related_applications": [
     {
-      "src": "icon-72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.automation3000.tabreed",
+      "id": "com.automation3000.tabreed"
     }
+  ],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "icons": [
+    { "src": "icon-72.png", "sizes": "72x72", "type": "image/png", "purpose": "any" },
+    { "src": "icon-96.png", "sizes": "96x96", "type": "image/png", "purpose": "any" },
+    { "src": "icon-128.png", "sizes": "128x128", "type": "image/png", "purpose": "any" },
+    { "src": "icon-144.png", "sizes": "144x144", "type": "image/png", "purpose": "any" },
+    { "src": "icon-152.png", "sizes": "152x152", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-384.png", "sizes": "384x384", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ],
   "screenshots": [
     {
@@ -71,8 +51,43 @@
       "form_factor": "wide"
     }
   ],
-  "related_applications": [],
-  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "shortcuts": [
+    {
+      "name": "Network Monitor",
+      "short_name": "PingLogger",
+      "description": "Open PingLogger Ultimate",
+      "url": "/NEW.html?action=pinglogger",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Add Instrument",
+      "short_name": "Add Item",
+      "description": "Add a new instrument to the list",
+      "url": "/NEW.html?action=add",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ],
+  "file_handlers": [
+    {
+      "action": "/NEW.html",
+      "accept": {
+        "text/plain": [".txt", ".log"],
+        "application/json": [".json"]
+      }
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "share_target": {
+    "action": "/NEW.html?share=true",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
   "scope_extensions": [
     {
       "origin": "*.automation3000.com"
@@ -83,5 +98,21 @@
       "protocol": "web+tabreed",
       "url": "/NEW.html?action=%s"
     }
-  ]
+  ],
+  "widgets": [
+    {
+      "name": "Automation Stats",
+      "short_name": "Stats",
+      "description": "View inventory stats quickly.",
+      "tag": "automation_stats",
+      "ms_ac_template": "widgets/template.json",
+      "ms_ac_data": "widgets/data.json"
+    }
+  ],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "note_taking": {
+    "new_note_url": "/NEW.html?action=new_note"
+  }
 }
