@@ -1,62 +1,50 @@
 {
-  "id": "/index.html",
-  "name": "Automation & Control App",
-  "short_name": "Automation App",
+  "name": "Automation App",
+  "short_name": "Tabreed",
   "description": "Industrial Automation, Instrumentation tools, and SAP Launchpad Dashboard.",
-  "lang": "en-US",
-  "dir": "ltr",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/NEW.html",
   "display": "standalone",
-  "display_override": [
-    "window-controls-overlay",
-    "standalone",
-    "minimal-ui"
-  ],
   "orientation": "portrait",
   "background_color": "#e4edf5",
-  "theme_color": "#3f5161",
-  "categories": ["productivity", "utilities", "business"],
-  "prefer_related_applications": false,
-  "file_handlers": [
-    {
-      "action": "./index.html",
-      "accept": {
-        "text/plain": [".txt"],
-        "application/pdf": [".pdf"]
-      }
-    }
-  ],
-  "launch_handler": {
-    "client_mode": "focus-existing"
-  },
+  "theme_color": "#1a73e8",
   "icons": [
     {
-      "src": "https://automation3000.github.io/PWA/icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://automation3000.github.io/PWA/icon-512.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ],
-  "shortcuts": [
+  "screenshots": [
     {
-      "name": "Master Instrument List",
-      "short_name": "Instruments",
-      "description": "Open Master Instrument List AI1",
-      "url": "./index.html?app=instruments",
-      "icons": [
-        {
-          "src": "https://automation3000.github.io/PWA/icon-192.png",
-          "sizes": "192x192",
-          "type": "image/png"
-        }
-      ]
+      "src": "screenshot1.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "screenshot2.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "related_applications": [],
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "scope_extensions": [
+    {
+      "origin": "*.automation3000.com"
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+tabreed",
+      "url": "/NEW.html?action=%s"
     }
   ]
 }
