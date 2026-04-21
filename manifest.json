@@ -1,6 +1,6 @@
 {
-  "name": "Automation App",
-  "short_name": "Tabreed",
+  "name": "Automation 3000",
+  "short_name": "Automation App",
   "description": "Industrial Automation, Instrumentation tools, and SAP Launchpad Dashboard.",
   "start_url": "/NEW.html",
   "display": "standalone",
