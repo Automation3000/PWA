@@ -12,31 +12,37 @@
             <key>Label</key>
             <string>Automation App</string>
             <key>PayloadDescription</key>
-            <string>Automation Web App</string>
+            <string>Tabreed Industrial Automation Dashboard</string>
             <key>PayloadDisplayName</key>
             <string>Automation App</string>
             <key>PayloadIdentifier</key>
-            <string>com.automation.app</string>
+            <string>com.automation3000.tabreed.webclip</string>
+            <key>PayloadOrganization</key>
+            <string>Automation App</string>
             <key>PayloadType</key>
             <string>com.apple.webClip.managed</string>
             <key>PayloadUUID</key>
-            <string>B2C3D4E5-F6A7-8B90-1234-567890ABCDEF</string>
+            <string>A1B2C3D4-E5F6-4A5B-8C9D-0123456789AB</string>
             <key>PayloadVersion</key>
             <integer>1</integer>
             <key>URL</key>
-            <string>https://www.automation3000.com/p/tabreed.html</string>
+            <string>https://tabreed.automation3000.com/NEW.html</string>
         </dict>
     </array>
+    <key>PayloadDescription</key>
+    <string>Installs the Automation App directly to your iOS Home Screen.</string>
     <key>PayloadDisplayName</key>
     <string>Automation App</string>
     <key>PayloadIdentifier</key>
-    <string>com.automation3000.profile</string>
+    <string>com.automation3000.tabreed.profile</string>
+    <key>PayloadOrganization</key>
+    <string>Automation Team</string>
     <key>PayloadRemovalDisallowed</key>
     <false/>
     <key>PayloadType</key>
     <string>Configuration</string>
     <key>PayloadUUID</key>
-    <string>C3D4E5F6-A7B8-9C0D-1234-567890ABCDEF</string>
+    <string>B2C3D4E5-F6A7-5B6C-9D0E-1234567890BC</string>
     <key>PayloadVersion</key>
     <integer>1</integer>
 </dict>
