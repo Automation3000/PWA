@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-title" content="Tabreed">
     <meta name="description" content="Industrial Automation Dashboard - Master Instrument List, Network Monitoring, and Offline-First PWA">
     <meta name="keywords" content="automation, instruments, control, monitoring, dashboard, PWA">
-    <meta property="og:title" content="TABREED - Automation Hub">
+    <meta property="og:title" content="TABREED - Automation App">
     <meta property="og:description" content="Professional automation and control dashboard">
     <meta property="og:type" content="webapp">
     <meta name="twitter:card" content="summary_large_image">
@@ -17,7 +17,7 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="canonical" href="https://automation3000.github.io/PWA/NEW.html">
     
-    <title>TABREED - Automation & Control Hub</title>
+    <title>TABREED - Automation & Control App</title>
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
     <link rel="apple-touch-icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" crossorigin="anonymous">
@@ -89,7 +89,7 @@
         .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
 
         .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
-        .expiry-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #f8f9fa; color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); }
+        .expiry-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; background: #f8f9fa; color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); width: 100%; white-space: nowrap; }
         .remark-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
         
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; z-index: 2000; align-items: center; justify-content: center; }
@@ -240,7 +240,7 @@
             </div>
 
             <div class="quick-actions" role="toolbar" aria-label="Quick actions">
-                <button class="action-btn" onclick="loadInventory()" aria-label="Refresh data"><i class="fas fa-sync-alt" style="color: var(--primary); margin-bottom: 5px;"></i><span>Refresh</span></button>
+                <button class="action-btn" onclick="refreshAndReset()" aria-label="Refresh data"><i class="fas fa-sync-alt" style="color: var(--primary); margin-bottom: 5px;"></i><span>Refresh</span></button>
                 <div class="action-btn" style="padding: 0;">
                     <i class="fas fa-filter" style="color: var(--secondary); margin-top: 8px;"></i>
                     <select id="locationFilter" onchange="applyFilters()" aria-label="Filter by location" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0; color: var(--dark);">
@@ -288,7 +288,7 @@
                                 <th>Instrument</th>
                                 <th>Location</th>
                                 <th>Action</th>
-                                <th onclick="toggleExpiryDisplay()" style="cursor:pointer; color:var(--primary);" title="Click to toggle Days/Date">Expiry 🔄</th>
+                                <th style="width: 130px; text-align: center; cursor:pointer; color:var(--primary);" onclick="toggleExpiryDisplay()" title="Click to toggle Days/Date">Expiry 🔄</th>
                                 <th>Updated By</th>
                             </tr>
                         </thead>
@@ -301,7 +301,7 @@
         <div class="modal-overlay" id="updateModal" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
             <div class="modal">
                 <div class="modal-header">
-                    <h3 id="modalTitle"><i class="fas fa-edit"></i> Update Instrument Location & Details</h3>
+                    <h3 id="modalTitle"><i class="fas fa-edit"></i> Update Instrument Details</h3>
                     <button onclick="closeModal()" aria-label="Close dialog" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -357,8 +357,19 @@
                     <button onclick="closeFeedbackModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
                 </div>
                 <div class="modal-body">
+                    <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label for="feedbackEmpId">Employee ID</label>
+                            <input type="number" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
+                        </div>
+                        <div class="form-group" style="flex: 2; margin-bottom: 0;">
+                            <label for="feedbackName">Full Name</label>
+                            <input type="text" id="feedbackName" placeholder="Your Full Name">
+                        </div>
+                    </div>
                     <div class="form-group">
-                        <textarea id="feedbackText" placeholder="Write your feedback or suggestions for the Automation Hub here..." style="min-height: 120px;"></textarea>
+                        <label for="feedbackText">Feedback / Suggestion</label>
+                        <textarea id="feedbackText" placeholder="Write your feedback for the Automation App here..." style="min-height: 100px;"></textarea>
                     </div>
                     <div class="modal-actions">
                         <button class="btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">SEND FEEDBACK</button>
@@ -410,17 +421,29 @@
     <script>
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw0nKm-j24HwBwVd2u9ji3gqEtQ7j2dtQZmqEd0oA15mmB7nHMtGYOgUfhMrL7TjEc8cQ/exec";
         
+        // Employee List for Feedback Auto-fill
+        const EMPLOYEES = [
+            { code: "40311", full: "JERLIN DELA VEGA CABRAL", short: "Jerlin" },
+            { code: "40334", full: "RAJESH KUMAR SINGH", short: "Rajesh" },
+            { code: "40414", full: "EUGINERAJ KAMARAJ", short: "Eugine" },
+            { code: "40528", full: "PRASANTH M  PURUSHOTHAMAN", short: "Prashant" },
+            { code: "40659", full: "THOMAS GEEVARGHESE", short: "Thomas" },
+            { code: "40663", full: "AKBARSHA NALAKATH KALLINGAL", short: "Akbar" },
+            { code: "41380", full: "MANIKANDAN SUBRAMANIAN", short: "Manikandan" },
+            { code: "41383", full: "JIBIN JOHN", short: "Jibin" },
+            { code: "41600", full: "PRAMOD DEJAPPA POOJARY", short: "Pramod" },
+            { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed" },
+            { code: "41806", full: "YOOSAF MUNDODAN", short: "Yoosaf" }
+        ];
+
         let inventoryData = []; let locations = []; let currentItem = null; let fullHistoryData = []; let isEditMode = false;
-        let searchDebounceTimer;
-        let showExpiryAsDays = false;
+        let searchDebounceTimer; let showExpiryAsDays = false;
         let currentView = localStorage.getItem('currentView') || 'launchpad'; 
 
         // --- UTILITY FUNCTIONS ---
         function sanitizeInput(str) {
             if (typeof str !== 'string') return '';
-            return str.replace(/[<>\"'&]/g, (char) => ({
-                '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;'
-            }[char]));
+            return str.replace(/[<>\"'&]/g, (char) => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' }[char]));
         }
 
         function validateDate(dateStr) {
@@ -441,23 +464,8 @@
             showToast('An error occurred - Try again', 'error');
         };
 
-        function safeStorageSet(key, value) {
-            try {
-                localStorage.setItem(key, JSON.stringify(value));
-                return true;
-            } catch (e) {
-                if (e.name === 'QuotaExceededError') {
-                    showToast('Storage limit reached - please clear browser cache', 'error');
-                    return false;
-                }
-                return false;
-            }
-        }
-
         document.addEventListener('DOMContentLoaded', () => {
-            setupSearch();
-            updatePendingTile();
-            processSyncQueue();
+            setupSearch(); updatePendingTile(); processSyncQueue();
 
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
@@ -504,7 +512,18 @@
             setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3500);
         }
 
-        // --- DATA LOAD ---
+        // --- DATA LOAD & REFRESH ---
+        function refreshAndReset() {
+            // Reset all filters
+            document.getElementById('locationFilter').value = 'ALL';
+            document.getElementById('expiryFilter').value = 'ALL';
+            document.getElementById('calibrationFilter').value = 'ALL';
+            document.getElementById('searchInput').value = '';
+            
+            // Reload Inventory
+            loadInventory();
+        }
+
         function loadInventory() {
             const tbody = document.getElementById('tableBody');
             const savedDataStr = localStorage.getItem("localTabreedInventory");
@@ -512,14 +531,9 @@
             if (savedDataStr) {
                 try {
                     const res = JSON.parse(savedDataStr);
-                    inventoryData = res.data || [];
-                    locations = res.locations || [];
-                    updateLocationsDropdown();
-                    applyFilters();
-                    updateStatus(navigator.onLine);
-                } catch (e) {
-                    localStorage.removeItem("localTabreedInventory");
-                }
+                    inventoryData = res.data || []; locations = res.locations || [];
+                    updateLocationsDropdown(); applyFilters(); updateStatus(navigator.onLine);
+                } catch (e) { localStorage.removeItem("localTabreedInventory"); }
             } else {
                 let skeletonHTML = '';
                 for (let i = 0; i < 6; i++) {
@@ -535,26 +549,16 @@
                         if (res.success) {
                             try {
                                 localStorage.setItem("localTabreedInventory", JSON.stringify(res));
-                                inventoryData = res.data || [];
-                                locations = res.locations || [];
-                                updateLocationsDropdown();
-                                applyFilters();
-                                updateStatus(true);
-                            } catch (e) {
-                                handleError(e, 'Save Response');
-                            }
+                                inventoryData = res.data || []; locations = res.locations || [];
+                                updateLocationsDropdown(); applyFilters(); updateStatus(true);
+                            } catch (e) { handleError(e, 'Save Response'); }
                         }
-                    }).catch(e => {
-                        updateStatus(false);
-                    });
-            } else {
-                updateStatus(false);
-            }
+                    }).catch(e => { updateStatus(false); });
+            } else { updateStatus(false); }
         }
 
         function toggleExpiryDisplay() {
-            showExpiryAsDays = !showExpiryAsDays;
-            applyFilters();
+            showExpiryAsDays = !showExpiryAsDays; applyFilters();
         }
 
         function renderTable(data) {
@@ -585,7 +589,7 @@
                     <td style="font-weight:600;">${sanitizeInput(item.name)}</td>
                     <td><span class="location-tag">${sanitizeInput(item.location)}</span></td>
                     <td><button onclick="openUpdateModalByIndex(${realIdx})" style="padding:6px 16px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;" aria-label="Update">Update</button></td>
-                    <td style="font-size:0.8rem;">${expiryDisplay}</td>
+                    <td style="text-align:center; width:130px;">${expiryDisplay}</td>
                     <td style="font-size:0.8rem; color:var(--gray);">${sanitizeInput(item.updatedBy || '-')}${remarkIcon}</td>
                 </tr>
             `;
@@ -594,23 +598,18 @@
 
         function openUpdateModalByIndex(idx) {
             if (!inventoryData[idx]) return;
-            const item = inventoryData[idx];
-            openUpdateModal(item.name, item.location, item.expiry || '', item.remark || '');
+            const item = inventoryData[idx]; openUpdateModal(item.name, item.location, item.expiry || '', item.remark || '');
         }
 
         // --- SLIDE TO UNLOCK LOGIC ---
         function checkUnlock(slider) {
             if(slider.value >= 95) {
-                slider.value = 100;
-                document.getElementById('modalExpiry').disabled = false;
+                slider.value = 100; document.getElementById('modalExpiry').disabled = false;
                 document.getElementById('expiryHint').textContent = 'Editing unlocked. Set new expiry.';
-                slider.disabled = true;
-                slider.style.opacity = '0.5';
+                slider.disabled = true; slider.style.opacity = '0.5';
             }
         }
-        function snapUnlock(slider) {
-            if(slider.value < 100) { slider.value = 0; }
-        }
+        function snapUnlock(slider) { if(slider.value < 100) { slider.value = 0; } }
 
         // --- OFFLINE SYNC & UPDATE SYSTEM ---
         function submitUpdate() {
@@ -627,131 +626,86 @@
                 loc = customLoc;
             }
 
-            const sanitizedUser = sanitizeInput(user);
-            const sanitizedLoc = sanitizeInput(loc);
-            const sanitizedName = sanitizeInput(name);
-
+            const sanitizedUser = sanitizeInput(user); const sanitizedLoc = sanitizeInput(loc); const sanitizedName = sanitizeInput(name);
             if (exp) {
-                const d = new Date(exp);
-                exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+                const d = new Date(exp); exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
             }
 
-            const btn = document.getElementById('submitUpdateBtn');
-            btn.disabled = true; btn.textContent = 'Processing...';
+            const btn = document.getElementById('submitUpdateBtn'); btn.disabled = true; btn.textContent = 'Processing...';
 
             let actionParams = {
-                action: isEditMode ? 'update' : 'add',
-                itemName: currentItem || '', name: sanitizedName, location: sanitizedLoc, newLocation: sanitizedLoc,
-                expiry: exp, newExpiry: exp, user: sanitizedUser, updatedBy: sanitizedUser, remark: remark
+                action: isEditMode ? 'update' : 'add', itemName: currentItem || '', name: sanitizedName, location: sanitizedLoc,
+                newLocation: sanitizedLoc, expiry: exp, newExpiry: exp, user: sanitizedUser, updatedBy: sanitizedUser, remark: remark
             };
 
             if (isEditMode) {
                 let idx = inventoryData.findIndex(i => i.name === currentItem);
-                if (idx !== -1) {
-                    inventoryData[idx].location = sanitizedLoc; inventoryData[idx].expiry = exp;
-                    inventoryData[idx].updatedBy = sanitizedUser; inventoryData[idx].remark = remark;
-                }
-            } else {
-                inventoryData.push({ name: sanitizedName, location: sanitizedLoc, expiry: exp, updatedBy: sanitizedUser, remark: remark });
-            }
+                if (idx !== -1) { inventoryData[idx].location = sanitizedLoc; inventoryData[idx].expiry = exp; inventoryData[idx].updatedBy = sanitizedUser; inventoryData[idx].remark = remark; }
+            } else { inventoryData.push({ name: sanitizedName, location: sanitizedLoc, expiry: exp, updatedBy: sanitizedUser, remark: remark }); }
             applyFilters();
 
             if (navigator.onLine) {
                 let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
-                fetch(`${GAS_API_URL}?key=AI1&${query}`)
-                    .then(r => r.json())
-                    .then(res => {
+                fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => {
                         btn.disabled = false; btn.textContent = 'SAVE CHANGES';
                         if (res.success) { showToast('Saved Successfully!', 'success'); closeModal(); loadInventory(); } 
                         else showToast(res.error || 'Save failed', 'error');
                     }).catch(e => { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; });
             } else {
-                let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
-                queue.push(actionParams);
-                localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue));
-                btn.disabled = false; btn.textContent = 'SAVE CHANGES';
-                showToast('Saved Offline! Will sync automatically.', 'warning');
-                updatePendingTile(); closeModal();
+                let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); queue.push(actionParams);
+                localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue)); btn.disabled = false; btn.textContent = 'SAVE CHANGES';
+                showToast('Saved Offline! Will sync automatically.', 'warning'); updatePendingTile(); closeModal();
             }
         }
 
         async function processSyncQueue(manual = false) {
             let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
-            if (queue.length === 0) return;
-            if (!navigator.onLine) return;
-
+            if (queue.length === 0 || !navigator.onLine) return;
             let successCount = 0; let failureCount = 0;
             for (let i = 0; i < queue.length; i++) {
-                let task = queue[i];
-                let query = Object.keys(task).map(k => `${k}=${encodeURIComponent(task[k])}`).join('&');
-                try {
-                    let res = await fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json());
-                    if (res.success) successCount++; else failureCount++;
+                let task = queue[i]; let query = Object.keys(task).map(k => `${k}=${encodeURIComponent(task[k])}`).join('&');
+                try { let res = await fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()); if (res.success) successCount++; else failureCount++;
                 } catch (e) { failureCount++; }
             }
-
-            if (failureCount === 0) {
-                localStorage.removeItem('tabreed_sync_queue');
-                updatePendingTile(); showToast('Offline changes synced!', 'success'); loadInventory();
-            }
+            if (failureCount === 0) { localStorage.removeItem('tabreed_sync_queue'); updatePendingTile(); showToast('Offline changes synced to Automation App!', 'success'); loadInventory(); }
         }
 
         function updatePendingTile() {
             let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
             document.getElementById('pending-sync-tile').innerText = queue.length + " Pending";
             const badge = document.getElementById('queue-badge');
-            if(queue.length > 0) { badge.innerText = queue.length + " pending"; badge.style.display = 'inline-block'; }
-            else badge.style.display = 'none';
+            if(queue.length > 0) { badge.innerText = queue.length + " pending"; badge.style.display = 'inline-block'; } else badge.style.display = 'none';
         }
 
         function updateStatus(online) {
             const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335';
-            document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline';
-            if(online) processSyncQueue(); 
+            document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline'; if(online) processSyncQueue(); 
         }
-        window.addEventListener('online', () => updateStatus(true)); 
-        window.addEventListener('offline', () => updateStatus(false));
+        window.addEventListener('online', () => updateStatus(true)); window.addEventListener('offline', () => updateStatus(false));
 
         // --- FILTERS & SEARCH ---
-        function setupSearch() {
-            document.getElementById('searchInput').addEventListener('input', debounce(() => applyFilters(), 300));
-        }
+        function setupSearch() { document.getElementById('searchInput').addEventListener('input', debounce(() => applyFilters(), 300)); }
 
         function applyFilters() {
             const term = document.getElementById('searchInput').value.toLowerCase().trim();
             const loc = document.getElementById('locationFilter').value;
             const expDays = document.getElementById('expiryFilter').value;
-            const calibStatus = document.getElementById('calibrationFilter').value; // New Filter
+            const calibStatus = document.getElementById('calibrationFilter').value;
 
             let filtered = inventoryData.filter(i => {
                 const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term);
                 const matchLoc = (loc === "ALL" || i.location === loc);
-                let matchExp = true;
-                let matchCalib = true;
+                let matchExp = true; let matchCalib = true;
 
-                // Handle Calibration/Repair Filter
-                if (calibStatus !== "ALL") {
-                    matchCalib = (i.location === calibStatus);
-                }
+                if (calibStatus !== "ALL") { matchCalib = (i.location === calibStatus); }
 
-                // Handle Expiry Filters
                 if (expDays !== "ALL") {
-                    if (expDays === "NOT_MENTIONED") {
-                        matchExp = (!i.expiry || i.expiry === '-');
-                    } 
-                    else if (!i.expiry || i.expiry === '-') {
-                        matchExp = false;
-                    } 
+                    if (expDays === "NOT_MENTIONED") { matchExp = (!i.expiry || i.expiry === '-'); } 
+                    else if (!i.expiry || i.expiry === '-') { matchExp = false; } 
                     else {
-                        const parts = i.expiry.split('.');
-                        const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                        const parts = i.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
                         const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
-                        
-                        if (expDays === "EXPIRED") {
-                            matchExp = (diff < 0);
-                        } else {
-                            matchExp = (diff >= 0 && diff <= parseInt(expDays));
-                        }
+                        if (expDays === "EXPIRED") { matchExp = (diff < 0); } else { matchExp = (diff >= 0 && diff <= parseInt(expDays)); }
                     }
                 }
                 return matchSearch && matchLoc && matchExp && matchCalib;
@@ -764,9 +718,7 @@
             document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument';
             document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'white';
             document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = '';
-            document.getElementById('remarkCheckbox').checked = false;
-            document.getElementById('remarkGroup').style.display = 'none'; document.getElementById('modalRemark').value = '';
-            
+            document.getElementById('remarkCheckbox').checked = false; document.getElementById('remarkGroup').style.display = 'none'; document.getElementById('modalRemark').value = '';
             resetSlider(); document.getElementById('updateModal').classList.add('active');
         }
 
@@ -777,15 +729,12 @@
             document.getElementById('modalLocation').value = loc;
             if (exp && exp !== '-' ) { const p = exp.split('.'); if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${p[1]}-${p[0]}`; } else { document.getElementById('modalExpiry').value = ''; }
             document.getElementById('modalUpdatedBy').value = '';
-            document.getElementById('remarkCheckbox').checked = Boolean(remark);
-            document.getElementById('remarkGroup').style.display = remark ? 'block' : 'none'; document.getElementById('modalRemark').value = remark;
-            
+            document.getElementById('remarkCheckbox').checked = Boolean(remark); document.getElementById('remarkGroup').style.display = remark ? 'block' : 'none'; document.getElementById('modalRemark').value = remark;
             resetSlider(); document.getElementById('updateModal').classList.add('active');
         }
 
         function resetSlider() {
-            const slider = document.getElementById('unlockSlider');
-            slider.value = 0; slider.disabled = false; slider.style.opacity = '1';
+            const slider = document.getElementById('unlockSlider'); slider.value = 0; slider.disabled = false; slider.style.opacity = '1';
             document.getElementById('modalExpiry').disabled = true; document.getElementById('expiryHint').textContent = 'Slide to unlock expiry date.';
         }
 
@@ -808,66 +757,70 @@
         }
 
         function showStats() { 
-            const total = inventoryData.length;
-            const locationsCount = locations.length;
+            const total = inventoryData.length; const locationsCount = locations.length;
             const expiringCount = inventoryData.filter(item => {
                 if (!item.expiry || item.expiry === '-') return false;
-                const parts = item.expiry.split('.');
-                const exp = new Date(parts[2], parts[1] - 1, parts[0]);
-                const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24));
-                return diff <= 30;
+                const parts = item.expiry.split('.'); const exp = new Date(parts[2], parts[1] - 1, parts[0]);
+                const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24)); return diff <= 30;
             }).length;
-            
-            // Restored the old toast notification!
             showToast(`Inventory: ${total} Items | ${locationsCount} Locations | ${expiringCount} Expiring Soon`, 'success');
         }
 
         function toggleRemarkField(checked) {
-            document.getElementById('remarkGroup').style.display = checked ? 'block' : 'none';
-            if(checked) document.getElementById('modalRemark').focus();
+            document.getElementById('remarkGroup').style.display = checked ? 'block' : 'none'; if(checked) document.getElementById('modalRemark').focus();
         }
 
-        // --- CUSTOM FEEDBACK SYSTEM ---
+        // --- ENHANCED FEEDBACK SYSTEM (With EMP ID) ---
         function openFeedbackModal() {
+            document.getElementById('feedbackEmpId').value = '';
+            document.getElementById('feedbackName').value = '';
             document.getElementById('feedbackText').value = '';
             document.getElementById('feedbackModal').classList.add('active');
         }
 
-        function closeFeedbackModal() {
-            document.getElementById('feedbackModal').classList.remove('active');
+        function closeFeedbackModal() { document.getElementById('feedbackModal').classList.remove('active'); }
+
+        function autoFillName() {
+            const empId = document.getElementById('feedbackEmpId').value.trim();
+            const nameInput = document.getElementById('feedbackName');
+            const match = EMPLOYEES.find(emp => emp.code === empId);
+            
+            if (match) {
+                nameInput.value = match.full;
+            } else {
+                nameInput.value = ''; // Let user type manually if no match
+            }
         }
 
         function submitFeedback() {
-            const feedback = document.getElementById('feedbackText').value.trim();
-            if (!feedback) {
-                showToast("Please write some feedback before sending.", "warning");
+            const empId = document.getElementById('feedbackEmpId').value.trim();
+            const empName = document.getElementById('feedbackName').value.trim();
+            const rawFeedback = document.getElementById('feedbackText').value.trim();
+
+            if (!rawFeedback || (!empId && !empName)) {
+                showToast("Please provide details and feedback before sending.", "warning");
                 return;
             }
 
+            // Combine into one text string for the backend
+            const combinedFeedback = `[EMP ID: ${empId || 'N/A'}] [NAME: ${empName || 'Unknown'}] - ${rawFeedback}`;
+
             const btn = document.getElementById('submitFeedbackBtn');
-            btn.disabled = true;
-            btn.textContent = 'SENDING...';
+            btn.disabled = true; btn.textContent = 'SENDING...';
 
             if (navigator.onLine) {
-                fetch(`${GAS_API_URL}?key=AI1&action=feedback&text=${encodeURIComponent(feedback)}`)
+                fetch(`${GAS_API_URL}?key=AI1&action=feedback&text=${encodeURIComponent(combinedFeedback)}`)
                     .then(r => r.json())
                     .then(res => {
                         btn.disabled = false; btn.textContent = 'SEND FEEDBACK';
-                        if(res.success) {
-                            showToast("Feedback sent successfully to the Sheet!", "success");
-                            closeFeedbackModal();
-                        } else {
-                            showToast("Error saving feedback.", "error");
-                        }
-                    })
-                    .catch(() => {
+                        if(res.success) { showToast("Feedback sent successfully to the Automation Team!", "success"); closeFeedbackModal(); } 
+                        else { showToast("Error saving feedback.", "error"); }
+                    }).catch(() => {
                         btn.disabled = false; btn.textContent = 'SEND FEEDBACK';
-                        showToast("Feedback sent to Sheet!", "success"); // Fallback success if CORS blocks JSON reading
-                        closeFeedbackModal();
+                        showToast("Feedback sent to Automation Team!", "success"); closeFeedbackModal();
                     }); 
             } else {
-                btn.disabled = false; btn.textContent = 'SEND FEEDBACK';
-                showToast("You are offline. Connect to internet to send feedback.", "warning");
+                btn.disabled = false; btn.textContent = 'SEND FEEDBACK'; showToast("You are offline. Connect to internet to send feedback.", "warning");
             }
         }
 
@@ -891,23 +844,15 @@
                     localStorage.clear(); fetch(`${GAS_API_URL}?key=AI1&action=clearCache`).finally(() => window.location.reload());
                 } return;
             }
-            clickTimer = setTimeout(() => { logoClickCount = 0; }, 500);
-            subtitle.style.opacity = '0';
-            setTimeout(() => {
-                subtitle.innerHTML = !isFullNameShowing ? 'Developed by <strong>Abdul Majeed Ansari [ 41764 ]</strong>' : 'Automation & Control Department';
-                isFullNameShowing = !isFullNameShowing; subtitle.style.opacity = '1';
-            }, 150);
+            clickTimer = setTimeout(() => { logoClickCount = 0; }, 500); subtitle.style.opacity = '0';
+            setTimeout(() => { subtitle.innerHTML = !isFullNameShowing ? 'Developed by <strong>Abdul Majeed Ansari [ 41764 ]</strong>' : 'Automation & Control Department'; isFullNameShowing = !isFullNameShowing; subtitle.style.opacity = '1'; }, 150);
         }
 
         // --- HISTORY ---
         function showHistoryPage() { document.getElementById('historyPage').style.display = 'block'; loadHistoryData(); }
         function closeHistoryPage() { document.getElementById('historyPage').style.display = 'none'; }
         function loadHistoryData() {
-            if (navigator.onLine) {
-                fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => {
-                    if (res.success) { fullHistoryData = res.data || []; renderHistoryTable(res.data); }
-                });
-            }
+            if (navigator.onLine) { fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => { if (res.success) { fullHistoryData = res.data || []; renderHistoryTable(res.data); } }); }
         }
         function filterHistory() {
             const term = document.getElementById('historySearch').value.toLowerCase().trim();
@@ -920,11 +865,7 @@
         }
 
         // --- PWA INSTALLATION ---
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-            const btn = document.querySelector('.fiori-install-badge'); if (btn) btn.style.display = 'flex';
-        });
+        let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; const btn = document.querySelector('.fiori-install-badge'); if (btn) btn.style.display = 'flex'; });
         function startSmartInstall() {
             if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then((c) => { if (c.outcome === 'accepted') { showToast('App installed!', 'success'); deferredPrompt = null; } }); } 
             else showToast('App is already installed or check browser menu.', 'info');
