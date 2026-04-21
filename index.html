@@ -7,6 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="./manifest.json" />
+    
     <title>TABREED</title>
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
@@ -14,9 +15,290 @@
     
     <style>
         /* ======================================================== */
-        /* 1. SAP FIORI LAUNCHPAD THEME                             */
+        /* EXACT ORIGINAL CSS BY YOU (NO CHANGES)                   */
         /* ======================================================== */
-        #fiori-wrapper { background-color: #e4edf5; width: 100%; height: 100vh; overflow-y: auto; font-family: 'Segoe UI', Tahoma, sans-serif; display: block; }
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d62d9;
+            --primary-light: #e8f0fe;
+            --secondary: #34a853;
+            --warning: #f9ab00;
+            --danger: #ea4335;
+            --dark: #202124;
+            --light: #f8f9fa;
+            --gray: #5f6368;
+            --border: #dadce0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background-color: #e4edf5; /* Default background for Fiori */
+            color: var(--dark);
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- PREMIUM WRAPPER TO HOLD ORIGINAL BACKGROUND --- */
+        #premium-wrapper {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto;
+            background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%);
+        }
+        
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-bottom: 50px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .app-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 0 0 var(--radius) var(--radius);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo {
+            width: 45px; 
+            height: 45px;
+            background: white; 
+            border-radius: 50%; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            border: 1px solid #e0e0e0;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #f9ab00;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .search-container {
+            padding: 1rem;
+            margin: 1rem;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .search-box { position: relative; }
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 3rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 16px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0 1rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+        
+        .action-btn {
+            background: white;
+            border: none;
+            flex: 1; 
+            min-width: 80px; 
+            padding: 0.8rem 0.4rem;
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .stats-grid {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            background: white;
+            flex: 1; 
+            padding: 1.5rem 0.5rem;
+            border-radius: var(--radius);
+            text-align: center;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 110px;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .inventory-section {
+            background: white;
+            margin: 0 1rem 1rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .table-container { overflow-x: auto; }
+        .inventory-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
+        .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+
+        .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            display: none;
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.active { display: flex; }
+        
+        .modal {
+            background: white;
+            width: 95%;
+            max-width: 500px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; }
+        
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
+        .form-group input, .form-group select { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; }
+
+        .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
+        .btn-primary { flex: 1; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-secondary { flex: 1; padding: 1rem; background: var(--light); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; }
+
+        @media (max-width: 480px) {
+            .modal-overlay { padding: 0; }
+            .modal {
+                width: 100% !important;
+                height: 100% !important;
+                max-width: 100% !important;
+                max-height: 100vh !important;
+                border-radius: 0 !important;
+                margin: 0 !important;
+            }
+            .modal-actions { flex-direction: column; padding-bottom: 30px; }
+            .quick-actions { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .toast-container { position: fixed; top: 1rem; right: 1rem; left: 1rem; z-index: 3000; }
+        .toast { background: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-left: 4px solid var(--primary); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        @media print {
+            .inventory-table { width: 100% !important; font-size: 10px !important; }
+            .inventory-table th, .inventory-table td { padding: 5px !important; }
+            .action-btn, button { display: none !important; } 
+        }
+        
+        .skeleton-row td { padding: 1rem; border-bottom: 1px solid var(--border); }
+        .skeleton-cell { 
+            height: 20px; 
+            border-radius: 4px; 
+            background: #e0e0e0; 
+            animation: pulse-skeleton 1.5s infinite ease-in-out;
+        }
+        @keyframes pulse-skeleton {
+            0% { background-color: #eee; }
+            50% { background-color: #d4d4d4; }
+            100% { background-color: #eee; }
+        }
+
+        /* ======================================================== */
+        /* FIORI LAUNCHPAD STYLES (ISOLATED)                        */
+        /* ======================================================== */
+        #fiori-wrapper { display: block; width: 100%; height: 100vh; overflow-y: auto; }
         .fiori-header { background-color: #3f5161; color: #ffffff; height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000; }
         .fiori-logo-img { width: 28px; height: 28px; border-radius: 4px; background: white; padding: 2px;}
         .fiori-install-badge { background: transparent; color: white; border: none; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
@@ -34,74 +316,10 @@
         .tile:hover .tile-icon { transform: scale(1.1); color: #00c6ff; }
         .tile-status { position: absolute; bottom: 16px; right: 16px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; color: #2b7d2b;}
 
-        /* ======================================================== */
-        /* 2. ORIGINAL PREMIUM THEME (APP CONTAINER)                */
-        /* ======================================================== */
-        #premium-wrapper { display: none; width: 100%; height: 100vh; overflow-y: auto; }
-        
-        :root {
-            --primary: #1a73e8; --primary-dark: #0d62d9; --primary-light: #e8f0fe;
-            --secondary: #34a853; --warning: #f9ab00; --danger: #ea4335;
-            --dark: #202124; --light: #f8f9fa; --gray: #5f6368; --border: #dadce0;
-            --shadow: 0 2px 10px rgba(0,0,0,0.1); --radius: 12px; --radius-sm: 8px; --transition: all 0.3s ease;
-        }
-        .premium-body-bg { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif; background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%); min-height: 100vh; color: var(--dark); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
-        .app-container { max-width: 1200px; margin: 0 auto; margin-bottom: 50px; display: flex; flex-direction: column; padding: 15px; gap: 15px; }
-        
-        .app-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow); position: sticky; top: 15px; z-index: 1000; }
-        .header-content { display: flex; align-items: center; justify-content: space-between; }
-        .brand { display: flex; align-items: center; gap: 0.75rem; }
-        .logo { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid #e0e0e0; cursor:pointer;}
-        .connection-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight:600; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f9ab00; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        
-        .search-container { padding: 1rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
-        .search-box { position: relative; }
-        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 16px; outline: none; }
-        .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
-        
-        .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; }
-        .action-btn { background: white; border: none; flex: 1; min-width: 80px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; font-size: 0.7rem; font-weight: 700; box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); }
-        .stats-grid { display: flex; gap: 0.75rem; margin-bottom: 1rem; }
-        .stat-card { background: white; flex: 1; padding: 1.5rem 0.5rem; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 110px; }
-        .stat-card .number { font-size: 2rem; font-weight: 800; line-height: 1; margin-bottom: 8px; }
-        .stat-label { font-size: 0.85rem; font-weight: 600; color: var(--gray); }
-        
-        .inventory-section { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-        .table-container { overflow-x: auto; }
-        .inventory-table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
-        .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-        .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
-        
-        /* Modals & Toasts */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; z-index: 2000; align-items: center; justify-content: center; }
-        .modal-overlay.active { display: flex; }
-        .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
-        .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; }
-        .form-group { margin-bottom: 1.2rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
-        .form-group input, .form-group select { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; outline:none;}
-        .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
-        .btn-primary { flex: 1; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
-        .btn-secondary { flex: 1; padding: 1rem; background: var(--light); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; }
-
-        .toast-container { position: fixed; top: 1rem; right: 1rem; left: 1rem; z-index: 3000; }
-        .toast { background: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-left: 4px solid var(--primary); display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        .skeleton-row td { padding: 1rem; border-bottom: 1px solid var(--border); }
-        .skeleton-cell { height: 20px; border-radius: 4px; background: #e0e0e0; animation: pulse-skeleton 1.5s infinite ease-in-out; }
-        @keyframes pulse-skeleton { 0% { background-color: #eee; } 50% { background-color: #d4d4d4; } 100% { background-color: #eee; } }
-
-        /* IFRAME SUPPORT FOR OTHER APPS */
         .iframe-container { display:none; flex: 1; width: 100%; height:100vh; position: relative; background: #fff; }
         .full-screen-iframe { width: 100%; height: 100%; border: none; }
         .fiori-app-header { height: 48px; background: #3f5161; color: white; display: none; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .back-btn { background: none; border: none; color: white; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
-        .offline-queue-badge { background: #bb0000; color: white; padding: 2px 8px; border-radius: 12px; font-size: 10px; display: none; margin-left: 10px; }
+        .back-btn-fiori { background: none; border: none; color: white; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -153,27 +371,30 @@
     </div>
 
     <div id="fiori-iframe-header" class="fiori-app-header">
-        <button class="back-btn" onclick="closeApp()"><i class="fas fa-arrow-left"></i> Back to Launchpad</button>
+        <button class="back-btn-fiori" onclick="closeApp()"><i class="fas fa-arrow-left"></i> Back to Launchpad</button>
         <div style="margin-left: 20px; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.3); padding-left: 20px;">Drawing Hub</div>
     </div>
     <div id="iframeWrapper" class="iframe-container">
         <iframe id="active-iframe" class="full-screen-iframe"></iframe>
     </div>
 
-    <div id="premium-wrapper" class="premium-body-bg">
+    <div id="premium-wrapper">
         <div class="app-container">
             <header class="app-header">
                 <div class="header-content">
                     <div class="brand">
-                        <button onclick="closeApp()" style="background:none; border:none; cursor:pointer; font-size:20px; color:var(--primary); margin-right:10px;"><i class="fas fa-arrow-left"></i></button>
-                        <div class="logo" onclick="toggleDevName()" title="Developer details"><img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                        <button onclick="closeApp()" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--primary); padding-right:10px;"><i class="fas fa-arrow-left"></i></button>
+                        <div class="logo" onclick="toggleDevName()" style="cursor: pointer;" title="Tap to see Developer details">
+                            <img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
                         <div class="brand-text">
-                            <h1 style="font-size: 1.1rem; margin:0;">TABREED : Master Instrument List AI1 <span id="queue-badge" class="offline-queue-badge"></span></h1>
-                            <p id="dev-subtitle" style="font-size: 0.7rem; color: var(--gray); margin:0;">Automation & Control Department</p>
+                            <h1 style="font-size: 1.1rem;">TABREED : Master Instrument List AI1 <span id="queue-badge" style="display:none; font-size:0.6rem; background:#ea4335; color:white; padding:2px 6px; border-radius:10px; margin-left:5px;"></span></h1>
+                            <p id="dev-subtitle" style="font-size: 0.7rem; color: var(--gray); transition: opacity 0.3s ease;">Automation & Control Department</p>
                         </div>
                     </div>
                     <div class="connection-status" id="connectionStatus">
-                        <span class="status-dot"></span><span class="status-text">Wait...</span>
+                        <span class="status-dot"></span>
+                        <span class="status-text">Wait...</span>
                     </div>
                 </div>
             </header>
@@ -189,25 +410,42 @@
                 <button class="action-btn" onclick="loadInventory()"><i class="fas fa-sync-alt" style="color: var(--primary); margin-bottom: 5px;"></i><span>Refresh</span></button>
                 <div class="action-btn" style="padding: 0;">
                     <i class="fas fa-filter" style="color: var(--secondary); margin-top: 8px;"></i>
-                    <select id="locationFilter" onchange="filterByLocation(this.value)" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0; outline:none;">
+                    <select id="locationFilter" onchange="filterByLocation(this.value)" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0;">
                         <option value="ALL">All Locations</option>
                     </select>
                 </div>
                 <button class="action-btn" onclick="openAddModal()"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
                 <button class="action-btn" onclick="showStats()"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
-                <button class="action-btn" onclick="showHistoryPage()"><i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i><span>View History</span></button>
+                <button class="action-btn" onclick="showHistoryPage()">
+                    <i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i>
+                    <span>View History</span>
+                </button>
                 <button class="action-btn" onclick="exportData()"><i class="fas fa-file-pdf" style="color: var(--dark); margin-bottom: 5px;"></i><span>Download PDF</span></button>
             </div>
 
             <div class="stats-grid" style="display: none;">
-                <div class="stat-card" style="display: none;"><div class="number" id="totalItems">0</div><div class="stat-label">Total Items</div></div>
-                <div class="stat-card"><div class="number" id="warningItems">0</div><div class="stat-label">Expiring Soon</div></div>
+                <div class="stat-card" style="display: none;">
+                    <div class="number" id="totalItems">0</div>
+                    <div class="stat-label">Total Items</div>
+                </div>
+                <div class="stat-card">
+                    <div class="number" id="warningItems">0</div>
+                    <div class="stat-label">Expiring Soon</div>
+                </div>
             </div>
 
             <section class="inventory-section">
                 <div class="table-container">
                     <table class="inventory-table">
-                        <thead><tr><th>Instrument</th><th>Location</th><th>Action</th><th>Expiry</th><th>Updated By</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Instrument</th>
+                                <th>Location</th>
+                                <th>Action</th>
+                                <th>Expiry</th>
+                                <th>Updated By</th>
+                            </tr>
+                        </thead>
                         <tbody id="tableBody"></tbody>
                     </table>
                 </div>
@@ -217,19 +455,29 @@
         <div class="modal-overlay" id="updateModal">
             <div class="modal">
                 <div class="modal-header">
-                    <h3><i class="fas fa-edit"></i> Update Details</h3>
+                    <h3><i class="fas fa-edit"></i> Update Instrument Location & Details</h3>
                     <span onclick="closeModal()" style="cursor:pointer; font-size: 1.5rem;">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group"><label>Instrument Name</label><input type="text" id="modalItemName" readonly style="background: #eee;"></div>
+                    <div class="form-group">
+                        <label>Instrument Name</label>
+                        <input type="text" id="modalItemName" readonly style="background: #eee;">
+                    </div>
                     <div class="form-group">
                         <label>Current Location *</label>
                         <select id="modalLocation" onchange="handleLocationChange(this.value)"></select>
                         <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px; border-color: var(--secondary);">
                         <small id="locationHint" style="display:none; color: var(--secondary);">Typing new location...</small>
                     </div>
-                    <div class="form-group"><label>Expiry Date (Optional)</label><input type="date" id="modalExpiry" style="cursor: pointer;"><small style="color: var(--gray); font-size: 0.7rem;">Select date from the calendar</small></div>
-                    <div class="form-group"><label>Updated By *</label><input type="text" id="modalUpdatedBy" placeholder="Your Name"></div>
+                    <div class="form-group">
+                        <label>Expiry Date (Optional)</label>
+                        <input type="date" id="modalExpiry" style="cursor: pointer;">
+                        <small style="color: var(--gray); font-size: 0.7rem;">Select date from the calendar</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Updated By *</label>
+                        <input type="text" id="modalUpdatedBy" placeholder="Your Name">
+                    </div>
                     <div class="modal-actions">
                         <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
                         <button class="btn-secondary" onclick="closeModal()">CANCEL</button>
@@ -242,16 +490,33 @@
             <header class="app-header">
                 <div class="header-content">
                     <div class="brand">
-                        <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px;"><i class="fas fa-arrow-left fa-lg"></i></button>
-                        <h1 style="font-size: 1.1rem; margin:0;">Update History</h1>
+                        <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px;">
+                            <i class="fas fa-arrow-left fa-lg"></i>
+                        </button>
+                        <h1 style="font-size: 1.1rem;">Update History</h1>
                     </div>
-                    <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;"><i class="fas fa-sync-alt"></i></button>
+                    <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
                 </div>
             </header>
-            <div class="search-container"><div class="search-box"><i class="fas fa-search search-icon"></i><input type="text" id="historySearch" placeholder="Filter history by tag or user..." oninput="filterHistory()"></div></div>
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="historySearch" placeholder="Filter history by tag or user..." oninput="filterHistory()">
+                </div>
+            </div>
             <div class="table-container" style="padding:10px;">
                 <table class="inventory-table">
-                    <thead><tr><th>Date & Time</th><th>Instrument</th><th>From Location</th><th>To Location</th><th>Updated By</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Instrument</th>
+                            <th>From Location</th>
+                            <th>To Location</th>
+                            <th>Updated By</th>
+                        </tr>
+                    </thead>
                     <tbody id="historyTableBody"></tbody>
                 </table>
             </div>
@@ -268,7 +533,7 @@
         document.addEventListener('DOMContentLoaded', () => { 
             setupSearch(); 
             updatePendingTile();
-            processSyncQueue(); // Check sync queue on load
+            processSyncQueue();
         });
 
         // --- ROUTING ---
@@ -327,7 +592,7 @@
                 <tr>
                     <td style="font-weight:600;">${item.name}</td>
                     <td><span class="location-tag">${item.location}</span></td>
-                    <td><button onclick="openUpdateModal('${item.name}','${item.location}','${item.expiry}')" style="padding:6px 12px; background:var(--primary); color:white; border:none; border-radius:4px; font-weight:600; font-size:13px;">Update</button></td>
+                    <td><button onclick="openUpdateModal('${item.name}','${item.location}','${item.expiry}')" style="padding:6px 12px; background:var(--primary); color:white; border:none; border-radius:4px;">Update</button></td>
                     <td style="font-size:0.8rem;">${item.expiry || '-'}</td>
                     <td style="font-size:0.8rem; color:var(--gray);">${item.updatedBy || '-'}</td>
                 </tr>
@@ -356,7 +621,6 @@
                 user: user, updatedBy: user
             };
 
-            // OPTIMISTIC LOCAL UPDATE (UI updates instantly)
             if(isEditMode) {
                 let idx = inventoryData.findIndex(i => i.name === currentItem);
                 if(idx !== -1) { inventoryData[idx].location = loc; inventoryData[idx].expiry = exp; inventoryData[idx].updatedBy = user; }
@@ -365,9 +629,7 @@
             }
             renderTable(inventoryData);
             
-            // Sync Logic
             if(navigator.onLine) {
-                // Online: Direct fetch
                 let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
                 fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => {
                     btn.disabled = false; btn.textContent = 'SAVE CHANGES';
@@ -375,13 +637,11 @@
                     else { showToast(res.error, 'error'); }
                 }).catch(e => { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; showToast('Network Error', 'error'); });
             } else {
-                // Offline: Add to Queue
                 let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
                 queue.push(actionParams);
                 localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue));
-                
                 btn.disabled = false; btn.textContent = 'SAVE CHANGES';
-                showToast('Saved Offline! Will sync automatically when internet is back.', 'warning');
+                showToast('Saved Offline! Will sync automatically.', 'warning');
                 updatePendingTile();
                 closeModal();
             }
@@ -393,19 +653,16 @@
             if (!navigator.onLine) { if(manual) showToast("Still offline.", "error"); return; }
 
             showToast(`Syncing ${queue.length} offline changes...`, 'warning');
-            
             for (let i = 0; i < queue.length; i++) {
                 let task = queue[i];
                 let query = Object.keys(task).map(k => `${k}=${encodeURIComponent(task[k])}`).join('&');
                 try {
                     let res = await fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json());
-                    if(!res.success) console.error("Sync failed for record", task.name);
+                    if(!res.success) console.error("Sync failed", task.name);
                 } catch(e) {
-                    showToast("Sync interrupted by network error.", "error");
-                    return; // Stop queue, try later
+                    showToast("Sync interrupted.", "error"); return; 
                 }
             }
-            
             localStorage.removeItem('tabreed_sync_queue');
             updatePendingTile();
             showToast('All offline changes synced to Google!', 'success');
@@ -416,9 +673,8 @@
             let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
             const count = queue.length;
             document.getElementById('pending-sync-tile').innerText = count + " Pending";
-            
             const badge = document.getElementById('queue-badge');
-            if(count > 0) { badge.innerText = count + " offline syncs pending"; badge.style.display = 'inline-block'; }
+            if(count > 0) { badge.innerText = count + " offline sync pending"; badge.style.display = 'inline-block'; }
             else { badge.style.display = 'none'; }
         }
 
@@ -426,7 +682,7 @@
         function updateStatus(online) {
             const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335';
             document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline';
-            if(online) processSyncQueue(); // Auto sync on connection restore
+            if(online) processSyncQueue(); 
         }
         window.addEventListener('online', () => updateStatus(true)); 
         window.addEventListener('offline', () => updateStatus(false));
@@ -455,7 +711,7 @@
 
         function openUpdateModal(name, loc, exp) {
             isEditMode = true; currentItem = name;
-            document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Details';
+            document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Instrument Location & Details';
             document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee';
             document.getElementById('modalLocation').value = loc;
             if (exp && exp !== 'null' && exp !== '-' && exp !== 'undefined') { const parts = exp.split('.'); if (parts.length === 3) { document.getElementById('modalExpiry').value = `${parts[2]}-${parts[1]}-${parts[0]}`; } } else { document.getElementById('modalExpiry').value = ''; }
@@ -526,7 +782,7 @@
         function renderHistoryTable(data) { document.getElementById('historyTableBody').innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${log.time}</td><td style="font-weight:600;">${log.item}</td><td><span class="location-tag" style="background:#f0f0f0; color:#666;">${log.oldLoc}</span></td><td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${log.newLoc}</span></td><td style="font-size:0.8rem;">${log.user}</td></tr>`).join(''); }
         function filterHistory() { const term = document.getElementById('historySearch').value.toLowerCase(); renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term) || (log.oldLoc || "").toLowerCase().includes(term) || (log.newLoc || "").toLowerCase().includes(term))); }
 
-        // --- INSTALL ---
+        // --- PWA INSTALLATION ---
         let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
         function startSmartInstall() { if (deferredPrompt) deferredPrompt.prompt(); else alert('App is already installed, or use your browser menu to "Add to Home Screen".'); }
         if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW Failed', err));
