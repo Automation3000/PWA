@@ -17,9 +17,9 @@
     
     <link rel="preconnect" href="https://script.google.com" crossorigin="anonymous" />
     <link rel="dns-prefetch" href="https://script.google.com" />
-    <link rel="manifest" href="https://automation3000.github.io/PWA/manifest.json" />
-    <link rel="apple-touch-icon" href="https://automation3000.github.io/PWA/icon-192.png" />
-    <link rel="canonical" href="https://automation3000.github.io/PWA/NEW.html">
+    <link rel="manifest" href="https://tabreed.automation3000.com/manifest.json" />
+    <link rel="apple-touch-icon" href="https://tabreed.automation3000.com/icon-192.png" />
+    <link rel="canonical" href="https://tabreed.automation3000.com/NEW.html">
     
     <title>TABREED - Automation App</title>
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
@@ -29,44 +29,21 @@
     
     <style>
         :root {
-            --primary: #1a73e8;
-            --primary-dark: #0d62d9;
-            --primary-light: #e8f0fe;
-            --secondary: #34a853;
-            --warning: #f9ab00;
-            --danger: #ea4335;
-            --dark: #202124;
-            --light: #f8f9fa;
-            --gray: #5f6368;
-            --border: #dadce0;
-            --shadow: 0 2px 10px rgba(0,0,0,0.1);
-            --radius: 12px;
-            --radius-sm: 8px;
-            --transition: all 0.3s ease;
+            --primary: #1a73e8; --primary-dark: #0d62d9; --primary-light: #e8f0fe;
+            --secondary: #34a853; --warning: #f9ab00; --danger: #ea4335;
+            --dark: #202124; --light: #f8f9fa; --gray: #5f6368; --border: #dadce0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1); --radius: 12px; --transition: all 0.3s ease;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
-            background-color: #e4edf5;
-            color: var(--dark);
-            line-height: 1.5;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; background-color: #e4edf5; color: var(--dark); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 
-        #premium-wrapper {
-            display: none; width: 100%; height: 100vh; overflow-y: auto;
-            background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%);
-        }
+        #premium-wrapper { display: none; width: 100%; height: 100vh; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%); }
         
         .app-container { max-width: 1200px; margin: 0 auto; margin-bottom: 50px; display: flex; flex-direction: column; min-height: 100vh; }
         
-        .app-header {
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem;
-            border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000;
-        }
+        .app-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
         
         .header-content { display: flex; align-items: center; justify-content: space-between; }
         .brand { display: flex; align-items: center; gap: 0.75rem; }
@@ -91,10 +68,7 @@
         .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
         .table-container { overflow-x: auto; }
         
-        /* Fixed Layout to stop column jumping */
         .inventory-table { width: 100%; border-collapse: collapse; min-width: 600px; table-layout: fixed; }
-        
-        /* Set fixed width percentages for columns */
         .inventory-table th:nth-child(1) { width: 32%; padding-left: 1.5rem; }
         .inventory-table th:nth-child(2) { width: 22%; }
         .inventory-table th:nth-child(3) { width: 16%; }
@@ -108,14 +82,12 @@
 
         .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
         .expiry-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; background: #f8f9fa; color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); width: 100%; white-space: nowrap; transition: 0.3s; }
-        
-        input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type="number"] { -moz-appearance: textfield; }
+        .expiry-badge.expired { color: var(--danger) !important; border-color: var(--danger) !important; background: #ffebee !important; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; z-index: 2000; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
         .modal-overlay.feedback-overlay { z-index: 2100; }
-        .modal-overlay.ack-overlay { z-index: 4000; } /* Top priority for Stats */
+        .modal-overlay.ack-overlay { z-index: 4000; }
         
         .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
         .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
@@ -138,10 +110,11 @@
         .update-flex-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
 
         @media (max-width: 480px) {
+            .quick-actions { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; padding: 0 10px !important; }
+            .action-btn { min-width: unset !important; max-width: unset !important; width: 100% !important; min-height: 75px !important; margin: 0 !important; padding: 5px !important; }
             .modal-overlay { padding: 0; }
             .modal { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100vh !important; border-radius: 0 !important; margin: 0 !important; }
             .modal-actions { flex-direction: column; padding-bottom: 30px; }
-            .quick-actions { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             .inventory-table { font-size: 0.75rem !important; }
             .inventory-table td, .inventory-table th { padding: 0.5rem !important; }
             .inventory-table td:first-child, .inventory-table th:first-child { padding-left: 10px !important; }
@@ -173,8 +146,14 @@
         .pwa-close-btn { background: #edf2f7; color: #2d3748; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: 0.2s; }
         .pwa-close-btn:hover { background: #e2e8f0; }
 
-        #fiori-wrapper { display: block; width: 100%; height: 100vh; overflow-y: auto; }
-        #launchpad-view { padding: 30px; }
+        /* DEVELOPER MODE CSS */
+        .launchpad-footer { text-align: center; padding: 20px; padding-bottom: 40px; color: #6a6d70; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        #dev-trigger { font-weight: 800; color: #0a6ed1; cursor: pointer; display: inline-block; padding: 5px; }
+        #dev-tools-group { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        #fiori-wrapper { display: block; width: 100%; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+        #launchpad-view { padding: 30px; flex: 1; }
         .group-title { font-size: 18px; color: #32363a; margin-bottom: 15px; border-bottom: 1px solid #cdd4da; padding-bottom: 8px; }
         .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 176px)); gap: 12px; margin-bottom: 30px; }
         @media (max-width: 600px) { #launchpad-view { padding: 20px 15px; } .tile-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
@@ -244,7 +223,43 @@
                     <div class="tile-status" style="color: #ea4335;" id="pending-sync-tile">0 Pending</div>
                 </div>
             </div>
+
+            <div id="dev-tools-group" style="display: none; margin-top: 40px;">
+                <h2 class="group-title" style="color: #d50000; border-bottom-color: #ffcdd2;"><i class="fas fa-user-shield"></i> Developer Tools (Admin Only)</h2>
+                <div class="tile-grid">
+                    <div class="tile" onclick="devClearCache()">
+                        <div class="tile-title">Force Clear Cache</div>
+                        <div class="tile-subtitle">Nuke Local Storage</div>
+                        <i class="fas fa-trash-alt tile-icon" style="color: #d50000;"></i>
+                    </div>
+                    <div class="tile" onclick="devShowLog()">
+                        <div class="tile-title">Sync Logs</div>
+                        <div class="tile-subtitle">View API Requests</div>
+                        <i class="fas fa-terminal tile-icon" style="color: #333;"></i>
+                    </div>
+                    <div class="tile" onclick="devInjectData()">
+                        <div class="tile-title">Inject Test Data</div>
+                        <div class="tile-subtitle">For UI Testing</div>
+                        <i class="fas fa-vial tile-icon" style="color: #0b8043;"></i>
+                    </div>
+                    <div class="tile" onclick="devUIDebugger()">
+                        <div class="tile-title">UI Debugger</div>
+                        <div class="tile-subtitle">Highlight Bounds</div>
+                        <i class="fas fa-bug tile-icon" style="color: #f9ab00;"></i>
+                    </div>
+                    <div class="tile" onclick="devNetworkSim()">
+                        <div class="tile-title">Network Simulator</div>
+                        <div class="tile-subtitle">Throttle API calls</div>
+                        <i class="fas fa-wifi tile-icon" style="color: #1a73e8;"></i>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <div class="launchpad-footer">
+            <span>Code Developed by <span id="dev-trigger" onclick="handleDevClick()">Majeed</span></span>
+        </div>
+
     </div>
 
     <div id="pwa-instructions-modal">
@@ -269,7 +284,7 @@
                 <div class="header-content">
                     <div class="brand">
                         <button onclick="closeApp()" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--primary); padding-right:10px;"><i class="fas fa-arrow-left"></i></button>
-                        <div class="logo" onclick="toggleDevName()" style="cursor: pointer;" title="Tap to see Developer details">
+                        <div class="logo">
                             <img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
                         </div>
                         <div class="brand-text">
@@ -470,7 +485,7 @@
                 <table class="inventory-table" style="min-width: 500px;">
                     <thead>
                         <tr>
-                            <th style="width: 20%;">Date & Time</th>
+                            <th style="width: 20%; padding-left: 1.5rem;">Date & Time</th>
                             <th style="width: 25%;">Instrument</th>
                             <th style="width: 20%;">From Location</th>
                             <th style="width: 20%;">To Location</th>
@@ -536,30 +551,53 @@
             });
         });
 
+        // --- DEVELOPER MODE (3-CLICK UNLOCK) ---
+        let devClickCount = 0; let devClickTimer;
+        function handleDevClick() {
+            devClickCount++; clearTimeout(devClickTimer);
+            if (devClickCount >= 3) {
+                let pass = prompt("Enter Developer Password:");
+                if (pass === "Dubai@123") activateDeveloperMode();
+                else if (pass !== null) showToast("Access Denied", "error");
+                devClickCount = 0; return;
+            }
+            devClickTimer = setTimeout(() => { devClickCount = 0; }, 1000);
+        }
+
+        function activateDeveloperMode() {
+            document.getElementById('dev-tools-group').style.display = 'block';
+            showAckPopup("Developer Mode", "Extra Tools and Admin privileges have been unlocked.", "fas fa-user-shield", "var(--danger)");
+            setTimeout(() => { document.getElementById('fiori-wrapper').scrollTo({ top: document.getElementById('fiori-wrapper').scrollHeight, behavior: 'smooth' }); }, 300);
+        }
+
+        function devClearCache() {
+            if(confirm("WARNING: This will nuke all local storage. Proceed?")) {
+                localStorage.clear(); showToast("Cache Cleared. Reloading...", "info"); setTimeout(() => { window.location.reload(); }, 1000);
+            }
+        }
+        function devShowLog() { showAckPopup("Sync Logs", "Network Logs placeholder.", "fas fa-terminal", "#333"); }
+        function devInjectData() {
+            inventoryData.push({ name: "TEST-INSTRUMENT-" + Math.floor(Math.random()*1000), location: "Dev Test Area", expiry: "01.01.2030", updatedBy: "Dev Tool" });
+            applyFilters(); showToast("Test Data Injected", "success");
+        }
+        function devUIDebugger() { document.querySelectorAll('div, table, section').forEach(el => el.style.outline = '1px solid red'); showToast("UI Debugger On", "warning"); }
+        function devNetworkSim() { showToast("Simulated Network Latency applied", "info"); }
+
         // --- SMART PWA INSTALL LOGIC (From Blogger) ---
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+        let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
 
         window.startSmartInstall = async function() {
-            const androidApkLink = "https://automation3000.github.io/PWA/Automation.apk";
-            const iosProfileLink = "https://automation3000.github.io/PWA/Automation.mobileconfig";
+            const androidApkLink = "https://tabreed.automation3000.com/Automation.apk";
+            const iosProfileLink = "https://tabreed.automation3000.com/Automation.mobileconfig";
             const modal = document.getElementById('pwa-instructions-modal'); const modalTitle = document.getElementById('pwa-modal-title'); const modalText = document.getElementById('pwa-modal-text');
-
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-            let os = "Desktop";
-            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) os = "iOS";
-            else if (/android/i.test(userAgent)) os = "Android";
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera; let os = "Desktop";
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) os = "iOS"; else if (/android/i.test(userAgent)) os = "Android";
 
             if (os === "Android") {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if(outcome === 'accepted') deferredPrompt = null;
-                } else {
-                    window.location.href = androidApkLink;
-                    setTimeout(() => { modalTitle.innerText = "APK Downloading..."; modalText.innerHTML = "Your application is downloading.<br><br>Once complete, open the file and tap <b>'Install'</b>. If prompted, please allow installation from unknown sources."; modal.style.display = 'flex'; }, 1000);
-                }
+                if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if(outcome === 'accepted') deferredPrompt = null; } 
+                else { window.location.href = androidApkLink; setTimeout(() => { modalTitle.innerText = "APK Downloading..."; modalText.innerHTML = "Your application is downloading.<br><br>Once complete, open the file and tap <b>'Install'</b>. If prompted, please allow installation from unknown sources."; modal.style.display = 'flex'; }, 1000); }
             } else if (os === "iOS") {
-                window.location.href = iosProfileLink;
-                setTimeout(() => { modalTitle.innerText = "Profile Downloaded!"; modalText.innerHTML = "1. Open your iPhone <b>Settings</b>.<br>2. Tap on <b>'Profile Downloaded'</b> near the top.<br>3. Tap <b>Install</b> (Ignore the 'Not Signed' security warning, it is safe).<br><br>The application will be added to your Home Screen."; modal.style.display = 'flex'; }, 1500);
+                window.location.href = iosProfileLink; setTimeout(() => { modalTitle.innerText = "Profile Downloaded!"; modalText.innerHTML = "1. Open your iPhone <b>Settings</b>.<br>2. Tap on <b>'Profile Downloaded'</b> near the top.<br>3. Tap <b>Install</b> (Ignore the 'Not Signed' security warning, it is safe).<br><br>The application will be added to your Home Screen."; modal.style.display = 'flex'; }, 1500);
             } else {
                 modalTitle.innerText = "Desktop Environment Detected"; modalText.innerHTML = "This beta application is optimized for mobile devices. Please visit this URL on your smartphone to install."; modal.style.display = 'flex';
             }
@@ -571,9 +609,7 @@
             else if (type === 'IFRAME') { document.getElementById('fiori-iframe-header').style.display = 'flex'; document.getElementById('iframeWrapper').style.display = 'block'; if(!navigator.onLine) showToast("Iframe requires network connection.", "warning"); document.getElementById('active-iframe').src = url; } 
             else { showToast("This app is running natively.", "info"); document.getElementById('fiori-wrapper').style.display = 'block'; }
         }
-        function closeApp() {
-            document.getElementById('premium-wrapper').style.display = 'none'; document.getElementById('fiori-iframe-header').style.display = 'none'; document.getElementById('iframeWrapper').style.display = 'none'; document.getElementById('active-iframe').src = ''; document.getElementById('fiori-wrapper').style.display = 'block';
-        }
+        function closeApp() { document.getElementById('premium-wrapper').style.display = 'none'; document.getElementById('fiori-iframe-header').style.display = 'none'; document.getElementById('iframeWrapper').style.display = 'none'; document.getElementById('active-iframe').src = ''; document.getElementById('fiori-wrapper').style.display = 'block'; }
 
         function showToast(msg, type) {
             const container = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = 'toast';
@@ -583,11 +619,9 @@
             container.appendChild(t); setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 2500);
         }
 
-        // --- NEW: CENTERED ACKNOWLEDGMENT POPUP ---
         function showAckPopup(title, message, iconClass, iconColor) {
             document.getElementById('ackIcon').innerHTML = `<i class="${iconClass}" style="color: ${iconColor};"></i>`;
-            document.getElementById('ackTitle').innerText = title;
-            document.getElementById('ackMessage').innerHTML = message;
+            document.getElementById('ackTitle').innerText = title; document.getElementById('ackMessage').innerHTML = message;
             document.getElementById('ackModalOverlay').classList.add('active');
         }
 
@@ -598,15 +632,8 @@
         }
 
         function refreshAndReset() {
-            document.getElementById('locationFilter').value = 'ALL';
-            document.getElementById('expiryFilter').value = 'ALL';
-            document.getElementById('calibrationFilter').value = 'ALL';
-            document.getElementById('searchInput').value = '';
-            
-            document.getElementById('label-location').innerText = 'All Locations';
-            document.getElementById('label-expiry').innerText = 'Expiry';
-            document.getElementById('label-status').innerText = 'Goes for Cal.';
-            
+            document.getElementById('locationFilter').value = 'ALL'; document.getElementById('expiryFilter').value = 'ALL'; document.getElementById('calibrationFilter').value = 'ALL'; document.getElementById('searchInput').value = '';
+            document.getElementById('label-location').innerText = 'All Locations'; document.getElementById('label-expiry').innerText = 'Expiry'; document.getElementById('label-status').innerText = 'Goes for Cal.';
             loadInventory();
         }
 
@@ -641,20 +668,18 @@
             if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray);">No instruments found</td></tr>'; return; }
 
             tbody.innerHTML = data.map((item, idx) => {
-                // RED DATE LOGIC IMPLEMENTED
                 let isExpired = false;
                 if (item.expiry && item.expiry !== '-') {
-                    const parts = item.expiry.split('.');
-                    const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    const parts = item.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
                     isExpired = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24)) < 0;
                 }
 
-                let expiryDisplay = `<span class="expiry-badge" ${isExpired ? 'style="color:var(--danger); border-color:var(--danger); background:#ffebee;"' : ''}>${sanitizeInput(item.expiry || '-')}</span>`;
+                let expiryDisplay = `<span class="expiry-badge ${isExpired ? 'expired' : ''}">${sanitizeInput(item.expiry || '-')}</span>`;
                 
                 if (showExpiryAsDays && item.expiry && item.expiry !== '-') {
                     const parts = item.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
                     const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
-                    if (diff < 0) expiryDisplay = `<span class="expiry-badge" style="color:var(--danger); border-color:var(--danger); background:#ffebee;">Expired</span>`;
+                    if (diff < 0) expiryDisplay = `<span class="expiry-badge expired">Expired</span>`;
                     else if (diff === 0) expiryDisplay = `<span class="expiry-badge" style="color:var(--warning); border-color:var(--warning); background:#fff3e0;">Today</span>`;
                     else expiryDisplay = `<span class="expiry-badge" style="color:var(--secondary); border-color:var(--secondary); background:#e8f5e9;">${diff} Days Left</span>`;
                 }
@@ -671,43 +696,27 @@
             }).join('');
         }
 
-        function openUpdateModalByIndex(idx) {
-            if (!inventoryData[idx]) return; const item = inventoryData[idx]; openUpdateModal(item.name, item.location, item.expiry || '');
-        }
+        function openUpdateModalByIndex(idx) { if (!inventoryData[idx]) return; const item = inventoryData[idx]; openUpdateModal(item.name, item.location, item.expiry || ''); }
 
-        // --- PASSCODE ON SLIDER LOGIC ---
         function checkUnlock(slider) {
             if(slider.value >= 95) {
                 let pass = prompt("Enter unlock code:");
-                if(pass === "123") {
-                    document.getElementById('sliderContainer').style.display = 'none';
-                    document.getElementById('expiryDateContainer').style.display = 'block';
-                    document.getElementById('modalExpiry').disabled = false;
-                } else {
-                    showToast("Incorrect Code!", "error");
-                    slider.value = 0;
-                }
+                if(pass === "123") { document.getElementById('sliderContainer').style.display = 'none'; document.getElementById('expiryDateContainer').style.display = 'block'; document.getElementById('modalExpiry').disabled = false; } 
+                else { showToast("Incorrect Code!", "error"); slider.value = 0; }
             }
         }
         function snapUnlock(slider) { if(slider.value < 100) { slider.value = 0; } }
 
         function submitUpdate() {
-            const name = document.getElementById('modalItemName').value.trim();
-            let loc = document.getElementById('modalLocation').value.trim();
-            const customLoc = document.getElementById('customLocation').value.trim();
-            const user = document.getElementById('modalUpdatedBy').value.trim();
-            let exp = document.getElementById('modalExpiry').value;
+            const name = document.getElementById('modalItemName').value.trim(); let loc = document.getElementById('modalLocation').value.trim(); const customLoc = document.getElementById('customLocation').value.trim(); const user = document.getElementById('modalUpdatedBy').value.trim(); let exp = document.getElementById('modalExpiry').value;
 
             if (!name || !user) { showToast('Name and Updated By are required!', 'error'); return; }
             if (loc === "NOT_LISTED") { if (!customLoc || customLoc.length < 2) { showToast('Please enter a valid location', 'error'); return; } loc = customLoc; }
 
             const sanitizedUser = sanitizeInput(user); const sanitizedLoc = sanitizeInput(loc); const sanitizedName = sanitizeInput(name);
             
-            if (exp && !document.getElementById('modalExpiry').disabled) {
-                const d = new Date(exp); exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
-            } else if (document.getElementById('modalExpiry').disabled) {
-                const originalItem = inventoryData.find(i => i.name === currentItem); exp = originalItem ? originalItem.expiry : '';
-            }
+            if (exp && !document.getElementById('modalExpiry').disabled) { const d = new Date(exp); exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`; } 
+            else if (document.getElementById('modalExpiry').disabled) { const originalItem = inventoryData.find(i => i.name === currentItem); exp = originalItem ? originalItem.expiry : ''; }
 
             const btn = document.getElementById('submitUpdateBtn'); btn.disabled = true; btn.textContent = 'Processing...';
 
@@ -731,32 +740,20 @@
             let successCount = 0; let failureCount = 0;
             for (let i = 0; i < queue.length; i++) {
                 let task = queue[i]; let query = Object.keys(task).map(k => `${k}=${encodeURIComponent(task[k])}`).join('&');
-                try { let res = await fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()); if (res.success) successCount++; else failureCount++;
-                } catch (e) { failureCount++; }
+                try { let res = await fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()); if (res.success) successCount++; else failureCount++; } catch (e) { failureCount++; }
             }
             if (failureCount === 0) { localStorage.removeItem('tabreed_sync_queue'); updatePendingTile(); showToast('Offline changes synced to Automation App!', 'success'); loadInventory(); }
         }
 
-        function updatePendingTile() {
-            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); document.getElementById('pending-sync-tile').innerText = queue.length + " Pending";
-            const badge = document.getElementById('queue-badge'); if(queue.length > 0) { badge.innerText = queue.length + " pending"; badge.style.display = 'inline-block'; } else badge.style.display = 'none';
-        }
-
-        function updateStatus(online) {
-            const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335';
-            document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline'; if(online) processSyncQueue(); 
-        }
+        function updatePendingTile() { let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); document.getElementById('pending-sync-tile').innerText = queue.length + " Pending"; const badge = document.getElementById('queue-badge'); if(queue.length > 0) { badge.innerText = queue.length + " pending"; badge.style.display = 'inline-block'; } else badge.style.display = 'none'; }
+        function updateStatus(online) { const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335'; document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline'; if(online) processSyncQueue(); }
         window.addEventListener('online', () => updateStatus(true)); window.addEventListener('offline', () => updateStatus(false));
 
         function applyFilters() {
-            const term = document.getElementById('searchInput').value.toLowerCase().trim();
-            const loc = document.getElementById('locationFilter').value;
-            const expDays = document.getElementById('expiryFilter').value;
-            const calibStatus = document.getElementById('calibrationFilter').value;
+            const term = document.getElementById('searchInput').value.toLowerCase().trim(); const loc = document.getElementById('locationFilter').value; const expDays = document.getElementById('expiryFilter').value; const calibStatus = document.getElementById('calibrationFilter').value;
 
             let filtered = inventoryData.filter(i => {
-                const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term);
-                const matchLoc = (loc === "ALL" || i.location === loc);
+                const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term); const matchLoc = (loc === "ALL" || i.location === loc);
                 let matchExp = true; let matchCalib = true;
 
                 if (calibStatus !== "ALL") { matchCalib = (i.location === calibStatus); }
@@ -764,8 +761,7 @@
                     if (expDays === "NOT_MENTIONED") { matchExp = (!i.expiry || i.expiry === '-'); } 
                     else if (!i.expiry || i.expiry === '-') { matchExp = false; } 
                     else {
-                        const parts = i.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                        const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
+                        const parts = i.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]); const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
                         if (expDays === "EXPIRED") { matchExp = (diff < 0); } else { matchExp = (diff >= 0 && diff <= parseInt(expDays)); }
                     }
                 }
@@ -774,57 +770,24 @@
         }
 
         function openAddModal() {
-            isEditMode = false; currentItem = null; document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument';
-            document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'white';
-            document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = '';
-            resetSlider(); document.getElementById('updateModal').classList.add('active');
+            isEditMode = false; currentItem = null; document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument'; document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'white'; document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = ''; resetSlider(); document.getElementById('updateModal').classList.add('active');
         }
 
         function openUpdateModal(name, loc, exp) {
-            isEditMode = true; currentItem = name; document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Details';
-            document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee'; document.getElementById('modalLocation').value = loc;
+            isEditMode = true; currentItem = name; document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Details'; document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee'; document.getElementById('modalLocation').value = loc;
             if (exp && exp !== '-' ) { const p = exp.split('.'); if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${p[1]}-${p[0]}`; } else { document.getElementById('modalExpiry').value = ''; }
-            document.getElementById('modalUpdatedBy').value = '';
-            resetSlider(); document.getElementById('updateModal').classList.add('active');
+            document.getElementById('modalUpdatedBy').value = ''; resetSlider(); document.getElementById('updateModal').classList.add('active');
         }
 
-        function resetSlider() {
-            const slider = document.getElementById('unlockSlider'); slider.value = 0; document.getElementById('sliderContainer').style.display = 'block'; document.getElementById('expiryDateContainer').style.display = 'none'; document.getElementById('modalExpiry').disabled = true;
-        }
-
+        function resetSlider() { const slider = document.getElementById('unlockSlider'); slider.value = 0; document.getElementById('sliderContainer').style.display = 'block'; document.getElementById('expiryDateContainer').style.display = 'none'; document.getElementById('modalExpiry').disabled = true; }
         function closeModal() { document.getElementById('modalLocation').style.display = 'block'; document.getElementById('customLocation').style.display = 'none'; document.getElementById('customLocation').value = ''; document.getElementById('locationHint').style.display = 'none'; document.getElementById('updateModal').classList.remove('active'); }
-
-        function updateLocationsDropdown() {
-            const modalSelect = document.getElementById('modalLocation'); let modalOpts = locations.map(l => `<option value="${l}">${l}</option>`).join(''); modalOpts += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`; modalSelect.innerHTML = modalOpts;
-            const filterSelect = document.getElementById('locationFilter'); let filterOpts = `<option value="ALL">All Locations</option>` + locations.map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts;
-        }
-
-        function handleLocationChange(value) {
-            const cInput = document.getElementById('customLocation'); const hint = document.getElementById('locationHint');
-            if(value === "NOT_LISTED") { document.getElementById('modalLocation').style.display = 'none'; cInput.style.display = 'block'; hint.style.display = 'block'; cInput.focus(); } else { cInput.style.display = 'none'; hint.style.display = 'none'; }
-        }
+        function updateLocationsDropdown() { const modalSelect = document.getElementById('modalLocation'); let modalOpts = locations.map(l => `<option value="${l}">${l}</option>`).join(''); modalOpts += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`; modalSelect.innerHTML = modalOpts; const filterSelect = document.getElementById('locationFilter'); let filterOpts = `<option value="ALL">All Locations</option>` + locations.map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts; }
+        function handleLocationChange(value) { const cInput = document.getElementById('customLocation'); const hint = document.getElementById('locationHint'); if(value === "NOT_LISTED") { document.getElementById('modalLocation').style.display = 'none'; cInput.style.display = 'block'; hint.style.display = 'block'; cInput.focus(); } else { cInput.style.display = 'none'; hint.style.display = 'none'; } }
 
         function showStats() { 
             const total = inventoryData.length; const locationsCount = locations.length;
-            const expiringCount = inventoryData.filter(item => {
-                if (!item.expiry || item.expiry === '-') return false;
-                const parts = item.expiry.split('.'); const exp = new Date(parts[2], parts[1] - 1, parts[0]);
-                const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24)); return diff <= 30;
-            }).length;
-            
-            let statHtml = `
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;">
-                    <span style="font-weight:600;">Total Instruments:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${total}</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;">
-                    <span style="font-weight:600;">Total Locations:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${locationsCount}</span>
-                </div>
-                <div style="display:flex; justify-content:space-between;">
-                    <span style="font-weight:600; color:var(--danger);">Expiring Soon:</span> <span style="font-size:1.1rem; color:var(--danger); font-weight:800;">${expiringCount}</span>
-                </div>
-            `;
-            
-            // Trigger Centered Ack Modal
+            const expiringCount = inventoryData.filter(item => { if (!item.expiry || item.expiry === '-') return false; const parts = item.expiry.split('.'); const exp = new Date(parts[2], parts[1] - 1, parts[0]); const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24)); return diff <= 30; }).length;
+            let statHtml = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;"><span style="font-weight:600;">Total Instruments:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${total}</span></div><div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;"><span style="font-weight:600;">Total Locations:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${locationsCount}</span></div><div style="display:flex; justify-content:space-between;"><span style="font-weight:600; color:var(--danger);">Expiring Soon:</span> <span style="font-size:1.1rem; color:var(--danger); font-weight:800;">${expiringCount}</span></div>`;
             showAckPopup("Inventory Statistics", statHtml, "fas fa-chart-pie", "var(--primary)");
         }
 
@@ -839,15 +802,8 @@
         function openFeedbackModal() { document.getElementById('feedbackEmpId').value = ''; document.getElementById('feedbackName').value = ''; document.getElementById('feedbackText').value = ''; document.getElementById('feedbackModal').classList.add('active'); }
         function closeFeedbackModal() { document.getElementById('feedbackModal').classList.remove('active'); }
 
-        function autoFillName() {
-            const empId = document.getElementById('feedbackEmpId').value.trim(); const nameInput = document.getElementById('feedbackName');
-            const match = EMPLOYEES.find(emp => emp.code === empId); if (match) { nameInput.value = match.short; } 
-        }
-
-        function autoFillEmpId() {
-            const nameVal = document.getElementById('feedbackName').value.trim().toLowerCase(); const idInput = document.getElementById('feedbackEmpId');
-            if (nameVal.length >= 3) { const match = EMPLOYEES.find(emp => emp.full.toLowerCase().includes(nameVal) || emp.short.toLowerCase().includes(nameVal)); if (match) { idInput.value = match.code; } }
-        }
+        function autoFillName() { const empId = document.getElementById('feedbackEmpId').value.trim(); const nameInput = document.getElementById('feedbackName'); const match = EMPLOYEES.find(emp => emp.code === empId); if (match) { nameInput.value = match.short; } }
+        function autoFillEmpId() { const nameVal = document.getElementById('feedbackName').value.trim().toLowerCase(); const idInput = document.getElementById('feedbackEmpId'); if (nameVal.length >= 3) { const match = EMPLOYEES.find(emp => emp.full.toLowerCase().includes(nameVal) || emp.short.toLowerCase().includes(nameVal)); if (match) { idInput.value = match.code; } } }
 
         function submitFeedback() {
             const empId = document.getElementById('feedbackEmpId').value.trim(); const empName = document.getElementById('feedbackName').value.trim(); const rawFeedback = document.getElementById('feedbackText').value.trim();
@@ -872,31 +828,19 @@
             html2pdf().set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save().then(() => showToast('PDF Downloaded!', 'success'));
         }
 
-        let isFullNameShowing = false; let logoClickCount = 0; let clickTimer;
-        function toggleDevName() {
-            const subtitle = document.getElementById('dev-subtitle'); logoClickCount++; clearTimeout(clickTimer);
-            if (logoClickCount >= 6) { if (confirm('Clear all cached data and reload?')) { localStorage.clear(); fetch(`${GAS_API_URL}?key=AI1&action=clearCache`).finally(() => window.location.reload()); } return; }
-            clickTimer = setTimeout(() => { logoClickCount = 0; }, 500); subtitle.style.opacity = '0';
-            setTimeout(() => { subtitle.innerHTML = !isFullNameShowing ? 'Developed by <strong>Majeed [ 41764 ]</strong>' : 'Automation App'; isFullNameShowing = !isFullNameShowing; subtitle.style.opacity = '1'; }, 150);
-        }
-
         // --- HISTORY WITH SKELETON LOADING ---
         function showHistoryPage() { document.getElementById('historyPage').style.display = 'block'; loadHistoryData(); }
         function closeHistoryPage() { document.getElementById('historyPage').style.display = 'none'; }
         
         function loadHistoryData() { 
             const tbody = document.getElementById('historyTableBody');
-            let skeletonHTML = ''; 
-            for(let i=0; i<8; i++){ skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 90%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 80%;"></div></td></tr>`; }
+            let skeletonHTML = ''; for(let i=0; i<8; i++){ skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 90%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 80%;"></div></td></tr>`; }
             tbody.innerHTML = skeletonHTML;
 
             if (navigator.onLine) { 
-                fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => { 
-                    if (res.success) { fullHistoryData = res.data || []; renderHistoryTable(res.data); } 
-                }); 
+                fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => { if (res.success) { fullHistoryData = res.data || []; renderHistoryTable(res.data); } }); 
             } else {
-                showToast("You are offline. Cannot load live history.", "warning");
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Offline</td></tr>';
+                showToast("You are offline. Cannot load live history.", "warning"); tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Offline</td></tr>';
             }
         }
         function filterHistory() { const term = document.getElementById('historySearch').value.toLowerCase().trim(); renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term))); }
