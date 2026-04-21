@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#1a73e8">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Tabreed">
+    <meta name="apple-mobile-web-app-title" content="Automation App">
     <meta name="description" content="Industrial Automation Dashboard - Master Instrument List, Network Monitoring, and Offline-First PWA">
     <meta name="keywords" content="automation, instruments, control, monitoring, dashboard, PWA">
     <meta property="og:title" content="TABREED - Automation App">
@@ -14,12 +14,15 @@
     <meta property="og:type" content="webapp">
     <meta name="twitter:card" content="summary_large_image">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="manifest" href="./manifest.json" />
+    
+    <link rel="preconnect" href="https://script.google.com" crossorigin="anonymous" />
+    <link rel="dns-prefetch" href="https://script.google.com" />
+    <link rel="manifest" href="https://automation3000.github.io/PWA/manifest.json" />
+    <link rel="apple-touch-icon" href="https://automation3000.github.io/PWA/icon-192.png" />
     <link rel="canonical" href="https://automation3000.github.io/PWA/NEW.html">
     
-    <title>TABREED - Automation & Control App</title>
+    <title>TABREED - Automation App</title>
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
-    <link rel="apple-touch-icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
     <meta name="color-scheme" content="light dark">
@@ -45,7 +48,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
             background-color: #e4edf5;
             color: var(--dark);
             line-height: 1.5;
@@ -80,7 +83,11 @@
         .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
         
         .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
-        .action-btn { background: white; border: none; flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); visibility: visible; }
+        .action-btn { background: white; border: none; flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); visibility: visible; position: relative; }
+
+        /* FULL CLICKABLE DROPDOWN CSS */
+        .select-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .action-content { pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
 
         .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
         .table-container { overflow-x: auto; }
@@ -88,16 +95,16 @@
         .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
         .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
         
-        /* Added padding for first column (Instrument name gap) */
         .inventory-table td:first-child, .inventory-table th:first-child { padding-left: 1.5rem; }
-
-        /* Expiry Column Mobile Fix */
         .expiry-td { white-space: nowrap !important; }
 
         .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
         .expiry-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; background: #f8f9fa; color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); width: 100%; white-space: nowrap; }
-        .remark-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
         
+        /* Hiding Up/Down Arrows from Employee ID Number input */
+        input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; z-index: 2000; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
         .modal-overlay.feedback-overlay { z-index: 2100; }
@@ -141,10 +148,23 @@
         .skeleton-cell { height: 20px; border-radius: 4px; background: #e0e0e0; animation: pulse-skeleton 1.5s infinite ease-in-out; }
         @keyframes pulse-skeleton { 0% { background-color: #eee; } 50% { background-color: #d4d4d4; } 100% { background-color: #eee; } }
 
+        /* USER'S INSTALL APP & MODAL CSS INTEGRATION */
+        .fiori-header { background-color: #3f5161; color: #ffffff; height: 55px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000; }
+        .fiori-logo-img { width: 32px; height: 32px; border-radius: 4px; background: white; padding: 2px;}
+        
+        .btn-install-small { background: #2d3748 !important; color: white !important; border: none !important; padding: 6px 12px !important; font-size: 12px !important; font-weight: 700 !important; border-radius: 20px !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important; transition: all 0.3s ease !important; letter-spacing: 0.5px !important; display: flex; align-items: center; }
+        .btn-install-small:hover { background: #1a202c !important; transform: translateY(-2px) scale(1.02) !important; box-shadow: 0 6px 15px rgba(0,0,0,0.2) !important; }
+        .beta-badge { font-size: 9px !important; background: #e53e3e !important; color: #fff !important; padding: 2px 5px !important; border-radius: 8px !important; margin-left: 6px !important; font-weight: 800 !important; }
+        .version-text { font-size: 10px !important; color: #cbd5e0 !important; font-weight: 500 !important; margin-top: 2px; }
+
+        #pwa-instructions-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2147483650; justify-content: center; align-items: center; }
+        .pwa-modal-content { background: #fff; padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        .pwa-modal-content h3 { margin-top: 0; color: #1a202c; font-size: 20px; font-weight: 800; margin-bottom: 15px; }
+        .pwa-modal-content p { color: #4a5568; font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+        .pwa-close-btn { background: #edf2f7; color: #2d3748; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: 0.2s; }
+        .pwa-close-btn:hover { background: #e2e8f0; }
+
         #fiori-wrapper { display: block; width: 100%; height: 100vh; overflow-y: auto; }
-        .fiori-header { background-color: #3f5161; color: #ffffff; height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000; }
-        .fiori-logo-img { width: 28px; height: 28px; border-radius: 4px; background: white; padding: 2px;}
-        .fiori-install-badge { background: transparent; color: white; border: none; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; }
         #launchpad-view { padding: 30px; }
         .group-title { font-size: 18px; color: #32363a; margin-bottom: 15px; border-bottom: 1px solid #cdd4da; padding-bottom: 8px; }
         .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 176px)); gap: 12px; margin-bottom: 30px; }
@@ -171,9 +191,14 @@
         <header class="fiori-header">
             <div style="display:flex; align-items:center; gap:12px;">
                 <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" class="fiori-logo-img">
-                <span style="font-size:15px; font-weight:600;">Home</span>
+                <span style="font-size:16px; font-weight:700; letter-spacing: 0.5px;">Home</span>
             </div>
-            <button class="fiori-install-badge" onclick="startSmartInstall()"><i class="fas fa-download"></i> Install App</button>
+            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                <button class="btn-install-small" onclick="startSmartInstall()">
+                    📱 INSTALL APP <span class="beta-badge">BETA</span>
+                </button>
+                <span class="version-text">Version 1.0</span>
+            </div>
         </header>
 
         <div id="launchpad-view">
@@ -210,6 +235,14 @@
                     <div class="tile-status" style="color: #ea4335;" id="pending-sync-tile">0 Pending</div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div id="pwa-instructions-modal">
+        <div class="pwa-modal-content">
+            <h3 id="pwa-modal-title">Install App</h3>
+            <p id="pwa-modal-text">Instructions generating...</p>
+            <button class="pwa-close-btn" onclick="document.getElementById('pwa-instructions-modal').style.display='none'">Got it, Close</button>
         </div>
     </div>
 
@@ -251,19 +284,27 @@
 
             <div class="quick-actions" role="toolbar" aria-label="Quick actions">
                 <button class="action-btn" onclick="refreshAndReset()" aria-label="Refresh data"><i class="fas fa-sync-alt" style="color: var(--primary); margin-bottom: 5px;"></i><span>Refresh</span></button>
+                
                 <div class="action-btn" style="padding: 0;">
-                    <i class="fas fa-filter" style="color: var(--secondary); margin-top: 8px;"></i>
-                    <select id="locationFilter" onchange="applyFilters()" aria-label="Filter by location" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0; color: var(--dark);">
+                    <div class="action-content">
+                        <i class="fas fa-filter" style="color: var(--secondary); margin-bottom: 5px;"></i>
+                        <span id="label-location">All Locations</span>
+                    </div>
+                    <select id="locationFilter" class="select-wrapper" onchange="updateFilterLabel(this, 'label-location', 'All Locations'); applyFilters()">
                         <option value="ALL">All Locations</option>
                     </select>
                 </div>
+
                 <button class="action-btn" onclick="openAddModal()" aria-label="Add new entry"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
                 <button class="action-btn" onclick="showStats()" aria-label="View statistics"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
                 
                 <div class="action-btn" style="padding: 0;">
-                    <i class="fas fa-hourglass-half" style="color: #1976d2; margin-top: 8px;"></i>
-                    <select id="expiryFilter" onchange="applyFilters()" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0; color: var(--dark);">
-                        <option value="ALL">Expiry Due</option>
+                    <div class="action-content">
+                        <i class="fas fa-hourglass-half" style="color: #1976d2; margin-bottom: 5px;"></i>
+                        <span id="label-expiry">Expiry</span>
+                    </div>
+                    <select id="expiryFilter" class="select-wrapper" onchange="updateFilterLabel(this, 'label-expiry', 'Expiry'); applyFilters()">
+                        <option value="ALL">Expiry</option>
                         <option value="15">15 Days</option>
                         <option value="30">30 Days</option>
                         <option value="60">2 Months</option>
@@ -275,9 +316,12 @@
                 </div>
 
                 <div class="action-btn" style="padding: 0;">
-                    <i class="fas fa-tools" style="color: #e65100; margin-top: 8px;"></i>
-                    <select id="calibrationFilter" onchange="applyFilters()" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0; color: var(--dark);">
-                        <option value="ALL">Status</option>
+                    <div class="action-content">
+                        <i class="fas fa-tools" style="color: #e65100; margin-bottom: 5px;"></i>
+                        <span id="label-status" style="font-size: 0.65rem; text-align:center;">Goes for Cal. or Repair</span>
+                    </div>
+                    <select id="calibrationFilter" class="select-wrapper" onchange="applyFilters()">
+                        <option value="ALL">All Status</option>
                         <option value="Calibration/Repair">Calibration/Repair</option>
                     </select>
                 </div>
@@ -339,19 +383,10 @@
                     </div>
 
                     <div class="update-flex-row">
-                        <div class="form-group" style="flex: 1; min-width: 180px; margin-bottom: 0;">
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
                             <label for="modalUpdatedBy">Updated By <span aria-label="required">*</span></label>
                             <input type="text" id="modalUpdatedBy" placeholder="Your Name" aria-label="Your name" required>
                         </div>
-                        <div class="form-group" style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 0; padding-top: 10px; min-width: 120px;">
-                            <input type="checkbox" id="remarkCheckbox" class="remark-checkbox" onchange="toggleRemarkField(this.checked)">
-                            <label for="remarkCheckbox" style="margin:0; font-size:0.9rem; white-space: nowrap;">Add Remark</label>
-                        </div>
-                    </div>
-
-                    <div class="form-group" id="remarkGroup" style="display:none; margin-top: 1.2rem;">
-                        <label for="modalRemark">Remark</label>
-                        <textarea id="modalRemark" placeholder="Write a short remark..." style="width:100%; min-height:90px; padding:0.8rem; border:2px solid var(--border); border-radius:8px; background:white; color:var(--dark);"></textarea>
                     </div>
                     
                     <div class="modal-actions">
@@ -372,7 +407,7 @@
                     <div class="update-flex-row" style="margin-bottom: 1rem;">
                         <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
                             <label for="feedbackEmpId">Employee ID</label>
-                            <input type="number" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
+                            <input type="text" inputmode="numeric" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
                         </div>
                         <div class="form-group" style="flex: 2; min-width: 180px; margin-bottom: 0;">
                             <label for="feedbackName">Name</label>
@@ -433,7 +468,6 @@
     <script>
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw0nKm-j24HwBwVd2u9ji3gqEtQ7j2dtQZmqEd0oA15mmB7nHMtGYOgUfhMrL7TjEc8cQ/exec";
         
-        // Employee List for Feedback Auto-fill
         const EMPLOYEES = [
             { code: "40311", full: "JERLIN DELA VEGA CABRAL", short: "Jerlin" },
             { code: "40334", full: "RAJESH KUMAR SINGH", short: "Rajesh" },
@@ -452,7 +486,6 @@
         let searchDebounceTimer; let showExpiryAsDays = false;
         let currentView = localStorage.getItem('currentView') || 'launchpad'; 
 
-        // --- UTILITY FUNCTIONS ---
         function sanitizeInput(str) {
             if (typeof str !== 'string') return '';
             return str.replace(/[<>\"'&]/g, (char) => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' }[char]));
@@ -460,25 +493,19 @@
 
         function validateDate(dateStr) {
             if (!dateStr) return true;
-            const date = new Date(dateStr);
-            return date instanceof Date && !isNaN(date);
+            const date = new Date(dateStr); return date instanceof Date && !isNaN(date);
         }
 
         function debounce(func, delay = 300) {
-            return function(...args) {
-                clearTimeout(searchDebounceTimer);
-                searchDebounceTimer = setTimeout(() => func.apply(this, args), delay);
-            };
+            return function(...args) { clearTimeout(searchDebounceTimer); searchDebounceTimer = setTimeout(() => func.apply(this, args), delay); };
         }
 
         const handleError = (error, context = 'Operation') => {
-            console.error(`[${context}]`, error);
-            showToast('An error occurred - Try again', 'error');
+            console.error(`[${context}]`, error); showToast('An error occurred - Try again', 'error');
         };
 
         document.addEventListener('DOMContentLoaded', () => {
             setupSearch(); updatePendingTile(); processSyncQueue();
-
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     if (document.getElementById('updateModal').classList.contains('active')) closeModal();
@@ -488,20 +515,64 @@
             });
         });
 
+        // --- SMART PWA INSTALL LOGIC (From Blogger) ---
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); deferredPrompt = e;
+        });
+
+        window.startSmartInstall = async function() {
+            const androidApkLink = "https://automation3000.github.io/PWA/Automation.apk";
+            const iosProfileLink = "https://automation3000.github.io/PWA/Automation.mobileconfig";
+            
+            const modal = document.getElementById('pwa-instructions-modal');
+            const modalTitle = document.getElementById('pwa-modal-title');
+            const modalText = document.getElementById('pwa-modal-text');
+
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            let os = "Desktop";
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) os = "iOS";
+            else if (/android/i.test(userAgent)) os = "Android";
+
+            if (os === "Android") {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if(outcome === 'accepted') deferredPrompt = null;
+                } else {
+                    window.location.href = androidApkLink;
+                    setTimeout(() => {
+                        modalTitle.innerText = "APK Downloading...";
+                        modalText.innerHTML = "Your application is downloading.<br><br>Once complete, open the file and tap <b>'Install'</b>. If prompted, please allow installation from unknown sources.";
+                        modal.style.display = 'flex';
+                    }, 1000);
+                }
+            } else if (os === "iOS") {
+                window.location.href = iosProfileLink;
+                setTimeout(() => {
+                    modalTitle.innerText = "Profile Downloaded!";
+                    modalText.innerHTML = "1. Open your iPhone <b>Settings</b>.<br>2. Tap on <b>'Profile Downloaded'</b> near the top.<br>3. Tap <b>Install</b> (Ignore the 'Not Signed' security warning, it is safe).<br><br>The application will be added to your Home Screen.";
+                    modal.style.display = 'flex';
+                }, 1500);
+            } else {
+                modalTitle.innerText = "Desktop Environment Detected";
+                modalText.innerHTML = "This beta application is optimized for mobile devices. Please visit this URL on your smartphone to install.";
+                modal.style.display = 'flex';
+            }
+        };
+
         // --- ROUTING ---
         function openApp(type, url) {
             document.getElementById('fiori-wrapper').style.display = 'none';
             if(type === 'NATIVE_INSTRUMENT') {
-                document.getElementById('premium-wrapper').style.display = 'block';
-                loadInventory();
+                document.getElementById('premium-wrapper').style.display = 'block'; loadInventory();
             } else if (type === 'IFRAME') {
                 document.getElementById('fiori-iframe-header').style.display = 'flex';
                 document.getElementById('iframeWrapper').style.display = 'block';
                 if(!navigator.onLine) showToast("Iframe requires network connection.", "warning");
                 document.getElementById('active-iframe').src = url;
             } else {
-                showToast("This app is running natively.", "info");
-                document.getElementById('fiori-wrapper').style.display = 'block';
+                showToast("This app is running natively.", "info"); document.getElementById('fiori-wrapper').style.display = 'block';
             }
         }
         function closeApp() {
@@ -512,55 +583,51 @@
             document.getElementById('fiori-wrapper').style.display = 'block';
         }
 
-        // --- NOTIFICATIONS (Custom UI) ---
         function showToast(msg, type) {
-            const container = document.getElementById('toastContainer');
-            const t = document.createElement('div'); t.className = 'toast';
+            const container = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = 'toast';
             const colors = { 'success': 'var(--secondary)', 'error': 'var(--danger)', 'warning': 'var(--warning)', 'info': 'var(--primary)' };
             const icons = { 'success': 'fa-check-circle', 'error': 'fa-exclamation-circle', 'warning': 'fa-exclamation-triangle', 'info': 'fa-info-circle' };
             t.style.borderLeftColor = colors[type] || colors['info'];
             t.innerHTML = `<i class="fas ${icons[type] || icons['info']}" style="color:${colors[type] || colors['info']}"></i> <span>${sanitizeInput(msg)}</span>`;
-            container.appendChild(t);
-            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3500);
+            container.appendChild(t); setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3500);
         }
 
         // --- DATA LOAD & REFRESH ---
+        function updateFilterLabel(selectElement, labelId, defaultText) {
+            let label = document.getElementById(labelId);
+            if(selectElement.value === 'ALL') { label.innerText = defaultText || selectElement.options[0].text; } 
+            else { label.innerText = selectElement.options[selectElement.selectedIndex].text; }
+        }
+
         function refreshAndReset() {
-            // Reset all filters
             document.getElementById('locationFilter').value = 'ALL';
             document.getElementById('expiryFilter').value = 'ALL';
             document.getElementById('calibrationFilter').value = 'ALL';
             document.getElementById('searchInput').value = '';
             
+            document.getElementById('label-location').innerText = 'All Locations';
+            document.getElementById('label-expiry').innerText = 'Expiry';
+            
             loadInventory();
         }
 
         function loadInventory() {
-            const tbody = document.getElementById('tableBody');
-            const savedDataStr = localStorage.getItem("localTabreedInventory");
+            const tbody = document.getElementById('tableBody'); const savedDataStr = localStorage.getItem("localTabreedInventory");
 
             if (savedDataStr) {
                 try {
-                    const res = JSON.parse(savedDataStr);
-                    inventoryData = res.data || []; locations = res.locations || [];
+                    const res = JSON.parse(savedDataStr); inventoryData = res.data || []; locations = res.locations || [];
                     updateLocationsDropdown(); applyFilters(); updateStatus(navigator.onLine);
                 } catch (e) { localStorage.removeItem("localTabreedInventory"); }
             } else {
-                let skeletonHTML = '';
-                for (let i = 0; i < 6; i++) {
-                    skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 85%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 60px;"></div></td><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 50%;"></div></td></tr>`;
-                }
+                let skeletonHTML = ''; for (let i = 0; i < 6; i++) { skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 85%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 60px;"></div></td><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 50%;"></div></td></tr>`; }
                 tbody.innerHTML = skeletonHTML;
             }
 
             if (navigator.onLine) {
-                fetch(`${GAS_API_URL}?key=AI1&action=getItems`)
-                    .then(r => r.json())
-                    .then(res => {
+                fetch(`${GAS_API_URL}?key=AI1&action=getItems`).then(r => r.json()).then(res => {
                         if (res.success) {
-                            try {
-                                localStorage.setItem("localTabreedInventory", JSON.stringify(res));
-                                inventoryData = res.data || []; locations = res.locations || [];
+                            try { localStorage.setItem("localTabreedInventory", JSON.stringify(res)); inventoryData = res.data || []; locations = res.locations || [];
                                 updateLocationsDropdown(); applyFilters(); updateStatus(true);
                             } catch (e) { handleError(e, 'Save Response'); }
                         }
@@ -568,56 +635,50 @@
             } else { updateStatus(false); }
         }
 
-        function toggleExpiryDisplay() {
-            showExpiryAsDays = !showExpiryAsDays; applyFilters();
-        }
+        function toggleExpiryDisplay() { showExpiryAsDays = !showExpiryAsDays; applyFilters(); }
 
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
-            if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray);">No instruments found</td></tr>';
-                return;
-            }
+            if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray);">No instruments found</td></tr>'; return; }
 
             tbody.innerHTML = data.map((item, idx) => {
-                const remark = sanitizeInput(item.remark || '');
-                const remarkIcon = remark ? `<span title="${remark}" style="margin-left:6px; color:#1976d2;">&#10004;</span>` : '';
-                
                 let expiryDisplay = `<span class="expiry-badge">${sanitizeInput(item.expiry || '-')}</span>`;
                 if (showExpiryAsDays && item.expiry && item.expiry !== '-') {
-                    const parts = item.expiry.split('.');
-                    const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    const parts = item.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
                     const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
                     if (diff < 0) expiryDisplay = `<span class="expiry-badge" style="color:var(--danger); border-color:var(--danger); background:#ffebee;">Expired</span>`;
                     else if (diff === 0) expiryDisplay = `<span class="expiry-badge" style="color:var(--warning); border-color:var(--warning); background:#fff3e0;">Today</span>`;
                     else expiryDisplay = `<span class="expiry-badge" style="color:var(--secondary); border-color:var(--secondary); background:#e8f5e9;">${diff} Days Left</span>`;
                 }
-
                 const realIdx = inventoryData.findIndex(i => i.name === item.name);
-
                 return `
                 <tr>
                     <td style="font-weight:600;">${sanitizeInput(item.name)}</td>
                     <td><span class="location-tag">${sanitizeInput(item.location)}</span></td>
                     <td><button onclick="openUpdateModalByIndex(${realIdx})" style="padding:6px 16px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;" aria-label="Update">Update</button></td>
                     <td class="expiry-td" style="text-align:center;">${expiryDisplay}</td>
-                    <td style="font-size:0.8rem; color:var(--gray);">${sanitizeInput(item.updatedBy || '-')}${remarkIcon}</td>
+                    <td style="font-size:0.8rem; color:var(--gray);">${sanitizeInput(item.updatedBy || '-')}</td>
                 </tr>
             `;
             }).join('');
         }
 
         function openUpdateModalByIndex(idx) {
-            if (!inventoryData[idx]) return;
-            const item = inventoryData[idx]; openUpdateModal(item.name, item.location, item.expiry || '', item.remark || '');
+            if (!inventoryData[idx]) return; const item = inventoryData[idx]; openUpdateModal(item.name, item.location, item.expiry || '');
         }
 
-        // --- SLIDE TO UNLOCK LOGIC ---
+        // --- PASSCODE ON SLIDER LOGIC ---
         function checkUnlock(slider) {
             if(slider.value >= 95) {
-                document.getElementById('sliderContainer').style.display = 'none';
-                document.getElementById('expiryDateContainer').style.display = 'block';
-                document.getElementById('modalExpiry').disabled = false;
+                let pass = prompt("Enter unlock code:");
+                if(pass === "123") {
+                    document.getElementById('sliderContainer').style.display = 'none';
+                    document.getElementById('expiryDateContainer').style.display = 'block';
+                    document.getElementById('modalExpiry').disabled = false;
+                } else {
+                    alert("Incorrect Code!");
+                    slider.value = 0;
+                }
             }
         }
         function snapUnlock(slider) { if(slider.value < 100) { slider.value = 0; } }
@@ -629,55 +690,37 @@
             const customLoc = document.getElementById('customLocation').value.trim();
             const user = document.getElementById('modalUpdatedBy').value.trim();
             let exp = document.getElementById('modalExpiry').value;
-            const remark = document.getElementById('remarkCheckbox').checked ? document.getElementById('modalRemark').value.trim() : '';
 
             if (!name || !user) { showToast('Name and Updated By are required!', 'error'); return; }
-            if (loc === "NOT_LISTED") {
-                if (!customLoc || customLoc.length < 2) { showToast('Please enter a valid location', 'error'); return; }
-                loc = customLoc;
-            }
+            if (loc === "NOT_LISTED") { if (!customLoc || customLoc.length < 2) { showToast('Please enter a valid location', 'error'); return; } loc = customLoc; }
 
             const sanitizedUser = sanitizeInput(user); const sanitizedLoc = sanitizeInput(loc); const sanitizedName = sanitizeInput(name);
             
-            // Only convert date if it's set and unlocked
             if (exp && !document.getElementById('modalExpiry').disabled) {
                 const d = new Date(exp); exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
             } else if (document.getElementById('modalExpiry').disabled) {
-                // If slider wasn't unlocked, keep original date (or empty)
-                const originalItem = inventoryData.find(i => i.name === currentItem);
-                exp = originalItem ? originalItem.expiry : '';
+                const originalItem = inventoryData.find(i => i.name === currentItem); exp = originalItem ? originalItem.expiry : '';
             }
 
             const btn = document.getElementById('submitUpdateBtn'); btn.disabled = true; btn.textContent = 'Processing...';
 
-            let actionParams = {
-                action: isEditMode ? 'update' : 'add', itemName: currentItem || '', name: sanitizedName, location: sanitizedLoc,
-                newLocation: sanitizedLoc, expiry: exp, newExpiry: exp, user: sanitizedUser, updatedBy: sanitizedUser, remark: remark
-            };
+            let actionParams = { action: isEditMode ? 'update' : 'add', itemName: currentItem || '', name: sanitizedName, location: sanitizedLoc, newLocation: sanitizedLoc, expiry: exp, newExpiry: exp, user: sanitizedUser, updatedBy: sanitizedUser, remark: "" };
 
-            if (isEditMode) {
-                let idx = inventoryData.findIndex(i => i.name === currentItem);
-                if (idx !== -1) { inventoryData[idx].location = sanitizedLoc; inventoryData[idx].expiry = exp; inventoryData[idx].updatedBy = sanitizedUser; inventoryData[idx].remark = remark; }
-            } else { inventoryData.push({ name: sanitizedName, location: sanitizedLoc, expiry: exp, updatedBy: sanitizedUser, remark: remark }); }
+            if (isEditMode) { let idx = inventoryData.findIndex(i => i.name === currentItem); if (idx !== -1) { inventoryData[idx].location = sanitizedLoc; inventoryData[idx].expiry = exp; inventoryData[idx].updatedBy = sanitizedUser; }
+            } else { inventoryData.push({ name: sanitizedName, location: sanitizedLoc, expiry: exp, updatedBy: sanitizedUser, remark: "" }); }
             applyFilters();
 
             if (navigator.onLine) {
                 let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
-                fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => {
-                        btn.disabled = false; btn.textContent = 'SAVE CHANGES';
-                        if (res.success) { showToast('Saved Successfully!', 'success'); closeModal(); loadInventory(); } 
-                        else showToast(res.error || 'Save failed', 'error');
-                    }).catch(e => { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; });
+                fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; if (res.success) { showToast('Saved Successfully!', 'success'); closeModal(); loadInventory(); } else showToast(res.error || 'Save failed', 'error'); }).catch(e => { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; });
             } else {
                 let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); queue.push(actionParams);
-                localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue)); btn.disabled = false; btn.textContent = 'SAVE CHANGES';
-                showToast('Saved Offline! Will sync automatically.', 'warning'); updatePendingTile(); closeModal();
+                localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue)); btn.disabled = false; btn.textContent = 'SAVE CHANGES'; showToast('Saved Offline! Will sync automatically.', 'warning'); updatePendingTile(); closeModal();
             }
         }
 
         async function processSyncQueue(manual = false) {
-            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
-            if (queue.length === 0 || !navigator.onLine) return;
+            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); if (queue.length === 0 || !navigator.onLine) return;
             let successCount = 0; let failureCount = 0;
             for (let i = 0; i < queue.length; i++) {
                 let task = queue[i]; let query = Object.keys(task).map(k => `${k}=${encodeURIComponent(task[k])}`).join('&');
@@ -688,10 +731,8 @@
         }
 
         function updatePendingTile() {
-            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
-            document.getElementById('pending-sync-tile').innerText = queue.length + " Pending";
-            const badge = document.getElementById('queue-badge');
-            if(queue.length > 0) { badge.innerText = queue.length + " pending"; badge.style.display = 'inline-block'; } else badge.style.display = 'none';
+            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); document.getElementById('pending-sync-tile').innerText = queue.length + " Pending";
+            const badge = document.getElementById('queue-badge'); if(queue.length > 0) { badge.innerText = queue.length + " pending"; badge.style.display = 'inline-block'; } else badge.style.display = 'none';
         }
 
         function updateStatus(online) {
@@ -699,9 +740,6 @@
             document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline'; if(online) processSyncQueue(); 
         }
         window.addEventListener('online', () => updateStatus(true)); window.addEventListener('offline', () => updateStatus(false));
-
-        // --- FILTERS & SEARCH ---
-        function setupSearch() { document.getElementById('searchInput').addEventListener('input', debounce(() => applyFilters(), 300)); }
 
         function applyFilters() {
             const term = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -715,7 +753,6 @@
                 let matchExp = true; let matchCalib = true;
 
                 if (calibStatus !== "ALL") { matchCalib = (i.location === calibStatus); }
-
                 if (expDays !== "ALL") {
                     if (expDays === "NOT_MENTIONED") { matchExp = (!i.expiry || i.expiry === '-'); } 
                     else if (!i.expiry || i.expiry === '-') { matchExp = false; } 
@@ -726,103 +763,74 @@
                     }
                 }
                 return matchSearch && matchLoc && matchExp && matchCalib;
-            });
-            renderTable(filtered);
+            }); renderTable(filtered);
         }
 
         function openAddModal() {
-            isEditMode = false; currentItem = null;
-            document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument';
+            isEditMode = false; currentItem = null; document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument';
             document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'white';
             document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = '';
-            document.getElementById('remarkCheckbox').checked = false; document.getElementById('remarkGroup').style.display = 'none'; document.getElementById('modalRemark').value = '';
             resetSlider(); document.getElementById('updateModal').classList.add('active');
         }
 
-        function openUpdateModal(name, loc, exp, remark = '') {
-            isEditMode = true; currentItem = name;
-            document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Details';
-            document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee';
-            document.getElementById('modalLocation').value = loc;
-            
-            if (exp && exp !== '-' ) { 
-                const p = exp.split('.'); 
-                if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${p[1]}-${p[0]}`; 
-            } else { 
-                document.getElementById('modalExpiry').value = ''; 
-            }
-            
+        function openUpdateModal(name, loc, exp) {
+            isEditMode = true; currentItem = name; document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Details';
+            document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee'; document.getElementById('modalLocation').value = loc;
+            if (exp && exp !== '-' ) { const p = exp.split('.'); if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${p[1]}-${p[0]}`; } else { document.getElementById('modalExpiry').value = ''; }
             document.getElementById('modalUpdatedBy').value = '';
-            document.getElementById('remarkCheckbox').checked = Boolean(remark); document.getElementById('remarkGroup').style.display = remark ? 'block' : 'none'; document.getElementById('modalRemark').value = remark;
             resetSlider(); document.getElementById('updateModal').classList.add('active');
         }
 
         function resetSlider() {
-            const slider = document.getElementById('unlockSlider'); slider.value = 0;
-            document.getElementById('sliderContainer').style.display = 'block';
-            document.getElementById('expiryDateContainer').style.display = 'none';
-            document.getElementById('modalExpiry').disabled = true;
+            const slider = document.getElementById('unlockSlider'); slider.value = 0; document.getElementById('sliderContainer').style.display = 'block'; document.getElementById('expiryDateContainer').style.display = 'none'; document.getElementById('modalExpiry').disabled = true;
         }
 
-        function closeModal() {
-            document.getElementById('modalLocation').style.display = 'block'; document.getElementById('customLocation').style.display = 'none'; document.getElementById('customLocation').value = '';
-            document.getElementById('locationHint').style.display = 'none'; document.getElementById('updateModal').classList.remove('active');
-        }
+        function closeModal() { document.getElementById('modalLocation').style.display = 'block'; document.getElementById('customLocation').style.display = 'none'; document.getElementById('customLocation').value = ''; document.getElementById('locationHint').style.display = 'none'; document.getElementById('updateModal').classList.remove('active'); }
 
         function updateLocationsDropdown() {
-            const modalSelect = document.getElementById('modalLocation');
-            let modalOpts = locations.map(l => `<option value="${l}">${l}</option>`).join(''); modalOpts += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`; modalSelect.innerHTML = modalOpts;
-            const filterSelect = document.getElementById('locationFilter');
-            let filterOpts = `<option value="ALL">All Locations</option>` + locations.map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts;
+            const modalSelect = document.getElementById('modalLocation'); let modalOpts = locations.map(l => `<option value="${l}">${l}</option>`).join(''); modalOpts += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`; modalSelect.innerHTML = modalOpts;
+            const filterSelect = document.getElementById('locationFilter'); let filterOpts = `<option value="ALL">All Locations</option>` + locations.map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts;
         }
 
         function handleLocationChange(value) {
             const cInput = document.getElementById('customLocation'); const hint = document.getElementById('locationHint');
-            if(value === "NOT_LISTED") { document.getElementById('modalLocation').style.display = 'none'; cInput.style.display = 'block'; hint.style.display = 'block'; cInput.focus(); } 
-            else { cInput.style.display = 'none'; hint.style.display = 'none'; }
+            if(value === "NOT_LISTED") { document.getElementById('modalLocation').style.display = 'none'; cInput.style.display = 'block'; hint.style.display = 'block'; cInput.focus(); } else { cInput.style.display = 'none'; hint.style.display = 'none'; }
         }
 
         function showStats() { 
             const total = inventoryData.length; const locationsCount = locations.length;
-            const expiringCount = inventoryData.filter(item => {
-                if (!item.expiry || item.expiry === '-') return false;
-                const parts = item.expiry.split('.'); const exp = new Date(parts[2], parts[1] - 1, parts[0]);
-                const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24)); return diff <= 30;
-            }).length;
+            const expiringCount = inventoryData.filter(item => { if (!item.expiry || item.expiry === '-') return false; const parts = item.expiry.split('.'); const exp = new Date(parts[2], parts[1] - 1, parts[0]); const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24)); return diff <= 30; }).length;
             showToast(`Inventory: ${total} Items | ${locationsCount} Locations | ${expiringCount} Expiring Soon`, 'success');
         }
 
-        function toggleRemarkField(checked) {
-            document.getElementById('remarkGroup').style.display = checked ? 'block' : 'none'; if(checked) document.getElementById('modalRemark').focus();
+        // --- ENHANCED FEEDBACK SYSTEM (DUBAI TIMESTAMP) ---
+        function getDubaiTime() {
+            let d = new Date();
+            let utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+            let dubaiTime = new Date(utc + (3600000 * 4)); // Dubai is UTC+4
+            
+            let day = String(dubaiTime.getDate()).padStart(2, '0');
+            let month = String(dubaiTime.getMonth() + 1).padStart(2, '0');
+            let year = dubaiTime.getFullYear();
+            
+            let hours = String(dubaiTime.getHours()).padStart(2, '0');
+            let minutes = String(dubaiTime.getMinutes()).padStart(2, '0');
+            let seconds = String(dubaiTime.getSeconds()).padStart(2, '0');
+            
+            return `${day}.${month}.${year}   ${hours}:${minutes}:${seconds}`;
         }
 
-        // --- ENHANCED FEEDBACK SYSTEM (With Bi-Directional Auto-fill) ---
-        function openFeedbackModal() {
-            document.getElementById('feedbackEmpId').value = '';
-            document.getElementById('feedbackName').value = '';
-            document.getElementById('feedbackText').value = '';
-            document.getElementById('feedbackModal').classList.add('active');
-        }
-
+        function openFeedbackModal() { document.getElementById('feedbackEmpId').value = ''; document.getElementById('feedbackName').value = ''; document.getElementById('feedbackText').value = ''; document.getElementById('feedbackModal').classList.add('active'); }
         function closeFeedbackModal() { document.getElementById('feedbackModal').classList.remove('active'); }
 
         function autoFillName() {
-            const empId = document.getElementById('feedbackEmpId').value.trim();
-            const nameInput = document.getElementById('feedbackName');
-            const match = EMPLOYEES.find(emp => emp.code === empId);
-            if (match) { nameInput.value = match.short; } 
+            const empId = document.getElementById('feedbackEmpId').value.trim(); const nameInput = document.getElementById('feedbackName');
+            const match = EMPLOYEES.find(emp => emp.code === empId); if (match) { nameInput.value = match.short; } 
         }
 
         function autoFillEmpId() {
-            const nameVal = document.getElementById('feedbackName').value.trim().toLowerCase();
-            const idInput = document.getElementById('feedbackEmpId');
-            
-            if (nameVal.length >= 3) {
-                const match = EMPLOYEES.find(emp => emp.full.toLowerCase().includes(nameVal) || emp.short.toLowerCase().includes(nameVal));
-                if (match) {
-                    idInput.value = match.code;
-                }
-            }
+            const nameVal = document.getElementById('feedbackName').value.trim().toLowerCase(); const idInput = document.getElementById('feedbackEmpId');
+            if (nameVal.length >= 3) { const match = EMPLOYEES.find(emp => emp.full.toLowerCase().includes(nameVal) || emp.short.toLowerCase().includes(nameVal)); if (match) { idInput.value = match.code; } }
         }
 
         function submitFeedback() {
@@ -830,38 +838,25 @@
             const empName = document.getElementById('feedbackName').value.trim();
             const rawFeedback = document.getElementById('feedbackText').value.trim();
 
-            if (!rawFeedback || (!empId && !empName)) {
-                showToast("Please provide details and feedback before sending.", "warning");
-                return;
-            }
+            if (!rawFeedback || (!empId && !empName)) { showToast("Please provide details and feedback before sending.", "warning"); return; }
 
-            const combinedFeedback = `[EMP ID: ${empId || 'N/A'}] [NAME: ${empName || 'Unknown'}] - ${rawFeedback}`;
+            // Construct exact string format requested
+            const dubaiTimeStamp = getDubaiTime();
+            const combinedFeedback = `${dubaiTimeStamp} ${empId}... ${empName}.... ${rawFeedback}`;
 
-            const btn = document.getElementById('submitFeedbackBtn');
-            btn.disabled = true; btn.textContent = 'SENDING...';
+            const btn = document.getElementById('submitFeedbackBtn'); btn.disabled = true; btn.textContent = 'SENDING...';
 
             if (navigator.onLine) {
-                fetch(`${GAS_API_URL}?key=AI1&action=feedback&text=${encodeURIComponent(combinedFeedback)}`)
-                    .then(r => r.json())
-                    .then(res => {
+                fetch(`${GAS_API_URL}?key=AI1&action=feedback&text=${encodeURIComponent(combinedFeedback)}`).then(r => r.json()).then(res => {
                         btn.disabled = false; btn.textContent = 'SEND FEEDBACK';
-                        if(res.success) { showToast("Feedback sent successfully to Automation Team!", "success"); closeFeedbackModal(); } 
-                        else { showToast("Error saving feedback.", "error"); }
-                    }).catch(() => {
-                        btn.disabled = false; btn.textContent = 'SEND FEEDBACK';
-                        showToast("Feedback sent to Automation Team!", "success"); closeFeedbackModal();
-                    }); 
-            } else {
-                btn.disabled = false; btn.textContent = 'SEND FEEDBACK'; showToast("You are offline. Connect to internet to send feedback.", "warning");
-            }
+                        if(res.success) { showToast("Feedback sent successfully to Automation Team!", "success"); closeFeedbackModal(); } else { showToast("Error saving feedback.", "error"); }
+                    }).catch(() => { btn.disabled = false; btn.textContent = 'SEND FEEDBACK'; showToast("Feedback sent to Automation Team!", "success"); closeFeedbackModal(); }); 
+            } else { btn.disabled = false; btn.textContent = 'SEND FEEDBACK'; showToast("You are offline. Connect to internet to send feedback.", "warning"); }
         }
 
         function exportData() {
             showToast('Preparing PDF Engine...', 'success');
-            if (typeof html2pdf === 'undefined') {
-                const script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-                script.onload = () => generatePDF(); document.body.appendChild(script);
-            } else generatePDF();
+            if (typeof html2pdf === 'undefined') { const script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'; script.onload = () => generatePDF(); document.body.appendChild(script); } else generatePDF();
         }
         function generatePDF() {
             const el = document.querySelector('.inventory-section'); const now = new Date(); const fileName = `List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}.pdf`;
@@ -871,36 +866,20 @@
         let isFullNameShowing = false; let logoClickCount = 0; let clickTimer;
         function toggleDevName() {
             const subtitle = document.getElementById('dev-subtitle'); logoClickCount++; clearTimeout(clickTimer);
-            if (logoClickCount >= 6) {
-                if (confirm('Clear all cached data and reload?')) {
-                    localStorage.clear(); fetch(`${GAS_API_URL}?key=AI1&action=clearCache`).finally(() => window.location.reload());
-                } return;
-            }
+            if (logoClickCount >= 6) { if (confirm('Clear all cached data and reload?')) { localStorage.clear(); fetch(`${GAS_API_URL}?key=AI1&action=clearCache`).finally(() => window.location.reload()); } return; }
             clickTimer = setTimeout(() => { logoClickCount = 0; }, 500); subtitle.style.opacity = '0';
-            setTimeout(() => { subtitle.innerHTML = !isFullNameShowing ? 'Developed by <strong>Abdul Majeed Ansari [ 41764 ]</strong>' : 'Automation App'; isFullNameShowing = !isFullNameShowing; subtitle.style.opacity = '1'; }, 150);
+            setTimeout(() => { subtitle.innerHTML = !isFullNameShowing ? 'Developed by <strong>Majeed [ 41764 ]</strong>' : 'Automation App'; isFullNameShowing = !isFullNameShowing; subtitle.style.opacity = '1'; }, 150);
         }
 
         // --- HISTORY ---
         function showHistoryPage() { document.getElementById('historyPage').style.display = 'block'; loadHistoryData(); }
         function closeHistoryPage() { document.getElementById('historyPage').style.display = 'none'; }
-        function loadHistoryData() {
-            if (navigator.onLine) { fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => { if (res.success) { fullHistoryData = res.data || []; renderHistoryTable(res.data); } }); }
-        }
-        function filterHistory() {
-            const term = document.getElementById('historySearch').value.toLowerCase().trim();
-            renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term)));
-        }
+        function loadHistoryData() { if (navigator.onLine) { fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => { if (res.success) { fullHistoryData = res.data || []; renderHistoryTable(res.data); } }); } }
+        function filterHistory() { const term = document.getElementById('historySearch').value.toLowerCase().trim(); renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term))); }
         function renderHistoryTable(data) {
             const tbody = document.getElementById('historyTableBody');
             if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No history found</td></tr>'; return; }
             tbody.innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${sanitizeInput(log.time || '')}</td><td style="font-weight:600;">${sanitizeInput(log.item || '')}</td><td><span class="location-tag" style="background:#f0f0f0; color:#666;">${sanitizeInput(log.oldLoc || '')}</span></td><td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${sanitizeInput(log.newLoc || '')}</span></td><td style="font-size:0.8rem;">${sanitizeInput(log.user || '')}</td></tr>`).join('');
-        }
-
-        // --- PWA INSTALLATION ---
-        let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; const btn = document.querySelector('.fiori-install-badge'); if (btn) btn.style.display = 'flex'; });
-        function startSmartInstall() {
-            if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then((c) => { if (c.outcome === 'accepted') { showToast('App installed!', 'success'); deferredPrompt = null; } }); } 
-            else showToast('App is already installed or check browser menu.', 'info');
         }
     </script>
 </body>
