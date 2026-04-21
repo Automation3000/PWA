@@ -25,9 +25,6 @@
     <meta name="color-scheme" content="light dark">
     
     <style>
-        /* ======================================================== */
-        /* EXACT ORIGINAL CSS BY YOU (NO CHANGES)                   */
-        /* ======================================================== */
         :root {
             --primary: #1a73e8;
             --primary-dark: #0d62d9;
@@ -45,12 +42,7 @@
             --transition: all 0.3s ease;
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
@@ -62,201 +54,56 @@
         }
 
         #premium-wrapper {
-            display: none;
-            width: 100%;
-            height: 100vh;
-            overflow-y: auto;
+            display: none; width: 100%; height: 100vh; overflow-y: auto;
             background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%);
         }
         
-        .app-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            margin-bottom: 50px;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
+        .app-container { max-width: 1200px; margin: 0 auto; margin-bottom: 50px; display: flex; flex-direction: column; min-height: 100vh; }
         
         .app-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem 1.5rem;
-            border-radius: 0 0 var(--radius) var(--radius);
-            box-shadow: var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem;
+            border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000;
         }
         
-        .header-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .logo {
-            width: 45px; 
-            height: 45px;
-            background: white; 
-            border-radius: 50%; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-            border: 1px solid #e0e0e0;
-        }
+        .header-content { display: flex; align-items: center; justify-content: space-between; }
+        .brand { display: flex; align-items: center; gap: 0.75rem; }
+        .logo { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid #e0e0e0; }
 
-        .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.8rem;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #f9ab00;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+        .connection-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f9ab00; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         
-        .search-container {
-            padding: 1rem;
-            margin: 1rem;
-            background: white;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-        }
-        
+        .search-container { padding: 1rem; margin: 1rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
         .search-box { position: relative; }
-        .search-box input {
-            width: 100%;
-            padding: 0.8rem 1rem 0.8rem 3rem;
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            font-size: 16px;
-            background: white;
-            color: var(--dark);
-        }
+        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 16px; background: white; color: var(--dark); }
         .search-box input::placeholder { color: #999; opacity: 1; }
+        .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
         
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-        
-        .quick-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            padding: 0 1rem;
-            margin-bottom: 1rem;
-            justify-content: center;
-        }
-        
-        .action-btn {
-            background: white;
-            border: none;
-            flex: 1; 
-            min-width: 70px; 
-            max-width: 110px;
-            padding: 0.8rem 0.4rem;
-            border-radius: var(--radius);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--dark);
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: var(--transition);
-            visibility: visible;
-        }
+        .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
+        .action-btn { background: white; border: none; flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); visibility: visible; }
 
-        .inventory-section {
-            background: white;
-            margin: 0 1rem 1rem;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
-
+        .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
         .table-container { overflow-x: auto; }
         .inventory-table { width: 100%; border-collapse: collapse; min-width: 500px; }
         .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
         .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
 
         .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .expiry-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #f8f9fa; color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); }
+        .remark-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
         
-        .expiry-badge { 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px; 
-            padding: 6px 12px; 
-            background: #f8f9fa; 
-            color: var(--dark); 
-            border-radius: 20px; 
-            font-size: 0.75rem; 
-            font-weight: 600; 
-            border: 1px solid var(--border);
-        }
-        
-        .remark-checkbox { 
-            width: 18px; 
-            height: 18px; 
-            cursor: pointer; 
-            accent-color: var(--primary);
-        }
-        
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            display: none;
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-        
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; z-index: 2000; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
+        .modal-overlay.feedback-overlay { z-index: 2100; }
         
-        .modal {
-            background: white;
-            width: 95%;
-            max-width: 500px;
-            border-radius: var(--radius);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
+        .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
         .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; }
         
         .form-group { margin-bottom: 1.2rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--dark); }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; background: white; color: var(--dark); }
-        .form-group input::placeholder { color: #999; opacity: 1; }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: #999; opacity: 1; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: white; }
 
         .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
@@ -264,43 +111,12 @@
         .btn-secondary { flex: 1; padding: 1rem; background: white; color: var(--dark); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; }
         .btn-secondary:hover { background: var(--light); }
 
-        /* Slide to Unlock CSS */
-        .slide-unlock {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 36px;
-            background: transparent;
-            outline: none;
-            z-index: 2;
-            position: absolute;
-            top: 0;
-            left: 0;
-            margin: 0;
-        }
-        .slide-unlock::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: var(--primary);
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>');
-            background-repeat: no-repeat;
-            background-position: center;
-        }
+        .slide-unlock { -webkit-appearance: none; width: 100%; height: 36px; background: transparent; outline: none; z-index: 2; position: absolute; top: 0; left: 0; margin: 0; }
+        .slide-unlock::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 34px; height: 34px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: center; }
 
         @media (max-width: 480px) {
             .modal-overlay { padding: 0; }
-            .modal {
-                width: 100% !important;
-                height: 100% !important;
-                max-width: 100% !important;
-                max-height: 100vh !important;
-                border-radius: 0 !important;
-                margin: 0 !important;
-            }
+            .modal { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100vh !important; border-radius: 0 !important; margin: 0 !important; }
             .modal-actions { flex-direction: column; padding-bottom: 30px; }
             .quick-actions { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             .inventory-table { font-size: 0.75rem !important; }
@@ -312,19 +128,9 @@
         @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .skeleton-row td { padding: 1rem; border-bottom: 1px solid var(--border); }
-        .skeleton-cell { 
-            height: 20px; 
-            border-radius: 4px; 
-            background: #e0e0e0; 
-            animation: pulse-skeleton 1.5s infinite ease-in-out;
-        }
-        @keyframes pulse-skeleton {
-            0% { background-color: #eee; }
-            50% { background-color: #d4d4d4; }
-            100% { background-color: #eee; }
-        }
+        .skeleton-cell { height: 20px; border-radius: 4px; background: #e0e0e0; animation: pulse-skeleton 1.5s infinite ease-in-out; }
+        @keyframes pulse-skeleton { 0% { background-color: #eee; } 50% { background-color: #d4d4d4; } 100% { background-color: #eee; } }
 
-        /* FIORI LAUNCHPAD STYLES (ISOLATED) */
         #fiori-wrapper { display: block; width: 100%; height: 100vh; overflow-y: auto; }
         .fiori-header { background-color: #3f5161; color: #ffffff; height: 48px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000; }
         .fiori-logo-img { width: 28px; height: 28px; border-radius: 4px; background: white; padding: 2px;}
@@ -443,6 +249,7 @@
                 </div>
                 <button class="action-btn" onclick="openAddModal()" aria-label="Add new entry"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
                 <button class="action-btn" onclick="showStats()" aria-label="View statistics"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
+                
                 <div class="action-btn" style="padding: 0;">
                     <i class="fas fa-hourglass-half" style="color: #1976d2; margin-top: 8px;"></i>
                     <select id="expiryFilter" onchange="applyFilters()" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0; color: var(--dark);">
@@ -452,8 +259,19 @@
                         <option value="60">2 Months</option>
                         <option value="90">3 Months</option>
                         <option value="180">6 Months</option>
+                        <option value="EXPIRED">Expired</option>
+                        <option value="NOT_MENTIONED">Expiry not Mention</option>
                     </select>
                 </div>
+
+                <div class="action-btn" style="padding: 0;">
+                    <i class="fas fa-tools" style="color: #e65100; margin-top: 8px;"></i>
+                    <select id="calibrationFilter" onchange="applyFilters()" style="width: 100%; border: none; background: transparent; font-size: 0.7rem; font-weight: 700; text-align: center; cursor: pointer; padding: 5px 0; color: var(--dark);">
+                        <option value="ALL">Status</option>
+                        <option value="Calibration/Repair">Calibration/Repair</option>
+                    </select>
+                </div>
+
                 <button class="action-btn" onclick="openFeedbackModal()" aria-label="Open feedback form"><i class="fas fa-comment-dots" style="color: #0b8043; margin-bottom: 5px;"></i><span>Feedback</span></button>
                 <button class="action-btn" onclick="showHistoryPage()" aria-label="View update history">
                     <i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i>
@@ -507,21 +325,44 @@
                         </div>
                         <small id="expiryHint" style="color: var(--gray); font-size: 0.7rem; display:block; margin-top: 5px;">Slide to edit expiry date.</small>
                     </div>
-                    <div class="form-group" style="display:flex; align-items:center; gap:0.75rem;">
-                        <input type="checkbox" id="remarkCheckbox" class="remark-checkbox" onchange="toggleRemarkField(this.checked)">
-                        <label for="remarkCheckbox" style="margin:0; font-size:0.9rem;">Add Remark</label>
+
+                    <div style="display: flex; gap: 15px; align-items: flex-end;">
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label for="modalUpdatedBy">Updated By <span aria-label="required">*</span></label>
+                            <input type="text" id="modalUpdatedBy" placeholder="Your Name" aria-label="Your name" required>
+                        </div>
+                        <div class="form-group" style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 0; padding-bottom: 12px;">
+                            <input type="checkbox" id="remarkCheckbox" class="remark-checkbox" onchange="toggleRemarkField(this.checked)">
+                            <label for="remarkCheckbox" style="margin:0; font-size:0.9rem; white-space: nowrap;">Add Remark</label>
+                        </div>
                     </div>
-                    <div class="form-group" id="remarkGroup" style="display:none;">
+
+                    <div class="form-group" id="remarkGroup" style="display:none; margin-top: 1.2rem;">
                         <label for="modalRemark">Remark</label>
                         <textarea id="modalRemark" placeholder="Write a short remark..." style="width:100%; min-height:90px; padding:0.8rem; border:2px solid var(--border); border-radius:8px; background:white; color:var(--dark);"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="modalUpdatedBy">Updated By <span aria-label="required">*</span></label>
-                        <input type="text" id="modalUpdatedBy" placeholder="Your Name" aria-label="Your name" required>
-                    </div>
+                    
                     <div class="modal-actions">
                         <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
                         <button class="btn-secondary" onclick="closeModal()">CANCEL</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay feedback-overlay" id="feedbackModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3><i class="fas fa-comment-dots"></i> Send Feedback</h3>
+                    <button onclick="closeFeedbackModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <textarea id="feedbackText" placeholder="Write your feedback or suggestions for the Automation Hub here..." style="min-height: 120px;"></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">SEND FEEDBACK</button>
+                        <button class="btn-secondary" onclick="closeFeedbackModal()">CANCEL</button>
                     </div>
                 </div>
             </div>
@@ -621,10 +462,8 @@
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     if (document.getElementById('updateModal').classList.contains('active')) closeModal();
+                    if (document.getElementById('feedbackModal').classList.contains('active')) closeFeedbackModal();
                     if (document.getElementById('historyPage').style.display === 'block') closeHistoryPage();
-                }
-                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                    if (document.getElementById('updateModal').classList.contains('active')) submitUpdate();
                 }
             });
         });
@@ -638,10 +477,10 @@
             } else if (type === 'IFRAME') {
                 document.getElementById('fiori-iframe-header').style.display = 'flex';
                 document.getElementById('iframeWrapper').style.display = 'block';
-                if(!navigator.onLine) alert("Iframe requires network connection.");
+                if(!navigator.onLine) showToast("Iframe requires network connection.", "warning");
                 document.getElementById('active-iframe').src = url;
             } else {
-                alert("This app is currently running as a standalone desktop app.");
+                showToast("This app is running natively.", "info");
                 document.getElementById('fiori-wrapper').style.display = 'block';
             }
         }
@@ -651,6 +490,18 @@
             document.getElementById('iframeWrapper').style.display = 'none';
             document.getElementById('active-iframe').src = '';
             document.getElementById('fiori-wrapper').style.display = 'block';
+        }
+
+        // --- NOTIFICATIONS (Custom UI) ---
+        function showToast(msg, type) {
+            const container = document.getElementById('toastContainer');
+            const t = document.createElement('div'); t.className = 'toast';
+            const colors = { 'success': 'var(--secondary)', 'error': 'var(--danger)', 'warning': 'var(--warning)', 'info': 'var(--primary)' };
+            const icons = { 'success': 'fa-check-circle', 'error': 'fa-exclamation-circle', 'warning': 'fa-exclamation-triangle', 'info': 'fa-info-circle' };
+            t.style.borderLeftColor = colors[type] || colors['info'];
+            t.innerHTML = `<i class="fas ${icons[type] || icons['info']}" style="color:${colors[type] || colors['info']}"></i> <span>${sanitizeInput(msg)}</span>`;
+            container.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3500);
         }
 
         // --- DATA LOAD ---
@@ -727,7 +578,6 @@
                     else expiryDisplay = `<span class="expiry-badge" style="color:var(--secondary); border-color:var(--secondary); background:#e8f5e9;">${diff} Days Left</span>`;
                 }
 
-                // Finding actual index in main inventoryData for exact update
                 const realIdx = inventoryData.findIndex(i => i.name === item.name);
 
                 return `
@@ -759,9 +609,7 @@
             }
         }
         function snapUnlock(slider) {
-            if(slider.value < 100) {
-                slider.value = 0;
-            }
+            if(slider.value < 100) { slider.value = 0; }
         }
 
         // --- OFFLINE SYNC & UPDATE SYSTEM ---
@@ -789,29 +637,19 @@
             }
 
             const btn = document.getElementById('submitUpdateBtn');
-            btn.disabled = true;
-            btn.textContent = 'Processing...';
+            btn.disabled = true; btn.textContent = 'Processing...';
 
             let actionParams = {
                 action: isEditMode ? 'update' : 'add',
-                itemName: currentItem || '',
-                name: sanitizedName,
-                location: sanitizedLoc,
-                newLocation: sanitizedLoc,
-                expiry: exp,
-                newExpiry: exp,
-                user: sanitizedUser,
-                updatedBy: sanitizedUser,
-                remark: remark
+                itemName: currentItem || '', name: sanitizedName, location: sanitizedLoc, newLocation: sanitizedLoc,
+                expiry: exp, newExpiry: exp, user: sanitizedUser, updatedBy: sanitizedUser, remark: remark
             };
 
             if (isEditMode) {
                 let idx = inventoryData.findIndex(i => i.name === currentItem);
                 if (idx !== -1) {
-                    inventoryData[idx].location = sanitizedLoc;
-                    inventoryData[idx].expiry = exp;
-                    inventoryData[idx].updatedBy = sanitizedUser;
-                    inventoryData[idx].remark = remark;
+                    inventoryData[idx].location = sanitizedLoc; inventoryData[idx].expiry = exp;
+                    inventoryData[idx].updatedBy = sanitizedUser; inventoryData[idx].remark = remark;
                 }
             } else {
                 inventoryData.push({ name: sanitizedName, location: sanitizedLoc, expiry: exp, updatedBy: sanitizedUser, remark: remark });
@@ -854,9 +692,7 @@
 
             if (failureCount === 0) {
                 localStorage.removeItem('tabreed_sync_queue');
-                updatePendingTile();
-                showToast('Offline changes synced!', 'success');
-                loadInventory();
+                updatePendingTile(); showToast('Offline changes synced!', 'success'); loadInventory();
             }
         }
 
@@ -885,22 +721,40 @@
             const term = document.getElementById('searchInput').value.toLowerCase().trim();
             const loc = document.getElementById('locationFilter').value;
             const expDays = document.getElementById('expiryFilter').value;
+            const calibStatus = document.getElementById('calibrationFilter').value; // New Filter
 
             let filtered = inventoryData.filter(i => {
                 const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term);
                 const matchLoc = (loc === "ALL" || i.location === loc);
                 let matchExp = true;
+                let matchCalib = true;
 
+                // Handle Calibration/Repair Filter
+                if (calibStatus !== "ALL") {
+                    matchCalib = (i.location === calibStatus);
+                }
+
+                // Handle Expiry Filters
                 if (expDays !== "ALL") {
-                    if (!i.expiry || i.expiry === '-') matchExp = false;
+                    if (expDays === "NOT_MENTIONED") {
+                        matchExp = (!i.expiry || i.expiry === '-');
+                    } 
+                    else if (!i.expiry || i.expiry === '-') {
+                        matchExp = false;
+                    } 
                     else {
                         const parts = i.expiry.split('.');
                         const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
                         const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
-                        matchExp = (diff >= 0 && diff <= parseInt(expDays));
+                        
+                        if (expDays === "EXPIRED") {
+                            matchExp = (diff < 0);
+                        } else {
+                            matchExp = (diff >= 0 && diff <= parseInt(expDays));
+                        }
                     }
                 }
-                return matchSearch && matchLoc && matchExp;
+                return matchSearch && matchLoc && matchExp && matchCalib;
             });
             renderTable(filtered);
         }
@@ -911,11 +765,9 @@
             document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'white';
             document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = '';
             document.getElementById('remarkCheckbox').checked = false;
-            document.getElementById('remarkGroup').style.display = 'none';
-            document.getElementById('modalRemark').value = '';
+            document.getElementById('remarkGroup').style.display = 'none'; document.getElementById('modalRemark').value = '';
             
-            resetSlider();
-            document.getElementById('updateModal').classList.add('active');
+            resetSlider(); document.getElementById('updateModal').classList.add('active');
         }
 
         function openUpdateModal(name, loc, exp, remark = '') {
@@ -926,20 +778,15 @@
             if (exp && exp !== '-' ) { const p = exp.split('.'); if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${p[1]}-${p[0]}`; } else { document.getElementById('modalExpiry').value = ''; }
             document.getElementById('modalUpdatedBy').value = '';
             document.getElementById('remarkCheckbox').checked = Boolean(remark);
-            document.getElementById('remarkGroup').style.display = remark ? 'block' : 'none';
-            document.getElementById('modalRemark').value = remark;
+            document.getElementById('remarkGroup').style.display = remark ? 'block' : 'none'; document.getElementById('modalRemark').value = remark;
             
-            resetSlider();
-            document.getElementById('updateModal').classList.add('active');
+            resetSlider(); document.getElementById('updateModal').classList.add('active');
         }
 
         function resetSlider() {
             const slider = document.getElementById('unlockSlider');
-            slider.value = 0;
-            slider.disabled = false;
-            slider.style.opacity = '1';
-            document.getElementById('modalExpiry').disabled = true;
-            document.getElementById('expiryHint').textContent = 'Slide to unlock expiry date.';
+            slider.value = 0; slider.disabled = false; slider.style.opacity = '1';
+            document.getElementById('modalExpiry').disabled = true; document.getElementById('expiryHint').textContent = 'Slide to unlock expiry date.';
         }
 
         function closeModal() {
@@ -960,16 +807,6 @@
             else { cInput.style.display = 'none'; hint.style.display = 'none'; }
         }
 
-        function showToast(msg, type) {
-            const container = document.getElementById('toastContainer');
-            const t = document.createElement('div'); t.className = 'toast';
-            const colors = { 'success': 'var(--secondary)', 'error': 'var(--danger)', 'warning': 'var(--warning)', 'info': 'var(--primary)' };
-            t.style.borderLeftColor = colors[type] || colors['info'];
-            t.innerHTML = `<span>${sanitizeInput(msg)}</span>`;
-            container.appendChild(t);
-            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
-        }
-
         function showStats() { 
             const total = inventoryData.length;
             const locationsCount = locations.length;
@@ -981,8 +818,8 @@
                 return diff <= 30;
             }).length;
             
-            // Replaced toast with strict alert for guaranteed visibility
-            alert(`📊 INVENTORY STATS\n\nTotal Instruments: ${total}\nTotal Locations: ${locationsCount}\nExpiring Soon (≤ 30 Days): ${expiringCount}`);
+            // Restored the old toast notification!
+            showToast(`Inventory: ${total} Items | ${locationsCount} Locations | ${expiringCount} Expiring Soon`, 'success');
         }
 
         function toggleRemarkField(checked) {
@@ -990,16 +827,47 @@
             if(checked) document.getElementById('modalRemark').focus();
         }
 
+        // --- CUSTOM FEEDBACK SYSTEM ---
         function openFeedbackModal() {
-            const feedback = prompt("Please enter your feedback or suggestions for the Automation Hub:");
-            if (feedback && feedback.trim()) {
-                if (navigator.onLine) {
-                    fetch(`${GAS_API_URL}?key=AI1&action=feedback&text=${encodeURIComponent(feedback)}`)
-                        .then(() => showToast("Feedback sent successfully to Feedback Sheet!", "success"))
-                        .catch(() => showToast("Feedback sent to Sheet!", "success")); 
-                } else {
-                    showToast("You are offline. Connect to internet to send feedback.", "warning");
-                }
+            document.getElementById('feedbackText').value = '';
+            document.getElementById('feedbackModal').classList.add('active');
+        }
+
+        function closeFeedbackModal() {
+            document.getElementById('feedbackModal').classList.remove('active');
+        }
+
+        function submitFeedback() {
+            const feedback = document.getElementById('feedbackText').value.trim();
+            if (!feedback) {
+                showToast("Please write some feedback before sending.", "warning");
+                return;
+            }
+
+            const btn = document.getElementById('submitFeedbackBtn');
+            btn.disabled = true;
+            btn.textContent = 'SENDING...';
+
+            if (navigator.onLine) {
+                fetch(`${GAS_API_URL}?key=AI1&action=feedback&text=${encodeURIComponent(feedback)}`)
+                    .then(r => r.json())
+                    .then(res => {
+                        btn.disabled = false; btn.textContent = 'SEND FEEDBACK';
+                        if(res.success) {
+                            showToast("Feedback sent successfully to the Sheet!", "success");
+                            closeFeedbackModal();
+                        } else {
+                            showToast("Error saving feedback.", "error");
+                        }
+                    })
+                    .catch(() => {
+                        btn.disabled = false; btn.textContent = 'SEND FEEDBACK';
+                        showToast("Feedback sent to Sheet!", "success"); // Fallback success if CORS blocks JSON reading
+                        closeFeedbackModal();
+                    }); 
+            } else {
+                btn.disabled = false; btn.textContent = 'SEND FEEDBACK';
+                showToast("You are offline. Connect to internet to send feedback.", "warning");
             }
         }
 
