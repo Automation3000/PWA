@@ -87,6 +87,12 @@
         .inventory-table { width: 100%; border-collapse: collapse; min-width: 500px; }
         .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
         .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        
+        /* Added padding for first column (Instrument name gap) */
+        .inventory-table td:first-child, .inventory-table th:first-child { padding-left: 1.5rem; }
+
+        /* Expiry Column Mobile Fix */
+        .expiry-td { white-space: nowrap !important; }
 
         .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
         .expiry-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; background: #f8f9fa; color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); width: 100%; white-space: nowrap; }
@@ -98,11 +104,11 @@
         
         .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; }
         .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; }
+        .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; overflow-x: hidden; }
         
-        .form-group { margin-bottom: 1.2rem; }
+        .form-group { margin-bottom: 1.2rem; width: 100%; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--dark); }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; background: white; color: var(--dark); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; background: white; color: var(--dark); box-sizing: border-box; }
         .form-group input::placeholder, .form-group textarea::placeholder { color: #999; opacity: 1; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: white; }
 
@@ -114,6 +120,8 @@
         .slide-unlock { -webkit-appearance: none; width: 100%; height: 36px; background: transparent; outline: none; z-index: 2; position: absolute; top: 0; left: 0; margin: 0; }
         .slide-unlock::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 34px; height: 34px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: center; }
 
+        .update-flex-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
+
         @media (max-width: 480px) {
             .modal-overlay { padding: 0; }
             .modal { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100vh !important; border-radius: 0 !important; margin: 0 !important; }
@@ -121,6 +129,8 @@
             .quick-actions { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             .inventory-table { font-size: 0.75rem !important; }
             .inventory-table td, .inventory-table th { padding: 0.5rem !important; }
+            .inventory-table td:first-child, .inventory-table th:first-child { padding-left: 10px !important; }
+            .update-flex-row { flex-direction: column; align-items: stretch; gap: 10px; }
         }
 
         .toast-container { position: fixed; top: 1rem; right: 1rem; left: 1rem; z-index: 3000; }
@@ -222,7 +232,7 @@
                         </div>
                         <div class="brand-text">
                             <h1 style="font-size: 1.1rem;">TABREED : Master Instrument List AI1 <span id="queue-badge" style="display:none; font-size:0.6rem; background:#ea4335; color:white; padding:2px 6px; border-radius:10px; margin-left:5px;"></span></h1>
-                            <p id="dev-subtitle" style="font-size: 0.7rem; color: var(--gray); transition: opacity 0.3s ease;">Automation & Control Department</p>
+                            <p id="dev-subtitle" style="font-size: 0.7rem; color: var(--gray); transition: opacity 0.3s ease;">Automation App</p>
                         </div>
                     </div>
                     <div class="connection-status" id="connectionStatus">
@@ -288,7 +298,7 @@
                                 <th>Instrument</th>
                                 <th>Location</th>
                                 <th>Action</th>
-                                <th style="width: 130px; text-align: center; cursor:pointer; color:var(--primary);" onclick="toggleExpiryDisplay()" title="Click to toggle Days/Date">Expiry 🔄</th>
+                                <th class="expiry-td" style="cursor:pointer; color:var(--primary); text-align:center;" onclick="toggleExpiryDisplay()" title="Click to toggle Days/Date">Expiry 🔄</th>
                                 <th>Updated By</th>
                             </tr>
                         </thead>
@@ -316,22 +326,24 @@
                         <small id="locationHint" style="display:none; color: var(--secondary);">Typing new location...</small>
                     </div>
                     <div class="form-group">
-                        <label for="modalExpiry">Expiry Date (Optional)</label>
-                        <input type="date" id="modalExpiry" style="cursor: pointer; background: white; color: var(--dark); margin-bottom: 10px;" aria-label="Expiry date" disabled>
+                        <label>Expiry Date (Optional)</label>
                         
-                        <div style="position: relative; width: 100%; height: 36px; background: #e9ecef; border-radius: 18px; border: 1px solid #ced4da;">
-                            <div style="position: absolute; width: 100%; text-align: center; line-height: 34px; color: #6c757d; pointer-events: none; font-size: 0.8rem; font-weight: bold;">Slide to Unlock</div>
+                        <div id="sliderContainer" style="position: relative; width: 100%; height: 36px; background: #e9ecef; border-radius: 18px; border: 1px solid #ced4da;">
+                            <div id="sliderText" style="position: absolute; width: 100%; text-align: center; line-height: 34px; color: #6c757d; pointer-events: none; font-size: 0.8rem; font-weight: bold;">Slide to Edit Expiry</div>
                             <input type="range" min="0" max="100" value="0" id="unlockSlider" class="slide-unlock" oninput="checkUnlock(this)" onchange="snapUnlock(this)">
                         </div>
-                        <small id="expiryHint" style="color: var(--gray); font-size: 0.7rem; display:block; margin-top: 5px;">Slide to edit expiry date.</small>
+
+                        <div id="expiryDateContainer" style="display:none;">
+                            <input type="date" id="modalExpiry" style="cursor: pointer; background: white; color: var(--dark); width: 100%;" aria-label="Expiry date">
+                        </div>
                     </div>
 
-                    <div style="display: flex; gap: 15px; align-items: flex-end;">
-                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <div class="update-flex-row">
+                        <div class="form-group" style="flex: 1; min-width: 180px; margin-bottom: 0;">
                             <label for="modalUpdatedBy">Updated By <span aria-label="required">*</span></label>
                             <input type="text" id="modalUpdatedBy" placeholder="Your Name" aria-label="Your name" required>
                         </div>
-                        <div class="form-group" style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 0; padding-bottom: 12px;">
+                        <div class="form-group" style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 0; padding-top: 10px; min-width: 120px;">
                             <input type="checkbox" id="remarkCheckbox" class="remark-checkbox" onchange="toggleRemarkField(this.checked)">
                             <label for="remarkCheckbox" style="margin:0; font-size:0.9rem; white-space: nowrap;">Add Remark</label>
                         </div>
@@ -357,14 +369,14 @@
                     <button onclick="closeFeedbackModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
-                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <div class="update-flex-row" style="margin-bottom: 1rem;">
+                        <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
                             <label for="feedbackEmpId">Employee ID</label>
                             <input type="number" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
                         </div>
-                        <div class="form-group" style="flex: 2; margin-bottom: 0;">
-                            <label for="feedbackName">Full Name</label>
-                            <input type="text" id="feedbackName" placeholder="Your Full Name">
+                        <div class="form-group" style="flex: 2; min-width: 180px; margin-bottom: 0;">
+                            <label for="feedbackName">Name</label>
+                            <input type="text" id="feedbackName" placeholder="Your Name" oninput="autoFillEmpId()">
                         </div>
                     </div>
                     <div class="form-group">
@@ -520,7 +532,6 @@
             document.getElementById('calibrationFilter').value = 'ALL';
             document.getElementById('searchInput').value = '';
             
-            // Reload Inventory
             loadInventory();
         }
 
@@ -589,7 +600,7 @@
                     <td style="font-weight:600;">${sanitizeInput(item.name)}</td>
                     <td><span class="location-tag">${sanitizeInput(item.location)}</span></td>
                     <td><button onclick="openUpdateModalByIndex(${realIdx})" style="padding:6px 16px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;" aria-label="Update">Update</button></td>
-                    <td style="text-align:center; width:130px;">${expiryDisplay}</td>
+                    <td class="expiry-td" style="text-align:center;">${expiryDisplay}</td>
                     <td style="font-size:0.8rem; color:var(--gray);">${sanitizeInput(item.updatedBy || '-')}${remarkIcon}</td>
                 </tr>
             `;
@@ -604,9 +615,9 @@
         // --- SLIDE TO UNLOCK LOGIC ---
         function checkUnlock(slider) {
             if(slider.value >= 95) {
-                slider.value = 100; document.getElementById('modalExpiry').disabled = false;
-                document.getElementById('expiryHint').textContent = 'Editing unlocked. Set new expiry.';
-                slider.disabled = true; slider.style.opacity = '0.5';
+                document.getElementById('sliderContainer').style.display = 'none';
+                document.getElementById('expiryDateContainer').style.display = 'block';
+                document.getElementById('modalExpiry').disabled = false;
             }
         }
         function snapUnlock(slider) { if(slider.value < 100) { slider.value = 0; } }
@@ -627,8 +638,14 @@
             }
 
             const sanitizedUser = sanitizeInput(user); const sanitizedLoc = sanitizeInput(loc); const sanitizedName = sanitizeInput(name);
-            if (exp) {
+            
+            // Only convert date if it's set and unlocked
+            if (exp && !document.getElementById('modalExpiry').disabled) {
                 const d = new Date(exp); exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`;
+            } else if (document.getElementById('modalExpiry').disabled) {
+                // If slider wasn't unlocked, keep original date (or empty)
+                const originalItem = inventoryData.find(i => i.name === currentItem);
+                exp = originalItem ? originalItem.expiry : '';
             }
 
             const btn = document.getElementById('submitUpdateBtn'); btn.disabled = true; btn.textContent = 'Processing...';
@@ -727,15 +744,24 @@
             document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Details';
             document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee';
             document.getElementById('modalLocation').value = loc;
-            if (exp && exp !== '-' ) { const p = exp.split('.'); if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${p[1]}-${p[0]}`; } else { document.getElementById('modalExpiry').value = ''; }
+            
+            if (exp && exp !== '-' ) { 
+                const p = exp.split('.'); 
+                if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${p[1]}-${p[0]}`; 
+            } else { 
+                document.getElementById('modalExpiry').value = ''; 
+            }
+            
             document.getElementById('modalUpdatedBy').value = '';
             document.getElementById('remarkCheckbox').checked = Boolean(remark); document.getElementById('remarkGroup').style.display = remark ? 'block' : 'none'; document.getElementById('modalRemark').value = remark;
             resetSlider(); document.getElementById('updateModal').classList.add('active');
         }
 
         function resetSlider() {
-            const slider = document.getElementById('unlockSlider'); slider.value = 0; slider.disabled = false; slider.style.opacity = '1';
-            document.getElementById('modalExpiry').disabled = true; document.getElementById('expiryHint').textContent = 'Slide to unlock expiry date.';
+            const slider = document.getElementById('unlockSlider'); slider.value = 0;
+            document.getElementById('sliderContainer').style.display = 'block';
+            document.getElementById('expiryDateContainer').style.display = 'none';
+            document.getElementById('modalExpiry').disabled = true;
         }
 
         function closeModal() {
@@ -770,7 +796,7 @@
             document.getElementById('remarkGroup').style.display = checked ? 'block' : 'none'; if(checked) document.getElementById('modalRemark').focus();
         }
 
-        // --- ENHANCED FEEDBACK SYSTEM (With EMP ID) ---
+        // --- ENHANCED FEEDBACK SYSTEM (With Bi-Directional Auto-fill) ---
         function openFeedbackModal() {
             document.getElementById('feedbackEmpId').value = '';
             document.getElementById('feedbackName').value = '';
@@ -784,11 +810,18 @@
             const empId = document.getElementById('feedbackEmpId').value.trim();
             const nameInput = document.getElementById('feedbackName');
             const match = EMPLOYEES.find(emp => emp.code === empId);
+            if (match) { nameInput.value = match.short; } 
+        }
+
+        function autoFillEmpId() {
+            const nameVal = document.getElementById('feedbackName').value.trim().toLowerCase();
+            const idInput = document.getElementById('feedbackEmpId');
             
-            if (match) {
-                nameInput.value = match.full;
-            } else {
-                nameInput.value = ''; // Let user type manually if no match
+            if (nameVal.length >= 3) {
+                const match = EMPLOYEES.find(emp => emp.full.toLowerCase().includes(nameVal) || emp.short.toLowerCase().includes(nameVal));
+                if (match) {
+                    idInput.value = match.code;
+                }
             }
         }
 
@@ -802,7 +835,6 @@
                 return;
             }
 
-            // Combine into one text string for the backend
             const combinedFeedback = `[EMP ID: ${empId || 'N/A'}] [NAME: ${empName || 'Unknown'}] - ${rawFeedback}`;
 
             const btn = document.getElementById('submitFeedbackBtn');
@@ -813,7 +845,7 @@
                     .then(r => r.json())
                     .then(res => {
                         btn.disabled = false; btn.textContent = 'SEND FEEDBACK';
-                        if(res.success) { showToast("Feedback sent successfully to the Automation Team!", "success"); closeFeedbackModal(); } 
+                        if(res.success) { showToast("Feedback sent successfully to Automation Team!", "success"); closeFeedbackModal(); } 
                         else { showToast("Error saving feedback.", "error"); }
                     }).catch(() => {
                         btn.disabled = false; btn.textContent = 'SEND FEEDBACK';
@@ -845,7 +877,7 @@
                 } return;
             }
             clickTimer = setTimeout(() => { logoClickCount = 0; }, 500); subtitle.style.opacity = '0';
-            setTimeout(() => { subtitle.innerHTML = !isFullNameShowing ? 'Developed by <strong>Abdul Majeed Ansari [ 41764 ]</strong>' : 'Automation & Control Department'; isFullNameShowing = !isFullNameShowing; subtitle.style.opacity = '1'; }, 150);
+            setTimeout(() => { subtitle.innerHTML = !isFullNameShowing ? 'Developed by <strong>Abdul Majeed Ansari [ 41764 ]</strong>' : 'Automation App'; isFullNameShowing = !isFullNameShowing; subtitle.style.opacity = '1'; }, 150);
         }
 
         // --- HISTORY ---
