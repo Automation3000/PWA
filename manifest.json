@@ -1,7 +1,7 @@
 {
   "id": "com.automation3000.tabreed",
   "name": "Automation App",
-  "short_name": "Tabreed",
+  "short_name": "Automation App",
   "description": "Industrial Automation, Instrumentation tools, and SAP Launchpad Dashboard.",
   "start_url": "/Index.html",
   "scope": "/",
