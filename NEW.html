@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
-    <meta name="theme-color" content="#1a73e8">
+    <meta name="theme-color" content="#1a2935">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Automation App">
@@ -25,7 +25,9 @@
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
-    <meta name="color-scheme" content="light dark">
+    
+    <script src="config.js"></script>
+    <script src="storage.js"></script>
     
     <style>
         :root {
@@ -33,27 +35,33 @@
             --secondary: #34a853; --warning: #f9ab00; --danger: #ea4335;
             --dark: #202124; --light: #f8f9fa; --gray: #5f6368; --border: #dadce0;
             --shadow: 0 2px 10px rgba(0,0,0,0.1); --radius: 12px; --transition: all 0.3s ease;
+            --bg-color: #e4edf5; --card-bg: #ffffff;
+        }
+        
+        /* DARK MODE CSS VARIABLES */
+        body.dark-mode {
+            --dark: #ffffff; --light: #1a1a1a; --gray: #b0b0b0; --border: #444444;
+            --bg-color: #121212; --card-bg: #1e1e1e; --primary-light: #1e3a5f;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; background-color: #e4edf5; color: var(--dark); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; background-color: var(--bg-color); color: var(--dark); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; transition: background-color 0.3s, color 0.3s; }
 
         #premium-wrapper { display: none; width: 100%; height: 100vh; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%); }
         
         .app-container { max-width: 1200px; margin: 0 auto; margin-bottom: 50px; display: flex; flex-direction: column; min-height: 100vh; }
         
-        .app-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
+        .app-header { background: var(--card-bg); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border); transition: 0.3s; }
         
         .header-content { display: flex; align-items: center; justify-content: space-between; }
         .brand { display: flex; align-items: center; gap: 0.75rem; }
-        .logo { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid #e0e0e0; }
+        .logo { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid var(--border); }
 
-        .connection-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; transition: 0.3s; }
+        .connection-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; transition: 0.3s; color: var(--dark); }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f9ab00; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         
-        /* POP ANIMATION FOR REFRESH AND STATUS */
         @keyframes popBounce {
             0% { transform: scale(1); }
             50% { transform: scale(1.15); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
@@ -61,19 +69,19 @@
         }
         .pop-anim { animation: popBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-        .search-container { padding: 1rem; margin: 1rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
+        .search-container { padding: 1rem; margin: 1rem; background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); transition: 0.3s; }
         .search-box { position: relative; }
-        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 16px; background: white; color: var(--dark); }
-        .search-box input::placeholder { color: #999; opacity: 1; }
+        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 16px; background: var(--card-bg); color: var(--dark); transition: 0.3s; }
+        .search-box input::placeholder { color: var(--gray); opacity: 1; }
         .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
         
         .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
-        .action-btn { background: white; border: none; flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); visibility: visible; position: relative; }
+        .action-btn { background: var(--card-bg); border: 1px solid var(--border); flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); position: relative; }
 
         .select-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
         .action-content { pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
 
-        .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .inventory-section { background: var(--card-bg); margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border); transition: 0.3s; }
         .table-container { overflow-x: auto; }
         
         .inventory-table { width: 100%; border-collapse: collapse; min-width: 600px; table-layout: fixed; }
@@ -83,14 +91,14 @@
         .inventory-table th:nth-child(4) { width: 15%; text-align: center; }
         .inventory-table th:nth-child(5) { width: 15%; }
         
-        .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
-        .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; word-wrap: break-word; overflow-wrap: break-word; }
+        .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); color: var(--dark); transition: 0.3s; }
+        .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; word-wrap: break-word; overflow-wrap: break-word; color: var(--dark); transition: 0.3s; }
         .inventory-table td:first-child { padding-left: 1.5rem; }
         .expiry-td { white-space: nowrap !important; }
 
         .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
-        .expiry-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; background: #f8f9fa; color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); width: 100%; white-space: nowrap; transition: 0.3s; }
-        .expiry-badge.expired { color: var(--danger) !important; border-color: var(--danger) !important; background: #ffebee !important; }
+        .expiry-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; background: var(--light); color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); width: 100%; white-space: nowrap; transition: 0.3s; }
+        .expiry-badge.expired { color: var(--danger) !important; border-color: var(--danger) !important; background: rgba(234, 67, 53, 0.1) !important; }
 
         input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
@@ -100,20 +108,19 @@
         .modal-overlay.feedback-overlay { z-index: 2100; }
         .modal-overlay.ack-overlay { z-index: 4000; }
         
-        .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+        .modal { background: var(--card-bg); width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3); border: 1px solid var(--border); transition: 0.3s; }
         .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; overflow-x: hidden; }
+        .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; overflow-x: hidden; color: var(--dark); }
         
         .form-group { margin-bottom: 1.2rem; width: 100%; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--dark); }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; background: white; color: var(--dark); box-sizing: border-box; }
-        .form-group input::placeholder, .form-group textarea::placeholder { color: #999; opacity: 1; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: white; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; background: var(--card-bg); color: var(--dark); box-sizing: border-box; transition: 0.3s; }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: var(--gray); opacity: 1; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: var(--card-bg); }
 
         .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
         .btn-primary { flex: 1; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
-        .btn-secondary { flex: 1; padding: 1rem; background: white; color: var(--dark); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; }
-        .btn-secondary:hover { background: var(--light); }
+        .btn-secondary { flex: 1; padding: 1rem; background: var(--light); color: var(--dark); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; }
 
         .slide-unlock { -webkit-appearance: none; width: 100%; height: 36px; background: transparent; outline: none; z-index: 2; position: absolute; top: 0; left: 0; margin: 0; }
         .slide-unlock::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 34px; height: 34px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: center; }
@@ -124,85 +131,96 @@
             .quick-actions { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; padding: 0 10px !important; }
             .action-btn { min-width: unset !important; max-width: unset !important; width: 100% !important; min-height: 75px !important; margin: 0 !important; padding: 5px !important; }
             .modal-overlay { padding: 0; }
-            .modal { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100vh !important; border-radius: 0 !important; margin: 0 !important; }
+            .modal { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100vh !important; border-radius: 0 !important; margin: 0 !important; border: none !important; }
             .modal-actions { flex-direction: column; padding-bottom: 30px; }
-            
-            /* INCREASED MOBILE SPACING FOR TABLE */
             .inventory-table td { padding: 1.2rem 0.5rem !important; line-height: 1.4; font-size: 0.85rem !important; }
             .inventory-table th { padding: 1rem 0.5rem !important; font-size: 0.8rem !important; }
             .inventory-table td:first-child, .inventory-table th:first-child { padding-left: 15px !important; }
-            
             .update-flex-row { flex-direction: column; align-items: stretch; gap: 10px; }
             .ack-modal { height: auto !important; max-height: 80% !important; border-radius: 16px !important; margin: 20px !important; }
         }
 
         .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
-        .toast { background: rgba(255,255,255,0.95); backdrop-filter: blur(5px); padding: 12px 20px; border-radius: 50px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: 600; border: 1px solid var(--border); color: var(--dark); font-size: 0.85rem; }
+        .toast { background: var(--card-bg); backdrop-filter: blur(5px); padding: 12px 20px; border-radius: 50px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 10px; animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: 600; border: 1px solid var(--border); color: var(--dark); font-size: 0.85rem; }
         @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .skeleton-row td { padding: 1rem; border-bottom: 1px solid var(--border); }
-        .skeleton-cell { height: 20px; border-radius: 4px; background: #e0e0e0; animation: pulse-skeleton 1.5s infinite ease-in-out; }
-        @keyframes pulse-skeleton { 0% { background-color: #eee; } 50% { background-color: #d4d4d4; } 100% { background-color: #eee; } }
+        .skeleton-cell { height: 20px; border-radius: 4px; background: var(--border); animation: pulse-skeleton 1.5s infinite ease-in-out; }
+        @keyframes pulse-skeleton { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        .fiori-header { background-color: #3f5161; color: #ffffff; height: 55px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); position: sticky; top: 0; z-index: 1000; }
-        .fiori-logo-img { width: 32px; height: 32px; border-radius: 4px; background: white; padding: 2px;}
-        
-        .btn-install-small { background: #2d3748 !important; color: white !important; border: none !important; padding: 6px 12px !important; font-size: 12px !important; font-weight: 700 !important; border-radius: 20px !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(0,0,0,0.15) !important; transition: all 0.3s ease !important; letter-spacing: 0.5px !important; display: flex; align-items: center; }
-        .btn-install-small:hover { background: #1a202c !important; transform: translateY(-2px) scale(1.02) !important; box-shadow: 0 6px 15px rgba(0,0,0,0.2) !important; }
+        /* PREMIUM FIORI HEADER */
+        .fiori-header { background: linear-gradient(135deg, #1a2935 0%, #2a3f54 100%); color: #ffffff; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .fiori-logo-img { width: 36px; height: 36px; border-radius: 8px; background: #ffffff; padding: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .fiori-header-title { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; background: -webkit-linear-gradient(45deg, #ffffff, #b0bec5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-install-small { background: linear-gradient(to right, #00c6ff, #0072ff) !important; color: white !important; border: none !important; padding: 8px 16px !important; font-size: 11px !important; font-weight: 800 !important; border-radius: 25px !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3) !important; transition: all 0.3s ease !important; letter-spacing: 0.5px !important; display: flex; align-items: center; text-transform: uppercase; }
+        .btn-install-small:hover { transform: translateY(-2px) !important; box-shadow: 0 6px 15px rgba(0, 114, 255, 0.5) !important; }
         .beta-badge { font-size: 9px !important; background: #e53e3e !important; color: #fff !important; padding: 2px 5px !important; border-radius: 8px !important; margin-left: 6px !important; font-weight: 800 !important; }
-        .version-text { font-size: 10px !important; color: #cbd5e0 !important; font-weight: 500 !important; margin-top: 2px; }
+
+        /* DARK MODE TOGGLE BTN */
+        .btn-dark-toggle { background: rgba(255,255,255,0.1) !important; box-shadow: none !important; border: 1px solid rgba(255,255,255,0.3) !important; padding: 8px 12px !important; color: #fff; border-radius: 25px; cursor: pointer; transition: 0.3s; margin-right: 10px; }
+        .btn-dark-toggle:hover { background: rgba(255,255,255,0.2) !important; }
 
         #pwa-instructions-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2147483650; justify-content: center; align-items: center; }
-        .pwa-modal-content { background: #fff; padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
-        .pwa-modal-content h3 { margin-top: 0; color: #1a202c; font-size: 20px; font-weight: 800; margin-bottom: 15px; }
-        .pwa-modal-content p { color: #4a5568; font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-        .pwa-close-btn { background: #edf2f7; color: #2d3748; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: 0.2s; }
-        .pwa-close-btn:hover { background: #e2e8f0; }
+        .pwa-modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--dark); }
+        .pwa-modal-content h3 { margin-top: 0; color: var(--dark); font-size: 20px; font-weight: 800; margin-bottom: 15px; }
+        .pwa-modal-content p { color: var(--gray); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+        .pwa-close-btn { background: var(--light); color: var(--dark); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: 0.2s; }
 
-        .launchpad-footer { text-align: center; padding: 20px; padding-bottom: 40px; color: #6a6d70; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        #dev-trigger { font-weight: 800; color: #0a6ed1; cursor: pointer; display: inline-block; padding: 5px; }
+        .launchpad-footer { text-align: center; padding: 20px; padding-bottom: 40px; color: var(--gray); font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        #dev-trigger { font-weight: 800; color: var(--primary); cursor: pointer; display: inline-block; padding: 5px; }
         #dev-tools-group { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #fiori-wrapper { display: block; width: 100%; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+        #fiori-wrapper { display: block; width: 100%; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; background: var(--bg-color); transition: 0.3s; }
         #launchpad-view { padding: 30px; flex: 1; }
-        .group-title { font-size: 18px; color: #32363a; margin-bottom: 15px; border-bottom: 1px solid #cdd4da; padding-bottom: 8px; }
+        .group-title { font-size: 18px; color: var(--dark); margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 8px; transition: 0.3s; }
         .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 176px)); gap: 12px; margin-bottom: 30px; }
         @media (max-width: 600px) { #launchpad-view { padding: 20px 15px; } .tile-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
-        .tile { background: #ffffff; border-radius: 4px; height: 176px; padding: 16px; position: relative; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.15); transition: all 0.3s; display: flex; flex-direction: column; overflow: hidden; border: 1px solid transparent; }
-        .tile:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(10, 110, 209, 0.2); border-color: #0a6ed1; }
+        .tile { background: var(--card-bg); border-radius: 4px; height: 176px; padding: 16px; position: relative; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.15); transition: all 0.3s; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); }
+        .tile:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(10, 110, 209, 0.2); border-color: var(--primary); }
         .tile::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: transparent; transition: all 0.3s; }
         .tile:hover::before { background: linear-gradient(90deg, #0a6ed1, #00c6ff); }
-        .tile-title { font-size: 15px; font-weight: 600; color: #32363a; margin-bottom: 6px; }
-        .tile-subtitle { font-size: 12px; color: #6a6d70; }
-        .tile-icon { position: absolute; bottom: 16px; left: 16px; font-size: 24px; color: #0a6ed1; transition: all 0.3s; }
+        .tile-title { font-size: 15px; font-weight: 600; color: var(--dark); margin-bottom: 6px; transition: 0.3s; }
+        .tile-subtitle { font-size: 12px; color: var(--gray); transition: 0.3s; }
+        .tile-icon { position: absolute; bottom: 16px; left: 16px; font-size: 24px; color: var(--primary); transition: all 0.3s; }
         .tile:hover .tile-icon { transform: scale(1.1); color: #00c6ff; }
         .tile-status { position: absolute; bottom: 16px; right: 16px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; color: #2b7d2b;}
 
-        /* Custom Feedback Tile Style */
-        .tile-feedback { background: linear-gradient(135deg, #fff9c4, #fff3e0); border: 1px solid #ffb74d; }
+        .tile-feedback { background: linear-gradient(135deg, rgba(255,249,196,0.1), rgba(255,243,224,0.1)); border: 1px solid #ffb74d; }
         .tile-feedback:hover { box-shadow: 0 8px 16px rgba(230, 81, 0, 0.2); border-color: #e65100; }
         .tile-feedback::before { background: linear-gradient(90deg, #ff9800, #ff5722); }
+        
+        .tile-guide { background: linear-gradient(135deg, rgba(227,242,253,0.1), rgba(187,222,251,0.1)); border: 1px solid #64b5f6; }
+        .tile-guide:hover { box-shadow: 0 8px 16px rgba(33, 150, 243, 0.2); border-color: #1976d2; }
+        .tile-guide::before { background: linear-gradient(90deg, #2196f3, #1565c0); }
 
-        .iframe-container { display:none; flex: 1; width: 100%; height:100vh; position: relative; background: #fff; }
+        .iframe-container { display:none; flex: 1; width: 100%; height:100vh; position: relative; background: var(--bg-color); }
         .full-screen-iframe { width: 100%; height: 100%; border: none; }
         .fiori-app-header { height: 48px; background: #3f5161; color: white; display: none; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .back-btn-fiori { background: none; border: none; color: white; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+        
+        /* USER GUIDE MODAL TEXT STYLING */
+        .guide-content h2 { margin-top: 15px; margin-bottom: 10px; color: var(--primary); font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+        .guide-content h3 { margin-top: 12px; margin-bottom: 8px; color: var(--dark); font-size: 1rem; }
+        .guide-content p, .guide-content li { margin-bottom: 8px; font-size: 0.9rem; color: var(--gray); }
+        .guide-content ul { padding-left: 20px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
     <div id="fiori-wrapper">
         <header class="fiori-header">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" class="fiori-logo-img">
-                <span style="font-size:16px; font-weight:700; letter-spacing: 0.5px;">Home</span>
+            <div style="display:flex; align-items:center; gap:14px;">
+                <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" class="fiori-logo-img" alt="Tabreed Logo">
+                <span class="fiori-header-title">Automation App</span>
             </div>
-            <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                <button class="btn-install-small" onclick="startSmartInstall()">
-                    📱 INSTALL APP <span class="beta-badge">BETA</span>
+            <div style="display: flex; align-items: center; height: 100%;">
+                <button class="btn-dark-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                    <i class="fas fa-moon" id="darkModeIcon"></i>
                 </button>
-                <span class="version-text">Version 1.0</span>
+                <button class="btn-install-small" onclick="startSmartInstall()">
+                    <i class="fas fa-mobile-alt" style="margin-right: 6px; font-size: 13px;"></i> INSTALL <span class="beta-badge">BETA</span>
+                </button>
             </div>
         </header>
 
@@ -243,8 +261,8 @@
                 <div class="tile" onclick="viewPendingSyncs()">
                     <div class="tile-title">Pending Syncs</div>
                     <div class="tile-subtitle">Data waiting for network</div>
-                    <i class="fas fa-sync tile-icon" style="color: #6a6d70;"></i>
-                    <div class="tile-status" style="color: #ea4335;" id="pending-sync-tile">0 Pending</div>
+                    <i class="fas fa-sync tile-icon" style="color: var(--gray);"></i>
+                    <div class="tile-status" style="color: var(--danger);" id="pending-sync-tile">0 Pending</div>
                 </div>
 
                 <div class="tile tile-feedback" onclick="openFeedbackModal()">
@@ -252,35 +270,41 @@
                     <div class="tile-subtitle">Report bugs or ideas</div>
                     <i class="fas fa-comment-dots tile-icon" style="color: #ff9800;"></i>
                 </div>
+                
+                <div class="tile tile-guide" onclick="openGuideModal()">
+                    <div class="tile-title" style="color: #1565c0;">User Guide</div>
+                    <div class="tile-subtitle">How to use Tabreed App</div>
+                    <i class="fas fa-book tile-icon" style="color: #2196f3;"></i>
+                </div>
             </div>
 
             <div id="dev-tools-group" style="display: none; margin-top: 40px;">
-                <h2 class="group-title" style="color: #d50000; border-bottom-color: #ffcdd2;"><i class="fas fa-user-shield"></i> Developer Tools (Admin Only)</h2>
+                <h2 class="group-title" style="color: var(--danger); border-bottom-color: rgba(234,67,53,0.2);"><i class="fas fa-user-shield"></i> Developer Tools (Admin Only)</h2>
                 <div class="tile-grid">
                     <div class="tile" onclick="devClearCache()">
                         <div class="tile-title">Force Clear Cache</div>
                         <div class="tile-subtitle">Nuke Local Storage</div>
-                        <i class="fas fa-trash-alt tile-icon" style="color: #d50000;"></i>
+                        <i class="fas fa-trash-alt tile-icon" style="color: var(--danger);"></i>
                     </div>
                     <div class="tile" onclick="devShowLog()">
                         <div class="tile-title">Sync Logs</div>
                         <div class="tile-subtitle">View API Requests</div>
-                        <i class="fas fa-terminal tile-icon" style="color: #333;"></i>
+                        <i class="fas fa-terminal tile-icon" style="color: var(--dark);"></i>
                     </div>
                     <div class="tile" onclick="devInjectData()">
                         <div class="tile-title">Inject Test Data</div>
                         <div class="tile-subtitle">For UI Testing</div>
-                        <i class="fas fa-vial tile-icon" style="color: #0b8043;"></i>
+                        <i class="fas fa-vial tile-icon" style="color: var(--secondary);"></i>
                     </div>
                     <div class="tile" onclick="devUIDebugger()">
                         <div class="tile-title">UI Debugger</div>
                         <div class="tile-subtitle">Highlight Bounds</div>
-                        <i class="fas fa-bug tile-icon" style="color: #f9ab00;"></i>
+                        <i class="fas fa-bug tile-icon" style="color: var(--warning);"></i>
                     </div>
                     <div class="tile" onclick="devNetworkSim()">
                         <div class="tile-title">Network Simulator</div>
                         <div class="tile-subtitle">Throttle API calls</div>
-                        <i class="fas fa-wifi tile-icon" style="color: #1a73e8;"></i>
+                        <i class="fas fa-wifi tile-icon" style="color: var(--primary);"></i>
                     </div>
                 </div>
             </div>
@@ -292,11 +316,58 @@
 
     </div>
 
-    <div id="pwa-instructions-modal">
-        <div class="pwa-modal-content">
-            <h3 id="pwa-modal-title">Install App</h3>
-            <p id="pwa-modal-text">Instructions generating...</p>
-            <button class="pwa-close-btn" onclick="document.getElementById('pwa-instructions-modal').style.display='none'">Got it, Close</button>
+    <div class="modal-overlay" id="guideModal">
+        <div class="modal" style="max-height: 85vh;">
+            <div class="modal-header">
+                <h3><i class="fas fa-book-open"></i> Quick Start Guide</h3>
+                <button onclick="closeGuideModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+            </div>
+            <div class="modal-body guide-content">
+                <p>Welcome to the <strong>TABREED Automation App v2.0</strong>! Here's a quick overview of the new features and how to use them.</p>
+                
+                <h2>🌟 What's New?</h2>
+                <h3>✨ Dark Mode</h3>
+                <p>Click the <strong>moon icon</strong> in the header (top right) to switch between light and dark themes. Your preference is automatically saved.</p>
+                
+                <h3>🔄 Better Offline Support</h3>
+                <p>Changes work even without internet. The system will automatically sync when you're back online using a smarter retry system.</p>
+
+                <h2>📱 Daily Usage</h2>
+                <h3>Making Changes</h3>
+                <ul>
+                    <li><strong>Search:</strong> Use the search bar at the top or filter by location.</li>
+                    <li><strong>Update:</strong> Click "Update" button on any row, fill details, and click "Save Changes".</li>
+                    <li><strong>Add:</strong> Click "Add Entry" button, fill details, and click "Save Changes".</li>
+                </ul>
+
+                <h3>Going Offline</h3>
+                <ul>
+                    <li>🔴 <strong>Red "Offline"</strong> indicator shows no internet.</li>
+                    <li>📝 You can still make changes (saved locally).</li>
+                    <li>⚠️ A badge shows pending changes waiting to sync.</li>
+                </ul>
+
+                <h2>📊 Viewing Data</h2>
+                <ul>
+                    <li><strong>View History:</strong> See all past changes with timestamps.</li>
+                    <li><strong>Stats:</strong> View total items, locations, and expiring items.</li>
+                    <li><strong>Expiry Due:</strong> See items expiring soon. Click on the Expiry column header to toggle between actual date and days remaining.</li>
+                </ul>
+                
+                <h2>💡 Pro Tips</h2>
+                <ul>
+                    <li><strong>Batch Updates:</strong> Make all edits offline if possible, and let them sync together when you connect.</li>
+                    <li><strong>Regular Backups:</strong> Click "Download PDF" periodically to keep archives.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="pwa-instructions-modal" class="modal-overlay" style="z-index: 2147483650;">
+        <div class="pwa-modal-content" style="background: var(--card-bg); padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--dark);">
+            <h3 id="pwa-modal-title" style="margin-top: 0; color: var(--dark); font-size: 20px; font-weight: 800; margin-bottom: 15px;">Install App</h3>
+            <p id="pwa-modal-text" style="color: var(--gray); font-size: 14px; line-height: 1.6; margin-bottom: 20px;">Instructions generating...</p>
+            <button class="pwa-close-btn" style="background: var(--light); color: var(--dark); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: 0.2s;" onclick="document.getElementById('pwa-instructions-modal').style.display='none'">Got it, Close</button>
         </div>
     </div>
 
@@ -318,11 +389,11 @@
                             <img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
                         </div>
                         <div class="brand-text">
-                            <h1 style="font-size: 1.1rem;">TABREED : Master Instrument List AI1 <span id="queue-badge" style="display:none; font-size:0.6rem; background:#ea4335; color:white; padding:2px 6px; border-radius:10px; margin-left:5px;"></span></h1>
+                            <h1 style="font-size: 1.1rem;">TABREED : Master Instrument List AI1 <span id="queue-badge" style="display:none; font-size:0.6rem; background:var(--danger); color:white; padding:2px 6px; border-radius:10px; margin-left:5px;"></span></h1>
                             <p id="dev-subtitle" style="font-size: 0.7rem; color: var(--gray); transition: opacity 0.3s ease;">Automation App</p>
                         </div>
                     </div>
-                    <div class="connection-status" id="connectionStatus">
+                    <div class="connection-status pop-anim" id="connectionStatus">
                         <span class="status-dot"></span>
                         <span class="status-text">Wait...</span>
                     </div>
@@ -409,24 +480,24 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="modalItemName">Instrument Name</label>
-                        <input type="text" id="modalItemName" readonly style="background: #f5f5f5; color: var(--dark);" aria-label="Instrument name">
+                        <input type="text" id="modalItemName" readonly style="background: var(--light); color: var(--gray);" aria-label="Instrument name">
                     </div>
                     <div class="form-group">
                         <label for="modalLocation">Current Location <span aria-label="required">*</span></label>
                         <select id="modalLocation" onchange="handleLocationChange(this.value)" aria-label="Select location" required></select>
-                        <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px; border-color: var(--secondary); background: white; color: var(--dark);" aria-label="Custom location name">
+                        <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px; border-color: var(--secondary);" aria-label="Custom location name">
                         <small id="locationHint" style="display:none; color: var(--secondary);">Typing new location...</small>
                     </div>
                     <div class="form-group">
                         <label>Expiry Date (Optional)</label>
                         
-                        <div id="sliderContainer" style="position: relative; width: 100%; height: 36px; background: #e9ecef; border-radius: 18px; border: 1px solid #ced4da;">
-                            <div id="sliderText" style="position: absolute; width: 100%; text-align: center; line-height: 34px; color: #6c757d; pointer-events: none; font-size: 0.8rem; font-weight: bold;">Slide to Edit Expiry</div>
+                        <div id="sliderContainer" style="position: relative; width: 100%; height: 36px; background: var(--light); border-radius: 18px; border: 1px solid var(--border);">
+                            <div id="sliderText" style="position: absolute; width: 100%; text-align: center; line-height: 34px; color: var(--gray); pointer-events: none; font-size: 0.8rem; font-weight: bold;">Slide to Edit Expiry</div>
                             <input type="range" min="0" max="100" value="0" id="unlockSlider" class="slide-unlock" oninput="checkUnlock(this)" onchange="snapUnlock(this)">
                         </div>
 
                         <div id="expiryDateContainer" style="display:none;">
-                            <input type="date" id="modalExpiry" style="cursor: pointer; background: white; color: var(--dark); width: 100%;" aria-label="Expiry date">
+                            <input type="date" id="modalExpiry" style="cursor: pointer; width: 100%;" aria-label="Expiry date">
                         </div>
                     </div>
 
@@ -445,14 +516,54 @@
             </div>
         </div>
 
-        <div id="historyPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:5000; overflow-y:auto;">
+        <div class="modal-overlay feedback-overlay" id="feedbackModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3><i class="fas fa-comment-dots"></i> Send Feedback</h3>
+                    <button onclick="closeFeedbackModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="update-flex-row" style="margin-bottom: 1rem;">
+                        <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
+                            <label for="feedbackEmpId">Employee ID</label>
+                            <input type="text" inputmode="numeric" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
+                        </div>
+                        <div class="form-group" style="flex: 2; min-width: 180px; margin-bottom: 0;">
+                            <label for="feedbackName">Name</label>
+                            <input type="text" id="feedbackName" placeholder="Your Name" oninput="autoFillEmpId()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="feedbackText">Feedback / Suggestion</label>
+                        <textarea id="feedbackText" placeholder="Write your feedback for the Automation App here..." style="min-height: 100px;"></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">SEND FEEDBACK</button>
+                        <button class="btn-secondary" onclick="closeFeedbackModal()">CANCEL</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay ack-overlay" id="ackModalOverlay">
+            <div class="modal ack-modal" style="max-width: 320px; text-align: center; border-radius: 20px; padding: 10px;">
+                <div class="modal-body" style="padding: 20px 15px;">
+                    <div id="ackIcon" style="font-size: 3.5rem; margin-bottom: 15px;"></div>
+                    <h2 id="ackTitle" style="margin-top: 0; color: var(--dark); font-weight: 800; font-size: 1.3rem;"></h2>
+                    <p id="ackMessage" style="color: var(--gray); font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px;"></p>
+                    <button class="btn-primary" onclick="document.getElementById('ackModalOverlay').classList.remove('active')" style="width: 100%; border-radius: 12px; padding: 12px; letter-spacing: 0.5px;">OK, GOT IT</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="historyPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-color); z-index:5000; overflow-y:auto; transition: 0.3s;">
             <header class="app-header">
                 <div class="header-content">
                     <div class="brand">
                         <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px; color: var(--primary); font-size: 1.2rem;">
                             <i class="fas fa-arrow-left fa-lg"></i>
                         </button>
-                        <h1 style="font-size: 1.1rem;">Update History</h1>
+                        <h1 style="font-size: 1.1rem; color: var(--dark);">Update History</h1>
                     </div>
                     <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;">
                         <i class="fas fa-sync-alt"></i>
@@ -482,49 +593,10 @@
         </div>
     </div>
 
-    <div class="modal-overlay feedback-overlay" id="feedbackModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-comment-dots"></i> Send Feedback</h3>
-                <button onclick="closeFeedbackModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="update-flex-row" style="margin-bottom: 1rem;">
-                    <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
-                        <label for="feedbackEmpId">Employee ID</label>
-                        <input type="text" inputmode="numeric" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
-                    </div>
-                    <div class="form-group" style="flex: 2; min-width: 180px; margin-bottom: 0;">
-                        <label for="feedbackName">Name</label>
-                        <input type="text" id="feedbackName" placeholder="Your Name" oninput="autoFillEmpId()">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="feedbackText">Feedback / Suggestion</label>
-                    <textarea id="feedbackText" placeholder="Write your feedback for the Automation App here..." style="min-height: 100px;"></textarea>
-                </div>
-                <div class="modal-actions">
-                    <button class="btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">SEND FEEDBACK</button>
-                    <button class="btn-secondary" onclick="closeFeedbackModal()">CANCEL</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay ack-overlay" id="ackModalOverlay">
-        <div class="modal ack-modal" style="max-width: 320px; text-align: center; border-radius: 20px; padding: 10px;">
-            <div class="modal-body" style="padding: 20px 15px;">
-                <div id="ackIcon" style="font-size: 3.5rem; margin-bottom: 15px;"></div>
-                <h2 id="ackTitle" style="margin-top: 0; color: #1a202c; font-weight: 800; font-size: 1.3rem;"></h2>
-                <p id="ackMessage" style="color: #4a5568; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px;"></p>
-                <button class="btn-primary" onclick="document.getElementById('ackModalOverlay').classList.remove('active')" style="width: 100%; border-radius: 12px; padding: 12px; letter-spacing: 0.5px;">OK, GOT IT</button>
-            </div>
-        </div>
-    </div>
-
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+        // CONFIG & STORAGE variables will be managed by config.js and storage.js in future
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw0nKm-j24HwBwVd2u9ji3gqEtQ7j2dtQZmqEd0oA15mmB7nHMtGYOgUfhMrL7TjEc8cQ/exec";
         
         const EMPLOYEES = [
@@ -546,6 +618,26 @@
         let currentView = localStorage.getItem('currentView') || 'launchpad'; 
         let isDevModeActive = false;
 
+        // --- DARK MODE LOGIC ---
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.getElementById('darkModeIcon');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('tabreedDarkMode', isDark);
+            
+            if(isDark) { icon.classList.replace('fa-moon', 'fa-sun'); } 
+            else { icon.classList.replace('fa-sun', 'fa-moon'); }
+        }
+
+        function initDarkMode() {
+            if(localStorage.getItem('tabreedDarkMode') === 'true') {
+                document.body.classList.add('dark-mode');
+                const icon = document.getElementById('darkModeIcon');
+                if(icon) icon.classList.replace('fa-moon', 'fa-sun');
+            }
+        }
+
+        // UTILITIES
         function sanitizeInput(str) {
             if (typeof str !== 'string') return '';
             return str.replace(/[<>\"'&]/g, (char) => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' }[char]));
@@ -565,11 +657,13 @@
         };
 
         document.addEventListener('DOMContentLoaded', () => {
+            initDarkMode();
             setupSearch(); updatePendingTile(); processSyncQueue();
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     if (document.getElementById('updateModal').classList.contains('active')) closeModal();
                     if (document.getElementById('feedbackModal').classList.contains('active')) closeFeedbackModal();
+                    if (document.getElementById('guideModal').classList.contains('active')) closeGuideModal();
                     if (document.getElementById('historyPage').style.display === 'block') closeHistoryPage();
                     if (document.getElementById('ackModalOverlay').classList.contains('active')) document.getElementById('ackModalOverlay').classList.remove('active');
                 }
@@ -606,13 +700,17 @@
                 localStorage.clear(); showToast("Cache Cleared. Reloading...", "info"); setTimeout(() => { window.location.reload(); }, 1000);
             }
         }
-        function devShowLog() { showAckPopup("Sync Logs", "Network Logs placeholder.", "fas fa-terminal", "#333"); }
+        function devShowLog() { showAckPopup("Sync Logs", "Network Logs placeholder.", "fas fa-terminal", "var(--dark)"); }
         function devInjectData() {
             inventoryData.push({ name: "TEST-INSTRUMENT-" + Math.floor(Math.random()*1000), location: "Dev Test Area", expiry: "01.01.2030", updatedBy: "Dev Tool" });
             applyFilters(); showToast("Test Data Injected", "success");
         }
         function devUIDebugger() { document.querySelectorAll('div, table, section').forEach(el => el.style.outline = '1px solid red'); showToast("UI Debugger On", "warning"); }
         function devNetworkSim() { showToast("Simulated Network Latency applied", "info"); }
+
+        // --- USER GUIDE MODAL ---
+        function openGuideModal() { document.getElementById('guideModal').classList.add('active'); }
+        function closeGuideModal() { document.getElementById('guideModal').classList.remove('active'); }
 
         // --- SMART PWA INSTALL LOGIC (From Blogger) ---
         let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
@@ -674,7 +772,7 @@
             
             calibFilterActive = false;
             const btn = document.getElementById('btn-calib-filter');
-            btn.style.background = 'white'; btn.style.border = 'none';
+            btn.style.background = 'var(--card-bg)'; btn.style.border = '1px solid var(--border)';
 
             loadInventory();
         }
@@ -683,8 +781,15 @@
         function toggleCalibFilter() {
             calibFilterActive = !calibFilterActive;
             const btn = document.getElementById('btn-calib-filter');
-            if(calibFilterActive) { btn.style.background = '#ffebee'; btn.style.border = '1px solid #e65100'; } 
-            else { btn.style.background = 'white'; btn.style.border = 'none'; }
+            const isDark = document.body.classList.contains('dark-mode');
+            
+            if(calibFilterActive) { 
+                btn.style.background = isDark ? 'rgba(234,67,53,0.1)' : '#ffebee'; 
+                btn.style.border = '1px solid var(--danger)'; 
+            } else { 
+                btn.style.background = 'var(--card-bg)'; 
+                btn.style.border = '1px solid var(--border)'; 
+            }
             applyFilters();
         }
 
@@ -731,8 +836,8 @@
                     const parts = item.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
                     const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
                     if (diff < 0) expiryDisplay = `<span class="expiry-badge expired">Expired</span>`;
-                    else if (diff === 0) expiryDisplay = `<span class="expiry-badge" style="color:var(--warning); border-color:var(--warning); background:#fff3e0;">Today</span>`;
-                    else expiryDisplay = `<span class="expiry-badge" style="color:var(--secondary); border-color:var(--secondary); background:#e8f5e9;">${diff} Days Left</span>`;
+                    else if (diff === 0) expiryDisplay = `<span class="expiry-badge" style="color:var(--warning); border-color:var(--warning); background:rgba(249,171,0,0.1);">Today</span>`;
+                    else expiryDisplay = `<span class="expiry-badge" style="color:var(--secondary); border-color:var(--secondary); background:rgba(52,168,83,0.1);">${diff} Days Left</span>`;
                 }
                 const realIdx = inventoryData.findIndex(i => i.name === item.name);
                 return `
@@ -799,12 +904,10 @@
         function viewPendingSyncs() {
             let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
             if (queue.length === 0) { showToast("No pending data to sync.", "success"); return; }
-            
-            let html = "<div style='text-align:left; font-size:0.8rem; max-height:200px; overflow-y:auto;'>";
-            queue.forEach((q, i) => { html += `<div style="padding:8px; border-bottom:1px solid #eee;"><b>${i+1}. ${q.name}</b><br><span style="color:var(--gray)">${q.action} - ${q.updatedBy}</span></div>`; });
+            let html = "<div style='text-align:left; font-size:0.8rem; max-height:200px; overflow-y:auto; color: var(--dark);'>";
+            queue.forEach((q, i) => { html += `<div style="padding:8px; border-bottom:1px solid var(--border);"><b>${i+1}. ${q.name}</b><br><span style="color:var(--gray)">${q.action} - ${q.updatedBy}</span></div>`; });
             html += "</div>";
             html += `<div style="margin-top:15px;"><button class="btn-primary" onclick="processSyncQueue(true); document.getElementById('ackModalOverlay').classList.remove('active');" style="width:100%; padding:10px; border-radius:12px;">SYNC NOW</button></div>`;
-            
             showAckPopup("Pending Syncs (" + queue.length + ")", html, "fas fa-sync", "var(--warning)");
         }
 
@@ -837,11 +940,11 @@
         }
 
         function openAddModal() {
-            isEditMode = false; currentItem = null; document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument'; document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'white'; document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = ''; resetSlider(); document.getElementById('updateModal').classList.add('active');
+            isEditMode = false; currentItem = null; document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument'; document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'var(--card-bg)'; document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = ''; resetSlider(); document.getElementById('updateModal').classList.add('active');
         }
 
         function openUpdateModal(name, loc, exp) {
-            isEditMode = true; currentItem = name; document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Details'; document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee'; document.getElementById('modalLocation').value = loc;
+            isEditMode = true; currentItem = name; document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Details'; document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = 'var(--bg-color)'; document.getElementById('modalLocation').value = loc;
             if (exp && exp !== '-' ) { const p = exp.split('.'); if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${p[1]}-${p[0]}`; } else { document.getElementById('modalExpiry').value = ''; }
             document.getElementById('modalUpdatedBy').value = ''; resetSlider(); document.getElementById('updateModal').classList.add('active');
         }
@@ -854,7 +957,7 @@
         function showStats() { 
             const total = inventoryData.length; const locationsCount = locations.length;
             const expiringCount = inventoryData.filter(item => { if (!item.expiry || item.expiry === '-') return false; const parts = item.expiry.split('.'); const exp = new Date(parts[2], parts[1] - 1, parts[0]); const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24)); return diff <= 30; }).length;
-            let statHtml = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;"><span style="font-weight:600;">Total Instruments:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${total}</span></div><div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;"><span style="font-weight:600;">Total Locations:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${locationsCount}</span></div><div style="display:flex; justify-content:space-between;"><span style="font-weight:600; color:var(--danger);">Expiring Soon:</span> <span style="font-size:1.1rem; color:var(--danger); font-weight:800;">${expiringCount}</span></div>`;
+            let statHtml = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); color: var(--dark);"><span style="font-weight:600;">Total Instruments:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${total}</span></div><div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); color: var(--dark);"><span style="font-weight:600;">Total Locations:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${locationsCount}</span></div><div style="display:flex; justify-content:space-between; color: var(--dark);"><span style="font-weight:600; color:var(--danger);">Expiring Soon:</span> <span style="font-size:1.1rem; color:var(--danger); font-weight:800;">${expiringCount}</span></div>`;
             showAckPopup("Inventory Statistics", statHtml, "fas fa-chart-pie", "var(--primary)");
         }
 
@@ -892,7 +995,15 @@
         }
         function generatePDF() {
             const el = document.querySelector('.inventory-section'); const now = new Date(); const fileName = `List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}.pdf`;
-            html2pdf().set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save().then(() => showToast('PDF Downloaded!', 'success'));
+            
+            // Temporary fix for Dark Mode PDF Export (forces light mode for print)
+            const isDark = document.body.classList.contains('dark-mode');
+            if (isDark) document.body.classList.remove('dark-mode');
+
+            html2pdf().set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save().then(() => {
+                showToast('PDF Downloaded!', 'success');
+                if (isDark) document.body.classList.add('dark-mode'); // Restore dark mode
+            });
         }
 
         // --- HISTORY WITH SKELETON LOADING ---
@@ -914,7 +1025,7 @@
         function renderHistoryTable(data) {
             const tbody = document.getElementById('historyTableBody');
             if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No history found</td></tr>'; return; }
-            tbody.innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${sanitizeInput(log.time || '')}</td><td style="font-weight:600;">${sanitizeInput(log.item || '')}</td><td><span class="location-tag" style="background:#f0f0f0; color:#666;">${sanitizeInput(log.oldLoc || '')}</span></td><td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${sanitizeInput(log.newLoc || '')}</span></td><td style="font-size:0.8rem;">${sanitizeInput(log.user || '')}</td></tr>`).join('');
+            tbody.innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${sanitizeInput(log.time || '')}</td><td style="font-weight:600;">${sanitizeInput(log.item || '')}</td><td><span class="location-tag" style="background:var(--bg-color); color:var(--gray); border:1px solid var(--border);">${sanitizeInput(log.oldLoc || '')}</span></td><td><span class="location-tag" style="background:var(--primary-light); color:var(--primary);">${sanitizeInput(log.newLoc || '')}</span></td><td style="font-size:0.8rem;">${sanitizeInput(log.user || '')}</td></tr>`).join('');
         }
     </script>
 </body>
