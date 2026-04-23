@@ -52,7 +52,8 @@
         
         .app-container { max-width: 1200px; margin: 0 auto; margin-bottom: 50px; display: flex; flex-direction: column; min-height: 100vh; }
         
-        .app-header { background: var(--card-bg); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid var(--border); transition: 0.3s; }
+        /* HEADER - STICKY REMOVED */
+        .app-header { background: var(--card-bg); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: relative; z-index: 1000; border-bottom: 1px solid var(--border); transition: 0.3s; }
         
         .header-content { display: flex; align-items: center; justify-content: space-between; }
         .brand { display: flex; align-items: center; gap: 0.75rem; }
@@ -148,23 +149,31 @@
         .skeleton-cell { height: 20px; border-radius: 4px; background: var(--border); animation: pulse-skeleton 1.5s infinite ease-in-out; }
         @keyframes pulse-skeleton { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
-        /* PREMIUM FIORI HEADER */
-        .fiori-header { background: linear-gradient(135deg, #1a2935 0%, #2a3f54 100%); color: #ffffff; min-height: 75px; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); box-sizing: border-box; }
-        .fiori-logo-img { width: 36px; height: 36px; border-radius: 8px; background: #ffffff; padding: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-        .fiori-header-title { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; background: -webkit-linear-gradient(45deg, #ffffff, #b0bec5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .btn-install-small { background: linear-gradient(to right, #00c6ff, #0072ff) !important; color: white !important; border: none !important; padding: 8px 16px !important; font-size: 11px !important; font-weight: 800 !important; border-radius: 25px !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3) !important; transition: all 0.3s ease !important; letter-spacing: 0.5px !important; display: flex; align-items: center; text-transform: uppercase; }
+        /* FIORI HEADER - STICKY REMOVED & HEIGHT FIXED TO 50PX */
+        .fiori-header { 
+            background: linear-gradient(135deg, #1a2935 0%, #2a3f54 100%); 
+            color: #ffffff; 
+            min-height: 50px; 
+            height: 50px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 0 20px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+            position: relative; 
+            z-index: 1000; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+            box-sizing: border-box;
+        }
+        .fiori-logo-img { width: 32px; height: 32px; border-radius: 8px; background: #ffffff; padding: 2px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .fiori-header-title { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; background: -webkit-linear-gradient(45deg, #ffffff, #b0bec5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-install-small { background: linear-gradient(to right, #00c6ff, #0072ff) !important; color: white !important; border: none !important; padding: 6px 14px !important; font-size: 11px !important; font-weight: 800 !important; border-radius: 25px !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3) !important; transition: all 0.3s ease !important; letter-spacing: 0.5px !important; display: flex; align-items: center; text-transform: uppercase; }
         .btn-install-small:hover { transform: translateY(-2px) !important; box-shadow: 0 6px 15px rgba(0, 114, 255, 0.5) !important; }
         .beta-badge { font-size: 9px !important; background: #e53e3e !important; color: #fff !important; padding: 2px 5px !important; border-radius: 8px !important; margin-left: 6px !important; font-weight: 800 !important; }
 
         /* DARK MODE TOGGLE BTN */
-        .btn-dark-toggle { background: rgba(255,255,255,0.1) !important; box-shadow: none !important; border: 1px solid rgba(255,255,255,0.3) !important; padding: 8px 12px !important; color: #fff; border-radius: 25px; cursor: pointer; transition: 0.3s; margin-right: 10px; }
+        .btn-dark-toggle { background: rgba(255,255,255,0.1) !important; box-shadow: none !important; border: 1px solid rgba(255,255,255,0.3) !important; padding: 6px 10px !important; font-size: 12px !important; color: #fff; border-radius: 25px; cursor: pointer; transition: 0.3s; margin-right: 10px; }
         .btn-dark-toggle:hover { background: rgba(255,255,255,0.2) !important; }
-
-        #pwa-instructions-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2147483650; justify-content: center; align-items: center; }
-        .pwa-modal-content { background: var(--card-bg); padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--dark); }
-        .pwa-modal-content h3 { margin-top: 0; color: var(--dark); font-size: 20px; font-weight: 800; margin-bottom: 15px; }
-        .pwa-modal-content p { color: var(--gray); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-        .pwa-close-btn { background: var(--light); color: var(--dark); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: 0.2s; }
 
         .launchpad-footer { text-align: center; padding: 20px; padding-bottom: 40px; color: var(--gray); font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
         #dev-trigger { font-weight: 800; color: var(--primary); cursor: pointer; display: inline-block; padding: 5px; }
@@ -199,18 +208,21 @@
         .fiori-app-header { height: 48px; background: #3f5161; color: white; display: none; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .back-btn-fiori { background: none; border: none; color: white; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
         
-        /* USER GUIDE MODAL TEXT STYLING */
-        .guide-content h2 { margin-top: 15px; margin-bottom: 10px; color: var(--primary); font-size: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-        .guide-content h3 { margin-top: 12px; margin-bottom: 8px; color: var(--dark); font-size: 1rem; }
-        .guide-content p, .guide-content li { margin-bottom: 8px; font-size: 0.9rem; color: var(--gray); }
+        /* DETAILED USER GUIDE MODAL TEXT STYLING */
+        .guide-content h2 { margin-top: 25px; margin-bottom: 12px; color: var(--primary); font-size: 1.3rem; border-bottom: 2px solid var(--border); padding-bottom: 5px; display: flex; align-items: center; gap: 8px;}
+        .guide-content h3 { margin-top: 18px; margin-bottom: 10px; color: var(--dark); font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .guide-content p { margin-bottom: 10px; font-size: 0.95rem; color: var(--gray); line-height: 1.6; }
         .guide-content ul { padding-left: 20px; margin-bottom: 15px; }
+        .guide-content li { margin-bottom: 8px; font-size: 0.95rem; color: var(--gray); line-height: 1.5; }
+        .guide-content .highlight-box { background: var(--primary-light); border-left: 4px solid var(--primary); padding: 12px; border-radius: 4px; margin: 15px 0; color: var(--dark); font-size: 0.9rem;}
+        .guide-content kbd { background: var(--border); color: var(--dark); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-family: monospace; border: 1px solid var(--gray); }
     </style>
 </head>
 <body>
 
     <div id="fiori-wrapper">
         <header class="fiori-header">
-            <div style="display:flex; align-items:center; gap:14px;">
+            <div style="display:flex; align-items:center; gap:10px;">
                 <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" class="fiori-logo-img" alt="Tabreed Logo">
                 <span class="fiori-header-title">Automation App</span>
             </div>
@@ -313,62 +325,6 @@
         <div class="launchpad-footer">
             <span>Code Developed by <span id="dev-trigger" onclick="handleDevClick()">Majeed</span></span>
         </div>
-
-    </div>
-
-    <div class="modal-overlay" id="guideModal">
-        <div class="modal" style="max-height: 85vh;">
-            <div class="modal-header">
-                <h3><i class="fas fa-book-open"></i> Quick Start Guide</h3>
-                <button onclick="closeGuideModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
-            </div>
-            <div class="modal-body guide-content">
-                <p>Welcome to the <strong>TABREED Automation App v2.0</strong>! Here's a quick overview of the new features and how to use them.</p>
-                
-                <h2>🌟 What's New?</h2>
-                <h3>✨ Dark Mode</h3>
-                <p>Click the <strong>moon icon</strong> in the header (top right) to switch between light and dark themes. Your preference is automatically saved.</p>
-                
-                <h3>🔄 Better Offline Support</h3>
-                <p>Changes work even without internet. The system will automatically sync when you're back online using a smarter retry system.</p>
-
-                <h2>📱 Daily Usage</h2>
-                <h3>Making Changes</h3>
-                <ul>
-                    <li><strong>Search:</strong> Use the search bar at the top or filter by location.</li>
-                    <li><strong>Update:</strong> Click "Update" button on any row, fill details, and click "Save Changes".</li>
-                    <li><strong>Add:</strong> Click "Add Entry" button, fill details, and click "Save Changes".</li>
-                </ul>
-
-                <h3>Going Offline</h3>
-                <ul>
-                    <li>🔴 <strong>Red "Offline"</strong> indicator shows no internet.</li>
-                    <li>📝 You can still make changes (saved locally).</li>
-                    <li>⚠️ A badge shows pending changes waiting to sync.</li>
-                </ul>
-
-                <h2>📊 Viewing Data</h2>
-                <ul>
-                    <li><strong>View History:</strong> See all past changes with timestamps.</li>
-                    <li><strong>Stats:</strong> View total items, locations, and expiring items.</li>
-                    <li><strong>Expiry Due:</strong> See items expiring soon. Click on the Expiry column header to toggle between actual date and days remaining.</li>
-                </ul>
-                
-                <h2>💡 Pro Tips</h2>
-                <ul>
-                    <li><strong>Batch Updates:</strong> Make all edits offline if possible, and let them sync together when you connect.</li>
-                    <li><strong>Regular Backups:</strong> Click "Download PDF" periodically to keep archives.</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div id="pwa-instructions-modal" class="modal-overlay" style="z-index: 2147483650;">
-        <div class="pwa-modal-content" style="background: var(--card-bg); padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--dark);">
-            <h3 id="pwa-modal-title" style="margin-top: 0; color: var(--dark); font-size: 20px; font-weight: 800; margin-bottom: 15px;">Install App</h3>
-            <p id="pwa-modal-text" style="color: var(--gray); font-size: 14px; line-height: 1.6; margin-bottom: 20px;">Instructions generating...</p>
-            <button class="pwa-close-btn" style="background: var(--light); color: var(--dark); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: 0.2s;" onclick="document.getElementById('pwa-instructions-modal').style.display='none'">Got it, Close</button>
-        </div>
     </div>
 
     <div id="fiori-iframe-header" class="fiori-app-header">
@@ -443,13 +399,9 @@
                 </button>
 
                 <button class="action-btn" onclick="openAddModal()" aria-label="Add new entry"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
-                
                 <button class="action-btn" onclick="showStats()" aria-label="View statistics"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
-                
                 <button class="action-btn" onclick="showHistoryPage()" aria-label="View update history"><i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i><span>View History</span></button>
-
                 <button class="action-btn" onclick="openFeedbackModal()" aria-label="Open feedback form"><i class="fas fa-comment-dots" style="color: #0b8043; margin-bottom: 5px;"></i><span>Feedback</span></button>
-                
                 <button class="action-btn" onclick="exportData()" aria-label="Export data as PDF"><i class="fas fa-file-pdf" style="color: var(--dark); margin-bottom: 5px;"></i><span>Download PDF</span></button>
             </div>
 
@@ -470,126 +422,225 @@
                 </div>
             </section>
         </div>
+    </div> <div id="pwa-instructions-modal" class="modal-overlay" style="z-index: 2147483650;">
+        <div class="pwa-modal-content" style="background: var(--card-bg); padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--dark);">
+            <h3 id="pwa-modal-title" style="margin-top: 0; color: var(--dark); font-size: 20px; font-weight: 800; margin-bottom: 15px;">Install App</h3>
+            <p id="pwa-modal-text" style="color: var(--gray); font-size: 14px; line-height: 1.6; margin-bottom: 20px;">Instructions generating...</p>
+            <button class="pwa-close-btn" style="background: var(--light); color: var(--dark); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: 0.2s;" onclick="document.getElementById('pwa-instructions-modal').style.display='none'">Got it, Close</button>
+        </div>
+    </div>
 
-        <div class="modal-overlay" id="updateModal" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
-            <div class="modal">
-                <div class="modal-header">
-                    <h3 id="modalTitle"><i class="fas fa-edit"></i> Update Instrument Details</h3>
-                    <button onclick="closeModal()" aria-label="Close dialog" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+    <div class="modal-overlay" id="updateModal" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle"><i class="fas fa-edit"></i> Update Instrument Details</h3>
+                <button onclick="closeModal()" aria-label="Close dialog" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="modalItemName">Instrument Name</label>
+                    <input type="text" id="modalItemName" readonly style="background: var(--light); color: var(--gray);" aria-label="Instrument name">
                 </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="modalItemName">Instrument Name</label>
-                        <input type="text" id="modalItemName" readonly style="background: var(--light); color: var(--gray);" aria-label="Instrument name">
-                    </div>
-                    <div class="form-group">
-                        <label for="modalLocation">Current Location <span aria-label="required">*</span></label>
-                        <select id="modalLocation" onchange="handleLocationChange(this.value)" aria-label="Select location" required></select>
-                        <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px; border-color: var(--secondary);" aria-label="Custom location name">
-                        <small id="locationHint" style="display:none; color: var(--secondary);">Typing new location...</small>
-                    </div>
-                    <div class="form-group">
-                        <label>Expiry Date (Optional)</label>
-                        
-                        <div id="sliderContainer" style="position: relative; width: 100%; height: 36px; background: var(--light); border-radius: 18px; border: 1px solid var(--border);">
-                            <div id="sliderText" style="position: absolute; width: 100%; text-align: center; line-height: 34px; color: var(--gray); pointer-events: none; font-size: 0.8rem; font-weight: bold;">Slide to Edit Expiry</div>
-                            <input type="range" min="0" max="100" value="0" id="unlockSlider" class="slide-unlock" oninput="checkUnlock(this)" onchange="snapUnlock(this)">
-                        </div>
-
-                        <div id="expiryDateContainer" style="display:none;">
-                            <input type="date" id="modalExpiry" style="cursor: pointer; width: 100%;" aria-label="Expiry date">
-                        </div>
-                    </div>
-
-                    <div class="update-flex-row">
-                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label for="modalUpdatedBy">Updated By <span aria-label="required">*</span></label>
-                            <input type="text" id="modalUpdatedBy" placeholder="Your Name" aria-label="Your name" required>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label for="modalLocation">Current Location <span aria-label="required">*</span></label>
+                    <select id="modalLocation" onchange="handleLocationChange(this.value)" aria-label="Select location" required></select>
+                    <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px; border-color: var(--secondary);" aria-label="Custom location name">
+                    <small id="locationHint" style="display:none; color: var(--secondary);">Typing new location...</small>
+                </div>
+                <div class="form-group">
+                    <label>Expiry Date (Optional)</label>
                     
-                    <div class="modal-actions">
-                        <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
-                        <button class="btn-secondary" onclick="closeModal()">CANCEL</button>
+                    <div id="sliderContainer" style="position: relative; width: 100%; height: 36px; background: var(--light); border-radius: 18px; border: 1px solid var(--border);">
+                        <div id="sliderText" style="position: absolute; width: 100%; text-align: center; line-height: 34px; color: var(--gray); pointer-events: none; font-size: 0.8rem; font-weight: bold;">Slide to Edit Expiry</div>
+                        <input type="range" min="0" max="100" value="0" id="unlockSlider" class="slide-unlock" oninput="checkUnlock(this)" onchange="snapUnlock(this)">
                     </div>
+
+                    <div id="expiryDateContainer" style="display:none;">
+                        <input type="date" id="modalExpiry" style="cursor: pointer; width: 100%;" aria-label="Expiry date">
+                    </div>
+                </div>
+
+                <div class="update-flex-row">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label for="modalUpdatedBy">Updated By <span aria-label="required">*</span></label>
+                        <input type="text" id="modalUpdatedBy" placeholder="Your Name" aria-label="Your name" required>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
+                    <button class="btn-secondary" onclick="closeModal()">CANCEL</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="modal-overlay feedback-overlay" id="feedbackModal">
-            <div class="modal">
-                <div class="modal-header">
-                    <h3><i class="fas fa-comment-dots"></i> Send Feedback</h3>
-                    <button onclick="closeFeedbackModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+    <div class="modal-overlay feedback-overlay" id="feedbackModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-comment-dots"></i> Send Feedback</h3>
+                <button onclick="closeFeedbackModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="update-flex-row" style="margin-bottom: 1rem;">
+                    <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
+                        <label for="feedbackEmpId">Employee ID</label>
+                        <input type="text" inputmode="numeric" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
+                    </div>
+                    <div class="form-group" style="flex: 2; min-width: 180px; margin-bottom: 0;">
+                        <label for="feedbackName">Name</label>
+                        <input type="text" id="feedbackName" placeholder="Your Name" oninput="autoFillEmpId()">
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <div class="update-flex-row" style="margin-bottom: 1rem;">
-                        <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
-                            <label for="feedbackEmpId">Employee ID</label>
-                            <input type="text" inputmode="numeric" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
-                        </div>
-                        <div class="form-group" style="flex: 2; min-width: 180px; margin-bottom: 0;">
-                            <label for="feedbackName">Name</label>
-                            <input type="text" id="feedbackName" placeholder="Your Name" oninput="autoFillEmpId()">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="feedbackText">Feedback / Suggestion</label>
-                        <textarea id="feedbackText" placeholder="Write your feedback for the Automation App here..." style="min-height: 100px;"></textarea>
-                    </div>
-                    <div class="modal-actions">
-                        <button class="btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">SEND FEEDBACK</button>
-                        <button class="btn-secondary" onclick="closeFeedbackModal()">CANCEL</button>
-                    </div>
+                <div class="form-group">
+                    <label for="feedbackText">Feedback / Suggestion</label>
+                    <textarea id="feedbackText" placeholder="Write your feedback for the Automation App here..." style="min-height: 100px;"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">SEND FEEDBACK</button>
+                    <button class="btn-secondary" onclick="closeFeedbackModal()">CANCEL</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="modal-overlay ack-overlay" id="ackModalOverlay">
-            <div class="modal ack-modal" style="max-width: 320px; text-align: center; border-radius: 20px; padding: 10px;">
-                <div class="modal-body" style="padding: 20px 15px;">
-                    <div id="ackIcon" style="font-size: 3.5rem; margin-bottom: 15px;"></div>
-                    <h2 id="ackTitle" style="margin-top: 0; color: var(--dark); font-weight: 800; font-size: 1.3rem;"></h2>
-                    <p id="ackMessage" style="color: var(--gray); font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px;"></p>
-                    <button class="btn-primary" onclick="document.getElementById('ackModalOverlay').classList.remove('active')" style="width: 100%; border-radius: 12px; padding: 12px; letter-spacing: 0.5px;">OK, GOT IT</button>
+    <div class="modal-overlay" id="guideModal">
+        <div class="modal" style="max-height: 90vh; width: 95%; max-width: 700px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-book-open"></i> Tabreed App Manual</h3>
+                <button onclick="closeGuideModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+            </div>
+            <div class="modal-body guide-content">
+                <div class="highlight-box">
+                    <strong><i class="fas fa-info-circle"></i> Welcome to Automation App v2.0</strong><br>
+                    This is an Enterprise-Grade Progressive Web App (PWA) designed to manage Tabreed's instrument inventory, handle offline capabilities, and monitor network logs.
                 </div>
+                
+                <h2><i class="fas fa-th-large"></i> 1. The Fiori Launchpad (Home)</h2>
+                <p>The main screen is your dashboard. It contains several functional tiles:</p>
+                <ul>
+                    <li><strong>Master Instrument List:</strong> The core AI1 Database for all instruments. (Works offline).</li>
+                    <li><strong>PingLogger Ultimate:</strong> Network monitor tool (Available only in Developer Mode).</li>
+                    <li><strong>Drawing Hub:</strong> Schematics and P&ID viewer (Available only in Developer Mode).</li>
+                    <li><strong>Service Report:</strong> Future module for time entry formatting.</li>
+                    <li><strong>Pending Syncs:</strong> Shows data that was saved while you had no internet connection.</li>
+                    <li><strong>Share Feedback:</strong> Directly report bugs, ideas, or missing items to the Automation Team.</li>
+                </ul>
+
+                <h2><i class="fas fa-list-alt"></i> 2. Master Instrument List</h2>
+                <p>Clicking the first tile opens the main database. Here's how to navigate it:</p>
+                
+                <h3><i class="fas fa-moon"></i> Dark Mode</h3>
+                <p>In the top right corner of the header, click the <strong>Moon Icon</strong> to switch the app to Dark Mode. This reduces eye strain and saves battery. Your preference is saved automatically.</p>
+
+                <h3><i class="fas fa-filter"></i> Advanced Filters</h3>
+                <p>The top 9 grid buttons allow you to control data visibility:</p>
+                <ul>
+                    <li><strong>Refresh:</strong> Resets all filters to default and reloads live data.</li>
+                    <li><strong>All Locations:</strong> Dropdown to filter instruments by specific plant areas or rooms.</li>
+                    <li><strong>Expiry:</strong> Filter instruments expiring in 15 days, 30 days, 2 months, 6 months, or view already expired items.</li>
+                    <li><strong>Goes for Cal:</strong> A quick toggle button. Click it to instantly view only the instruments sent for Calibration/Repair.</li>
+                </ul>
+
+                <h3><i class="fas fa-table"></i> The Data Table</h3>
+                <p>The table displays live instrument data. A special feature is the <strong>Expiry 🔄</strong> column header. Click the word "Expiry 🔄" to instantly toggle the view between the <i>Actual Expiry Date</i> (e.g., 21.04.2026) and <i>Days Remaining</i> (e.g., 30 Days Left).</p>
+                <ul>
+                    <li><span style="color:var(--danger); font-weight:bold;">Red Tag:</span> Instrument has expired.</li>
+                    <li><span style="color:var(--warning); font-weight:bold;">Yellow Tag:</span> Expires today.</li>
+                    <li><span style="color:var(--secondary); font-weight:bold;">Green Tag:</span> Still valid.</li>
+                </ul>
+
+                <h2><i class="fas fa-edit"></i> 3. Updating & Adding Instruments</h2>
+                <p>Click <strong>Update</strong> on any row, or <strong>Add Entry</strong> from the top menu.</p>
+                <ul>
+                    <li><strong>Location Selection:</strong> Choose from the list. If a location is missing, select <i>"+ Not Listed (Add New)"</i> and type a custom location.</li>
+                    <li><strong>Secure Expiry Slider:</strong> To prevent accidental date changes, the Expiry Date is locked. You must slide the <strong>"Slide to Edit Expiry"</strong> bar fully to the right. A prompt will appear asking for a passcode (<kbd>123</kbd>). Once entered correctly, the date box will appear.</li>
+                    <li><strong>Auto-Formatting:</strong> Dates are automatically converted to the strict DD.MM.YYYY standard before saving.</li>
+                </ul>
+
+                <h2><i class="fas fa-wifi"></i> 4. Offline Sync Engine</h2>
+                <p>This app is <strong>Offline-First</strong>. You do not need internet to work!</p>
+                <ul>
+                    <li>If you lose network, the top-right status will turn <span style="color:var(--danger); font-weight:bold;">Red (Offline)</span>.</li>
+                    <li>Any updates or new instruments you add will be saved safely into your device's internal storage.</li>
+                    <li>A <span style="color:var(--danger); font-weight:bold;">Red Badge</span> will appear on the header showing the number of pending tasks.</li>
+                    <li>When the internet returns, the app automatically detects it, changes the status to <span style="color:var(--secondary); font-weight:bold;">Green (Online)</span>, and silently pushes all pending data to the server.</li>
+                    <li><strong>Manual Sync:</strong> You can click the "Pending Syncs" tile on the Launchpad to view a list of all unsaved items and manually trigger a sync or delete them.</li>
+                </ul>
+
+                <h2><i class="fas fa-file-pdf"></i> 5. Statistics & PDF Export</h2>
+                <ul>
+                    <li><strong>Stats:</strong> Click the Stats button to see a beautiful centered popup summarizing total instruments, total locations, and critical items expiring within 30 days.</li>
+                    <li><strong>Download PDF:</strong> Exports the current table view as a high-quality PDF. <i>Smart Feature:</i> If you are in Dark Mode, the system temporarily switches to Light Mode in the background just for the PDF, so you don't waste black printer ink!</li>
+                </ul>
+
+                <h2><i class="fas fa-comment-dots"></i> 6. Sharing Feedback</h2>
+                <p>The feedback modal includes an auto-fill feature. Type your <strong>Employee ID</strong> (e.g., 41764) and your Short Name (Majeed) will automatically populate. Feedback is instantly pushed to the Automation Team's database stamped with the precise <strong>Dubai Timezone (UTC+4)</strong>.</p>
+
+                <h2><i class="fas fa-user-shield"></i> 7. Secret Developer Mode</h2>
+                <p>The app contains hidden Admin tools for the Automation Team.</p>
+                <ul>
+                    <li>On the Launchpad (Home screen), scroll to the very bottom footer.</li>
+                    <li>Tap the word <strong>Majeed</strong> exactly 3 times in quick succession.</li>
+                    <li>Enter the Admin Passcode (<kbd>Dubai@123</kbd>).</li>
+                    <li>This unlocks hidden tools like Network Monitor, Drawing Hub, Force Cache Clear, Test Data Injection, and UI Debugging bounds.</li>
+                </ul>
+
+                <h2><i class="fas fa-mobile-alt"></i> 8. App Installation (PWA)</h2>
+                <p>Click the <strong>INSTALL BETA</strong> button on the top right.</p>
+                <ul>
+                    <li><strong>Android:</strong> It will prompt the native Google Play installation or download the direct APK.</li>
+                    <li><strong>iOS (iPhone):</strong> It will download an Apple Configuration Profile (.mobileconfig) allowing you to install the app perfectly on your home screen bypassing Apple's web restrictions.</li>
+                </ul>
+                <br><br>
             </div>
         </div>
+    </div>
 
-        <div id="historyPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-color); z-index:5000; overflow-y:auto; transition: 0.3s;">
-            <header class="app-header">
-                <div class="header-content">
-                    <div class="brand">
-                        <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px; color: var(--primary); font-size: 1.2rem;">
-                            <i class="fas fa-arrow-left fa-lg"></i>
-                        </button>
-                        <h1 style="font-size: 1.1rem; color: var(--dark);">Update History</h1>
-                    </div>
-                    <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;">
-                        <i class="fas fa-sync-alt"></i>
+    <div class="modal-overlay ack-overlay" id="ackModalOverlay">
+        <div class="modal ack-modal" style="max-width: 320px; text-align: center; border-radius: 20px; padding: 10px;">
+            <div class="modal-body" style="padding: 20px 15px;">
+                <div id="ackIcon" style="font-size: 3.5rem; margin-bottom: 15px;"></div>
+                <h2 id="ackTitle" style="margin-top: 0; color: var(--dark); font-weight: 800; font-size: 1.3rem;"></h2>
+                <p id="ackMessage" style="color: var(--gray); font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px;"></p>
+                <button class="btn-primary" onclick="document.getElementById('ackModalOverlay').classList.remove('active')" style="width: 100%; border-radius: 12px; padding: 12px; letter-spacing: 0.5px;">OK, GOT IT</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="historyPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-color); z-index:5000; overflow-y:auto; transition: 0.3s;">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="brand">
+                    <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px; color: var(--primary); font-size: 1.2rem;">
+                        <i class="fas fa-arrow-left fa-lg"></i>
                     </button>
+                    <h1 style="font-size: 1.1rem; color: var(--dark);">Update History</h1>
                 </div>
-            </header>
-            <div class="search-container">
-                <div class="search-box">
-                    <i class="fas fa-search search-icon" aria-hidden="true"></i>
-                    <input type="text" id="historySearch" placeholder="Filter history by tag or user..." oninput="filterHistory()" aria-label="Search history">
-                </div>
+                <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
             </div>
-            <div class="table-container" style="padding:10px;">
-                <table class="inventory-table" style="min-width: 500px;">
-                    <thead>
-                        <tr>
-                            <th style="width: 20%; padding-left: 1.5rem;">Date & Time</th>
-                            <th style="width: 25%;">Instrument</th>
-                            <th style="width: 20%;">From Location</th>
-                            <th style="width: 20%;">To Location</th>
-                            <th style="width: 15%;">Updated By</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTableBody"></tbody>
-                </table>
+        </header>
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon" aria-hidden="true"></i>
+                <input type="text" id="historySearch" placeholder="Filter history by tag or user..." oninput="filterHistory()" aria-label="Search history">
             </div>
+        </div>
+        <div class="table-container" style="padding:10px;">
+            <table class="inventory-table" style="min-width: 500px;">
+                <thead>
+                    <tr>
+                        <th style="width: 20%; padding-left: 1.5rem;">Date & Time</th>
+                        <th style="width: 25%;">Instrument</th>
+                        <th style="width: 20%;">From Location</th>
+                        <th style="width: 20%;">To Location</th>
+                        <th style="width: 15%;">Updated By</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody"></tbody>
+            </table>
         </div>
     </div>
 
@@ -686,7 +737,6 @@
             isDevModeActive = true;
             document.getElementById('dev-tools-group').style.display = 'block';
             
-            // Show hidden tiles
             const pingTile = document.getElementById('dev-tile-ping');
             if (pingTile) pingTile.style.display = 'flex';
             const drawTile = document.getElementById('dev-tile-draw');
@@ -718,7 +768,7 @@
         function openGuideModal() { document.getElementById('guideModal').classList.add('active'); }
         function closeGuideModal() { document.getElementById('guideModal').classList.remove('active'); }
 
-        // --- SMART PWA INSTALL LOGIC (From Blogger) ---
+        // --- SMART PWA INSTALL LOGIC ---
         let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
 
         window.startSmartInstall = async function() {
@@ -949,41 +999,6 @@
             const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335'; document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline'; if(online) processSyncQueue(); 
         }
         window.addEventListener('online', () => updateStatus(true)); window.addEventListener('offline', () => updateStatus(false));
-
-        function applyFilters() {
-            const term = document.getElementById('searchInput').value.toLowerCase().trim(); const loc = document.getElementById('locationFilter').value; const expDays = document.getElementById('expiryFilter').value; 
-
-            let filtered = inventoryData.filter(i => {
-                const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term); const matchLoc = (loc === "ALL" || i.location === loc);
-                let matchExp = true; let matchCalib = true;
-
-                if (calibFilterActive) { matchCalib = (i.location === "Calibration/Repair"); }
-                if (expDays !== "ALL") {
-                    if (expDays === "NOT_MENTIONED") { matchExp = (!i.expiry || i.expiry === '-'); } 
-                    else if (!i.expiry || i.expiry === '-') { matchExp = false; } 
-                    else {
-                        const parts = i.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]); const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
-                        if (expDays === "EXPIRED") { matchExp = (diff < 0); } else { matchExp = (diff >= 0 && diff <= parseInt(expDays)); }
-                    }
-                }
-                return matchSearch && matchLoc && matchExp && matchCalib;
-            }); renderTable(filtered);
-        }
-
-        function openAddModal() {
-            isEditMode = false; currentItem = null; document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument'; document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'var(--card-bg)'; document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = ''; resetSlider(); document.getElementById('updateModal').classList.add('active');
-        }
-
-        function openUpdateModal(name, loc, exp) {
-            isEditMode = true; currentItem = name; document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Details'; document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = 'var(--bg-color)'; document.getElementById('modalLocation').value = loc;
-            if (exp && exp !== '-' ) { const p = exp.split('.'); if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${p[1]}-${p[0]}`; } else { document.getElementById('modalExpiry').value = ''; }
-            document.getElementById('modalUpdatedBy').value = ''; resetSlider(); document.getElementById('updateModal').classList.add('active');
-        }
-
-        function resetSlider() { const slider = document.getElementById('unlockSlider'); slider.value = 0; document.getElementById('sliderContainer').style.display = 'block'; document.getElementById('expiryDateContainer').style.display = 'none'; document.getElementById('modalExpiry').disabled = true; }
-        function closeModal() { document.getElementById('modalLocation').style.display = 'block'; document.getElementById('customLocation').style.display = 'none'; document.getElementById('customLocation').value = ''; document.getElementById('locationHint').style.display = 'none'; document.getElementById('updateModal').classList.remove('active'); }
-        function updateLocationsDropdown() { const modalSelect = document.getElementById('modalLocation'); let modalOpts = locations.map(l => `<option value="${l}">${l}</option>`).join(''); modalOpts += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`; modalSelect.innerHTML = modalOpts; const filterSelect = document.getElementById('locationFilter'); let filterOpts = `<option value="ALL">All Locations</option>` + locations.map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts; }
-        function handleLocationChange(value) { const cInput = document.getElementById('customLocation'); const hint = document.getElementById('locationHint'); if(value === "NOT_LISTED") { document.getElementById('modalLocation').style.display = 'none'; cInput.style.display = 'block'; hint.style.display = 'block'; cInput.focus(); } else { cInput.style.display = 'none'; hint.style.display = 'none'; } }
 
         function showStats() { 
             const total = inventoryData.length; const locationsCount = locations.length;
