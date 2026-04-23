@@ -149,56 +149,11 @@
         @keyframes pulse-skeleton { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
         /* PREMIUM FIORI HEADER */
-        .fiori-header { 
-            background: linear-gradient(135deg, #1a2935 0%, #2a3f54 100%); 
-            color: #ffffff; 
-            height: 60px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 0 20px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000; 
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .fiori-logo-img { 
-            width: 36px; 
-            height: 36px; 
-            border-radius: 8px; 
-            background: #ffffff; 
-            padding: 3px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-        .fiori-header-title {
-            font-size: 17px; 
-            font-weight: 700; 
-            letter-spacing: 0.5px;
-            background: -webkit-linear-gradient(45deg, #ffffff, #b0bec5);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .btn-install-small { 
-            background: linear-gradient(to right, #00c6ff, #0072ff) !important; 
-            color: white !important; 
-            border: none !important; 
-            padding: 8px 16px !important; 
-            font-size: 11px !important; 
-            font-weight: 800 !important; 
-            border-radius: 25px !important; 
-            cursor: pointer !important; 
-            box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3) !important; 
-            transition: all 0.3s ease !important; 
-            letter-spacing: 0.5px !important; 
-            display: flex; 
-            align-items: center; 
-            text-transform: uppercase;
-        }
-        .btn-install-small:hover { 
-            transform: translateY(-2px) !important; 
-            box-shadow: 0 6px 15px rgba(0, 114, 255, 0.5) !important; 
-        }
+        .fiori-header { background: linear-gradient(135deg, #1a2935 0%, #2a3f54 100%); color: #ffffff; min-height: 75px; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); box-sizing: border-box; }
+        .fiori-logo-img { width: 36px; height: 36px; border-radius: 8px; background: #ffffff; padding: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .fiori-header-title { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; background: -webkit-linear-gradient(45deg, #ffffff, #b0bec5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-install-small { background: linear-gradient(to right, #00c6ff, #0072ff) !important; color: white !important; border: none !important; padding: 8px 16px !important; font-size: 11px !important; font-weight: 800 !important; border-radius: 25px !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3) !important; transition: all 0.3s ease !important; letter-spacing: 0.5px !important; display: flex; align-items: center; text-transform: uppercase; }
+        .btn-install-small:hover { transform: translateY(-2px) !important; box-shadow: 0 6px 15px rgba(0, 114, 255, 0.5) !important; }
         .beta-badge { font-size: 9px !important; background: #e53e3e !important; color: #fff !important; padding: 2px 5px !important; border-radius: 8px !important; margin-left: 6px !important; font-weight: 800 !important; }
 
         /* DARK MODE TOGGLE BTN */
@@ -279,18 +234,18 @@
                     <div class="tile-status status-ready"><i class="fas fa-bolt"></i> Fast Offline</div>
                 </div>
 
-                <div class="tile" onclick="checkDevAccess('PingLogger Ultimate', '#')">
+                <div id="dev-tile-ping" class="tile" style="display: none;" onclick="openApp('PingLogger Ultimate', '#')">
                     <div class="tile-title">PingLogger Ultimate</div>
                     <div class="tile-subtitle">Network Monitor</div>
                     <i class="fas fa-network-wired tile-icon"></i>
-                    <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
+                    <div class="tile-status" style="color:#0b8043;"><i class="fas fa-check-circle"></i> Ready</div>
                 </div>
 
-                <div class="tile" onclick="checkDevAccess('IFRAME', 'https://draw.automation3000.com/?key=Dubai@123')">
+                <div id="dev-tile-draw" class="tile" style="display: none;" onclick="openApp('IFRAME', 'https://draw.automation3000.com/?key=Dubai@123')">
                     <div class="tile-title">Drawing Hub</div>
                     <div class="tile-subtitle">Schematics & P&ID</div>
                     <i class="fas fa-pen-nib tile-icon"></i>
-                    <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
+                    <div class="tile-status" style="color:#0b8043;"><i class="fas fa-check-circle"></i> Ready</div>
                 </div>
 
                 <div class="tile" onclick="showToast('Under Development', 'info')">
@@ -641,7 +596,6 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // CONFIG & STORAGE variables will be managed by config.js and storage.js in future
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw0nKm-j24HwBwVd2u9ji3gqEtQ7j2dtQZmqEd0oA15mmB7nHMtGYOgUfhMrL7TjEc8cQ/exec";
         
         const EMPLOYEES = [
@@ -731,6 +685,13 @@
         function activateDeveloperMode() {
             isDevModeActive = true;
             document.getElementById('dev-tools-group').style.display = 'block';
+            
+            // Show hidden tiles
+            const pingTile = document.getElementById('dev-tile-ping');
+            if (pingTile) pingTile.style.display = 'flex';
+            const drawTile = document.getElementById('dev-tile-draw');
+            if (drawTile) drawTile.style.display = 'flex';
+
             showAckPopup("Developer Mode", "Extra Tools and Admin privileges have been unlocked.", "fas fa-user-shield", "var(--danger)");
             setTimeout(() => { document.getElementById('fiori-wrapper').scrollTo({ top: document.getElementById('fiori-wrapper').scrollHeight, behavior: 'smooth' }); }, 300);
         }
@@ -948,12 +909,37 @@
 
         function viewPendingSyncs() {
             let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
-            if (queue.length === 0) { showToast("No pending data to sync.", "success"); return; }
-            let html = "<div style='text-align:left; font-size:0.8rem; max-height:200px; overflow-y:auto; color: var(--dark);'>";
-            queue.forEach((q, i) => { html += `<div style="padding:8px; border-bottom:1px solid var(--border);"><b>${i+1}. ${q.name}</b><br><span style="color:var(--gray)">${q.action} - ${q.updatedBy}</span></div>`; });
+            if (queue.length === 0) { 
+                showAckPopup("All Synced", "<div style='text-align:center;'><i class='fas fa-check-circle' style='font-size:3rem; color:var(--secondary); margin-bottom:15px;'></i><br>No pending data to sync. Your app is up to date!</div>", "fas fa-cloud", "var(--secondary)");
+                return; 
+            }
+            let html = "<div style='text-align:left; font-size:0.85rem; max-height:250px; overflow-y:auto; padding-right:5px;'>";
+            queue.forEach((q, i) => { 
+                let actionColor = q.action === 'add' ? 'var(--secondary)' : 'var(--primary)';
+                let actionIcon = q.action === 'add' ? 'fa-plus-circle' : 'fa-edit';
+                html += `<div style="background:var(--bg-color); border:1px solid var(--border); border-radius:8px; padding:10px; margin-bottom:10px; display:flex; align-items:center; gap:10px;">
+                    <i class="fas ${actionIcon}" style="color:${actionColor}; font-size:1.2rem;"></i>
+                    <div style="flex:1;">
+                        <div style="font-weight:700; color:var(--dark); margin-bottom:2px;">${sanitizeInput(q.name)}</div>
+                        <div style="font-size:0.75rem; color:var(--gray);"><i class="fas fa-user" style="font-size:0.6rem;"></i> ${sanitizeInput(q.updatedBy)} &nbsp; | &nbsp; <i class="fas fa-map-marker-alt" style="font-size:0.6rem;"></i> ${sanitizeInput(q.location)}</div>
+                    </div>
+                </div>`; 
+            });
             html += "</div>";
-            html += `<div style="margin-top:15px;"><button class="btn-primary" onclick="processSyncQueue(true); document.getElementById('ackModalOverlay').classList.remove('active');" style="width:100%; padding:10px; border-radius:12px;">SYNC NOW</button></div>`;
-            showAckPopup("Pending Syncs (" + queue.length + ")", html, "fas fa-sync", "var(--warning)");
+            html += `<div style="margin-top:15px; display:flex; gap:10px;">
+                <button class="btn-primary" onclick="processSyncQueue(true); document.getElementById('ackModalOverlay').classList.remove('active');" style="flex:2; padding:12px; border-radius:12px; box-shadow: 0 4px 10px rgba(26,115,232,0.3);"><i class="fas fa-cloud-upload-alt"></i> SYNC NOW</button>
+                <button class="btn-secondary" onclick="clearSyncQueue()" style="flex:1; padding:12px; border-radius:12px; color:var(--danger); border-color:var(--danger);"><i class="fas fa-trash-alt"></i> CLEAR</button>
+            </div>`;
+            showAckPopup("Pending Changes (" + queue.length + ")", html, "fas fa-sync fa-spin", "var(--warning)");
+        }
+
+        function clearSyncQueue() {
+            if(confirm("Are you sure you want to permanently delete all pending offline changes?")) {
+                localStorage.removeItem('tabreed_sync_queue');
+                updatePendingTile();
+                document.getElementById('ackModalOverlay').classList.remove('active');
+                showToast("Pending queue cleared.", "info");
+            }
         }
 
         function updatePendingTile() { let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); document.getElementById('pending-sync-tile').innerText = queue.length + " Pending"; const badge = document.getElementById('queue-badge'); if(queue.length > 0) { badge.innerText = queue.length + " pending"; badge.style.display = 'inline-block'; } else badge.style.display = 'none'; }
@@ -1017,7 +1003,6 @@
         function openFeedbackModal() { document.getElementById('feedbackEmpId').value = ''; document.getElementById('feedbackName').value = ''; document.getElementById('feedbackText').value = ''; document.getElementById('feedbackModal').classList.add('active'); }
         function closeFeedbackModal() { 
             document.getElementById('feedbackModal').classList.remove('active');
-            // Ensure mobile keyboard is dismissed
             document.activeElement.blur();
         }
 
@@ -1046,26 +1031,19 @@
         function generatePDF() {
             const el = document.querySelector('.inventory-section'); const now = new Date(); const fileName = `List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}.pdf`;
             
-            // Handle Dark Mode PDF Issue smoothly
             const isDark = document.body.classList.contains('dark-mode');
             if (isDark) {
-                // Temporarily disable dark mode class only on the element being captured, without screen flash
                 el.style.backgroundColor = '#ffffff';
-                const cells = el.querySelectorAll('td, th');
-                cells.forEach(cell => cell.style.color = '#333333');
-                const headers = el.querySelectorAll('th');
-                headers.forEach(header => header.style.backgroundColor = '#f8f9fa');
+                const cells = el.querySelectorAll('td, th'); cells.forEach(cell => cell.style.color = '#333333');
+                const headers = el.querySelectorAll('th'); headers.forEach(header => header.style.backgroundColor = '#f8f9fa');
             }
 
             html2pdf().set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save().then(() => {
                 showToast('PDF Downloaded!', 'success');
                 if (isDark) {
-                    // Revert inline styles
                     el.style.backgroundColor = '';
-                    const cells = el.querySelectorAll('td, th');
-                    cells.forEach(cell => cell.style.color = '');
-                    const headers = el.querySelectorAll('th');
-                    headers.forEach(header => header.style.backgroundColor = '');
+                    const cells = el.querySelectorAll('td, th'); cells.forEach(cell => cell.style.color = '');
+                    const headers = el.querySelectorAll('th'); headers.forEach(header => header.style.backgroundColor = '');
                 }
             });
         }
@@ -1082,13 +1060,13 @@
             if (navigator.onLine) { 
                 fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => { if (res.success) { fullHistoryData = res.data || []; renderHistoryTable(res.data); } }); 
             } else {
-                showToast("You are offline. Cannot load live history.", "warning"); tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">Offline</td></tr>';
+                showToast("You are offline. Cannot load live history.", "warning"); tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--dark);">Offline</td></tr>';
             }
         }
         function filterHistory() { const term = document.getElementById('historySearch').value.toLowerCase().trim(); renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term))); }
         function renderHistoryTable(data) {
             const tbody = document.getElementById('historyTableBody');
-            if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No history found</td></tr>'; return; }
+            if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--dark);">No history found</td></tr>'; return; }
             tbody.innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${sanitizeInput(log.time || '')}</td><td style="font-weight:600;">${sanitizeInput(log.item || '')}</td><td><span class="location-tag" style="background:var(--bg-color); color:var(--gray); border:1px solid var(--border);">${sanitizeInput(log.oldLoc || '')}</span></td><td><span class="location-tag" style="background:var(--primary-light); color:var(--primary);">${sanitizeInput(log.newLoc || '')}</span></td><td style="font-size:0.8rem;">${sanitizeInput(log.user || '')}</td></tr>`).join('');
         }
     </script>
