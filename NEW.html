@@ -283,7 +283,7 @@
                     <i class="fas fa-comment-dots tile-icon" style="color: #ff9800;"></i>
                 </div>
                 
-                <div class="tile dev-item" onclick="openGuideModal()">
+                <div id="dev-tile-guide" class="tile dev-item" style="display: none;" onclick="openGuideModal()">
                     <div class="tile-title" style="color: #1565c0;">User Guide</div>
                     <div class="tile-subtitle">How to use Tabreed App</div>
                     <i class="fas fa-book tile-icon" style="color: #2196f3;"></i>
@@ -741,6 +741,8 @@
             if (pingTile) pingTile.style.display = 'flex';
             const drawTile = document.getElementById('dev-tile-draw');
             if (drawTile) drawTile.style.display = 'flex';
+            const guideTile = document.getElementById('dev-tile-guide');
+            if (guideTile) guideTile.style.display = 'flex';
 
             showAckPopup("Developer Mode", "Extra Tools and Admin privileges have been unlocked.", "fas fa-user-shield", "var(--danger)");
             setTimeout(() => { document.getElementById('fiori-wrapper').scrollTo({ top: document.getElementById('fiori-wrapper').scrollHeight, behavior: 'smooth' }); }, 300);
