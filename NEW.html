@@ -26,8 +26,8 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
     
-    <script src="config.js"></script>
-    <script src="storage.js"></script>
+    <script src="config.js" async></script>
+    <script src="storage.js" async></script>
     
     <style>
         :root {
@@ -149,11 +149,56 @@
         @keyframes pulse-skeleton { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 
         /* PREMIUM FIORI HEADER */
-        .fiori-header { background: linear-gradient(135deg, #1a2935 0%, #2a3f54 100%); color: #ffffff; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .fiori-logo-img { width: 36px; height: 36px; border-radius: 8px; background: #ffffff; padding: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-        .fiori-header-title { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; background: -webkit-linear-gradient(45deg, #ffffff, #b0bec5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .btn-install-small { background: linear-gradient(to right, #00c6ff, #0072ff) !important; color: white !important; border: none !important; padding: 8px 16px !important; font-size: 11px !important; font-weight: 800 !important; border-radius: 25px !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3) !important; transition: all 0.3s ease !important; letter-spacing: 0.5px !important; display: flex; align-items: center; text-transform: uppercase; }
-        .btn-install-small:hover { transform: translateY(-2px) !important; box-shadow: 0 6px 15px rgba(0, 114, 255, 0.5) !important; }
+        .fiori-header { 
+            background: linear-gradient(135deg, #1a2935 0%, #2a3f54 100%); 
+            color: #ffffff; 
+            height: 60px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 0 20px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .fiori-logo-img { 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 8px; 
+            background: #ffffff; 
+            padding: 3px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .fiori-header-title {
+            font-size: 17px; 
+            font-weight: 700; 
+            letter-spacing: 0.5px;
+            background: -webkit-linear-gradient(45deg, #ffffff, #b0bec5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn-install-small { 
+            background: linear-gradient(to right, #00c6ff, #0072ff) !important; 
+            color: white !important; 
+            border: none !important; 
+            padding: 8px 16px !important; 
+            font-size: 11px !important; 
+            font-weight: 800 !important; 
+            border-radius: 25px !important; 
+            cursor: pointer !important; 
+            box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3) !important; 
+            transition: all 0.3s ease !important; 
+            letter-spacing: 0.5px !important; 
+            display: flex; 
+            align-items: center; 
+            text-transform: uppercase;
+        }
+        .btn-install-small:hover { 
+            transform: translateY(-2px) !important; 
+            box-shadow: 0 6px 15px rgba(0, 114, 255, 0.5) !important; 
+        }
         .beta-badge { font-size: 9px !important; background: #e53e3e !important; color: #fff !important; padding: 2px 5px !important; border-radius: 8px !important; margin-left: 6px !important; font-weight: 800 !important; }
 
         /* DARK MODE TOGGLE BTN */
@@ -970,7 +1015,11 @@
         }
 
         function openFeedbackModal() { document.getElementById('feedbackEmpId').value = ''; document.getElementById('feedbackName').value = ''; document.getElementById('feedbackText').value = ''; document.getElementById('feedbackModal').classList.add('active'); }
-        function closeFeedbackModal() { document.getElementById('feedbackModal').classList.remove('active'); }
+        function closeFeedbackModal() { 
+            document.getElementById('feedbackModal').classList.remove('active');
+            // Ensure mobile keyboard is dismissed
+            document.activeElement.blur();
+        }
 
         function autoFillName() { const empId = document.getElementById('feedbackEmpId').value.trim(); const nameInput = document.getElementById('feedbackName'); const match = EMPLOYEES.find(emp => emp.code === empId); if (match) { nameInput.value = match.short; } }
         function autoFillEmpId() { const nameVal = document.getElementById('feedbackName').value.trim().toLowerCase(); const idInput = document.getElementById('feedbackEmpId'); if (nameVal.length >= 3) { const match = EMPLOYEES.find(emp => emp.full.toLowerCase().includes(nameVal) || emp.short.toLowerCase().includes(nameVal)); if (match) { idInput.value = match.code; } } }
@@ -993,16 +1042,31 @@
             showToast('Preparing PDF Engine...', 'info');
             if (typeof html2pdf === 'undefined') { const script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'; script.onload = () => generatePDF(); document.body.appendChild(script); } else generatePDF();
         }
+        
         function generatePDF() {
             const el = document.querySelector('.inventory-section'); const now = new Date(); const fileName = `List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}.pdf`;
             
-            // Temporary fix for Dark Mode PDF Export (forces light mode for print)
+            // Handle Dark Mode PDF Issue smoothly
             const isDark = document.body.classList.contains('dark-mode');
-            if (isDark) document.body.classList.remove('dark-mode');
+            if (isDark) {
+                // Temporarily disable dark mode class only on the element being captured, without screen flash
+                el.style.backgroundColor = '#ffffff';
+                const cells = el.querySelectorAll('td, th');
+                cells.forEach(cell => cell.style.color = '#333333');
+                const headers = el.querySelectorAll('th');
+                headers.forEach(header => header.style.backgroundColor = '#f8f9fa');
+            }
 
             html2pdf().set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save().then(() => {
                 showToast('PDF Downloaded!', 'success');
-                if (isDark) document.body.classList.add('dark-mode'); // Restore dark mode
+                if (isDark) {
+                    // Revert inline styles
+                    el.style.backgroundColor = '';
+                    const cells = el.querySelectorAll('td, th');
+                    cells.forEach(cell => cell.style.color = '');
+                    const headers = el.querySelectorAll('th');
+                    headers.forEach(header => header.style.backgroundColor = '');
+                }
             });
         }
 
