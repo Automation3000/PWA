@@ -49,9 +49,10 @@
         .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
         .action-btn { background: white; border: none; flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); visibility: visible; position: relative; border: 2px solid transparent;}
         
-        /* ACTIVE FILTER CLASS */
-        .filter-active { background-color: var(--primary-light) !important; border: 2px solid var(--primary) !important; color: var(--primary-dark) !important; }
-        .filter-active i { color: var(--primary-dark) !important; }
+        /* ACTIVE FILTER CLASS - ENHANCED DARK LOOK */
+        .filter-active { background-color: var(--dark) !important; border: 2px solid #000 !important; color: white !important; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .filter-active i { color: #00c6ff !important; }
+        .filter-active span { color: white !important; }
 
         .select-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
         .action-content { pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
@@ -81,7 +82,7 @@
         .modal-overlay.feedback-overlay { z-index: 9999; }
         .modal-overlay.ack-overlay { z-index: 10000; }
         
-        .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+        .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3); transition: max-width 0.3s ease; }
         .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
         .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; overflow-x: hidden; max-height: 80vh; }
         
@@ -128,6 +129,10 @@
         .fiori-header-title { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; background: -webkit-linear-gradient(45deg, #ffffff, #b0bec5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .btn-install-small { background: linear-gradient(to right, #00c6ff, #0072ff) !important; color: white !important; border: none !important; padding: 8px 16px !important; font-size: 11px !important; font-weight: 800 !important; border-radius: 25px !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3) !important; text-transform: uppercase; }
         .beta-badge { font-size: 9px !important; background: #e53e3e !important; color: #fff !important; padding: 2px 5px !important; border-radius: 8px !important; margin-left: 6px !important; font-weight: 800 !important; }
+
+        @media all and (display-mode: standalone) {
+            .btn-install-small { display: none !important; }
+        }
 
         #pwa-instructions-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2147483650; justify-content: center; align-items: center; }
         .pwa-modal-content { background: #fff; padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
@@ -231,7 +236,7 @@
                         <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
                     </div>
                     <div class="tile" onclick="devShowLog()">
-                        <div class="tile-title">Sync Logs</div>
+                        <div class="tile-title">System Logs</div>
                         <div class="tile-subtitle">View API Requests</div>
                         <i class="fas fa-terminal tile-icon" style="color: #333;"></i>
                     </div>
@@ -322,7 +327,8 @@
                         <option value="NOT_MENTIONED">Expiry not Mention</option>
                     </select>
                 </div>
-
+                
+                <button id="btn-cal" class="action-btn" onclick="filterCalibration()"><i class="fas fa-wrench" style="color: #ff5722; margin-bottom: 5px;"></i><span>Goes for Cal.</span></button>
                 <button class="action-btn" onclick="openAddModal()"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
                 <button class="action-btn" onclick="showStats()"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
                 <button class="action-btn" onclick="showHistoryPage()"><i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i><span>View History</span></button>
@@ -353,7 +359,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3 id="modalTitle"><i class="fas fa-edit"></i> Update Details</h3>
-                <button onclick="closeModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+                <button onclick="closeModal(true)" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -377,12 +383,15 @@
                     </div>
                 </div>
 
-                <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-                    <input type="checkbox" id="remarkCheckbox" onchange="document.getElementById('remarkGroup').style.display = this.checked ? 'block' : 'none'" style="width: 20px; height: 20px; cursor: pointer;">
-                    <label for="remarkCheckbox" style="margin:0; font-size: 0.95rem; cursor: pointer;">Add Remark</label>
-                </div>
-                <div class="form-group" id="remarkGroup" style="display:none;">
-                    <textarea id="modalRemark" placeholder="Write a remark..." style="width:100%; min-height:80px; padding:10px; border: 2px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; background: white; color: var(--dark);"></textarea>
+                <!-- HIDDEN REMARK SECTION AS PER REQUEST -->
+                <div style="display:none;">
+                    <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+                        <input type="checkbox" id="remarkCheckbox" onchange="document.getElementById('remarkGroup').style.display = this.checked ? 'block' : 'none'" style="width: 20px; height: 20px; cursor: pointer;">
+                        <label for="remarkCheckbox" style="margin:0; font-size: 0.95rem; cursor: pointer;">Add Remark</label>
+                    </div>
+                    <div class="form-group" id="remarkGroup" style="display:none;">
+                        <textarea id="modalRemark" placeholder="Write a remark..." style="width:100%; min-height:80px; padding:10px; border: 2px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; background: white; color: var(--dark);"></textarea>
+                    </div>
                 </div>
 
                 <div class="update-flex-row">
@@ -394,7 +403,7 @@
                 
                 <div class="modal-actions">
                     <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
-                    <button class="btn-secondary" onclick="closeModal()">CANCEL</button>
+                    <button class="btn-secondary" onclick="closeModal(true)">CANCEL</button>
                 </div>
             </div>
         </div>
@@ -430,11 +439,11 @@
     </div>
 
     <div class="modal-overlay ack-overlay" id="ackModalOverlay">
-        <div class="modal ack-modal" style="max-width: 320px; text-align: center; border-radius: 20px; padding: 10px;">
+        <div class="modal ack-modal" id="ackModalCard" style="max-width: 320px; width: 95%; text-align: center; border-radius: 20px; padding: 10px; transition: max-width 0.3s ease;">
             <div class="modal-body" style="padding: 20px 15px;">
                 <div id="ackIcon" style="font-size: 3.5rem; margin-bottom: 15px;"></div>
                 <h2 id="ackTitle" style="margin-top: 0; color: #1a202c; font-weight: 800; font-size: 1.3rem;"></h2>
-                <p id="ackMessage" style="color: #4a5568; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px; word-wrap:break-word;"></p>
+                <p id="ackMessage" style="color: #4a5568; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px; word-wrap:break-word; text-align: left;"></p>
                 <button class="btn-primary" onclick="document.getElementById('ackModalOverlay').classList.remove('active')" style="width: 100%; border-radius: 12px; padding: 12px;">OK, GOT IT</button>
             </div>
         </div>
@@ -528,6 +537,13 @@
         // --- PAGE INITIALIZATION & PERSISTENCE ---
         document.addEventListener('DOMContentLoaded', () => {
             setupSearch(); updatePendingTile(); processSyncQueue();
+            
+            // Check if app is installed (standalone) and hide install button
+            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+                let installBtn = document.querySelector('.btn-install-small');
+                if(installBtn) installBtn.style.display = 'none';
+            }
+
             if (currentView === 'NATIVE_INSTRUMENT') openApp('NATIVE_INSTRUMENT', '', false); 
             else document.getElementById('fiori-wrapper').style.display = 'block';
         });
@@ -563,12 +579,16 @@
                 let color = l.type === 'ERROR' ? 'var(--danger)' : 'var(--primary)';
                 html += `<div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;"><strong style="color:${color}">${l.type}</strong> <span style="color:var(--gray)">[${l.time}]</span><br><b>${l.msg}</b><br><code style="color:#d81b60;">${l.details}</code></div>`;
             });
-            html += "</div><button class='btn-secondary' onclick=\"localStorage.removeItem('"+DEBUG_LOGS+"'); document.getElementById('ackModalOverlay').classList.remove('active'); showToast('Logs cleared!', 'success');\" style='width:100%; margin-top:10px; padding:10px;'>CLEAR LOGS</button>";
+            html += "</div>";
+            html += `<div style="display:flex; gap:10px; margin-top:10px;">
+                        <button class='btn-secondary' onclick="navigator.clipboard.writeText(JSON.stringify(JSON.parse(localStorage.getItem('${DEBUG_LOGS}')||'[]'),null,2)); showToast('Logs Copied!', 'success');" style='flex:1; padding:10px;'>COPY LOGS</button>
+                        <button class='btn-secondary' onclick=\"localStorage.removeItem('${DEBUG_LOGS}'); document.getElementById('ackModalOverlay').classList.remove('active'); showToast('Logs cleared!', 'success');\" style='flex:1; padding:10px; color:var(--danger);'>CLEAR LOGS</button>
+                     </div>`;
+            
+            // Temporarily widen modal for logs
+            document.getElementById('ackModalCard').style.maxWidth = '600px';
             showAckPopup("System Logs", html, "fas fa-terminal", "#333"); 
         }
-        function devInjectData() { inventoryData.push({ name: "TEST-" + Math.floor(Math.random()*1000), location: "Dev Area", expiry: "01.01.2030", updatedBy: "Dev Tool", remark: "" }); applyFilters(); showToast("Test Data Injected", "success"); }
-        function devUIDebugger() { document.querySelectorAll('div, table, section').forEach(el => el.style.outline = '1px solid red'); showToast("UI Debugger On", "warning"); }
-        function devNetworkSim() { showToast("Simulated Network Latency applied", "info"); }
 
         // --- SMART PWA INSTALL ---
         let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
@@ -578,13 +598,21 @@
             const userAgent = navigator.userAgent || navigator.vendor || window.opera; let os = "Desktop";
             if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) os = "iOS"; else if (/android/i.test(userAgent)) os = "Android";
 
-            if (os === "Android") {
-                if (deferredPrompt) { deferredPrompt.prompt(); const { outcome } = await deferredPrompt.userChoice; if(outcome === 'accepted') deferredPrompt = null; } 
-                else { window.location.href = androidApkLink; setTimeout(() => { modalTitle.innerText = "APK Downloading..."; modalText.innerHTML = "Tap <b>'Install'</b> when done."; modal.style.display = 'flex'; }, 1000); }
+            if (os === "Android" || os === "Desktop") {
+                if (deferredPrompt) { 
+                    deferredPrompt.prompt(); 
+                    const { outcome } = await deferredPrompt.userChoice; 
+                    if(outcome === 'accepted') {
+                        deferredPrompt = null; 
+                        document.querySelector('.btn-install-small').style.display = 'none';
+                    } 
+                } 
+                else if (os === "Android") { window.location.href = androidApkLink; setTimeout(() => { modalTitle.innerText = "APK Downloading..."; modalText.innerHTML = "Tap <b>'Install'</b> when done."; modal.style.display = 'flex'; }, 1000); }
+                else {
+                    modalTitle.innerText = "Desktop Environment"; modalText.innerHTML = "Install from the address bar icon, or visit on mobile."; modal.style.display = 'flex';
+                }
             } else if (os === "iOS") {
                 window.location.href = iosProfileLink; setTimeout(() => { modalTitle.innerText = "Profile Downloaded!"; modalText.innerHTML = "Install via <b>Settings</b>."; modal.style.display = 'flex'; }, 1500);
-            } else {
-                modalTitle.innerText = "Desktop Environment"; modalText.innerHTML = "Optimized for mobile. Visit this URL on phone to install."; modal.style.display = 'flex';
             }
         };
 
@@ -613,6 +641,8 @@
         }
 
         function showAckPopup(title, message, iconClass, iconColor) {
+            // Reset to normal width in case it was opened by log viewer
+            if(title !== "System Logs") document.getElementById('ackModalCard').style.maxWidth = '320px';
             document.getElementById('ackIcon').innerHTML = `<i class="${iconClass}" style="color: ${iconColor};"></i>`;
             document.getElementById('ackTitle').innerText = title; document.getElementById('ackMessage').innerHTML = message;
             document.getElementById('ackModalOverlay').classList.add('active');
@@ -625,6 +655,12 @@
         }
 
         // --- FILTERING & DATA LOADING ---
+        function filterCalibration() {
+            document.getElementById('searchInput').value = 'Calibration';
+            applyFilters();
+            triggerPopAnim('btn-cal');
+        }
+
         function refreshAndReset() {
             triggerPopAnim('btn-refresh');
             document.getElementById('locationFilter').value = 'ALL'; document.getElementById('expiryFilter').value = 'ALL'; document.getElementById('searchInput').value = '';
@@ -678,6 +714,13 @@
             // HIGHLIGHT ACTIVE FILTERS
             document.getElementById('btn-location-wrapper').classList.toggle('filter-active', loc !== 'ALL');
             document.getElementById('btn-expiry-wrapper').classList.toggle('filter-active', expDays !== 'ALL');
+            
+            // Calibration Highlight
+            if(term.includes("calibration")) {
+                document.getElementById('btn-cal').classList.add('filter-active');
+            } else {
+                document.getElementById('btn-cal').classList.remove('filter-active');
+            }
 
             let filtered = inventoryData.filter(i => {
                 const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term); 
@@ -697,7 +740,6 @@
             renderTable(filtered);
         }
 
-        // --- TABLE RENDER (NO STATUS) ---
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
             if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray);">No instruments found</td></tr>'; return; }
@@ -775,8 +817,11 @@
         function snapUnlock(slider) { if(slider.value < 100) { slider.value = 0; } }
         function resetSlider() { const slider = document.getElementById('unlockSlider'); slider.value = 0; document.getElementById('sliderContainer').style.display = 'block'; document.getElementById('expiryDateContainer').style.display = 'none'; document.getElementById('modalExpiry').disabled = true; }
         
-        function closeModal() { 
+        function closeModal(showCancelMsg = false) { 
             document.getElementById('updateModal').classList.remove('active');
+            if (showCancelMsg === true) {
+                showAckPopup("Canceled", "No changes were updated.", "fas fa-times-circle", "var(--danger)");
+            }
             setTimeout(() => {
                 document.getElementById('modalLocation').style.display = 'block'; 
                 document.getElementById('customLocation').style.display = 'none'; 
@@ -813,7 +858,7 @@
             submitActionToQueue(actionParams);
             
             btn.disabled = false; btn.textContent = 'SAVE CHANGES';
-            closeModal();
+            closeModal(false); // don't show cancel msg
         }
 
         // --- OFFLINE SYNC ---
@@ -821,7 +866,10 @@
             if (navigator.onLine) {
                 let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
                 fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => { 
-                    if (res.success) { showToast('Saved successfully!', 'success'); loadInventory(); } 
+                    if (res.success) { 
+                        showAckPopup("Success!", "Entry successfully updated and saved online.", "fas fa-check-circle", "var(--secondary)"); 
+                        loadInventory(); 
+                    } 
                     else { addLog('ERROR','Save API Reject', res); showToast(res.error || 'Save failed', 'error'); }
                 }).catch(e => { pushToQueue(actionParams); });
             } else { pushToQueue(actionParams); }
@@ -829,7 +877,9 @@
 
         function pushToQueue(actionParams) {
             let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); queue.push(actionParams);
-            localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue)); showToast('Saved Offline! Will sync automatically.', 'warning'); updatePendingTile();
+            localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue)); 
+            showAckPopup("Saved Offline", "Entry updated offline! Will sync automatically when network is available.", "fas fa-wifi", "var(--warning)");
+            updatePendingTile();
         }
 
         async function processSyncQueue(manual = false) {
@@ -936,6 +986,44 @@
                 <td style="font-size:0.85rem; font-weight:600;">${sanitizeInput(log.user || '')}</td>
             </tr>`).join('');
         }
+
+        // --- KEYBOARD SHORTCUTS ---
+        let ctrlMCount = 0;
+        let ctrlMTimer;
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (key === 'p') { e.preventDefault(); exportData(); }
+                if (key === 'e') { e.preventDefault(); refreshAndReset(); }
+                if (key === 's') { e.preventDefault(); processSyncQueue(true); }
+                if (key === 'f') { e.preventDefault(); document.getElementById('searchInput').focus(); }
+                if (e.key === 'Backspace') { e.preventDefault(); closeApp(); closeHistoryPage(); }
+                if (key === 'h') { e.preventDefault(); showHistoryPage(); }
+                if (key === 'q') { e.preventDefault(); openFeedbackModal(); }
+                if (key === '+' || key === '=') { e.preventDefault(); openAddModal(); }
+                
+                // Control + M M M for Developer prompt
+                if (key === 'm') {
+                    e.preventDefault();
+                    ctrlMCount++;
+                    clearTimeout(ctrlMTimer);
+                    if (ctrlMCount >= 3) {
+                        let pass = prompt("Enter Developer Password:");
+                        if (pass === "Dubai@123") activateDeveloperMode();
+                        else if (pass !== null) showToast("Access Denied", "error");
+                        ctrlMCount = 0;
+                    } else {
+                        ctrlMTimer = setTimeout(() => { ctrlMCount = 0; }, 1000);
+                    }
+                }
+            }
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                // Close any active modal
+                document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
+            }
+        });
+
     </script>
 </body>
 </html>
