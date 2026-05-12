@@ -25,9 +25,7 @@
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
-    
-    <script src="config.js" async></script>
-    <script src="storage.js" async></script>
+    <meta name="color-scheme" content="light dark">
     
     <style>
         :root {
@@ -35,31 +33,23 @@
             --secondary: #34a853; --warning: #f9ab00; --danger: #ea4335;
             --dark: #202124; --light: #f8f9fa; --gray: #5f6368; --border: #dadce0;
             --shadow: 0 2px 10px rgba(0,0,0,0.1); --radius: 12px; --transition: all 0.3s ease;
-            --bg-color: #e4edf5; --card-bg: #ffffff;
-        }
-        
-        /* DARK MODE CSS VARIABLES */
-        body.dark-mode {
-            --dark: #ffffff; --light: #1a1a1a; --gray: #b0b0b0; --border: #444444;
-            --bg-color: #121212; --card-bg: #1e1e1e; --primary-light: #1e3a5f;
         }
         
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; background-color: var(--bg-color); color: var(--dark); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; transition: background-color 0.3s, color 0.3s; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; background-color: #e4edf5; color: var(--dark); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
 
         #premium-wrapper { display: none; width: 100%; height: 100vh; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%); }
         
         .app-container { max-width: 1200px; margin: 0 auto; margin-bottom: 50px; display: flex; flex-direction: column; min-height: 100vh; }
         
-        /* HEADER - STICKY REMOVED */
-        .app-header { background: var(--card-bg); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: relative; z-index: 1000; border-bottom: 1px solid var(--border); transition: 0.3s; }
+        .app-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
         
         .header-content { display: flex; align-items: center; justify-content: space-between; }
         .brand { display: flex; align-items: center; gap: 0.75rem; }
-        .logo { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid var(--border); }
+        .logo { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid #e0e0e0; }
 
-        .connection-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; transition: 0.3s; color: var(--dark); }
+        .connection-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; transition: 0.3s; font-weight: 600; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f9ab00; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         
@@ -70,36 +60,43 @@
         }
         .pop-anim { animation: popBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
-        .search-container { padding: 1rem; margin: 1rem; background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); transition: 0.3s; }
+        .search-container { padding: 1rem; margin: 1rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
         .search-box { position: relative; }
-        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 16px; background: var(--card-bg); color: var(--dark); transition: 0.3s; }
-        .search-box input::placeholder { color: var(--gray); opacity: 1; }
+        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 16px; background: white; color: var(--dark); outline:none;}
+        .search-box input::placeholder { color: #999; opacity: 1; }
         .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
         
         .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
-        .action-btn { background: var(--card-bg); border: 1px solid var(--border); flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); position: relative; }
+        .action-btn { background: white; border: none; flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); visibility: visible; position: relative; }
 
         .select-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
         .action-content { pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
 
-        .inventory-section { background: var(--card-bg); margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--border); transition: 0.3s; }
+        .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
         .table-container { overflow-x: auto; }
         
-        .inventory-table { width: 100%; border-collapse: collapse; min-width: 600px; table-layout: fixed; }
-        .inventory-table th:nth-child(1) { width: 32%; padding-left: 1.5rem; }
-        .inventory-table th:nth-child(2) { width: 22%; }
-        .inventory-table th:nth-child(3) { width: 16%; }
-        .inventory-table th:nth-child(4) { width: 15%; text-align: center; }
-        .inventory-table th:nth-child(5) { width: 15%; }
+        .inventory-table { width: 100%; border-collapse: collapse; min-width: 750px; table-layout: fixed; }
+        .inventory-table th:nth-child(1) { width: 25%; padding-left: 1.5rem; }
+        .inventory-table th:nth-child(2) { width: 16%; }
+        .inventory-table th:nth-child(3) { width: 12%; }
+        .inventory-table th:nth-child(4) { width: 18%; }
+        .inventory-table th:nth-child(5) { width: 15%; text-align: center; }
+        .inventory-table th:nth-child(6) { width: 14%; }
         
-        .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); color: var(--dark); transition: 0.3s; }
-        .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; word-wrap: break-word; overflow-wrap: break-word; color: var(--dark); transition: 0.3s; }
+        .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
+        .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; word-wrap: break-word; overflow-wrap: break-word; }
         .inventory-table td:first-child { padding-left: 1.5rem; }
         .expiry-td { white-space: nowrap !important; }
 
         .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
-        .expiry-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; background: var(--light); color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); width: 100%; white-space: nowrap; transition: 0.3s; }
-        .expiry-badge.expired { color: var(--danger) !important; border-color: var(--danger) !important; background: rgba(234, 67, 53, 0.1) !important; }
+        
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .status-Normal { background: #e8f5e9; color: #2e7d32; border: 1px solid #81c784; }
+        .status-Repair { background: #fff3e0; color: #e65100; border: 1px solid #ffb74d; }
+        .status-Expired { background: #ffebee; color: #c62828; border: 1px solid #ef5350; }
+
+        .expiry-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; background: #f8f9fa; color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); width: 100%; white-space: nowrap; transition: 0.3s; }
+        .expiry-badge.expired { color: var(--danger) !important; border-color: var(--danger) !important; background: #ffebee !important; }
 
         input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
@@ -109,19 +106,20 @@
         .modal-overlay.feedback-overlay { z-index: 2100; }
         .modal-overlay.ack-overlay { z-index: 4000; }
         
-        .modal { background: var(--card-bg); width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3); border: 1px solid var(--border); transition: 0.3s; }
+        .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
         .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; overflow-x: hidden; color: var(--dark); }
+        .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; overflow-x: hidden; max-height: 80vh; }
         
         .form-group { margin-bottom: 1.2rem; width: 100%; }
         .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--dark); }
-        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; background: var(--card-bg); color: var(--dark); box-sizing: border-box; transition: 0.3s; }
-        .form-group input::placeholder, .form-group textarea::placeholder { color: var(--gray); opacity: 1; }
-        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: var(--card-bg); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; background: white; color: var(--dark); box-sizing: border-box; }
+        .form-group input::placeholder, .form-group textarea::placeholder { color: #999; opacity: 1; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); background: white; }
 
         .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
         .btn-primary { flex: 1; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
-        .btn-secondary { flex: 1; padding: 1rem; background: var(--light); color: var(--dark); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; }
+        .btn-secondary { flex: 1; padding: 1rem; background: white; color: var(--dark); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; }
+        .btn-secondary:hover { background: var(--light); }
 
         .slide-unlock { -webkit-appearance: none; width: 100%; height: 36px; background: transparent; outline: none; z-index: 2; position: absolute; top: 0; left: 0; margin: 0; }
         .slide-unlock::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 34px; height: 34px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: center; }
@@ -132,104 +130,123 @@
             .quick-actions { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; padding: 0 10px !important; }
             .action-btn { min-width: unset !important; max-width: unset !important; width: 100% !important; min-height: 75px !important; margin: 0 !important; padding: 5px !important; }
             .modal-overlay { padding: 0; }
-            .modal { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100vh !important; border-radius: 0 !important; margin: 0 !important; border: none !important; }
+            .modal { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100vh !important; border-radius: 0 !important; margin: 0 !important; }
             .modal-actions { flex-direction: column; padding-bottom: 30px; }
+            
             .inventory-table td { padding: 1.2rem 0.5rem !important; line-height: 1.4; font-size: 0.85rem !important; }
             .inventory-table th { padding: 1rem 0.5rem !important; font-size: 0.8rem !important; }
             .inventory-table td:first-child, .inventory-table th:first-child { padding-left: 15px !important; }
+            
             .update-flex-row { flex-direction: column; align-items: stretch; gap: 10px; }
             .ack-modal { height: auto !important; max-height: 80% !important; border-radius: 16px !important; margin: 20px !important; }
         }
 
         .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
-        .toast { background: var(--card-bg); backdrop-filter: blur(5px); padding: 12px 20px; border-radius: 50px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 10px; animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: 600; border: 1px solid var(--border); color: var(--dark); font-size: 0.85rem; }
+        .toast { background: rgba(255,255,255,0.95); backdrop-filter: blur(5px); padding: 12px 20px; border-radius: 50px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: 600; border: 1px solid var(--border); color: var(--dark); font-size: 0.85rem; }
         @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
         .skeleton-row td { padding: 1rem; border-bottom: 1px solid var(--border); }
-        .skeleton-cell { height: 20px; border-radius: 4px; background: var(--border); animation: pulse-skeleton 1.5s infinite ease-in-out; }
-        @keyframes pulse-skeleton { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .skeleton-cell { height: 20px; border-radius: 4px; background: #e0e0e0; animation: pulse-skeleton 1.5s infinite ease-in-out; }
+        @keyframes pulse-skeleton { 0% { background-color: #eee; } 50% { background-color: #d4d4d4; } 100% { background-color: #eee; } }
 
-        /* FIORI HEADER - STICKY REMOVED & HEIGHT FIXED TO 50PX */
+        /* PREMIUM FIORI HEADER */
         .fiori-header { 
             background: linear-gradient(135deg, #1a2935 0%, #2a3f54 100%); 
             color: #ffffff; 
-            min-height: 50px; 
-            height: 50px; 
+            height: 60px; 
             display: flex; 
             align-items: center; 
             justify-content: space-between; 
             padding: 0 20px; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-            position: relative; 
+            position: sticky; 
+            top: 0; 
             z-index: 1000; 
-            border-bottom: 1px solid rgba(255,255,255,0.05); 
-            box-sizing: border-box;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .fiori-logo-img { width: 32px; height: 32px; border-radius: 8px; background: #ffffff; padding: 2px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-        .fiori-header-title { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; background: -webkit-linear-gradient(45deg, #ffffff, #b0bec5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .btn-install-small { background: linear-gradient(to right, #00c6ff, #0072ff) !important; color: white !important; border: none !important; padding: 6px 14px !important; font-size: 11px !important; font-weight: 800 !important; border-radius: 25px !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3) !important; transition: all 0.3s ease !important; letter-spacing: 0.5px !important; display: flex; align-items: center; text-transform: uppercase; }
+        .fiori-logo-img { 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 8px; 
+            background: #ffffff; 
+            padding: 3px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .fiori-header-title {
+            font-size: 17px; 
+            font-weight: 700; 
+            letter-spacing: 0.5px;
+            background: -webkit-linear-gradient(45deg, #ffffff, #b0bec5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn-install-small { 
+            background: linear-gradient(to right, #00c6ff, #0072ff) !important; 
+            color: white !important; 
+            border: none !important; 
+            padding: 8px 16px !important; 
+            font-size: 11px !important; 
+            font-weight: 800 !important; 
+            border-radius: 25px !important; 
+            cursor: pointer !important; 
+            box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3) !important; 
+            transition: all 0.3s ease !important; 
+            letter-spacing: 0.5px !important; 
+            display: flex; 
+            align-items: center; 
+            text-transform: uppercase;
+        }
         .btn-install-small:hover { transform: translateY(-2px) !important; box-shadow: 0 6px 15px rgba(0, 114, 255, 0.5) !important; }
         .beta-badge { font-size: 9px !important; background: #e53e3e !important; color: #fff !important; padding: 2px 5px !important; border-radius: 8px !important; margin-left: 6px !important; font-weight: 800 !important; }
 
-        /* DARK MODE TOGGLE BTN */
-        .btn-dark-toggle { background: rgba(255,255,255,0.1) !important; box-shadow: none !important; border: 1px solid rgba(255,255,255,0.3) !important; padding: 6px 10px !important; font-size: 12px !important; color: #fff; border-radius: 25px; cursor: pointer; transition: 0.3s; margin-right: 10px; }
-        .btn-dark-toggle:hover { background: rgba(255,255,255,0.2) !important; }
+        #pwa-instructions-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2147483650; justify-content: center; align-items: center; }
+        .pwa-modal-content { background: #fff; padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        .pwa-modal-content h3 { margin-top: 0; color: #1a202c; font-size: 20px; font-weight: 800; margin-bottom: 15px; }
+        .pwa-modal-content p { color: #4a5568; font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+        .pwa-close-btn { background: #edf2f7; color: #2d3748; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: 0.2s; }
+        .pwa-close-btn:hover { background: #e2e8f0; }
 
-        .launchpad-footer { text-align: center; padding: 20px; padding-bottom: 40px; color: var(--gray); font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        #dev-trigger { font-weight: 800; color: var(--primary); cursor: pointer; display: inline-block; padding: 5px; }
+        .launchpad-footer { text-align: center; padding: 20px; padding-bottom: 40px; color: #6a6d70; font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+        #dev-trigger { font-weight: 800; color: #0a6ed1; cursor: pointer; display: inline-block; padding: 5px; }
         #dev-tools-group { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        #fiori-wrapper { display: block; width: 100%; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; background: var(--bg-color); transition: 0.3s; }
+        #fiori-wrapper { display: block; width: 100%; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
         #launchpad-view { padding: 30px; flex: 1; }
-        .group-title { font-size: 18px; color: var(--dark); margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 8px; transition: 0.3s; }
+        .group-title { font-size: 18px; color: #32363a; margin-bottom: 15px; border-bottom: 1px solid #cdd4da; padding-bottom: 8px; }
         .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 176px)); gap: 12px; margin-bottom: 30px; }
         @media (max-width: 600px) { #launchpad-view { padding: 20px 15px; } .tile-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
-        .tile { background: var(--card-bg); border-radius: 4px; height: 176px; padding: 16px; position: relative; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.15); transition: all 0.3s; display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--border); }
-        .tile:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(10, 110, 209, 0.2); border-color: var(--primary); }
+        
+        .tile { background: #ffffff; border-radius: 4px; height: 176px; padding: 16px; position: relative; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.15); transition: all 0.3s; display: flex; flex-direction: column; overflow: hidden; border: 1px solid transparent; }
+        .tile:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(10, 110, 209, 0.2); border-color: #0a6ed1; }
         .tile::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: transparent; transition: all 0.3s; }
         .tile:hover::before { background: linear-gradient(90deg, #0a6ed1, #00c6ff); }
-        .tile-title { font-size: 15px; font-weight: 600; color: var(--dark); margin-bottom: 6px; transition: 0.3s; }
-        .tile-subtitle { font-size: 12px; color: var(--gray); transition: 0.3s; }
-        .tile-icon { position: absolute; bottom: 16px; left: 16px; font-size: 24px; color: var(--primary); transition: all 0.3s; }
+        .tile-title { font-size: 15px; font-weight: 600; color: #32363a; margin-bottom: 6px; }
+        .tile-subtitle { font-size: 12px; color: #6a6d70; }
+        .tile-icon { position: absolute; bottom: 16px; left: 16px; font-size: 24px; color: #0a6ed1; transition: all 0.3s; }
         .tile:hover .tile-icon { transform: scale(1.1); color: #00c6ff; }
         .tile-status { position: absolute; bottom: 16px; right: 16px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; color: #2b7d2b;}
 
-        .tile-feedback { background: linear-gradient(135deg, rgba(255,249,196,0.1), rgba(255,243,224,0.1)); border: 1px solid #ffb74d; }
+        .tile-feedback { background: linear-gradient(135deg, #fff9c4, #fff3e0); border: 1px solid #ffb74d; }
         .tile-feedback:hover { box-shadow: 0 8px 16px rgba(230, 81, 0, 0.2); border-color: #e65100; }
         .tile-feedback::before { background: linear-gradient(90deg, #ff9800, #ff5722); }
-        
-        .tile-guide { background: linear-gradient(135deg, rgba(227,242,253,0.1), rgba(187,222,251,0.1)); border: 1px solid #64b5f6; }
-        .tile-guide:hover { box-shadow: 0 8px 16px rgba(33, 150, 243, 0.2); border-color: #1976d2; }
-        .tile-guide::before { background: linear-gradient(90deg, #2196f3, #1565c0); }
 
-        .iframe-container { display:none; flex: 1; width: 100%; height:100vh; position: relative; background: var(--bg-color); }
+        .iframe-container { display:none; flex: 1; width: 100%; height:100vh; position: relative; background: #fff; }
         .full-screen-iframe { width: 100%; height: 100%; border: none; }
         .fiori-app-header { height: 48px; background: #3f5161; color: white; display: none; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .back-btn-fiori { background: none; border: none; color: white; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
-        
-        /* DETAILED USER GUIDE MODAL TEXT STYLING */
-        .guide-content h2 { margin-top: 25px; margin-bottom: 12px; color: var(--primary); font-size: 1.3rem; border-bottom: 2px solid var(--border); padding-bottom: 5px; display: flex; align-items: center; gap: 8px;}
-        .guide-content h3 { margin-top: 18px; margin-bottom: 10px; color: var(--dark); font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-        .guide-content p { margin-bottom: 10px; font-size: 0.95rem; color: var(--gray); line-height: 1.6; }
-        .guide-content ul { padding-left: 20px; margin-bottom: 15px; }
-        .guide-content li { margin-bottom: 8px; font-size: 0.95rem; color: var(--gray); line-height: 1.5; }
-        .guide-content .highlight-box { background: var(--primary-light); border-left: 4px solid var(--primary); padding: 12px; border-radius: 4px; margin: 15px 0; color: var(--dark); font-size: 0.9rem;}
-        .guide-content kbd { background: var(--border); color: var(--dark); padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-family: monospace; border: 1px solid var(--gray); }
     </style>
 </head>
 <body>
 
     <div id="fiori-wrapper">
         <header class="fiori-header">
-            <div style="display:flex; align-items:center; gap:10px;">
+            <div style="display:flex; align-items:center; gap:14px;">
                 <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" class="fiori-logo-img" alt="Tabreed Logo">
                 <span class="fiori-header-title">Automation App</span>
             </div>
-            <div style="display: flex; align-items: center; height: 100%;">
-                <button class="btn-dark-toggle" onclick="toggleDarkMode()" title="Toggle Dark Mode">
-                    <i class="fas fa-moon" id="darkModeIcon"></i>
-                </button>
+            <div style="display: flex; align-items: center; height: 100%; gap: 15px;">
+                <i class="fas fa-moon" style="cursor: pointer; font-size: 18px; color: #cbd5e0;" onclick="showToast('Dark mode coming soon!', 'info')" title="Toggle Dark Mode"></i>
                 <button class="btn-install-small" onclick="startSmartInstall()">
                     <i class="fas fa-mobile-alt" style="margin-right: 6px; font-size: 13px;"></i> INSTALL <span class="beta-badge">BETA</span>
                 </button>
@@ -246,20 +263,6 @@
                     <div class="tile-status status-ready"><i class="fas fa-bolt"></i> Fast Offline</div>
                 </div>
 
-                <div id="dev-tile-ping" class="tile" style="display: none;" onclick="openApp('PingLogger Ultimate', '#')">
-                    <div class="tile-title">PingLogger Ultimate</div>
-                    <div class="tile-subtitle">Network Monitor</div>
-                    <i class="fas fa-network-wired tile-icon"></i>
-                    <div class="tile-status" style="color:#0b8043;"><i class="fas fa-check-circle"></i> Ready</div>
-                </div>
-
-                <div id="dev-tile-draw" class="tile" style="display: none;" onclick="openApp('IFRAME', 'https://draw.automation3000.com/?key=Dubai@123')">
-                    <div class="tile-title">Drawing Hub</div>
-                    <div class="tile-subtitle">Schematics & P&ID</div>
-                    <i class="fas fa-pen-nib tile-icon"></i>
-                    <div class="tile-status" style="color:#0b8043;"><i class="fas fa-check-circle"></i> Ready</div>
-                </div>
-
                 <div class="tile" onclick="showToast('Under Development', 'info')">
                     <div class="tile-title">Service Report</div>
                     <div class="tile-subtitle">Time Entry Format</div>
@@ -273,8 +276,8 @@
                 <div class="tile" onclick="viewPendingSyncs()">
                     <div class="tile-title">Pending Syncs</div>
                     <div class="tile-subtitle">Data waiting for network</div>
-                    <i class="fas fa-sync tile-icon" style="color: var(--gray);"></i>
-                    <div class="tile-status" style="color: var(--danger);" id="pending-sync-tile">0 Pending</div>
+                    <i class="fas fa-sync tile-icon" style="color: #6a6d70;"></i>
+                    <div class="tile-status" style="color: #ea4335;" id="pending-sync-tile">0 Pending</div>
                 </div>
 
                 <div class="tile tile-feedback" onclick="openFeedbackModal()">
@@ -282,41 +285,49 @@
                     <div class="tile-subtitle">Report bugs or ideas</div>
                     <i class="fas fa-comment-dots tile-icon" style="color: #ff9800;"></i>
                 </div>
-                
-                <div id="dev-tile-guide" class="tile dev-item" style="display: none;" onclick="openGuideModal()">
-                    <div class="tile-title" style="color: #1565c0;">User Guide</div>
-                    <div class="tile-subtitle">How to use Tabreed App</div>
-                    <i class="fas fa-book tile-icon" style="color: #2196f3;"></i>
-                </div>
             </div>
 
             <div id="dev-tools-group" style="display: none; margin-top: 40px;">
-                <h2 class="group-title" style="color: var(--danger); border-bottom-color: rgba(234,67,53,0.2);"><i class="fas fa-user-shield"></i> Developer Tools (Admin Only)</h2>
+                <h2 class="group-title" style="color: #d50000; border-bottom-color: #ffcdd2;"><i class="fas fa-user-shield"></i> Developer Tools (Admin Only)</h2>
                 <div class="tile-grid">
+                    <div class="tile" onclick="checkDevAccess('PingLogger Ultimate', '#')">
+                        <div class="tile-title">PingLogger Ultimate</div>
+                        <div class="tile-subtitle">Network Monitor</div>
+                        <i class="fas fa-network-wired tile-icon"></i>
+                        <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
+                    </div>
+
+                    <div class="tile" onclick="checkDevAccess('IFRAME', 'https://draw.automation3000.com/?key=Dubai@123')">
+                        <div class="tile-title">Drawing Hub</div>
+                        <div class="tile-subtitle">Schematics & P&ID</div>
+                        <i class="fas fa-pen-nib tile-icon"></i>
+                        <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
+                    </div>
+
                     <div class="tile" onclick="devClearCache()">
                         <div class="tile-title">Force Clear Cache</div>
                         <div class="tile-subtitle">Nuke Local Storage</div>
-                        <i class="fas fa-trash-alt tile-icon" style="color: var(--danger);"></i>
+                        <i class="fas fa-trash-alt tile-icon" style="color: #d50000;"></i>
                     </div>
                     <div class="tile" onclick="devShowLog()">
                         <div class="tile-title">Sync Logs</div>
                         <div class="tile-subtitle">View API Requests</div>
-                        <i class="fas fa-terminal tile-icon" style="color: var(--dark);"></i>
+                        <i class="fas fa-terminal tile-icon" style="color: #333;"></i>
                     </div>
                     <div class="tile" onclick="devInjectData()">
                         <div class="tile-title">Inject Test Data</div>
                         <div class="tile-subtitle">For UI Testing</div>
-                        <i class="fas fa-vial tile-icon" style="color: var(--secondary);"></i>
+                        <i class="fas fa-vial tile-icon" style="color: #0b8043;"></i>
                     </div>
                     <div class="tile" onclick="devUIDebugger()">
                         <div class="tile-title">UI Debugger</div>
                         <div class="tile-subtitle">Highlight Bounds</div>
-                        <i class="fas fa-bug tile-icon" style="color: var(--warning);"></i>
+                        <i class="fas fa-bug tile-icon" style="color: #f9ab00;"></i>
                     </div>
                     <div class="tile" onclick="devNetworkSim()">
                         <div class="tile-title">Network Simulator</div>
                         <div class="tile-subtitle">Throttle API calls</div>
-                        <i class="fas fa-wifi tile-icon" style="color: var(--primary);"></i>
+                        <i class="fas fa-wifi tile-icon" style="color: #1a73e8;"></i>
                     </div>
                 </div>
             </div>
@@ -324,6 +335,14 @@
 
         <div class="launchpad-footer">
             <span>Code Developed by <span id="dev-trigger" onclick="handleDevClick()">Majeed</span></span>
+        </div>
+    </div>
+
+    <div id="pwa-instructions-modal">
+        <div class="pwa-modal-content">
+            <h3 id="pwa-modal-title">Install App</h3>
+            <p id="pwa-modal-text">Instructions generating...</p>
+            <button class="pwa-close-btn" onclick="document.getElementById('pwa-instructions-modal').style.display='none'">Got it, Close</button>
         </div>
     </div>
 
@@ -345,7 +364,7 @@
                             <img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
                         </div>
                         <div class="brand-text">
-                            <h1 style="font-size: 1.1rem;">TABREED : Master Instrument List AI1 <span id="queue-badge" style="display:none; font-size:0.6rem; background:var(--danger); color:white; padding:2px 6px; border-radius:10px; margin-left:5px;"></span></h1>
+                            <h1 style="font-size: 1.1rem;">TABREED : Master Instrument List AI1 <span id="queue-badge" style="display:none; font-size:0.6rem; background:#ea4335; color:white; padding:2px 6px; border-radius:10px; margin-left:5px;"></span></h1>
                             <p id="dev-subtitle" style="font-size: 0.7rem; color: var(--gray); transition: opacity 0.3s ease;">Automation App</p>
                         </div>
                     </div>
@@ -399,9 +418,13 @@
                 </button>
 
                 <button class="action-btn" onclick="openAddModal()" aria-label="Add new entry"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
+                
                 <button class="action-btn" onclick="showStats()" aria-label="View statistics"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
+                
                 <button class="action-btn" onclick="showHistoryPage()" aria-label="View update history"><i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i><span>View History</span></button>
+
                 <button class="action-btn" onclick="openFeedbackModal()" aria-label="Open feedback form"><i class="fas fa-comment-dots" style="color: #0b8043; margin-bottom: 5px;"></i><span>Feedback</span></button>
+                
                 <button class="action-btn" onclick="exportData()" aria-label="Export data as PDF"><i class="fas fa-file-pdf" style="color: var(--dark); margin-bottom: 5px;"></i><span>Download PDF</span></button>
             </div>
 
@@ -412,6 +435,7 @@
                             <tr>
                                 <th>Instrument</th>
                                 <th>Location</th>
+                                <th>Status</th>
                                 <th>Action</th>
                                 <th class="expiry-td" style="cursor:pointer; color:var(--primary); text-align:center;" onclick="toggleExpiryDisplay()" title="Click to toggle Days/Date">Expiry 🔄</th>
                                 <th>Updated By</th>
@@ -422,225 +446,145 @@
                 </div>
             </section>
         </div>
-    </div> <div id="pwa-instructions-modal" class="modal-overlay" style="z-index: 2147483650;">
-        <div class="pwa-modal-content" style="background: var(--card-bg); padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--dark);">
-            <h3 id="pwa-modal-title" style="margin-top: 0; color: var(--dark); font-size: 20px; font-weight: 800; margin-bottom: 15px;">Install App</h3>
-            <p id="pwa-modal-text" style="color: var(--gray); font-size: 14px; line-height: 1.6; margin-bottom: 20px;">Instructions generating...</p>
-            <button class="pwa-close-btn" style="background: var(--light); color: var(--dark); border: 1px solid var(--border); padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; transition: 0.2s;" onclick="document.getElementById('pwa-instructions-modal').style.display='none'">Got it, Close</button>
-        </div>
-    </div>
 
-    <div class="modal-overlay" id="updateModal" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 id="modalTitle"><i class="fas fa-edit"></i> Update Instrument Details</h3>
-                <button onclick="closeModal()" aria-label="Close dialog" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="modalItemName">Instrument Name</label>
-                    <input type="text" id="modalItemName" readonly style="background: var(--light); color: var(--gray);" aria-label="Instrument name">
+        <div class="modal-overlay" id="updateModal" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3 id="modalTitle"><i class="fas fa-edit"></i> Update Instrument Details</h3>
+                    <button onclick="closeModal()" aria-label="Close dialog" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
                 </div>
-                <div class="form-group">
-                    <label for="modalLocation">Current Location <span aria-label="required">*</span></label>
-                    <select id="modalLocation" onchange="handleLocationChange(this.value)" aria-label="Select location" required></select>
-                    <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px; border-color: var(--secondary);" aria-label="Custom location name">
-                    <small id="locationHint" style="display:none; color: var(--secondary);">Typing new location...</small>
-                </div>
-                <div class="form-group">
-                    <label>Expiry Date (Optional)</label>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="modalItemName">Instrument Name</label>
+                        <input type="text" id="modalItemName" readonly style="background: #f5f5f5; color: var(--dark);" aria-label="Instrument name">
+                    </div>
+                    <div class="form-group">
+                        <label for="modalLocation">Current Location <span aria-label="required">*</span></label>
+                        <select id="modalLocation" onchange="handleLocationChange(this.value)" aria-label="Select location" required></select>
+                        <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px; border-color: var(--secondary); background: white; color: var(--dark);" aria-label="Custom location name">
+                        <small id="locationHint" style="display:none; color: var(--secondary);">Typing new location...</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modalStatus">Status</label>
+                        <select id="modalStatus" style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 2px solid var(--border); background: white; color: var(--dark);">
+                            <option value="Normal">Normal</option>
+                            <option value="Repair">Sent for Calibration/Repair</option>
+                            <option value="Expired">Expired</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Expiry Date (Optional)</label>
+                        
+                        <div id="sliderContainer" style="position: relative; width: 100%; height: 36px; background: #e9ecef; border-radius: 18px; border: 1px solid #ced4da;">
+                            <div id="sliderText" style="position: absolute; width: 100%; text-align: center; line-height: 34px; color: #6c757d; pointer-events: none; font-size: 0.8rem; font-weight: bold;">Slide to Edit Expiry</div>
+                            <input type="range" min="0" max="100" value="0" id="unlockSlider" class="slide-unlock" oninput="checkUnlock(this)" onchange="snapUnlock(this)">
+                        </div>
+
+                        <div id="expiryDateContainer" style="display:none;">
+                            <input type="date" id="modalExpiry" style="cursor: pointer; background: white; color: var(--dark); width: 100%;" aria-label="Expiry date">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+                        <input type="checkbox" id="remarkCheckbox" onchange="document.getElementById('remarkGroup').style.display = this.checked ? 'block' : 'none'" style="width: 20px; height: 20px; cursor: pointer;">
+                        <label for="remarkCheckbox" style="margin:0; font-size: 0.95rem; cursor: pointer;">Add Remark</label>
+                    </div>
                     
-                    <div id="sliderContainer" style="position: relative; width: 100%; height: 36px; background: var(--light); border-radius: 18px; border: 1px solid var(--border);">
-                        <div id="sliderText" style="position: absolute; width: 100%; text-align: center; line-height: 34px; color: var(--gray); pointer-events: none; font-size: 0.8rem; font-weight: bold;">Slide to Edit Expiry</div>
-                        <input type="range" min="0" max="100" value="0" id="unlockSlider" class="slide-unlock" oninput="checkUnlock(this)" onchange="snapUnlock(this)">
+                    <div class="form-group" id="remarkGroup" style="display:none;">
+                        <textarea id="modalRemark" placeholder="Write a remark..." style="width:100%; min-height:80px; padding:10px; border: 2px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; background: white; color: var(--dark);"></textarea>
                     </div>
 
-                    <div id="expiryDateContainer" style="display:none;">
-                        <input type="date" id="modalExpiry" style="cursor: pointer; width: 100%;" aria-label="Expiry date">
+                    <div class="update-flex-row">
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label for="modalUpdatedBy">Updated By <span aria-label="required">*</span></label>
+                            <input type="text" id="modalUpdatedBy" placeholder="Your Name" aria-label="Your name" required>
+                        </div>
                     </div>
-                </div>
-
-                <div class="update-flex-row">
-                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                        <label for="modalUpdatedBy">Updated By <span aria-label="required">*</span></label>
-                        <input type="text" id="modalUpdatedBy" placeholder="Your Name" aria-label="Your name" required>
+                    
+                    <div class="modal-actions">
+                        <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
+                        <button class="btn-secondary" onclick="closeModal()">CANCEL</button>
                     </div>
-                </div>
-                
-                <div class="modal-actions">
-                    <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
-                    <button class="btn-secondary" onclick="closeModal()">CANCEL</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="modal-overlay feedback-overlay" id="feedbackModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-comment-dots"></i> Send Feedback</h3>
-                <button onclick="closeFeedbackModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="update-flex-row" style="margin-bottom: 1rem;">
-                    <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
-                        <label for="feedbackEmpId">Employee ID</label>
-                        <input type="text" inputmode="numeric" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
+        <div class="modal-overlay feedback-overlay" id="feedbackModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h3><i class="fas fa-comment-dots"></i> Send Feedback</h3>
+                    <button onclick="closeFeedbackModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="update-flex-row" style="margin-bottom: 1rem;">
+                        <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
+                            <label for="feedbackEmpId">Employee ID</label>
+                            <input type="text" inputmode="numeric" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
+                        </div>
+                        <div class="form-group" style="flex: 2; min-width: 180px; margin-bottom: 0;">
+                            <label for="feedbackName">Name</label>
+                            <input type="text" id="feedbackName" placeholder="Your Name" oninput="autoFillEmpId()">
+                        </div>
                     </div>
-                    <div class="form-group" style="flex: 2; min-width: 180px; margin-bottom: 0;">
-                        <label for="feedbackName">Name</label>
-                        <input type="text" id="feedbackName" placeholder="Your Name" oninput="autoFillEmpId()">
+                    <div class="form-group">
+                        <label for="feedbackText">Feedback / Suggestion</label>
+                        <textarea id="feedbackText" placeholder="Write your feedback for the Automation App here..." style="min-height: 100px;"></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">SEND FEEDBACK</button>
+                        <button class="btn-secondary" onclick="closeFeedbackModal()">CANCEL</button>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="feedbackText">Feedback / Suggestion</label>
-                    <textarea id="feedbackText" placeholder="Write your feedback for the Automation App here..." style="min-height: 100px;"></textarea>
-                </div>
-                <div class="modal-actions">
-                    <button class="btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">SEND FEEDBACK</button>
-                    <button class="btn-secondary" onclick="closeFeedbackModal()">CANCEL</button>
+            </div>
+        </div>
+
+        <div class="modal-overlay ack-overlay" id="ackModalOverlay">
+            <div class="modal ack-modal" style="max-width: 320px; text-align: center; border-radius: 20px; padding: 10px;">
+                <div class="modal-body" style="padding: 20px 15px;">
+                    <div id="ackIcon" style="font-size: 3.5rem; margin-bottom: 15px;"></div>
+                    <h2 id="ackTitle" style="margin-top: 0; color: #1a202c; font-weight: 800; font-size: 1.3rem;"></h2>
+                    <p id="ackMessage" style="color: #4a5568; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px;"></p>
+                    <button class="btn-primary" onclick="document.getElementById('ackModalOverlay').classList.remove('active')" style="width: 100%; border-radius: 12px; padding: 12px; letter-spacing: 0.5px;">OK, GOT IT</button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="modal-overlay" id="guideModal">
-        <div class="modal" style="max-height: 90vh; width: 95%; max-width: 700px;">
-            <div class="modal-header">
-                <h3><i class="fas fa-book-open"></i> Tabreed App Manual</h3>
-                <button onclick="closeGuideModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
-            </div>
-            <div class="modal-body guide-content">
-                <div class="highlight-box">
-                    <strong><i class="fas fa-info-circle"></i> Welcome to Automation App v2.0</strong><br>
-                    This is an Enterprise-Grade Progressive Web App (PWA) designed to manage Tabreed's instrument inventory, handle offline capabilities, and monitor network logs.
-                </div>
-                
-                <h2><i class="fas fa-th-large"></i> 1. The Fiori Launchpad (Home)</h2>
-                <p>The main screen is your dashboard. It contains several functional tiles:</p>
-                <ul>
-                    <li><strong>Master Instrument List:</strong> The core AI1 Database for all instruments. (Works offline).</li>
-                    <li><strong>PingLogger Ultimate:</strong> Network monitor tool (Available only in Developer Mode).</li>
-                    <li><strong>Drawing Hub:</strong> Schematics and P&ID viewer (Available only in Developer Mode).</li>
-                    <li><strong>Service Report:</strong> Future module for time entry formatting.</li>
-                    <li><strong>Pending Syncs:</strong> Shows data that was saved while you had no internet connection.</li>
-                    <li><strong>Share Feedback:</strong> Directly report bugs, ideas, or missing items to the Automation Team.</li>
-                </ul>
-
-                <h2><i class="fas fa-list-alt"></i> 2. Master Instrument List</h2>
-                <p>Clicking the first tile opens the main database. Here's how to navigate it:</p>
-                
-                <h3><i class="fas fa-moon"></i> Dark Mode</h3>
-                <p>In the top right corner of the header, click the <strong>Moon Icon</strong> to switch the app to Dark Mode. This reduces eye strain and saves battery. Your preference is saved automatically.</p>
-
-                <h3><i class="fas fa-filter"></i> Advanced Filters</h3>
-                <p>The top 9 grid buttons allow you to control data visibility:</p>
-                <ul>
-                    <li><strong>Refresh:</strong> Resets all filters to default and reloads live data.</li>
-                    <li><strong>All Locations:</strong> Dropdown to filter instruments by specific plant areas or rooms.</li>
-                    <li><strong>Expiry:</strong> Filter instruments expiring in 15 days, 30 days, 2 months, 6 months, or view already expired items.</li>
-                    <li><strong>Goes for Cal:</strong> A quick toggle button. Click it to instantly view only the instruments sent for Calibration/Repair.</li>
-                </ul>
-
-                <h3><i class="fas fa-table"></i> The Data Table</h3>
-                <p>The table displays live instrument data. A special feature is the <strong>Expiry 🔄</strong> column header. Click the word "Expiry 🔄" to instantly toggle the view between the <i>Actual Expiry Date</i> (e.g., 21.04.2026) and <i>Days Remaining</i> (e.g., 30 Days Left).</p>
-                <ul>
-                    <li><span style="color:var(--danger); font-weight:bold;">Red Tag:</span> Instrument has expired.</li>
-                    <li><span style="color:var(--warning); font-weight:bold;">Yellow Tag:</span> Expires today.</li>
-                    <li><span style="color:var(--secondary); font-weight:bold;">Green Tag:</span> Still valid.</li>
-                </ul>
-
-                <h2><i class="fas fa-edit"></i> 3. Updating & Adding Instruments</h2>
-                <p>Click <strong>Update</strong> on any row, or <strong>Add Entry</strong> from the top menu.</p>
-                <ul>
-                    <li><strong>Location Selection:</strong> Choose from the list. If a location is missing, select <i>"+ Not Listed (Add New)"</i> and type a custom location.</li>
-                    <li><strong>Secure Expiry Slider:</strong> To prevent accidental date changes, the Expiry Date is locked. You must slide the <strong>"Slide to Edit Expiry"</strong> bar fully to the right. A prompt will appear asking for a passcode (<kbd>123</kbd>). Once entered correctly, the date box will appear.</li>
-                    <li><strong>Auto-Formatting:</strong> Dates are automatically converted to the strict DD.MM.YYYY standard before saving.</li>
-                </ul>
-
-                <h2><i class="fas fa-wifi"></i> 4. Offline Sync Engine</h2>
-                <p>This app is <strong>Offline-First</strong>. You do not need internet to work!</p>
-                <ul>
-                    <li>If you lose network, the top-right status will turn <span style="color:var(--danger); font-weight:bold;">Red (Offline)</span>.</li>
-                    <li>Any updates or new instruments you add will be saved safely into your device's internal storage.</li>
-                    <li>A <span style="color:var(--danger); font-weight:bold;">Red Badge</span> will appear on the header showing the number of pending tasks.</li>
-                    <li>When the internet returns, the app automatically detects it, changes the status to <span style="color:var(--secondary); font-weight:bold;">Green (Online)</span>, and silently pushes all pending data to the server.</li>
-                    <li><strong>Manual Sync:</strong> You can click the "Pending Syncs" tile on the Launchpad to view a list of all unsaved items and manually trigger a sync or delete them.</li>
-                </ul>
-
-                <h2><i class="fas fa-file-pdf"></i> 5. Statistics & PDF Export</h2>
-                <ul>
-                    <li><strong>Stats:</strong> Click the Stats button to see a beautiful centered popup summarizing total instruments, total locations, and critical items expiring within 30 days.</li>
-                    <li><strong>Download PDF:</strong> Exports the current table view as a high-quality PDF. <i>Smart Feature:</i> If you are in Dark Mode, the system temporarily switches to Light Mode in the background just for the PDF, so you don't waste black printer ink!</li>
-                </ul>
-
-                <h2><i class="fas fa-comment-dots"></i> 6. Sharing Feedback</h2>
-                <p>The feedback modal includes an auto-fill feature. Type your <strong>Employee ID</strong> (e.g., 41764) and your Short Name (Majeed) will automatically populate. Feedback is instantly pushed to the Automation Team's database stamped with the precise <strong>Dubai Timezone (UTC+4)</strong>.</p>
-
-                <h2><i class="fas fa-user-shield"></i> 7. Secret Developer Mode</h2>
-                <p>The app contains hidden Admin tools for the Automation Team.</p>
-                <ul>
-                    <li>On the Launchpad (Home screen), scroll to the very bottom footer.</li>
-                    <li>Tap the word <strong>Majeed</strong> exactly 3 times in quick succession.</li>
-                    <li>Enter the Admin Passcode (<kbd>Dubai@123</kbd>).</li>
-                    <li>This unlocks hidden tools like Network Monitor, Drawing Hub, Force Cache Clear, Test Data Injection, and UI Debugging bounds.</li>
-                </ul>
-
-                <h2><i class="fas fa-mobile-alt"></i> 8. App Installation (PWA)</h2>
-                <p>Click the <strong>INSTALL BETA</strong> button on the top right.</p>
-                <ul>
-                    <li><strong>Android:</strong> It will prompt the native Google Play installation or download the direct APK.</li>
-                    <li><strong>iOS (iPhone):</strong> It will download an Apple Configuration Profile (.mobileconfig) allowing you to install the app perfectly on your home screen bypassing Apple's web restrictions.</li>
-                </ul>
-                <br><br>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay ack-overlay" id="ackModalOverlay">
-        <div class="modal ack-modal" style="max-width: 320px; text-align: center; border-radius: 20px; padding: 10px;">
-            <div class="modal-body" style="padding: 20px 15px;">
-                <div id="ackIcon" style="font-size: 3.5rem; margin-bottom: 15px;"></div>
-                <h2 id="ackTitle" style="margin-top: 0; color: var(--dark); font-weight: 800; font-size: 1.3rem;"></h2>
-                <p id="ackMessage" style="color: var(--gray); font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px;"></p>
-                <button class="btn-primary" onclick="document.getElementById('ackModalOverlay').classList.remove('active')" style="width: 100%; border-radius: 12px; padding: 12px; letter-spacing: 0.5px;">OK, GOT IT</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="historyPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-color); z-index:5000; overflow-y:auto; transition: 0.3s;">
-        <header class="app-header">
-            <div class="header-content">
-                <div class="brand">
-                    <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px; color: var(--primary); font-size: 1.2rem;">
-                        <i class="fas fa-arrow-left fa-lg"></i>
+        <div id="historyPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:5000; overflow-y:auto;">
+            <header class="app-header">
+                <div class="header-content">
+                    <div class="brand">
+                        <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px; color: var(--primary); font-size: 1.2rem;">
+                            <i class="fas fa-arrow-left fa-lg"></i>
+                        </button>
+                        <h1 style="font-size: 1.1rem;">Update History</h1>
+                    </div>
+                    <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;">
+                        <i class="fas fa-sync-alt"></i>
                     </button>
-                    <h1 style="font-size: 1.1rem; color: var(--dark);">Update History</h1>
                 </div>
-                <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
+            </header>
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon" aria-hidden="true"></i>
+                    <input type="text" id="historySearch" placeholder="Filter history by tag or user..." oninput="filterHistory()" aria-label="Search history">
+                </div>
             </div>
-        </header>
-        <div class="search-container">
-            <div class="search-box">
-                <i class="fas fa-search search-icon" aria-hidden="true"></i>
-                <input type="text" id="historySearch" placeholder="Filter history by tag or user..." oninput="filterHistory()" aria-label="Search history">
+            <div class="table-container" style="padding:10px;">
+                <table class="inventory-table" style="min-width: 500px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%; padding-left: 1.5rem;">Date & Time</th>
+                            <th style="width: 25%;">Instrument</th>
+                            <th style="width: 20%;">From Location</th>
+                            <th style="width: 20%;">To Location</th>
+                            <th style="width: 15%;">Updated By</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody"></tbody>
+                </table>
             </div>
-        </div>
-        <div class="table-container" style="padding:10px;">
-            <table class="inventory-table" style="min-width: 500px;">
-                <thead>
-                    <tr>
-                        <th style="width: 20%; padding-left: 1.5rem;">Date & Time</th>
-                        <th style="width: 25%;">Instrument</th>
-                        <th style="width: 20%;">From Location</th>
-                        <th style="width: 20%;">To Location</th>
-                        <th style="width: 15%;">Updated By</th>
-                    </tr>
-                </thead>
-                <tbody id="historyTableBody"></tbody>
-            </table>
         </div>
     </div>
 
@@ -665,29 +609,9 @@
 
         let inventoryData = []; let locations = []; let currentItem = null; let fullHistoryData = []; let isEditMode = false;
         let searchDebounceTimer; let showExpiryAsDays = false;
-        let currentView = localStorage.getItem('currentView') || 'launchpad'; 
+        let currentView = localStorage.getItem('tabreed_currentView') || 'LAUNCHPAD'; 
         let isDevModeActive = false;
 
-        // --- DARK MODE LOGIC ---
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const icon = document.getElementById('darkModeIcon');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('tabreedDarkMode', isDark);
-            
-            if(isDark) { icon.classList.replace('fa-moon', 'fa-sun'); } 
-            else { icon.classList.replace('fa-sun', 'fa-moon'); }
-        }
-
-        function initDarkMode() {
-            if(localStorage.getItem('tabreedDarkMode') === 'true') {
-                document.body.classList.add('dark-mode');
-                const icon = document.getElementById('darkModeIcon');
-                if(icon) icon.classList.replace('fa-moon', 'fa-sun');
-            }
-        }
-
-        // UTILITIES
         function sanitizeInput(str) {
             if (typeof str !== 'string') return '';
             return str.replace(/[<>\"'&]/g, (char) => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' }[char]));
@@ -706,21 +630,27 @@
             console.error(`[${context}]`, error); showToast('An error occurred - Try again', 'error');
         };
 
+        // --- PAGE INITIALIZATION & PERSISTENCE ---
         document.addEventListener('DOMContentLoaded', () => {
-            initDarkMode();
             setupSearch(); updatePendingTile(); processSyncQueue();
+            
+            if (currentView === 'NATIVE_INSTRUMENT') {
+                openApp('NATIVE_INSTRUMENT', '', false); 
+            } else {
+                document.getElementById('fiori-wrapper').style.display = 'block';
+            }
+
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
                     if (document.getElementById('updateModal').classList.contains('active')) closeModal();
                     if (document.getElementById('feedbackModal').classList.contains('active')) closeFeedbackModal();
-                    if (document.getElementById('guideModal').classList.contains('active')) closeGuideModal();
                     if (document.getElementById('historyPage').style.display === 'block') closeHistoryPage();
                     if (document.getElementById('ackModalOverlay').classList.contains('active')) document.getElementById('ackModalOverlay').classList.remove('active');
                 }
             });
         });
 
-        // --- DEVELOPER MODE (3-CLICK UNLOCK) ---
+        // --- DEVELOPER MODE ---
         let devClickCount = 0; let devClickTimer;
         function handleDevClick() {
             devClickCount++; clearTimeout(devClickTimer);
@@ -736,14 +666,6 @@
         function activateDeveloperMode() {
             isDevModeActive = true;
             document.getElementById('dev-tools-group').style.display = 'block';
-            
-            const pingTile = document.getElementById('dev-tile-ping');
-            if (pingTile) pingTile.style.display = 'flex';
-            const drawTile = document.getElementById('dev-tile-draw');
-            if (drawTile) drawTile.style.display = 'flex';
-            const guideTile = document.getElementById('dev-tile-guide');
-            if (guideTile) guideTile.style.display = 'flex';
-
             showAckPopup("Developer Mode", "Extra Tools and Admin privileges have been unlocked.", "fas fa-user-shield", "var(--danger)");
             setTimeout(() => { document.getElementById('fiori-wrapper').scrollTo({ top: document.getElementById('fiori-wrapper').scrollHeight, behavior: 'smooth' }); }, 300);
         }
@@ -758,21 +680,16 @@
                 localStorage.clear(); showToast("Cache Cleared. Reloading...", "info"); setTimeout(() => { window.location.reload(); }, 1000);
             }
         }
-        function devShowLog() { showAckPopup("Sync Logs", "Network Logs placeholder.", "fas fa-terminal", "var(--dark)"); }
+        function devShowLog() { showAckPopup("Sync Logs", "Network Logs placeholder.", "fas fa-terminal", "#333"); }
         function devInjectData() {
-            inventoryData.push({ name: "TEST-INSTRUMENT-" + Math.floor(Math.random()*1000), location: "Dev Test Area", expiry: "01.01.2030", updatedBy: "Dev Tool" });
+            inventoryData.push({ name: "TEST-INSTRUMENT-" + Math.floor(Math.random()*1000), location: "Dev Test Area", expiry: "01.01.2030", status: "Normal", updatedBy: "Dev Tool", remark: "" });
             applyFilters(); showToast("Test Data Injected", "success");
         }
         function devUIDebugger() { document.querySelectorAll('div, table, section').forEach(el => el.style.outline = '1px solid red'); showToast("UI Debugger On", "warning"); }
         function devNetworkSim() { showToast("Simulated Network Latency applied", "info"); }
 
-        // --- USER GUIDE MODAL ---
-        function openGuideModal() { document.getElementById('guideModal').classList.add('active'); }
-        function closeGuideModal() { document.getElementById('guideModal').classList.remove('active'); }
-
-        // --- SMART PWA INSTALL LOGIC ---
+        // --- SMART PWA INSTALL ---
         let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
-
         window.startSmartInstall = async function() {
             const androidApkLink = "https://tabreed.automation3000.com/Automation.apk";
             const iosProfileLink = "https://tabreed.automation3000.com/Automation.mobileconfig";
@@ -790,14 +707,21 @@
             }
         };
 
-        function openApp(type, url) {
+        // --- APP NAVIGATION ---
+        function openApp(type, url, saveState = true) {
             document.getElementById('fiori-wrapper').style.display = 'none';
+            if(saveState) localStorage.setItem('tabreed_currentView', type);
+
             if(type === 'NATIVE_INSTRUMENT') { document.getElementById('premium-wrapper').style.display = 'block'; loadInventory(); } 
             else if (type === 'IFRAME') { document.getElementById('fiori-iframe-header').style.display = 'flex'; document.getElementById('iframeWrapper').style.display = 'block'; if(!navigator.onLine) showToast("Iframe requires network connection.", "warning"); document.getElementById('active-iframe').src = url; } 
             else { showToast("This app is running natively.", "info"); document.getElementById('fiori-wrapper').style.display = 'block'; }
         }
-        function closeApp() { document.getElementById('premium-wrapper').style.display = 'none'; document.getElementById('fiori-iframe-header').style.display = 'none'; document.getElementById('iframeWrapper').style.display = 'none'; document.getElementById('active-iframe').src = ''; document.getElementById('fiori-wrapper').style.display = 'block'; }
+        function closeApp() { 
+            localStorage.setItem('tabreed_currentView', 'LAUNCHPAD');
+            document.getElementById('premium-wrapper').style.display = 'none'; document.getElementById('fiori-iframe-header').style.display = 'none'; document.getElementById('iframeWrapper').style.display = 'none'; document.getElementById('active-iframe').src = ''; document.getElementById('fiori-wrapper').style.display = 'block'; 
+        }
 
+        // --- UI & TOASTS ---
         function triggerPopAnim(elementId) {
             const el = document.getElementById(elementId);
             if(el) { el.classList.remove('pop-anim'); void el.offsetWidth; el.classList.add('pop-anim'); }
@@ -823,6 +747,7 @@
             else { label.innerText = selectElement.options[selectElement.selectedIndex].text; }
         }
 
+        // --- FILTERING & DATA LOADING ---
         function refreshAndReset() {
             triggerPopAnim('btn-refresh');
             document.getElementById('locationFilter').value = 'ALL'; document.getElementById('expiryFilter').value = 'ALL'; document.getElementById('searchInput').value = '';
@@ -830,8 +755,7 @@
             
             calibFilterActive = false;
             const btn = document.getElementById('btn-calib-filter');
-            btn.style.background = 'var(--card-bg)'; btn.style.border = '1px solid var(--border)';
-
+            btn.style.background = 'white'; btn.style.border = 'none';
             loadInventory();
         }
 
@@ -839,15 +763,8 @@
         function toggleCalibFilter() {
             calibFilterActive = !calibFilterActive;
             const btn = document.getElementById('btn-calib-filter');
-            const isDark = document.body.classList.contains('dark-mode');
-            
-            if(calibFilterActive) { 
-                btn.style.background = isDark ? 'rgba(234,67,53,0.1)' : '#ffebee'; 
-                btn.style.border = '1px solid var(--danger)'; 
-            } else { 
-                btn.style.background = 'var(--card-bg)'; 
-                btn.style.border = '1px solid var(--border)'; 
-            }
+            if(calibFilterActive) { btn.style.background = '#fff3e0'; btn.style.border = '1px solid #e65100'; } 
+            else { btn.style.background = 'white'; btn.style.border = 'none'; }
             applyFilters();
         }
 
@@ -860,7 +777,7 @@
                     updateLocationsDropdown(); applyFilters(); updateStatus(navigator.onLine);
                 } catch (e) { localStorage.removeItem("localTabreedInventory"); }
             } else {
-                let skeletonHTML = ''; for (let i = 0; i < 6; i++) { skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 85%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 60px;"></div></td><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 50%;"></div></td></tr>`; }
+                let skeletonHTML = ''; for (let i = 0; i < 6; i++) { skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 85%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 60px;"></div></td><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 50%;"></div></td></tr>`; }
                 tbody.innerHTML = skeletonHTML;
             }
 
@@ -877,9 +794,30 @@
 
         function toggleExpiryDisplay() { showExpiryAsDays = !showExpiryAsDays; applyFilters(); }
 
+        function applyFilters() {
+            const term = document.getElementById('searchInput').value.toLowerCase().trim(); const loc = document.getElementById('locationFilter').value; const expDays = document.getElementById('expiryFilter').value; 
+
+            let filtered = inventoryData.filter(i => {
+                const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term); const matchLoc = (loc === "ALL" || i.location === loc);
+                let matchExp = true; let matchCalib = true;
+
+                if (calibFilterActive) { matchCalib = (i.status === "Repair" || i.status === "Calibration/Repair"); }
+                if (expDays !== "ALL") {
+                    if (expDays === "NOT_MENTIONED") { matchExp = (!i.expiry || i.expiry === '-'); } 
+                    else if (!i.expiry || i.expiry === '-') { matchExp = false; } 
+                    else {
+                        const parts = i.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]); const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
+                        if (expDays === "EXPIRED") { matchExp = (diff < 0); } else { matchExp = (diff >= 0 && diff <= parseInt(expDays)); }
+                    }
+                }
+                return matchSearch && matchLoc && matchExp && matchCalib;
+            }); renderTable(filtered);
+        }
+
+        // --- TABLE RENDER ---
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
-            if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray);">No instruments found</td></tr>'; return; }
+            if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--gray);">No instruments found</td></tr>'; return; }
 
             tbody.innerHTML = data.map((item, idx) => {
                 let isExpired = false;
@@ -888,29 +826,65 @@
                     isExpired = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24)) < 0;
                 }
 
-                let expiryDisplay = `<span class="expiry-badge ${isExpired ? 'expired' : ''}">${sanitizeInput(item.expiry || '-')}</span>`;
+                let expiryDisplay = `<span class="expiry-badge ${isExpired ? 'expired' : ''}" onclick="showExpiryDays('${item.expiry || '-'}')">${sanitizeInput(item.expiry || '-')}</span>`;
                 
                 if (showExpiryAsDays && item.expiry && item.expiry !== '-') {
                     const parts = item.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
                     const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
-                    if (diff < 0) expiryDisplay = `<span class="expiry-badge expired">Expired</span>`;
-                    else if (diff === 0) expiryDisplay = `<span class="expiry-badge" style="color:var(--warning); border-color:var(--warning); background:rgba(249,171,0,0.1);">Today</span>`;
-                    else expiryDisplay = `<span class="expiry-badge" style="color:var(--secondary); border-color:var(--secondary); background:rgba(52,168,83,0.1);">${diff} Days Left</span>`;
+                    if (diff < 0) expiryDisplay = `<span class="expiry-badge expired" onclick="showExpiryDays('${item.expiry}')">Expired</span>`;
+                    else if (diff === 0) expiryDisplay = `<span class="expiry-badge" style="color:var(--warning); border-color:var(--warning); background:#fff3e0;" onclick="showExpiryDays('${item.expiry}')">Today</span>`;
+                    else expiryDisplay = `<span class="expiry-badge" style="color:var(--secondary); border-color:var(--secondary); background:#e8f5e9;" onclick="showExpiryDays('${item.expiry}')">${diff} Days Left</span>`;
                 }
                 const realIdx = inventoryData.findIndex(i => i.name === item.name);
+                
+                let status = item.status || 'Normal';
+                let remarkIcon = item.remark ? ` <i class="fas fa-comment-dots" style="color:var(--primary); cursor:pointer;" title="${sanitizeInput(item.remark)}"></i>` : '';
+
                 return `
                 <tr>
                     <td style="font-weight:600;">${sanitizeInput(item.name)}</td>
                     <td><span class="location-tag">${sanitizeInput(item.location)}</span></td>
-                    <td><button onclick="openUpdateModalByIndex(${realIdx})" style="padding:6px 16px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;" aria-label="Update">Update</button></td>
-                    <td class="expiry-td" style="text-align:center;">${expiryDisplay}</td>
-                    <td style="font-size:0.8rem; color:var(--gray);">${sanitizeInput(item.updatedBy || '-')}</td>
+                    <td><span class="status-badge status-${status.replace(/[^a-zA-Z]/g,'')}">${status}</span></td>
+                    <td>
+                        <button onclick="openUpdateModalByIndex(${realIdx})" style="padding:6px 16px; background:var(--primary); color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Update</button>
+                    </td>
+                    <td class="expiry-td" style="text-align:center; cursor:pointer;">${expiryDisplay}</td>
+                    <td style="font-size:0.8rem; color:var(--gray);">${sanitizeInput(item.updatedBy || '-')}${remarkIcon}</td>
                 </tr>
             `;
             }).join('');
         }
 
-        function openUpdateModalByIndex(idx) { if (!inventoryData[idx]) return; const item = inventoryData[idx]; openUpdateModal(item.name, item.location, item.expiry || ''); }
+        function showExpiryDays(dateStr) {
+            if(!dateStr || dateStr === '-') return showToast('No expiry date set.', 'info');
+            const parts = dateStr.split('.'); if(parts.length !== 3) return;
+            const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            const diffDays = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
+            if(diffDays < 0) showToast(`Expired ${Math.abs(diffDays)} days ago!`, 'error');
+            else if(diffDays === 0) showToast(`Expiring Today!`, 'warning');
+            else showToast(`${diffDays} days remaining for expiry.`, 'success');
+        }
+
+        // --- MODALS & UPDATE LOGIC ---
+        function openUpdateModalByIndex(idx) { if (!inventoryData[idx]) return; const item = inventoryData[idx]; openUpdateModal(item.name, item.location, item.expiry || '', item.status || 'Normal', item.remark || ''); }
+
+        function openAddModal() {
+            isEditMode = false; currentItem = null; document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument'; document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'white'; document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = ''; 
+            document.getElementById('modalStatus').value = 'Normal'; document.getElementById('remarkCheckbox').checked = false; document.getElementById('remarkGroup').style.display='none'; document.getElementById('modalRemark').value = '';
+            resetSlider(); document.getElementById('updateModal').classList.add('active');
+        }
+
+        function openUpdateModal(name, loc, exp, status = 'Normal', remark = '') {
+            isEditMode = true; currentItem = name; document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Update Details'; document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee'; document.getElementById('modalLocation').value = loc;
+            if (exp && exp !== '-' ) { const p = exp.split('.'); if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${p[1]}-${p[0]}`; } else { document.getElementById('modalExpiry').value = ''; }
+            
+            document.getElementById('modalStatus').value = status;
+            document.getElementById('remarkCheckbox').checked = Boolean(remark);
+            document.getElementById('remarkGroup').style.display = remark ? 'block' : 'none';
+            document.getElementById('modalRemark').value = remark;
+
+            document.getElementById('modalUpdatedBy').value = ''; resetSlider(); document.getElementById('updateModal').classList.add('active');
+        }
 
         function checkUnlock(slider) {
             if(slider.value >= 95) {
@@ -920,9 +894,17 @@
             }
         }
         function snapUnlock(slider) { if(slider.value < 100) { slider.value = 0; } }
+        function resetSlider() { const slider = document.getElementById('unlockSlider'); slider.value = 0; document.getElementById('sliderContainer').style.display = 'block'; document.getElementById('expiryDateContainer').style.display = 'none'; document.getElementById('modalExpiry').disabled = true; }
+        
+        function closeModal() { document.getElementById('modalLocation').style.display = 'block'; document.getElementById('customLocation').style.display = 'none'; document.getElementById('customLocation').value = ''; document.getElementById('locationHint').style.display = 'none'; document.getElementById('updateModal').classList.remove('active'); }
+        
+        function updateLocationsDropdown() { const modalSelect = document.getElementById('modalLocation'); let modalOpts = locations.map(l => `<option value="${l}">${l}</option>`).join(''); modalOpts += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`; modalSelect.innerHTML = modalOpts; const filterSelect = document.getElementById('locationFilter'); let filterOpts = `<option value="ALL">All Locations</option>` + locations.map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts; }
+        
+        function handleLocationChange(value) { const cInput = document.getElementById('customLocation'); const hint = document.getElementById('locationHint'); if(value === "NOT_LISTED") { document.getElementById('modalLocation').style.display = 'none'; cInput.style.display = 'block'; hint.style.display = 'block'; cInput.focus(); } else { cInput.style.display = 'none'; hint.style.display = 'none'; } }
 
         function submitUpdate() {
             const name = document.getElementById('modalItemName').value.trim(); let loc = document.getElementById('modalLocation').value.trim(); const customLoc = document.getElementById('customLocation').value.trim(); const user = document.getElementById('modalUpdatedBy').value.trim(); let exp = document.getElementById('modalExpiry').value;
+            const status = document.getElementById('modalStatus').value; const remark = document.getElementById('remarkCheckbox').checked ? document.getElementById('modalRemark').value.trim() : '';
 
             if (!name || !user) { showToast('Name and Updated By are required!', 'error'); return; }
             if (loc === "NOT_LISTED") { if (!customLoc || customLoc.length < 2) { showToast('Please enter a valid location', 'error'); return; } loc = customLoc; }
@@ -934,23 +916,39 @@
 
             const btn = document.getElementById('submitUpdateBtn'); btn.disabled = true; btn.textContent = 'Processing...';
 
-            let actionParams = { action: isEditMode ? 'update' : 'add', itemName: currentItem || '', name: sanitizedName, location: sanitizedLoc, newLocation: sanitizedLoc, expiry: exp, newExpiry: exp, user: sanitizedUser, updatedBy: sanitizedUser, remark: "" };
+            let actionParams = { action: isEditMode ? 'update' : 'add', itemName: currentItem || '', name: sanitizedName, location: sanitizedLoc, newLocation: sanitizedLoc, expiry: exp, newExpiry: exp, status: status, remark: remark, user: sanitizedUser, updatedBy: sanitizedUser };
 
-            if (isEditMode) { let idx = inventoryData.findIndex(i => i.name === currentItem); if (idx !== -1) { inventoryData[idx].location = sanitizedLoc; inventoryData[idx].expiry = exp; inventoryData[idx].updatedBy = sanitizedUser; }
-            } else { inventoryData.push({ name: sanitizedName, location: sanitizedLoc, expiry: exp, updatedBy: sanitizedUser, remark: "" }); }
+            if (isEditMode) { let idx = inventoryData.findIndex(i => i.name === currentItem); if (idx !== -1) { inventoryData[idx].location = sanitizedLoc; inventoryData[idx].expiry = exp; inventoryData[idx].status = status; inventoryData[idx].remark = remark; inventoryData[idx].updatedBy = sanitizedUser; }
+            } else { inventoryData.push({ name: sanitizedName, location: sanitizedLoc, expiry: exp, status: status, remark: remark, updatedBy: sanitizedUser }); }
+            
             applyFilters();
+            submitActionToQueue(actionParams);
+            
+            btn.disabled = false; btn.textContent = 'SAVE CHANGES';
+            closeModal();
+        }
 
+        // --- OFFLINE SYNC ---
+        function submitActionToQueue(actionParams) {
             if (navigator.onLine) {
                 let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
-                fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; if (res.success) { showToast('Saved Successfully!', 'success'); closeModal(); loadInventory(); } else showToast(res.error || 'Save failed', 'error'); }).catch(e => { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; });
-            } else {
-                let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); queue.push(actionParams);
-                localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue)); btn.disabled = false; btn.textContent = 'SAVE CHANGES'; showToast('Saved Offline! Will sync automatically.', 'warning'); updatePendingTile(); closeModal();
-            }
+                fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => { 
+                    if (res.success) { showToast('Saved to Google Sheet!', 'success'); loadInventory(); } 
+                    else showToast(res.error || 'Save failed', 'error'); 
+                }).catch(e => { pushToQueue(actionParams); });
+            } else { pushToQueue(actionParams); }
+        }
+
+        function pushToQueue(actionParams) {
+            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); queue.push(actionParams);
+            localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue)); showToast('Saved Offline! Will sync automatically.', 'warning'); updatePendingTile();
         }
 
         async function processSyncQueue(manual = false) {
-            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); if (queue.length === 0 || !navigator.onLine) return;
+            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); if (queue.length === 0) { if(manual) showToast("No pending syncs.", "success"); return; }
+            if (!navigator.onLine) { if(manual) showToast("Still offline.", "error"); return; }
+
+            showToast(`Syncing ${queue.length} offline changes...`, 'warning');
             let successCount = 0; let failureCount = 0;
             for (let i = 0; i < queue.length; i++) {
                 let task = queue[i]; let query = Object.keys(task).map(k => `${k}=${encodeURIComponent(task[k])}`).join('&');
@@ -961,55 +959,24 @@
 
         function viewPendingSyncs() {
             let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
-            if (queue.length === 0) { 
-                showAckPopup("All Synced", "<div style='text-align:center;'><i class='fas fa-check-circle' style='font-size:3rem; color:var(--secondary); margin-bottom:15px;'></i><br>No pending data to sync. Your app is up to date!</div>", "fas fa-cloud", "var(--secondary)");
-                return; 
-            }
-            let html = "<div style='text-align:left; font-size:0.85rem; max-height:250px; overflow-y:auto; padding-right:5px;'>";
-            queue.forEach((q, i) => { 
-                let actionColor = q.action === 'add' ? 'var(--secondary)' : 'var(--primary)';
-                let actionIcon = q.action === 'add' ? 'fa-plus-circle' : 'fa-edit';
-                html += `<div style="background:var(--bg-color); border:1px solid var(--border); border-radius:8px; padding:10px; margin-bottom:10px; display:flex; align-items:center; gap:10px;">
-                    <i class="fas ${actionIcon}" style="color:${actionColor}; font-size:1.2rem;"></i>
-                    <div style="flex:1;">
-                        <div style="font-weight:700; color:var(--dark); margin-bottom:2px;">${sanitizeInput(q.name)}</div>
-                        <div style="font-size:0.75rem; color:var(--gray);"><i class="fas fa-user" style="font-size:0.6rem;"></i> ${sanitizeInput(q.updatedBy)} &nbsp; | &nbsp; <i class="fas fa-map-marker-alt" style="font-size:0.6rem;"></i> ${sanitizeInput(q.location)}</div>
-                    </div>
-                </div>`; 
-            });
+            if (queue.length === 0) { showToast("No pending data to sync.", "success"); return; }
+            let html = "<div style='text-align:left; font-size:0.8rem; max-height:200px; overflow-y:auto;'>";
+            queue.forEach((q, i) => { html += `<div style="padding:8px; border-bottom:1px solid #eee;"><b>${i+1}. ${q.name}</b><br><span style="color:var(--gray)">${q.action} - ${q.updatedBy}</span></div>`; });
             html += "</div>";
-            html += `<div style="margin-top:15px; display:flex; gap:10px;">
-                <button class="btn-primary" onclick="processSyncQueue(true); document.getElementById('ackModalOverlay').classList.remove('active');" style="flex:2; padding:12px; border-radius:12px; box-shadow: 0 4px 10px rgba(26,115,232,0.3);"><i class="fas fa-cloud-upload-alt"></i> SYNC NOW</button>
-                <button class="btn-secondary" onclick="clearSyncQueue()" style="flex:1; padding:12px; border-radius:12px; color:var(--danger); border-color:var(--danger);"><i class="fas fa-trash-alt"></i> CLEAR</button>
-            </div>`;
-            showAckPopup("Pending Changes (" + queue.length + ")", html, "fas fa-sync fa-spin", "var(--warning)");
-        }
-
-        function clearSyncQueue() {
-            if(confirm("Are you sure you want to permanently delete all pending offline changes?")) {
-                localStorage.removeItem('tabreed_sync_queue');
-                updatePendingTile();
-                document.getElementById('ackModalOverlay').classList.remove('active');
-                showToast("Pending queue cleared.", "info");
-            }
+            html += `<div style="margin-top:15px;"><button class="btn-primary" onclick="processSyncQueue(true); document.getElementById('ackModalOverlay').classList.remove('active');" style="width:100%; padding:10px; border-radius:12px;">SYNC NOW</button></div>`;
+            showAckPopup("Pending Syncs (" + queue.length + ")", html, "fas fa-sync", "var(--warning)");
         }
 
         function updatePendingTile() { let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); document.getElementById('pending-sync-tile').innerText = queue.length + " Pending"; const badge = document.getElementById('queue-badge'); if(queue.length > 0) { badge.innerText = queue.length + " pending"; badge.style.display = 'inline-block'; } else badge.style.display = 'none'; }
         
-        function updateStatus(online) { 
-            triggerPopAnim('connectionStatus');
-            const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335'; document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline'; if(online) processSyncQueue(); 
-        }
-        window.addEventListener('online', () => updateStatus(true)); window.addEventListener('offline', () => updateStatus(false));
-
         function showStats() { 
             const total = inventoryData.length; const locationsCount = locations.length;
             const expiringCount = inventoryData.filter(item => { if (!item.expiry || item.expiry === '-') return false; const parts = item.expiry.split('.'); const exp = new Date(parts[2], parts[1] - 1, parts[0]); const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24)); return diff <= 30; }).length;
-            let statHtml = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); color: var(--dark);"><span style="font-weight:600;">Total Instruments:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${total}</span></div><div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--border); color: var(--dark);"><span style="font-weight:600;">Total Locations:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${locationsCount}</span></div><div style="display:flex; justify-content:space-between; color: var(--dark);"><span style="font-weight:600; color:var(--danger);">Expiring Soon:</span> <span style="font-size:1.1rem; color:var(--danger); font-weight:800;">${expiringCount}</span></div>`;
+            let statHtml = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;"><span style="font-weight:600;">Total Instruments:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${total}</span></div><div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;"><span style="font-weight:600;">Total Locations:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${locationsCount}</span></div><div style="display:flex; justify-content:space-between;"><span style="font-weight:600; color:var(--danger);">Expiring Soon:</span> <span style="font-size:1.1rem; color:var(--danger); font-weight:800;">${expiringCount}</span></div>`;
             showAckPopup("Inventory Statistics", statHtml, "fas fa-chart-pie", "var(--primary)");
         }
 
-        // --- ENHANCED FEEDBACK SYSTEM (DUBAI TIMESTAMP) ---
+        // --- FEEDBACK SYSTEM ---
         function getDubaiTime() {
             let d = new Date(); let utc = d.getTime() + (d.getTimezoneOffset() * 60000); let dubaiTime = new Date(utc + (3600000 * 4));
             let day = String(dubaiTime.getDate()).padStart(2, '0'); let month = String(dubaiTime.getMonth() + 1).padStart(2, '0'); let year = dubaiTime.getFullYear();
@@ -1018,10 +985,7 @@
         }
 
         function openFeedbackModal() { document.getElementById('feedbackEmpId').value = ''; document.getElementById('feedbackName').value = ''; document.getElementById('feedbackText').value = ''; document.getElementById('feedbackModal').classList.add('active'); }
-        function closeFeedbackModal() { 
-            document.getElementById('feedbackModal').classList.remove('active');
-            document.activeElement.blur();
-        }
+        function closeFeedbackModal() { document.getElementById('feedbackModal').classList.remove('active'); }
 
         function autoFillName() { const empId = document.getElementById('feedbackEmpId').value.trim(); const nameInput = document.getElementById('feedbackName'); const match = EMPLOYEES.find(emp => emp.code === empId); if (match) { nameInput.value = match.short; } }
         function autoFillEmpId() { const nameVal = document.getElementById('feedbackName').value.trim().toLowerCase(); const idInput = document.getElementById('feedbackEmpId'); if (nameVal.length >= 3) { const match = EMPLOYEES.find(emp => emp.full.toLowerCase().includes(nameVal) || emp.short.toLowerCase().includes(nameVal)); if (match) { idInput.value = match.code; } } }
@@ -1044,25 +1008,9 @@
             showToast('Preparing PDF Engine...', 'info');
             if (typeof html2pdf === 'undefined') { const script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'; script.onload = () => generatePDF(); document.body.appendChild(script); } else generatePDF();
         }
-        
         function generatePDF() {
             const el = document.querySelector('.inventory-section'); const now = new Date(); const fileName = `List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}.pdf`;
-            
-            const isDark = document.body.classList.contains('dark-mode');
-            if (isDark) {
-                el.style.backgroundColor = '#ffffff';
-                const cells = el.querySelectorAll('td, th'); cells.forEach(cell => cell.style.color = '#333333');
-                const headers = el.querySelectorAll('th'); headers.forEach(header => header.style.backgroundColor = '#f8f9fa');
-            }
-
-            html2pdf().set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save().then(() => {
-                showToast('PDF Downloaded!', 'success');
-                if (isDark) {
-                    el.style.backgroundColor = '';
-                    const cells = el.querySelectorAll('td, th'); cells.forEach(cell => cell.style.color = '');
-                    const headers = el.querySelectorAll('th'); headers.forEach(header => header.style.backgroundColor = '');
-                }
-            });
+            html2pdf().set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } }).from(el).save().then(() => showToast('PDF Downloaded!', 'success'));
         }
 
         // --- HISTORY WITH SKELETON LOADING ---
@@ -1077,14 +1025,16 @@
             if (navigator.onLine) { 
                 fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => { if (res.success) { fullHistoryData = res.data || []; renderHistoryTable(res.data); } }); 
             } else {
-                showToast("You are offline. Cannot load live history.", "warning"); tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--dark);">Offline</td></tr>';
+                showToast("You are offline. Loading cached history.", "warning");
+                const saved = localStorage.getItem("localTabreedHistory"); 
+                if (saved) { fullHistoryData = JSON.parse(saved).data; renderHistoryTable(fullHistoryData); } else { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No offline history found</td></tr>'; }
             }
         }
-        function filterHistory() { const term = document.getElementById('historySearch').value.toLowerCase().trim(); renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term))); }
+        function filterHistory() { const term = document.getElementById('historySearch').value.toLowerCase().trim(); renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term) || (log.oldLoc || "").toLowerCase().includes(term) || (log.newLoc || "").toLowerCase().includes(term))); }
         function renderHistoryTable(data) {
             const tbody = document.getElementById('historyTableBody');
-            if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--dark);">No history found</td></tr>'; return; }
-            tbody.innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${sanitizeInput(log.time || '')}</td><td style="font-weight:600;">${sanitizeInput(log.item || '')}</td><td><span class="location-tag" style="background:var(--bg-color); color:var(--gray); border:1px solid var(--border);">${sanitizeInput(log.oldLoc || '')}</span></td><td><span class="location-tag" style="background:var(--primary-light); color:var(--primary);">${sanitizeInput(log.newLoc || '')}</span></td><td style="font-size:0.8rem;">${sanitizeInput(log.user || '')}</td></tr>`).join('');
+            if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No history found</td></tr>'; return; }
+            tbody.innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${sanitizeInput(log.time || '')}</td><td style="font-weight:600;">${sanitizeInput(log.item || '')}</td><td><span class="location-tag" style="background:#f0f0f0; color:#666;">${sanitizeInput(log.oldLoc || '')}</span></td><td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${sanitizeInput(log.newLoc || '')}</span></td><td style="font-size:0.8rem;">${sanitizeInput(log.user || '')}</td></tr>`).join('');
         }
     </script>
 </body>
