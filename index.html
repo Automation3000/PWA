@@ -47,7 +47,11 @@
         .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
         
         .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
-        .action-btn { background: white; border: none; flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); visibility: visible; position: relative; }
+        .action-btn { background: white; border: none; flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); visibility: visible; position: relative; border: 2px solid transparent;}
+        
+        /* ACTIVE FILTER CLASS */
+        .filter-active { background-color: var(--primary-light) !important; border: 2px solid var(--primary) !important; color: var(--primary-dark) !important; }
+        .filter-active i { color: var(--primary-dark) !important; }
 
         .select-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
         .action-content { pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
@@ -55,12 +59,12 @@
         .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
         .table-container { overflow-x: auto; }
         
-        /* ADJUSTED COLUMNS (Removed Status) */
+        /* ADJUSTED COLUMNS FOR PERFECT A4/UI FIT */
         .inventory-table { width: 100%; border-collapse: collapse; min-width: 650px; table-layout: fixed; }
-        .inventory-table th:nth-child(1) { width: 30%; padding-left: 1.5rem; }
+        .inventory-table th:nth-child(1) { width: 35%; padding-left: 1.5rem; }
         .inventory-table th:nth-child(2) { width: 20%; }
         .inventory-table th:nth-child(3) { width: 15%; text-align: center;}
-        .inventory-table th:nth-child(4) { width: 20%; text-align: center; }
+        .inventory-table th:nth-child(4) { width: 15%; text-align: center; }
         .inventory-table th:nth-child(5) { width: 15%; }
         
         .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
@@ -72,10 +76,10 @@
         .expiry-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; background: #f8f9fa; color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); width: 100%; white-space: nowrap; transition: 0.3s; }
         .expiry-badge.expired { color: var(--danger) !important; border-color: var(--danger) !important; background: #ffebee !important; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; z-index: 2000; align-items: center; justify-content: center; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; z-index: 9999; align-items: center; justify-content: center; }
         .modal-overlay.active { display: flex; }
-        .modal-overlay.feedback-overlay { z-index: 2100; }
-        .modal-overlay.ack-overlay { z-index: 4000; }
+        .modal-overlay.feedback-overlay { z-index: 9999; }
+        .modal-overlay.ack-overlay { z-index: 10000; }
         
         .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
         .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
@@ -90,6 +94,7 @@
         .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
         .btn-primary { flex: 1; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
         .btn-secondary { flex: 1; padding: 1rem; background: white; color: var(--dark); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; }
+        .btn-secondary:hover { background: var(--light); }
         
         .slide-unlock { -webkit-appearance: none; width: 100%; height: 36px; background: transparent; outline: none; z-index: 2; position: absolute; top: 0; left: 0; margin: 0; }
         .slide-unlock::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 34px; height: 34px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: center; }
@@ -106,9 +111,10 @@
             .inventory-table th { padding: 1rem 0.5rem !important; font-size: 0.8rem !important; }
             .inventory-table td:first-child, .inventory-table th:first-child { padding-left: 15px !important; }
             .update-flex-row { flex-direction: column; align-items: stretch; gap: 10px; }
+            .ack-modal { height: auto !important; max-height: 80% !important; border-radius: 16px !important; margin: 20px !important; }
         }
 
-        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 3000; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
         .toast { background: rgba(255,255,255,0.95); backdrop-filter: blur(5px); padding: 12px 20px; border-radius: 50px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: 600; border: 1px solid var(--border); color: var(--dark); font-size: 0.85rem; }
         @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
@@ -152,6 +158,13 @@
         .full-screen-iframe { width: 100%; height: 100%; border: none; }
         .fiori-app-header { height: 48px; background: #3f5161; color: white; display: none; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .back-btn-fiori { background: none; border: none; color: white; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+
+        /* MODERN HISTORY PAGE DESIGN */
+        .history-card { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; margin: 15px; }
+        .history-table { width: 100%; border-collapse: collapse; min-width: 600px;}
+        .history-table th { background: #f1f3f4; padding: 14px 16px; text-align: left; font-size: 0.85rem; color: #5f6368; border-bottom: 2px solid #dadce0; }
+        .history-table td { padding: 14px 16px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .history-table tr:hover { background-color: #f8f9fa; }
     </style>
 </head>
 <body>
@@ -283,7 +296,7 @@
             <div class="quick-actions">
                 <button id="btn-refresh" class="action-btn" onclick="refreshAndReset()"><i class="fas fa-sync-alt" style="color: var(--primary); margin-bottom: 5px;"></i><span>Refresh</span></button>
                 
-                <div class="action-btn" style="padding: 0;">
+                <div id="btn-location-wrapper" class="action-btn" style="padding: 0;">
                     <div class="action-content">
                         <i class="fas fa-filter" style="color: var(--secondary); margin-bottom: 5px;"></i>
                         <span id="label-location">All Locations</span>
@@ -293,7 +306,7 @@
                     </select>
                 </div>
 
-                <div class="action-btn" style="padding: 0;">
+                <div id="btn-expiry-wrapper" class="action-btn" style="padding: 0;">
                     <div class="action-content">
                         <i class="fas fa-hourglass-half" style="color: #1976d2; margin-bottom: 5px;"></i>
                         <span id="label-expiry">Expiry</span>
@@ -309,11 +322,6 @@
                         <option value="NOT_MENTIONED">Expiry not Mention</option>
                     </select>
                 </div>
-
-                <button id="btn-calib-filter" class="action-btn" onclick="toggleCalibFilter(); triggerPopAnim('btn-refresh');">
-                    <i class="fas fa-tools" style="color: #e65100; margin-bottom: 5px;"></i>
-                    <span style="font-size: 0.65rem; text-align:center;">Goes for Cal.</span>
-                </button>
 
                 <button class="action-btn" onclick="openAddModal()"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
                 <button class="action-btn" onclick="showStats()"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
@@ -339,127 +347,133 @@
                 </div>
             </section>
         </div>
-
-        <div class="modal-overlay" id="updateModal">
-            <div class="modal">
-                <div class="modal-header">
-                    <h3 id="modalTitle"><i class="fas fa-edit"></i> Update Details</h3>
-                    <button onclick="closeModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+    </div>
+    
+    <div class="modal-overlay" id="updateModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle"><i class="fas fa-edit"></i> Update Details</h3>
+                <button onclick="closeModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Instrument Name</label>
+                    <input type="text" id="modalItemName" readonly style="background: #f5f5f5;">
                 </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label>Instrument Name</label>
-                        <input type="text" id="modalItemName" readonly style="background: #f5f5f5;">
-                    </div>
-                    <div class="form-group">
-                        <label>Current Location *</label>
-                        <select id="modalLocation" onchange="handleLocationChange(this.value)"></select>
-                        <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px;">
-                    </div>
+                <div class="form-group">
+                    <label>Current Location *</label>
+                    <select id="modalLocation" onchange="handleLocationChange(this.value)"></select>
+                    <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px;">
+                </div>
 
-                    <div class="form-group">
-                        <label>Expiry Date (Optional)</label>
-                        <div id="sliderContainer" style="position: relative; width: 100%; height: 36px; background: #e9ecef; border-radius: 18px; border: 1px solid #ced4da;">
-                            <div id="sliderText" style="position: absolute; width: 100%; text-align: center; line-height: 34px; color: #6c757d; pointer-events: none; font-size: 0.8rem; font-weight: bold;">Slide to Edit Expiry</div>
-                            <input type="range" min="0" max="100" value="0" id="unlockSlider" class="slide-unlock" oninput="checkUnlock(this)" onchange="snapUnlock(this)">
-                        </div>
-                        <div id="expiryDateContainer" style="display:none;">
-                            <input type="date" id="modalExpiry" style="cursor: pointer; background: white; color: var(--dark); width: 100%;">
-                        </div>
+                <div class="form-group">
+                    <label>Expiry Date (Optional)</label>
+                    <div id="sliderContainer" style="position: relative; width: 100%; height: 36px; background: #e9ecef; border-radius: 18px; border: 1px solid #ced4da;">
+                        <div id="sliderText" style="position: absolute; width: 100%; text-align: center; line-height: 34px; color: #6c757d; pointer-events: none; font-size: 0.8rem; font-weight: bold;">Slide to Edit Expiry</div>
+                        <input type="range" min="0" max="100" value="0" id="unlockSlider" class="slide-unlock" oninput="checkUnlock(this)" onchange="snapUnlock(this)">
                     </div>
+                    <div id="expiryDateContainer" style="display:none;">
+                        <input type="date" id="modalExpiry" style="cursor: pointer; background: white; color: var(--dark); width: 100%;">
+                    </div>
+                </div>
 
-                    <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-                        <input type="checkbox" id="remarkCheckbox" onchange="document.getElementById('remarkGroup').style.display = this.checked ? 'block' : 'none'" style="width: 20px; height: 20px; cursor: pointer;">
-                        <label for="remarkCheckbox" style="margin:0; font-size: 0.95rem; cursor: pointer;">Add Remark</label>
-                    </div>
-                    <div class="form-group" id="remarkGroup" style="display:none;">
-                        <textarea id="modalRemark" placeholder="Write a remark..." style="width:100%; min-height:80px; padding:10px; border: 2px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; background: white; color: var(--dark);"></textarea>
-                    </div>
+                <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+                    <input type="checkbox" id="remarkCheckbox" onchange="document.getElementById('remarkGroup').style.display = this.checked ? 'block' : 'none'" style="width: 20px; height: 20px; cursor: pointer;">
+                    <label for="remarkCheckbox" style="margin:0; font-size: 0.95rem; cursor: pointer;">Add Remark</label>
+                </div>
+                <div class="form-group" id="remarkGroup" style="display:none;">
+                    <textarea id="modalRemark" placeholder="Write a remark..." style="width:100%; min-height:80px; padding:10px; border: 2px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; background: white; color: var(--dark);"></textarea>
+                </div>
 
-                    <div class="update-flex-row">
-                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label>Updated By *</label>
-                            <input type="text" id="modalUpdatedBy" placeholder="Your Name" required>
-                        </div>
+                <div class="update-flex-row">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Updated By *</label>
+                        <input type="text" id="modalUpdatedBy" placeholder="Your Name" required>
                     </div>
-                    
-                    <div class="modal-actions">
-                        <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
-                        <button class="btn-secondary" onclick="closeModal()">CANCEL</button>
-                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
+                    <button class="btn-secondary" onclick="closeModal()">CANCEL</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="modal-overlay feedback-overlay" id="feedbackModal">
-            <div class="modal">
-                <div class="modal-header">
-                    <h3><i class="fas fa-comment-dots"></i> Send Feedback</h3>
-                    <button onclick="closeFeedbackModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+    <div class="modal-overlay feedback-overlay" id="feedbackModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-comment-dots"></i> Send Feedback</h3>
+                <button onclick="closeFeedbackModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="update-flex-row" style="margin-bottom: 1rem;">
+                    <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
+                        <label>Employee ID</label>
+                        <input type="text" inputmode="numeric" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
+                    </div>
+                    <div class="form-group" style="flex: 2; min-width: 180px; margin-bottom: 0;">
+                        <label>Name</label>
+                        <input type="text" id="feedbackName" placeholder="Your Name" oninput="autoFillEmpId()">
+                    </div>
                 </div>
-                <div class="modal-body">
-                    <div class="update-flex-row" style="margin-bottom: 1rem;">
-                        <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
-                            <label>Employee ID</label>
-                            <input type="text" inputmode="numeric" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
-                        </div>
-                        <div class="form-group" style="flex: 2; min-width: 180px; margin-bottom: 0;">
-                            <label>Name</label>
-                            <input type="text" id="feedbackName" placeholder="Your Name" oninput="autoFillEmpId()">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Feedback / Suggestion</label>
-                        <textarea id="feedbackText" placeholder="Write your feedback..." style="min-height: 100px;"></textarea>
-                    </div>
-                    <div class="modal-actions">
-                        <button class="btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">SEND FEEDBACK</button>
-                        <button class="btn-secondary" onclick="closeFeedbackModal()">CANCEL</button>
-                    </div>
+                <div class="form-group">
+                    <label>Feedback / Suggestion</label>
+                    <textarea id="feedbackText" placeholder="Write your feedback..." style="min-height: 100px;"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">SEND FEEDBACK</button>
+                    <button class="btn-secondary" onclick="closeFeedbackModal()">CANCEL</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="modal-overlay ack-overlay" id="ackModalOverlay">
-            <div class="modal ack-modal" style="max-width: 320px; text-align: center; border-radius: 20px; padding: 10px;">
-                <div class="modal-body" style="padding: 20px 15px;">
-                    <div id="ackIcon" style="font-size: 3.5rem; margin-bottom: 15px;"></div>
-                    <h2 id="ackTitle" style="margin-top: 0; color: #1a202c; font-weight: 800; font-size: 1.3rem;"></h2>
-                    <p id="ackMessage" style="color: #4a5568; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px; word-wrap:break-word;"></p>
-                    <button class="btn-primary" onclick="document.getElementById('ackModalOverlay').classList.remove('active')" style="width: 100%; border-radius: 12px; padding: 12px;">OK, GOT IT</button>
-                </div>
+    <div class="modal-overlay ack-overlay" id="ackModalOverlay">
+        <div class="modal ack-modal" style="max-width: 320px; text-align: center; border-radius: 20px; padding: 10px;">
+            <div class="modal-body" style="padding: 20px 15px;">
+                <div id="ackIcon" style="font-size: 3.5rem; margin-bottom: 15px;"></div>
+                <h2 id="ackTitle" style="margin-top: 0; color: #1a202c; font-weight: 800; font-size: 1.3rem;"></h2>
+                <p id="ackMessage" style="color: #4a5568; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px; word-wrap:break-word;"></p>
+                <button class="btn-primary" onclick="document.getElementById('ackModalOverlay').classList.remove('active')" style="width: 100%; border-radius: 12px; padding: 12px;">OK, GOT IT</button>
             </div>
         </div>
+    </div>
 
-        <div id="historyPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:5000; overflow-y:auto;">
-            <header class="app-header">
-                <div class="header-content">
-                    <div class="brand">
-                        <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px; color: var(--primary); font-size: 1.2rem;"><i class="fas fa-arrow-left fa-lg"></i></button>
-                        <h1 style="font-size: 1.1rem;">Update History</h1>
-                    </div>
-                    <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;"><i class="fas fa-sync-alt"></i></button>
+    <div id="historyPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#e4edf5; z-index:9000; overflow-y:auto;">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="brand">
+                    <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px; color: var(--primary); font-size: 1.2rem;"><i class="fas fa-arrow-left fa-lg"></i></button>
+                    <h1 style="font-size: 1.1rem; margin:0;">Update History</h1>
                 </div>
-            </header>
-            <div class="search-container">
+                <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </header>
+        
+        <div class="app-container" style="max-width: 900px; padding-top: 15px;">
+            <div class="search-container" style="margin: 0 15px 15px 15px;">
                 <div class="search-box">
                     <i class="fas fa-search search-icon"></i>
                     <input type="text" id="historySearch" placeholder="Filter history..." oninput="filterHistory()">
                 </div>
             </div>
-            <div class="table-container" style="padding:10px;">
-                <table class="inventory-table" style="min-width: 500px;">
-                    <thead>
-                        <tr>
-                            <th style="width: 25%; padding-left: 1.5rem;">Date & Time</th>
-                            <th style="width: 25%;">Instrument</th>
-                            <th style="width: 20%;">From Location</th>
-                            <th style="width: 20%;">To Location</th>
-                            <th style="width: 10%;">By</th>
-                        </tr>
-                    </thead>
-                    <tbody id="historyTableBody"></tbody>
-                </table>
+            
+            <div class="history-card">
+                <div class="table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Instrument</th>
+                                <th>From Location</th>
+                                <th>To Location</th>
+                                <th>Updated By</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -615,16 +629,8 @@
             triggerPopAnim('btn-refresh');
             document.getElementById('locationFilter').value = 'ALL'; document.getElementById('expiryFilter').value = 'ALL'; document.getElementById('searchInput').value = '';
             document.getElementById('label-location').innerText = 'All Locations'; document.getElementById('label-expiry').innerText = 'Expiry'; 
-            calibFilterActive = false; document.getElementById('btn-calib-filter').style.background = 'white'; document.getElementById('btn-calib-filter').style.border = 'none';
-            loadInventory();
-        }
-
-        let calibFilterActive = false;
-        function toggleCalibFilter() {
-            calibFilterActive = !calibFilterActive;
-            const btn = document.getElementById('btn-calib-filter');
-            if(calibFilterActive) { btn.style.background = '#fff3e0'; btn.style.border = '1px solid #e65100'; } else { btn.style.background = 'white'; btn.style.border = 'none'; }
             applyFilters();
+            loadInventory();
         }
 
         function loadInventory() {
@@ -665,13 +671,19 @@
         }
 
         function applyFilters() {
-            const term = document.getElementById('searchInput').value.toLowerCase().trim(); const loc = document.getElementById('locationFilter').value; const expDays = document.getElementById('expiryFilter').value; 
+            const term = document.getElementById('searchInput').value.toLowerCase().trim(); 
+            const loc = document.getElementById('locationFilter').value; 
+            const expDays = document.getElementById('expiryFilter').value; 
+
+            // HIGHLIGHT ACTIVE FILTERS
+            document.getElementById('btn-location-wrapper').classList.toggle('filter-active', loc !== 'ALL');
+            document.getElementById('btn-expiry-wrapper').classList.toggle('filter-active', expDays !== 'ALL');
 
             let filtered = inventoryData.filter(i => {
-                const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term); const matchLoc = (loc === "ALL" || i.location === loc);
-                let matchExp = true; let matchCalib = true;
+                const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term); 
+                const matchLoc = (loc === "ALL" || i.location === loc);
+                let matchExp = true; 
 
-                if (calibFilterActive) { matchCalib = (i.location === "Calibration/Repair" || i.location === "Sent for Calibration/Repair"); }
                 if (expDays !== "ALL") {
                     if (expDays === "NOT_MENTIONED") { matchExp = (!i.expiry || i.expiry === '-'); } 
                     else if (!i.expiry || i.expiry === '-') { matchExp = false; } 
@@ -680,11 +692,12 @@
                         if (expDays === "EXPIRED") { matchExp = (diff < 0); } else { matchExp = (diff >= 0 && diff <= parseInt(expDays)); }
                     }
                 }
-                return matchSearch && matchLoc && matchExp && matchCalib;
-            }); renderTable(filtered);
+                return matchSearch && matchLoc && matchExp;
+            }); 
+            renderTable(filtered);
         }
 
-        // --- TABLE RENDER & EXPIRY LOGIC (NO STATUS) ---
+        // --- TABLE RENDER (NO STATUS) ---
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
             if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray);">No instruments found</td></tr>'; return; }
@@ -762,7 +775,16 @@
         function snapUnlock(slider) { if(slider.value < 100) { slider.value = 0; } }
         function resetSlider() { const slider = document.getElementById('unlockSlider'); slider.value = 0; document.getElementById('sliderContainer').style.display = 'block'; document.getElementById('expiryDateContainer').style.display = 'none'; document.getElementById('modalExpiry').disabled = true; }
         
-        function closeModal() { document.getElementById('modalLocation').style.display = 'block'; document.getElementById('customLocation').style.display = 'none'; document.getElementById('customLocation').value = ''; document.getElementById('locationHint').style.display = 'none'; document.getElementById('updateModal').classList.remove('active'); }
+        function closeModal() { 
+            document.getElementById('updateModal').classList.remove('active');
+            setTimeout(() => {
+                document.getElementById('modalLocation').style.display = 'block'; 
+                document.getElementById('customLocation').style.display = 'none'; 
+                document.getElementById('customLocation').value = ''; 
+                const hint = document.getElementById('locationHint'); if(hint) hint.style.display = 'none';
+                document.getElementById('modalExpiry').value = ''; 
+            }, 300);
+        }
         
         function updateLocationsDropdown() { const modalSelect = document.getElementById('modalLocation'); let modalOpts = locations.map(l => `<option value="${l}">${l}</option>`).join(''); modalOpts += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`; modalSelect.innerHTML = modalOpts; const filterSelect = document.getElementById('locationFilter'); let filterOpts = `<option value="ALL">All Locations</option>` + locations.map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts; }
         
@@ -799,7 +821,7 @@
             if (navigator.onLine) {
                 let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
                 fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => { 
-                    if (res.success) { showToast('Saved to Google Sheet!', 'success'); loadInventory(); } 
+                    if (res.success) { showToast('Saved successfully!', 'success'); loadInventory(); } 
                     else { addLog('ERROR','Save API Reject', res); showToast(res.error || 'Save failed', 'error'); }
                 }).catch(e => { pushToQueue(actionParams); });
             } else { pushToQueue(actionParams); }
@@ -882,7 +904,7 @@
         }
         function generatePDF() {
             const el = document.querySelector('.inventory-section'); const now = new Date(); const fileName = `List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}.pdf`;
-            html2pdf().set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } }).from(el).save().then(() => showToast('PDF Downloaded!', 'success'));
+            html2pdf().set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save().then(() => showToast('PDF Downloaded!', 'success'));
         }
 
         // --- HISTORY WITH SKELETON LOADING ---
@@ -906,7 +928,13 @@
         function renderHistoryTable(data) {
             const tbody = document.getElementById('historyTableBody');
             if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No history found</td></tr>'; return; }
-            tbody.innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${sanitizeInput(log.time || '')}</td><td style="font-weight:600;">${sanitizeInput(log.item || '')}</td><td><span class="location-tag" style="background:#f0f0f0; color:#666;">${sanitizeInput(log.oldLoc || '')}</span></td><td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${sanitizeInput(log.newLoc || '')}</span></td><td style="font-size:0.8rem;">${sanitizeInput(log.user || '')}</td></tr>`).join('');
+            tbody.innerHTML = data.map(log => `<tr>
+                <td style="font-size:0.75rem; color:var(--gray);">${sanitizeInput(log.time || '')}</td>
+                <td style="font-weight:600;">${sanitizeInput(log.item || '')}</td>
+                <td><span class="location-tag" style="background:#f0f0f0; color:#666;">${sanitizeInput(log.oldLoc || '')}</span></td>
+                <td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${sanitizeInput(log.newLoc || '')}</span></td>
+                <td style="font-size:0.85rem; font-weight:600;">${sanitizeInput(log.user || '')}</td>
+            </tr>`).join('');
         }
     </script>
 </body>
