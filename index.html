@@ -75,13 +75,12 @@
         .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
         .table-container { overflow-x: auto; }
         
-        .inventory-table { width: 100%; border-collapse: collapse; min-width: 750px; table-layout: fixed; }
-        .inventory-table th:nth-child(1) { width: 25%; padding-left: 1.5rem; }
-        .inventory-table th:nth-child(2) { width: 16%; }
-        .inventory-table th:nth-child(3) { width: 12%; }
-        .inventory-table th:nth-child(4) { width: 18%; }
-        .inventory-table th:nth-child(5) { width: 15%; text-align: center; }
-        .inventory-table th:nth-child(6) { width: 14%; }
+        .inventory-table { width: 100%; border-collapse: collapse; min-width: 650px; table-layout: fixed; }
+        .inventory-table th:nth-child(1) { width: 30%; padding-left: 1.5rem; }
+        .inventory-table th:nth-child(2) { width: 20%; }
+        .inventory-table th:nth-child(3) { width: 15%; }
+        .inventory-table th:nth-child(4) { width: 20%; text-align: center; }
+        .inventory-table th:nth-child(5) { width: 15%; }
         
         .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
         .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; word-wrap: break-word; overflow-wrap: break-word; }
@@ -432,10 +431,9 @@
                 <div class="table-container">
                     <table class="inventory-table">
                         <thead>
-                            <tr>
+<tr>
                                 <th>Instrument</th>
                                 <th>Location</th>
-                                <th>Status</th>
                                 <th>Action</th>
                                 <th class="expiry-td" style="cursor:pointer; color:var(--primary); text-align:center;" onclick="toggleExpiryDisplay()" title="Click to toggle Days/Date">Expiry 🔄</th>
                                 <th>Updated By</th>
@@ -465,14 +463,7 @@
                         <small id="locationHint" style="display:none; color: var(--secondary);">Typing new location...</small>
                     </div>
 
-                    <div class="form-group">
-                        <label for="modalStatus">Status</label>
-                        <select id="modalStatus" style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 2px solid var(--border); background: white; color: var(--dark);">
-                            <option value="Normal">Normal</option>
-                            <option value="Repair">Sent for Calibration/Repair</option>
-                            <option value="Expired">Expired</option>
-                        </select>
-                    </div>
+                    
 
                     <div class="form-group">
                         <label>Expiry Date (Optional)</label>
@@ -837,14 +828,12 @@
                 }
                 const realIdx = inventoryData.findIndex(i => i.name === item.name);
                 
-                let status = item.status || 'Normal';
                 let remarkIcon = item.remark ? ` <i class="fas fa-comment-dots" style="color:var(--primary); cursor:pointer;" title="${sanitizeInput(item.remark)}"></i>` : '';
 
                 return `
                 <tr>
                     <td style="font-weight:600;">${sanitizeInput(item.name)}</td>
                     <td><span class="location-tag">${sanitizeInput(item.location)}</span></td>
-                    <td><span class="status-badge status-${status.replace(/[^a-zA-Z]/g,'')}">${status}</span></td>
                     <td>
                         <button onclick="openUpdateModalByIndex(${realIdx})" style="padding:6px 16px; background:var(--primary); color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Update</button>
                     </td>
@@ -904,7 +893,7 @@
 
         function submitUpdate() {
             const name = document.getElementById('modalItemName').value.trim(); let loc = document.getElementById('modalLocation').value.trim(); const customLoc = document.getElementById('customLocation').value.trim(); const user = document.getElementById('modalUpdatedBy').value.trim(); let exp = document.getElementById('modalExpiry').value;
-            const status = document.getElementById('modalStatus').value; const remark = document.getElementById('remarkCheckbox').checked ? document.getElementById('modalRemark').value.trim() : '';
+            const remark = document.getElementById('remarkCheckbox').checked ? document.getElementById('modalRemark').value.trim() : '';
 
             if (!name || !user) { showToast('Name and Updated By are required!', 'error'); return; }
             if (loc === "NOT_LISTED") { if (!customLoc || customLoc.length < 2) { showToast('Please enter a valid location', 'error'); return; } loc = customLoc; }
@@ -916,10 +905,10 @@
 
             const btn = document.getElementById('submitUpdateBtn'); btn.disabled = true; btn.textContent = 'Processing...';
 
-            let actionParams = { action: isEditMode ? 'update' : 'add', itemName: currentItem || '', name: sanitizedName, location: sanitizedLoc, newLocation: sanitizedLoc, expiry: exp, newExpiry: exp, status: status, remark: remark, user: sanitizedUser, updatedBy: sanitizedUser };
+            let actionParams = { action: isEditMode ? 'update' : 'add', itemName: currentItem || '', name: sanitizedName, location: sanitizedLoc, newLocation: sanitizedLoc, expiry: exp, newExpiry: exp, remark: remark, user: sanitizedUser, updatedBy: sanitizedUser };
 
-            if (isEditMode) { let idx = inventoryData.findIndex(i => i.name === currentItem); if (idx !== -1) { inventoryData[idx].location = sanitizedLoc; inventoryData[idx].expiry = exp; inventoryData[idx].status = status; inventoryData[idx].remark = remark; inventoryData[idx].updatedBy = sanitizedUser; }
-            } else { inventoryData.push({ name: sanitizedName, location: sanitizedLoc, expiry: exp, status: status, remark: remark, updatedBy: sanitizedUser }); }
+            if (isEditMode) { let idx = inventoryData.findIndex(i => i.name === currentItem); if (idx !== -1) { inventoryData[idx].location = sanitizedLoc; inventoryData[idx].expiry = exp; inventoryData[idx].remark = remark; inventoryData[idx].updatedBy = sanitizedUser; }
+            } else { inventoryData.push({ name: sanitizedName, location: sanitizedLoc, expiry: exp, remark: remark, updatedBy: sanitizedUser }); }
             
             applyFilters();
             submitActionToQueue(actionParams);
