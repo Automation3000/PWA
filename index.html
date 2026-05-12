@@ -49,7 +49,7 @@
         .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
         .action-btn { background: white; border: none; flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); visibility: visible; position: relative; border: 2px solid transparent;}
         
-        /* ACTIVE FILTER CLASS - ENHANCED DARK LOOK */
+        /* ACTIVE FILTER CLASS */
         .filter-active { background-color: var(--dark) !important; border: 2px solid #000 !important; color: white !important; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .filter-active i { color: #00c6ff !important; }
         .filter-active span { color: white !important; }
@@ -60,7 +60,6 @@
         .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
         .table-container { overflow-x: auto; }
         
-        /* ADJUSTED COLUMNS FOR PERFECT A4/UI FIT */
         .inventory-table { width: 100%; border-collapse: collapse; min-width: 650px; table-layout: fixed; }
         .inventory-table th:nth-child(1) { width: 35%; padding-left: 1.5rem; }
         .inventory-table th:nth-child(2) { width: 20%; }
@@ -133,10 +132,6 @@
         @media all and (display-mode: standalone) {
             .btn-install-small { display: none !important; }
         }
-
-        #pwa-instructions-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2147483650; justify-content: center; align-items: center; }
-        .pwa-modal-content { background: #fff; padding: 25px; border-radius: 15px; width: 85%; max-width: 350px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
-        .pwa-close-btn { background: #edf2f7; color: #2d3748; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; width: 100%; font-size: 15px; margin-top: 15px;}
 
         #fiori-wrapper { display: block; width: 100%; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
         #launchpad-view { padding: 30px; flex: 1; }
@@ -251,14 +246,6 @@
 
         <div class="launchpad-footer">
             <span>Code Developed by <span id="dev-trigger" onclick="handleDevClick()">Majeed</span></span>
-        </div>
-    </div>
-
-    <div id="pwa-instructions-modal">
-        <div class="pwa-modal-content">
-            <h3 id="pwa-modal-title">Install App</h3>
-            <p id="pwa-modal-text">Instructions generating...</p>
-            <button class="pwa-close-btn" onclick="document.getElementById('pwa-instructions-modal').style.display='none'">Got it, Close</button>
         </div>
     </div>
 
@@ -383,7 +370,6 @@
                     </div>
                 </div>
 
-                <!-- HIDDEN REMARK SECTION AS PER REQUEST -->
                 <div style="display:none;">
                     <div class="form-group" style="display:flex; align-items:center; gap:10px;">
                         <input type="checkbox" id="remarkCheckbox" onchange="document.getElementById('remarkGroup').style.display = this.checked ? 'block' : 'none'" style="width: 20px; height: 20px; cursor: pointer;">
@@ -538,7 +524,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             setupSearch(); updatePendingTile(); processSyncQueue();
             
-            // Check if app is installed (standalone) and hide install button
+            // App Standalone/Installed check to immediately hide Install button
             if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
                 let installBtn = document.querySelector('.btn-install-small');
                 if(installBtn) installBtn.style.display = 'none';
@@ -585,16 +571,20 @@
                         <button class='btn-secondary' onclick=\"localStorage.removeItem('${DEBUG_LOGS}'); document.getElementById('ackModalOverlay').classList.remove('active'); showToast('Logs cleared!', 'success');\" style='flex:1; padding:10px; color:var(--danger);'>CLEAR LOGS</button>
                      </div>`;
             
-            // Temporarily widen modal for logs
             document.getElementById('ackModalCard').style.maxWidth = '600px';
             showAckPopup("System Logs", html, "fas fa-terminal", "#333"); 
         }
 
         // --- SMART PWA INSTALL ---
-        let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
+        let deferredPrompt; 
+        window.addEventListener('beforeinstallprompt', (e) => { 
+            e.preventDefault(); 
+            deferredPrompt = e; 
+        });
+
         window.startSmartInstall = async function() {
-            const androidApkLink = "https://tabreed.automation3000.com/Automation.apk"; const iosProfileLink = "https://tabreed.automation3000.com/Automation.mobileconfig";
-            const modal = document.getElementById('pwa-instructions-modal'); const modalTitle = document.getElementById('pwa-modal-title'); const modalText = document.getElementById('pwa-modal-text');
+            const androidApkLink = "https://tabreed.automation3000.com/Automation.apk"; 
+            const iosProfileLink = "https://tabreed.automation3000.com/Automation.mobileconfig";
             const userAgent = navigator.userAgent || navigator.vendor || window.opera; let os = "Desktop";
             if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) os = "iOS"; else if (/android/i.test(userAgent)) os = "Android";
 
@@ -607,12 +597,17 @@
                         document.querySelector('.btn-install-small').style.display = 'none';
                     } 
                 } 
-                else if (os === "Android") { window.location.href = androidApkLink; setTimeout(() => { modalTitle.innerText = "APK Downloading..."; modalText.innerHTML = "Tap <b>'Install'</b> when done."; modal.style.display = 'flex'; }, 1000); }
+                else if (os === "Android") { 
+                    window.location.href = androidApkLink; 
+                    showAckPopup("Downloading APK...", "Tap <b>'Install'</b> when the download is complete.", "fas fa-download", "var(--primary)");
+                }
                 else {
-                    modalTitle.innerText = "Desktop Environment"; modalText.innerHTML = "Install from the address bar icon, or visit on mobile."; modal.style.display = 'flex';
+                    // Agar desktop par hai aur deferredPrompt null hai, matlab Chrome me already installed hai
+                    showAckPopup("App Already Installed", "Ye app aapke system par pehle se install hai! <br><br> Browser ke address bar me <b>'Open in app'</b> icon (jo aapke screenshot me dikh raha hai) par click karein ya apne PC ke Apps menu se ise direct open karein.", "fas fa-check-circle", "var(--secondary)");
                 }
             } else if (os === "iOS") {
-                window.location.href = iosProfileLink; setTimeout(() => { modalTitle.innerText = "Profile Downloaded!"; modalText.innerHTML = "Install via <b>Settings</b>."; modal.style.display = 'flex'; }, 1500);
+                window.location.href = iosProfileLink; 
+                showAckPopup("Profile Downloaded!", "Install via your iPhone <b>Settings</b> app.", "fab fa-apple", "var(--dark)");
             }
         };
 
@@ -641,7 +636,6 @@
         }
 
         function showAckPopup(title, message, iconClass, iconColor) {
-            // Reset to normal width in case it was opened by log viewer
             if(title !== "System Logs") document.getElementById('ackModalCard').style.maxWidth = '320px';
             document.getElementById('ackIcon').innerHTML = `<i class="${iconClass}" style="color: ${iconColor};"></i>`;
             document.getElementById('ackTitle').innerText = title; document.getElementById('ackMessage').innerHTML = message;
@@ -680,7 +674,6 @@
             }
 
             if (navigator.onLine) {
-                addLog('INFO', 'Attempting to fetch API', { url: GAS_API_URL });
                 fetch(`${GAS_API_URL}?key=AI1&action=getItems`)
                     .then(async r => {
                         if (!r.ok) { let rawText = await r.text(); addLog('ERROR', 'API HTTP Status Error', { status: r.status, response: rawText }); throw new Error(`HTTP Error ${r.status}`); }
@@ -688,7 +681,6 @@
                     })
                     .then(res => {
                         if (res.success) {
-                            addLog('INFO', 'API Fetch Success', { items_count: res.data ? res.data.length : 0 });
                             try { localStorage.setItem("localTabreedInventory", JSON.stringify(res)); inventoryData = res.data || []; locations = res.locations || [];
                                 updateLocationsDropdown(); applyFilters(); updateStatus(true);
                             } catch (e) { handleError(e, 'Save Response'); }
@@ -711,11 +703,9 @@
             const loc = document.getElementById('locationFilter').value; 
             const expDays = document.getElementById('expiryFilter').value; 
 
-            // HIGHLIGHT ACTIVE FILTERS
             document.getElementById('btn-location-wrapper').classList.toggle('filter-active', loc !== 'ALL');
             document.getElementById('btn-expiry-wrapper').classList.toggle('filter-active', expDays !== 'ALL');
             
-            // Calibration Highlight
             if(term.includes("calibration")) {
                 document.getElementById('btn-cal').classList.add('filter-active');
             } else {
@@ -820,7 +810,7 @@
         function closeModal(showCancelMsg = false) { 
             document.getElementById('updateModal').classList.remove('active');
             if (showCancelMsg === true) {
-                showAckPopup("Canceled", "No changes were updated.", "fas fa-times-circle", "var(--danger)");
+                showToast("Canceled: No changes made", "warning");
             }
             setTimeout(() => {
                 document.getElementById('modalLocation').style.display = 'block'; 
@@ -858,7 +848,7 @@
             submitActionToQueue(actionParams);
             
             btn.disabled = false; btn.textContent = 'SAVE CHANGES';
-            closeModal(false); // don't show cancel msg
+            closeModal(false); 
         }
 
         // --- OFFLINE SYNC ---
@@ -867,7 +857,7 @@
                 let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
                 fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => { 
                     if (res.success) { 
-                        showAckPopup("Success!", "Entry successfully updated and saved online.", "fas fa-check-circle", "var(--secondary)"); 
+                        showToast("Entry successfully updated and saved online.", "success");
                         loadInventory(); 
                     } 
                     else { addLog('ERROR','Save API Reject', res); showToast(res.error || 'Save failed', 'error'); }
@@ -878,7 +868,7 @@
         function pushToQueue(actionParams) {
             let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); queue.push(actionParams);
             localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue)); 
-            showAckPopup("Saved Offline", "Entry updated offline! Will sync automatically when network is available.", "fas fa-wifi", "var(--warning)");
+            showToast("Saved Offline! Will sync automatically.", "warning");
             updatePendingTile();
         }
 
@@ -1002,7 +992,6 @@
                 if (key === 'q') { e.preventDefault(); openFeedbackModal(); }
                 if (key === '+' || key === '=') { e.preventDefault(); openAddModal(); }
                 
-                // Control + M M M for Developer prompt
                 if (key === 'm') {
                     e.preventDefault();
                     ctrlMCount++;
@@ -1019,7 +1008,6 @@
             }
             if (e.key === 'Escape') {
                 e.preventDefault();
-                // Close any active modal
                 document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
             }
         });
