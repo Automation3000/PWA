@@ -603,6 +603,18 @@
         let currentView = localStorage.getItem('tabreed_currentView') || 'LAUNCHPAD'; 
         let isDevModeActive = false;
 
+        // --- ERROR LOGGER SYSTEM ---
+        const DEBUG_LOGS = "tabreed_debug_logs";
+        function addLog(type, msg, details) {
+            let logs = JSON.parse(localStorage.getItem(DEBUG_LOGS) || '[]');
+            logs.unshift({ time: new Date().toLocaleTimeString(), type: type, msg: msg, details: details ? JSON.stringify(details) : 'None' });
+            if(logs.length > 50) logs.pop(); // Keep only last 50 logs to save memory
+            localStorage.setItem(DEBUG_LOGS, JSON.stringify(logs));
+            console.log("[LOGGER]", type, msg, details);
+        }
+        window.onerror = function(msg, url, line) { addLog('ERROR', 'Window Crash', {msg, line}); };
+        window.addEventListener('unhandledrejection', e => { addLog('ERROR', 'API Promise Rejected (CORS/Network)', {reason: e.reason ? e.reason.message : 'Unknown'}); });
+
         function sanitizeInput(str) {
             if (typeof str !== 'string') return '';
             return str.replace(/[<>\"'&]/g, (char) => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' }[char]));
@@ -618,7 +630,9 @@
         }
 
         const handleError = (error, context = 'Operation') => {
-            console.error(`[${context}]`, error); showToast('An error occurred - Try again', 'error');
+            console.error(`[${context}]`, error); 
+            addLog('ERROR', `Context: ${context}`, { message: error.message || error });
+            showToast('Error Logged - Check Dev Tools', 'error');
         };
 
         // --- PAGE INITIALIZATION & PERSISTENCE ---
@@ -671,7 +685,26 @@
                 localStorage.clear(); showToast("Cache Cleared. Reloading...", "info"); setTimeout(() => { window.location.reload(); }, 1000);
             }
         }
-        function devShowLog() { showAckPopup("Sync Logs", "Network Logs placeholder.", "fas fa-terminal", "#333"); }
+        function devShowLog() { 
+            let logs = JSON.parse(localStorage.getItem(DEBUG_LOGS) || '[]');
+            if(logs.length === 0) {
+                showAckPopup("System Logs", "No errors or logs found yet. System is healthy!", "fas fa-check-circle", "var(--secondary)");
+                return;
+            }
+            let html = "<div style='text-align:left; font-size:0.75rem; max-height:250px; overflow-y:auto; background:#f8f9fa; padding:10px; border-radius:8px; border:1px solid #ddd; word-break:break-all;'>";
+            logs.forEach(l => {
+                let color = l.type === 'ERROR' ? 'var(--danger)' : 'var(--primary)';
+                html += `<div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                    <strong style="color:${color}">${l.type}</strong> <span style="color:var(--gray)">[${l.time}]</span><br>
+                    <b>${l.msg}</b><br>
+                    <code style="color:#d81b60;">${l.details}</code>
+                </div>`;
+            });
+            html += "</div>";
+            html += `<button class="btn-secondary" onclick="localStorage.removeItem('${DEBUG_LOGS}'); document.getElementById('ackModalOverlay').classList.remove('active'); showToast('Logs cleared!', 'success');" style="width:100%; margin-top:10px; padding:10px; border-radius:10px;">CLEAR LOGS</button>`;
+            
+            showAckPopup("System Logs", html, "fas fa-terminal", "#333"); 
+        }
         function devInjectData() {
             inventoryData.push({ name: "TEST-INSTRUMENT-" + Math.floor(Math.random()*1000), location: "Dev Test Area", expiry: "01.01.2030", status: "Normal", updatedBy: "Dev Tool", remark: "" });
             applyFilters(); showToast("Test Data Injected", "success");
@@ -773,13 +806,30 @@
             }
 
             if (navigator.onLine) {
-                fetch(`${GAS_API_URL}?key=AI1&action=getItems`).then(r => r.json()).then(res => {
+                addLog('INFO', 'Attempting to fetch API', { url: GAS_API_URL });
+                fetch(`${GAS_API_URL}?key=AI1&action=getItems`)
+                    .then(async r => {
+                        if (!r.ok) {
+                            let rawText = await r.text();
+                            addLog('ERROR', 'API HTTP Status Error', { status: r.status, response: rawText });
+                            throw new Error(`HTTP Error ${r.status}`);
+                        }
+                        return r.json();
+                    })
+                    .then(res => {
                         if (res.success) {
+                            addLog('INFO', 'API Fetch Success', { items_count: res.data ? res.data.length : 0 });
                             try { localStorage.setItem("localTabreedInventory", JSON.stringify(res)); inventoryData = res.data || []; locations = res.locations || [];
                                 updateLocationsDropdown(); applyFilters(); updateStatus(true);
                             } catch (e) { handleError(e, 'Save Response'); }
+                        } else {
+                            addLog('ERROR', 'API Returned Success: False', res);
+                            handleError('API Rejected Request', 'Backend');
                         }
-                    }).catch(e => { updateStatus(false); });
+                    }).catch(e => { 
+                        handleError(e, 'Fetch Execution Failed'); 
+                        updateStatus(false); 
+                    });
             } else { updateStatus(false); }
         }
 
