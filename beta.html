@@ -204,7 +204,7 @@
     <div id="fiori-wrapper">
         <header class="fiori-header">
             <div style="display:flex; align-items:center; gap:14px;">
-                <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" class="fiori-logo-img" alt="Tabreed Logo">
+                <img src="icon-192.png" class="fiori-logo-img" alt="Tabreed Logo" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
                 <span class="fiori-header-title">Automation App</span>
             </div>
             <div style="display: flex; align-items: center; height: 100%; gap: 15px;">
@@ -308,7 +308,7 @@
                     <div class="brand">
                         <button onclick="closeApp()" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--primary); padding-right:10px;"><i class="fas fa-arrow-left"></i></button>
                         <div class="logo">
-                            <img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                            <img src="icon-192.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
                         </div>
                         <div class="brand-text">
                             <h1 style="font-size: 1.1rem;">TABREED : Master Instrument List AI1 <span id="queue-badge" style="display:none; font-size:0.6rem; background:#ea4335; color:white; padding:2px 6px; border-radius:10px; margin-left:5px;"></span></h1>
@@ -520,6 +520,19 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+        // --- AUTO CACHE CLEAR SYSTEM ---
+        const APP_VERSION = "v1.0.1"; // ⚠️ JAB BHI NAYA CODE DALO, ISE "v1.0.2", "v1.0.3" KR DENA
+        if (navigator.onLine) {
+            let savedVer = localStorage.getItem('tabreed_app_version');
+            if (savedVer && savedVer !== APP_VERSION) {
+                if (typeof caches !== 'undefined') caches.keys().then(k => k.forEach(n => caches.delete(n))); // Clear PWA Cache
+                localStorage.setItem('tabreed_app_version', APP_VERSION);
+                setTimeout(() => window.location.reload(true), 500); // Reload fresh code
+            } else if (!savedVer) { localStorage.setItem('tabreed_app_version', APP_VERSION); }
+        }
+
+        let isDemoMode = false; // Demo Mode Tracker
+
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw0nKm-j24HwBwVd2u9ji3gqEtQ7j2dtQZmqEd0oA15mmB7nHMtGYOgUfhMrL7TjEc8cQ/exec";
         
         const EMPLOYEES = [
@@ -554,7 +567,7 @@
 
         function sanitizeInput(str) {
             if (typeof str !== 'string') return '';
-            return str.replace(/[<>\"'&]/g, (char) => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' }[char]));
+            return str.replace(/[<>"'&]/g, (char) => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' }[char]));
         }
 
         const handleError = (error, context = 'Operation') => {
@@ -577,11 +590,8 @@
         (function checkBetaRedirect() {
             if (localStorage.getItem('tabreed_use_beta') === '1') {
                 // Beta URL — same folder, different file name
-                // Aap apni actual beta file ka URL yahan daalein:
                 const BETA_URL = "tabreed_app_v2_beta.html";
-                // Agar same domain par ho toh simple redirect:
                 if (window.location.href.indexOf('tabreed_app_v1') !== -1 || window.location.pathname.endsWith('/') || window.location.pathname === '') {
-                    // Redirect to beta
                     window.location.replace(BETA_URL);
                 }
             }
@@ -645,43 +655,43 @@
             deferredPrompt = e; 
         });
 
-window.startSmartInstall = async function() {
-    const androidApkLink = "https://tabreed.automation3000.com/Automation.apk"; 
-    const iosProfileLink = "https://tabreed.automation3000.com/Automation.mobileconfig";
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera; 
-    let os = "Desktop";
-    
-    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) os = "iOS"; 
-    else if (/android/i.test(userAgent)) os = "Android";
+        window.startSmartInstall = async function() {
+            const androidApkLink = "https://tabreed.automation3000.com/Automation.apk"; 
+            const iosProfileLink = "https://tabreed.automation3000.com/Automation.mobileconfig";
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera; 
+            let os = "Desktop";
+            
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) os = "iOS"; 
+            else if (/android/i.test(userAgent)) os = "Android";
 
-    if (os === "Android" || os === "Desktop") {
-        if (deferredPrompt) { 
-            deferredPrompt.prompt(); 
-            const { outcome } = await deferredPrompt.userChoice; 
-            if(outcome === 'accepted') {
-                deferredPrompt = null; 
-                document.querySelector('.btn-install-small').style.display = 'none';
-            } 
-        } 
-        else if (os === "Android") { 
-            window.location.href = androidApkLink; 
-            showAckPopup("Downloading APK...", "Tap <b>'Install'</b> when the download is complete.", "fas fa-download", "var(--primary)");
-        }
-        else {
-            showAckPopup("App Already Installed", "Ye app aapke system par pehle se install hai!", "fas fa-check-circle", "var(--secondary)");
-        }
-    } else if (os === "iOS") {
-        window.location.href = iosProfileLink;
-        setTimeout(() => {
-            showAckPopup(
-                "Profile Downloaded!", 
-                "1. Open your iPhone <b>Settings</b>.<br><br>2. Tap on <b>'Profile Downloaded'</b> near the top.<br><br>3. Tap <b>Install</b> (Ignore the 'Not Signed' security warning, it is safe).<br><br>The application will be added to your Home Screen.", 
-                "fab fa-apple", 
-                "var(--dark)"
-            );
-        }, 1500);
-    }
-};
+            if (os === "Android" || os === "Desktop") {
+                if (deferredPrompt) { 
+                    deferredPrompt.prompt(); 
+                    const { outcome } = await deferredPrompt.userChoice; 
+                    if(outcome === 'accepted') {
+                        deferredPrompt = null; 
+                        document.querySelector('.btn-install-small').style.display = 'none';
+                    } 
+                } 
+                else if (os === "Android") { 
+                    window.location.href = androidApkLink; 
+                    showAckPopup("Downloading APK...", "Tap <b>'Install'</b> when the download is complete.", "fas fa-download", "var(--primary)");
+                }
+                else {
+                    showAckPopup("App Already Installed", "Ye app aapke system par pehle se install hai!", "fas fa-check-circle", "var(--secondary)");
+                }
+            } else if (os === "iOS") {
+                window.location.href = iosProfileLink;
+                setTimeout(() => {
+                    showAckPopup(
+                        "Profile Downloaded!", 
+                        "1. Open your iPhone <b>Settings</b>.<br><br>2. Tap on <b>'Profile Downloaded'</b> near the top.<br><br>3. Tap <b>Install</b> (Ignore the 'Not Signed' security warning, it is safe).<br><br>The application will be added to your Home Screen.", 
+                        "fab fa-apple", 
+                        "var(--dark)"
+                    );
+                }, 1500);
+            }
+        };
 
         function openApp(type, url, saveState = true) {
             document.getElementById('fiori-wrapper').style.display = 'none';
@@ -920,6 +930,10 @@ window.startSmartInstall = async function() {
         }
 
         function submitActionToQueue(actionParams) {
+            if (isDemoMode) {
+                showToast("[DEMO MODE] Request Blocked. Data not saved.", "warning");
+                return;
+            }
             if (navigator.onLine) {
                 let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
                 fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => { 
@@ -1045,6 +1059,26 @@ window.startSmartInstall = async function() {
         let ctrlMCount = 0;
         let ctrlMTimer;
         document.addEventListener('keydown', function(e) {
+            // DEMO MODE SHORTCUT (Ctrl + Shift + D)
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'd') {
+                e.preventDefault();
+                isDemoMode = !isDemoMode;
+                if (isDemoMode) {
+                    isDevModeActive = true; 
+                    document.getElementById('dev-tools-group').style.display = 'block'; // Unlock Admin Tools
+                    let grid = document.querySelector('.tile-grid');
+                    if(!document.getElementById('demo-add-tile')) {
+                        grid.innerHTML += `<div class="tile" id="demo-add-tile" style="border: 2px dashed #0a6ed1; background: #f0f8ff;" onclick="showToast('Demo Action: Custom Plugin Clicked!', 'info')"><div class="tile-title">Custom Plugin</div><div class="tile-subtitle">Demo Mode Exclusive</div><i class="fas fa-plus-circle tile-icon" style="color:#0a6ed1;"></i></div>`;
+                    }
+                    showAckPopup("Demo Mode Activated", "Admin tools unlocked. Changes will <b>NOT</b> save to the database.", "fas fa-laptop-code", "var(--warning)");
+                    setTimeout(() => { document.getElementById('fiori-wrapper').scrollTo({ top: document.getElementById('fiori-wrapper').scrollHeight, behavior: 'smooth' }); }, 300);
+                } else {
+                    let dt = document.getElementById('demo-add-tile'); if(dt) dt.remove();
+                    showToast("Demo Mode Deactivated", "info");
+                }
+                return;
+            }
+
             if (e.ctrlKey) {
                 const key = e.key.toLowerCase();
                 if (key === 'p') { e.preventDefault(); exportData(); }
