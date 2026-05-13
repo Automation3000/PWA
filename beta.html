@@ -7,933 +7,347 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Automation App">
-    <link rel="manifest" href="https://tabreed.automation3000.com/manifest.json">
-    <link rel="apple-touch-icon" href="https://tabreed.automation3000.com/icon-192.png">
-    <title>TABREED — Automation App</title>
-    <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/jpeg">
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" crossorigin="anonymous">
+    <link rel="manifest" href="https://tabreed.automation3000.com/manifest.json" />
+    <link rel="apple-touch-icon" href="https://tabreed.automation3000.com/icon-192.png" />
+    
+    <title>TABREED - Automation App</title>
+    <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
-
+    
     <style>
-        /* ── DESIGN TOKENS ─────────────────────────────────────────── */
         :root {
-            --primary:       #1a73e8;
-            --primary-dark:  #0d62d9;
-            --primary-light: #e8f0fe;
-            --secondary:     #1e8e3e;
-            --warning:       #f59e0b;
-            --danger:        #dc2626;
-            --dark:          #111827;
-            --mid:           #374151;
-            --gray:          #6b7280;
-            --border:        #e5e7eb;
-            --surface:       #ffffff;
-            --bg:            #f0f4f8;
-            --shadow-sm:     0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
-            --shadow-md:     0 4px 14px rgba(0,0,0,.10);
-            --shadow-lg:     0 12px 36px rgba(0,0,0,.15);
-            --radius-sm:     8px;
-            --radius-md:     12px;
-            --radius-lg:     18px;
-            --transition:    all .25s cubic-bezier(.4,0,.2,1);
-            --font:          'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            --mono:          'JetBrains Mono', monospace;
+            --primary: #1a73e8; --primary-dark: #0d62d9; --primary-light: #e8f0fe;
+            --secondary: #34a853; --warning: #f9ab00; --danger: #ea4335;
+            --dark: #202124; --light: #f8f9fa; --gray: #5f6368; --border: #dadce0;
+            --shadow: 0 2px 10px rgba(0,0,0,0.1); --radius: 12px; --transition: all 0.3s ease;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; background-color: #e4edf5; color: var(--dark); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+
+        #premium-wrapper { display: none; width: 100%; height: 100vh; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%); }
+        .app-container { max-width: 1200px; margin: 0 auto; margin-bottom: 50px; display: flex; flex-direction: column; min-height: 100vh; }
+        .app-header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
+        
+        .header-content { display: flex; align-items: center; justify-content: space-between; }
+        .brand { display: flex; align-items: center; gap: 0.75rem; }
+        .logo { width: 45px; height: 45px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border: 1px solid #e0e0e0; }
+
+        .connection-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; transition: 0.3s; font-weight: 600;}
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #f9ab00; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes popBounce { 0% { transform: scale(1); } 50% { transform: scale(1.15); box-shadow: 0 4px 15px rgba(0,0,0,0.2); } 100% { transform: scale(1); } }
+        .pop-anim { animation: popBounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        .search-container { padding: 1rem; margin: 1rem; background: white; border-radius: var(--radius); box-shadow: var(--shadow); }
+        .search-box { position: relative; }
+        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 3rem; border: 2px solid var(--border); border-radius: var(--radius); font-size: 16px; background: white; color: var(--dark); outline:none;}
+        .search-box input::placeholder { color: #999; opacity: 1; }
+        .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); }
+        
+        .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
+        .action-btn { background: white; border: none; flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); visibility: visible; position: relative; border: 2px solid transparent;}
+        
+        .filter-active { background-color: var(--dark) !important; border: 2px solid #000 !important; color: white !important; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .filter-active i { color: #00c6ff !important; }
+        .filter-active span { color: white !important; }
+
+        .select-wrapper { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .action-content { pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
+
+        .inventory-section { background: white; margin: 0 1rem 1rem; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+        .table-container { overflow-x: auto; }
+        
+        .inventory-table { width: 100%; border-collapse: collapse; min-width: 650px; table-layout: fixed; }
+        .inventory-table th:nth-child(1) { width: 35%; padding-left: 1.5rem; }
+        .inventory-table th:nth-child(2) { width: 20%; }
+        .inventory-table th:nth-child(3) { width: 15%; text-align: center;}
+        .inventory-table th:nth-child(4) { width: 15%; text-align: center; }
+        .inventory-table th:nth-child(5) { width: 15%; }
+        
+        .inventory-table th { background: var(--light); padding: 1rem; text-align: left; font-size: 0.8rem; border-bottom: 2px solid var(--border); }
+        .inventory-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.9rem; word-wrap: break-word; overflow-wrap: break-word; }
+        .inventory-table td:first-child { padding-left: 1.5rem; }
+        .expiry-td { white-space: nowrap !important; }
+
+        .location-tag { padding: 4px 8px; background: var(--primary-light); color: var(--primary); border-radius: 12px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .expiry-badge { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; background: #f8f9fa; color: var(--dark); border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); width: 100%; white-space: nowrap; transition: 0.3s; }
+        .expiry-badge.expired { color: var(--danger) !important; border-color: var(--danger) !important; background: #ffebee !important; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; z-index: 9999; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-overlay.feedback-overlay { z-index: 9999; }
+        .modal-overlay.ack-overlay { z-index: 10000; }
+        
+        .modal { background: white; width: 95%; max-width: 500px; border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 40px rgba(0,0,0,0.3); transition: max-width 0.3s ease; }
+        .modal-header { padding: 1.2rem; background: var(--primary); color: white; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 1.5rem; flex: 1; overflow-y: auto; overflow-x: hidden; max-height: 80vh; }
+        
+        .form-group { margin-bottom: 1.2rem; width: 100%; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; color: var(--dark); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.8rem; border: 2px solid var(--border); border-radius: 8px; font-size: 16px; background: white; color: var(--dark); box-sizing: border-box; outline:none;}
+        .form-group input::placeholder, .form-group textarea::placeholder { color: #999; opacity: 1; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--primary); }
+
+        .modal-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
+        .btn-primary { flex: 1; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.9rem; }
+        .btn-secondary { flex: 1; padding: 1rem; background: white; color: var(--dark); border: 2px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; }
+        .btn-secondary:hover { background: var(--light); }
+        
+        .slide-unlock { -webkit-appearance: none; width: 100%; height: 36px; background: transparent; outline: none; z-index: 2; position: absolute; top: 0; left: 0; margin: 0; }
+        .slide-unlock::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 34px; height: 34px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat: no-repeat; background-position: center; }
+
+        .update-flex-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
+
+        @media (max-width: 480px) {
+            .quick-actions { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; padding: 0 10px !important; }
+            .action-btn { min-width: unset !important; max-width: unset !important; width: 100% !important; min-height: 75px !important; margin: 0 !important; padding: 5px !important; }
+            .modal-overlay { padding: 0; }
+            .modal { width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100vh !important; border-radius: 0 !important; margin: 0 !important; }
+            .modal-actions { flex-direction: column; padding-bottom: 30px; }
+            .inventory-table td { padding: 1.2rem 0.5rem !important; line-height: 1.4; font-size: 0.85rem !important; }
+            .inventory-table th { padding: 1rem 0.5rem !important; font-size: 0.8rem !important; }
+            .inventory-table td:first-child, .inventory-table th:first-child { padding-left: 15px !important; }
+            .update-flex-row { flex-direction: column; align-items: stretch; gap: 10px; }
+            .ack-modal { height: auto !important; max-height: 80% !important; border-radius: 16px !important; margin: 20px !important; }
         }
 
-        /* Dark mode */
-        body.dark-mode {
-            --primary:       #60a5fa;
-            --primary-dark:  #3b82f6;
-            --primary-light: #1e3a5f;
-            --secondary:     #34d399;
-            --warning:       #fbbf24;
-            --danger:        #f87171;
-            --dark:          #f9fafb;
-            --mid:           #d1d5db;
-            --gray:          #9ca3af;
-            --border:        #374151;
-            --surface:       #1f2937;
-            --bg:            #111827;
-            --shadow-sm:     0 1px 3px rgba(0,0,0,.4);
-            --shadow-md:     0 4px 14px rgba(0,0,0,.4);
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none; display: flex; flex-direction: column; align-items: center; }
+        .toast { background: rgba(255,255,255,0.95); backdrop-filter: blur(5px); padding: 12px 20px; border-radius: 50px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; animation: slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: 600; border: 1px solid var(--border); color: var(--dark); font-size: 0.85rem; }
+        @keyframes slideDown { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .skeleton-row td { padding: 1rem; border-bottom: 1px solid var(--border); }
+        .skeleton-cell { height: 20px; border-radius: 4px; background: #e0e0e0; animation: pulse-skeleton 1.5s infinite ease-in-out; }
+        @keyframes pulse-skeleton { 0% { background-color: #eee; } 50% { background-color: #d4d4d4; } 100% { background-color: #eee; } }
+
+        /* FIORI HEADER */
+        .fiori-header { background: linear-gradient(135deg, #1a2935 0%, #2a3f54 100%); color: #ffffff; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); position: sticky; top: 0; z-index: 1000; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .fiori-logo-img { width: 36px; height: 36px; border-radius: 8px; background: #ffffff; padding: 3px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .fiori-header-title { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; background: -webkit-linear-gradient(45deg, #ffffff, #b0bec5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .btn-install-small { background: linear-gradient(to right, #00c6ff, #0072ff) !important; color: white !important; border: none !important; padding: 8px 16px !important; font-size: 11px !important; font-weight: 800 !important; border-radius: 25px !important; cursor: pointer !important; box-shadow: 0 4px 10px rgba(0, 114, 255, 0.3) !important; text-transform: uppercase; }
+        .beta-badge { font-size: 9px !important; background: #e53e3e !important; color: #fff !important; padding: 2px 5px !important; border-radius: 8px !important; margin-left: 6px !important; font-weight: 800 !important; }
+
+        @media all and (display-mode: standalone) {
+            .btn-install-small { display: none !important; }
         }
 
-        /* ── RESET ─────────────────────────────────────────────────── */
-        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html { scroll-behavior: smooth; }
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--dark);
-            line-height: 1.55;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            transition: background .3s, color .3s;
-        }
+        #fiori-wrapper { display: block; width: 100%; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; }
+        #launchpad-view { padding: 30px; flex: 1; }
+        .group-title { font-size: 18px; color: #32363a; margin-bottom: 15px; border-bottom: 1px solid #cdd4da; padding-bottom: 8px; }
+        .tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 176px)); gap: 12px; margin-bottom: 30px; }
+        @media (max-width: 600px) { #launchpad-view { padding: 20px 15px; } .tile-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
+        
+        .tile { background: #ffffff; border-radius: 4px; height: 176px; padding: 16px; position: relative; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.15); transition: all 0.3s; display: flex; flex-direction: column; overflow: hidden; border: 1px solid transparent; }
+        .tile:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(10, 110, 209, 0.2); border-color: #0a6ed1; }
+        .tile::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: transparent; transition: all 0.3s; }
+        .tile:hover::before { background: linear-gradient(90deg, #0a6ed1, #00c6ff); }
+        .tile-title { font-size: 15px; font-weight: 600; color: #32363a; margin-bottom: 6px; }
+        .tile-subtitle { font-size: 12px; color: #6a6d70; }
+        .tile-icon { position: absolute; bottom: 16px; left: 16px; font-size: 24px; color: #0a6ed1; transition: all 0.3s; }
+        .tile-status { position: absolute; bottom: 16px; right: 16px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; color: #2b7d2b;}
 
-        /* ── FIORI SHELL ───────────────────────────────────────────── */
-        #fiori-wrapper {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            min-height: 100vh;
-        }
+        .tile-feedback { background: linear-gradient(135deg, #fff9c4, #fff3e0); border: 1px solid #ffb74d; }
+        .tile-feedback::before { background: linear-gradient(90deg, #ff9800, #ff5722); }
 
-        .fiori-header {
-            background: linear-gradient(135deg, #111827 0%, #1e3a5f 100%);
-            color: #fff;
-            height: 62px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,.25);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        .fiori-logo-img {
-            width: 36px; height: 36px;
-            border-radius: 10px;
-            background: #fff;
-            padding: 3px;
-            box-shadow: 0 2px 8px rgba(0,0,0,.25);
-        }
-        .fiori-header-title {
-            font-size: 16px;
-            font-weight: 800;
-            letter-spacing: .3px;
-            background: linear-gradient(90deg, #fff 0%, #93c5fd 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .fiori-header-actions { display: flex; align-items: center; gap: 14px; }
-        .header-icon-btn {
-            background: rgba(255,255,255,.08);
-            border: 1px solid rgba(255,255,255,.12);
-            color: #cbd5e1;
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 15px;
-            transition: var(--transition);
-        }
-        .header-icon-btn:hover { background: rgba(255,255,255,.18); color: #fff; }
-
-        .btn-install-small {
-            background: linear-gradient(135deg, #0072ff, #00c6ff) !important;
-            color: #fff !important;
-            border: none !important;
-            padding: 8px 16px !important;
-            font-size: 11px !important;
-            font-weight: 800 !important;
-            border-radius: 25px !important;
-            cursor: pointer !important;
-            box-shadow: 0 3px 10px rgba(0,114,255,.35) !important;
-            letter-spacing: .5px;
-            text-transform: uppercase;
-            transition: var(--transition);
-        }
-        .btn-install-small:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(0,114,255,.5) !important; }
-        .beta-badge {
-            font-size: 8px !important;
-            background: #ef4444 !important;
-            color: #fff !important;
-            padding: 2px 5px !important;
-            border-radius: 6px !important;
-            margin-left: 5px !important;
-            font-weight: 800 !important;
-        }
-        @media all and (display-mode: standalone) { .btn-install-small { display: none !important; } }
-
-        /* ── LAUNCHPAD ─────────────────────────────────────────────── */
-        #launchpad-view {
-            padding: 28px 24px;
-            flex: 1;
-            max-width: 1100px;
-            width: 100%;
-            margin: 0 auto;
-        }
-        .group-label {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 1.2px;
-            text-transform: uppercase;
-            color: var(--gray);
-            margin-bottom: 14px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid var(--border);
-        }
-        .tile-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(170px, 170px));
-            gap: 14px;
-            margin-bottom: 32px;
-        }
-        @media (max-width: 600px) {
-            #launchpad-view { padding: 20px 14px; }
-            .tile-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        }
-        .tile {
-            background: var(--surface);
-            border-radius: var(--radius-md);
-            height: 172px;
-            padding: 18px 16px;
+        /* ═══ BETA SWITCH TILE — special styling ═══ */
+        .tile-beta {
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a3e 100%);
+            border: 1px solid #3b3b7a;
             position: relative;
-            cursor: pointer;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
             overflow: hidden;
-            border: 1.5px solid var(--border);
         }
-        .tile::after {
+        .tile-beta::before { background: linear-gradient(90deg, #667eea, #764ba2) !important; }
+        .tile-beta:hover { border-color: #667eea; box-shadow: 0 8px 24px rgba(102,126,234,0.35); }
+        .tile-beta .tile-title { color: #e0e0ff; }
+        .tile-beta .tile-subtitle { color: #9090cc; }
+        .tile-beta .tile-icon { color: #667eea; }
+        /* animated shimmer on beta tile */
+        .tile-beta::after {
             content: '';
             position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, var(--primary) 0%, #00c6ff 100%);
-            opacity: 0;
-            transition: opacity .25s;
-            border-radius: inherit;
-            pointer-events: none;
+            top: -50%; left: -60%;
+            width: 40%; height: 200%;
+            background: linear-gradient(105deg, transparent, rgba(255,255,255,0.07), transparent);
+            animation: betaShimmer 3s infinite;
         }
-        .tile:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary);
-        }
-        .tile:hover::after { opacity: .04; }
-        .tile-title { font-size: 14px; font-weight: 700; color: var(--dark); margin-bottom: 4px; line-height: 1.3; }
-        .tile-subtitle { font-size: 11px; color: var(--gray); line-height: 1.4; }
-        .tile-icon { position: absolute; bottom: 16px; left: 16px; font-size: 22px; color: var(--primary); transition: var(--transition); }
-        .tile:hover .tile-icon { transform: scale(1.15); }
-        .tile-status {
+        @keyframes betaShimmer { 0%{left:-60%} 100%{left:160%} }
+        .beta-tag {
             position: absolute;
-            bottom: 16px; right: 14px;
-            font-size: 10px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            color: var(--secondary);
-            background: rgba(30,142,62,.08);
-            padding: 3px 8px;
+            top: 10px; right: 10px;
+            font-size: 9px; font-weight: 900;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            padding: 2px 8px;
             border-radius: 20px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
-        .tile-feedback {
-            background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
-            border-color: #fcd34d;
-        }
-        .tile-feedback .tile-title { color: #b45309; }
+        
+        .launchpad-footer { text-align: center; padding: 20px; padding-bottom: 40px; color: #6a6d70; font-size: 12px; }
+        #dev-trigger { font-weight: 800; color: #0a6ed1; cursor: pointer; padding: 5px; }
 
-        .launchpad-footer {
-            text-align: center;
-            padding: 24px 20px 40px;
-            color: var(--gray);
-            font-size: 12px;
-        }
-        #dev-trigger { font-weight: 700; color: var(--primary); cursor: pointer; padding: 4px 6px; border-radius: 4px; }
-        #dev-trigger:hover { background: var(--primary-light); }
-
-        /* ── IFRAME LAYER ──────────────────────────────────────────── */
-        .fiori-app-header {
-            height: 48px;
-            background: #1e3a5f;
-            color: #fff;
-            display: none;
-            align-items: center;
-            padding: 0 16px;
-            gap: 14px;
-            box-shadow: 0 2px 6px rgba(0,0,0,.2);
-        }
-        .back-btn-fiori {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 14px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 600;
-            font-family: var(--font);
-            padding: 6px 10px;
-            border-radius: var(--radius-sm);
-            transition: var(--transition);
-        }
-        .back-btn-fiori:hover { background: rgba(255,255,255,.12); }
-        .iframe-container {
-            display: none;
-            flex: 1;
-            width: 100%;
-            height: calc(100vh - 110px);
-        }
+        .iframe-container { display:none; flex: 1; width: 100%; height:100vh; position: relative; background: #fff; }
         .full-screen-iframe { width: 100%; height: 100%; border: none; }
+        .fiori-app-header { height: 48px; background: #3f5161; color: white; display: none; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .back-btn-fiori { background: none; border: none; color: white; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
 
-        /* ── INSTRUMENT APP WRAPPER ────────────────────────────────── */
-        #premium-wrapper {
-            display: none;
-            width: 100%;
-            min-height: 100vh;
-            background: var(--bg);
-        }
-        .app-container { max-width: 1200px; margin: 0 auto; padding-bottom: 60px; }
-
-        /* ── APP HEADER ────────────────────────────────────────────── */
-        .app-header {
-            background: var(--surface);
-            padding: 12px 20px;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: var(--shadow-sm);
-        }
-        .header-content { display: flex; align-items: center; justify-content: space-between; }
-        .brand { display: flex; align-items: center; gap: 10px; }
-        .logo {
-            width: 40px; height: 40px;
-            background: var(--surface);
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            border: 1.5px solid var(--border);
-            flex-shrink: 0;
-        }
-        .brand-title { font-size: 14px; font-weight: 700; color: var(--dark); line-height: 1.2; }
-        .brand-sub { font-size: 11px; color: var(--gray); }
-
-        .connection-status {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            padding: 5px 12px;
-            border-radius: 20px;
-            background: var(--primary-light);
-            color: var(--primary);
-            transition: var(--transition);
-            letter-spacing: .3px;
-        }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warning); }
-        .status-dot.online { background: var(--secondary); animation: pulseDot 2.5s ease-in-out infinite; }
-        .status-dot.offline { background: var(--danger); }
-        @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.3)} }
-        @keyframes popBounce { 0%{transform:scale(1)} 50%{transform:scale(1.12)} 100%{transform:scale(1)} }
-        .pop-anim { animation: popBounce .35s cubic-bezier(.175,.885,.32,1.275); }
-
-        /* ── SEARCH BAR ────────────────────────────────────────────── */
-        .search-container { padding: 14px 16px 0; }
-        .search-box { position: relative; }
-        .search-box input {
-            width: 100%;
-            padding: .75rem 1rem .75rem 2.8rem;
-            border: 1.5px solid var(--border);
-            border-radius: 50px;
-            font-size: 15px;
-            font-family: var(--font);
-            background: var(--surface);
-            color: var(--dark);
-            outline: none;
-            transition: var(--transition);
-            box-shadow: var(--shadow-sm);
-        }
-        .search-box input::placeholder { color: #9ca3af; }
-        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,115,232,.12); }
-        .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray); font-size: 14px; }
-        .search-clear {
-            position: absolute;
-            right: .8rem; top: 50%; transform: translateY(-50%);
-            background: none; border: none; cursor: pointer;
-            color: var(--gray); font-size: 13px;
-            display: none;
-            padding: 4px;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-        .search-clear:hover { background: var(--border); color: var(--dark); }
-
-        /* ── QUICK ACTIONS ─────────────────────────────────────────── */
-        .quick-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 14px 16px;
-            justify-content: flex-start;
-        }
-        .action-btn {
-            background: var(--surface);
-            border: 1.5px solid var(--border);
-            flex: 0 0 auto;
-            padding: 8px 14px;
-            border-radius: 50px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            font-weight: 700;
-            font-family: var(--font);
-            color: var(--mid);
-            box-shadow: var(--shadow-sm);
-            cursor: pointer;
-            transition: var(--transition);
-            white-space: nowrap;
-            position: relative;
-        }
-        .action-btn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-        .action-btn i { font-size: 13px; }
-        .action-btn.filter-active {
-            background: var(--dark);
-            border-color: var(--dark);
-            color: #fff;
-        }
-        .action-btn.filter-active i { color: #60a5fa; }
-        .select-wrapper {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            opacity: 0; cursor: pointer;
-            font-size: 16px; /* prevents iOS zoom */
-        }
-        /* Stats bar */
-        .stats-bar {
-            display: flex;
-            gap: 10px;
-            padding: 0 16px 14px;
-            flex-wrap: wrap;
-        }
-        .stat-chip {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 20px;
-            background: var(--primary-light);
-            color: var(--primary);
-            display: flex; align-items: center; gap: 5px;
-        }
-        .stat-chip.warn { background: #fef3c7; color: #b45309; }
-        .stat-chip.danger { background: #fee2e2; color: var(--danger); }
-
-        /* ── TABLE ─────────────────────────────────────────────────── */
-        .inventory-section {
-            background: var(--surface);
-            margin: 0 16px;
-            border-radius: var(--radius-md);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .inventory-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 620px;
-            table-layout: fixed;
-        }
-        .inventory-table colgroup col:nth-child(1) { width: 33%; }
-        .inventory-table colgroup col:nth-child(2) { width: 20%; }
-        .inventory-table colgroup col:nth-child(3) { width: 14%; }
-        .inventory-table colgroup col:nth-child(4) { width: 16%; }
-        .inventory-table colgroup col:nth-child(5) { width: 17%; }
-
-        .inventory-table thead th {
-            background: var(--bg);
-            padding: 12px 14px;
-            text-align: left;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: .6px;
-            text-transform: uppercase;
-            color: var(--gray);
-            border-bottom: 1.5px solid var(--border);
-        }
-        .inventory-table thead th:first-child { padding-left: 20px; }
-        .inventory-table thead th.th-center { text-align: center; }
-        .inventory-table tbody tr {
-            border-bottom: 1px solid var(--border);
-            transition: background .15s;
-        }
-        .inventory-table tbody tr:last-child { border-bottom: none; }
-        .inventory-table tbody tr:hover { background: var(--bg); }
-        .inventory-table td {
-            padding: 13px 14px;
-            font-size: 13.5px;
-            word-break: break-word;
-            vertical-align: middle;
-        }
-        .inventory-table td:first-child { padding-left: 20px; font-weight: 600; }
-        .td-center { text-align: center; }
-
-        .location-tag {
-            display: inline-flex;
-            align-items: center;
-            padding: 3px 10px;
-            background: var(--primary-light);
-            color: var(--primary);
-            border-radius: 20px;
-            font-size: 11.5px;
-            font-weight: 700;
-            max-width: 100%;
-            white-space: normal;
-            word-break: break-word;
-        }
-        .expiry-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            padding: 5px 12px;
-            background: #f3f4f6;
-            color: var(--mid);
-            border-radius: 20px;
-            font-size: 11.5px;
-            font-weight: 700;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: var(--transition);
-            white-space: nowrap;
-            font-family: var(--mono);
-        }
-        .expiry-badge:hover { border-color: var(--primary); color: var(--primary); }
-        .expiry-badge.expired { color: var(--danger); border-color: #fca5a5; background: #fef2f2; }
-        .expiry-badge.expiring-soon { color: var(--warning); border-color: #fcd34d; background: #fffbeb; }
-        .expiry-badge.healthy { color: var(--secondary); border-color: #6ee7b7; background: #f0fdf4; }
-
-        .update-btn {
-            padding: 6px 16px;
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            font-family: var(--font);
-            cursor: pointer;
-            transition: var(--transition);
-            white-space: nowrap;
-        }
-        .update-btn:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 3px 10px rgba(26,115,232,.3); }
-
-        .remark-icon { color: var(--primary); cursor: pointer; margin-left: 5px; font-size: 12px; vertical-align: middle; }
-
-        /* empty state */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--gray);
-        }
-        .empty-state i { font-size: 3rem; margin-bottom: 14px; opacity: .35; display: block; }
-        .empty-state p { font-size: 14px; font-weight: 500; }
-
-        /* skeleton */
-        .skeleton-cell {
-            height: 16px;
-            border-radius: 4px;
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.4s infinite;
-        }
-        body.dark-mode .skeleton-cell { background: linear-gradient(90deg, #2d3748 25%, #374151 50%, #2d3748 75%); background-size: 200% 100%; }
-        @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-        /* ── MODALS ────────────────────────────────────────────────── */
-        .modal-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,.55);
-            backdrop-filter: blur(6px);
-            display: none;
-            z-index: 9000;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-overlay.feedback-overlay { z-index: 9100; }
-        .modal-overlay.ack-overlay { z-index: 9200; }
-
-        .modal {
-            background: var(--surface);
-            width: 100%;
-            max-width: 480px;
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            box-shadow: var(--shadow-lg);
-            animation: modalPop .25s cubic-bezier(.175,.885,.32,1.275);
-        }
-        @keyframes modalPop { from{opacity:0;transform:scale(.92)} to{opacity:1;transform:scale(1)} }
-        .modal-header {
-            padding: 16px 20px;
-            background: var(--primary);
-            color: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .modal-header h3 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .modal-close-btn {
-            background: rgba(255,255,255,.15);
-            border: none;
-            color: #fff;
-            width: 30px; height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex; align-items: center; justify-content: center;
-            transition: var(--transition);
-            flex-shrink: 0;
-        }
-        .modal-close-btn:hover { background: rgba(255,255,255,.28); }
-        .modal-body { padding: 20px; overflow-y: auto; max-height: 80vh; }
-
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 12px; letter-spacing: .3px; text-transform: uppercase; color: var(--gray); }
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: .7rem .9rem;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 15px;
-            font-family: var(--font);
-            background: var(--surface);
-            color: var(--dark);
-            outline: none;
-            transition: var(--transition);
-        }
-        .form-group input::placeholder,
-        .form-group textarea::placeholder { color: #9ca3af; }
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,115,232,.1); }
-        .form-group input[readonly] { background: var(--bg); cursor: default; }
-        .form-row { display: flex; gap: 12px; }
-        .form-row .form-group { flex: 1; }
-
-        .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
-        .btn-primary {
-            flex: 1; padding: .85rem 1rem;
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            border-radius: var(--radius-sm);
-            font-weight: 700;
-            font-family: var(--font);
-            font-size: 13px;
-            cursor: pointer;
-            transition: var(--transition);
-            letter-spacing: .3px;
-        }
-        .btn-primary:hover:not(:disabled) { background: var(--primary-dark); transform: translateY(-1px); }
-        .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
-        .btn-secondary {
-            flex: 1; padding: .85rem 1rem;
-            background: var(--surface);
-            color: var(--mid);
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-weight: 700;
-            font-family: var(--font);
-            font-size: 13px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        .btn-secondary:hover { background: var(--bg); border-color: var(--primary); color: var(--primary); }
-
-        /* slider unlock */
-        .slider-track {
-            position: relative;
-            width: 100%;
-            height: 40px;
-            background: var(--bg);
-            border-radius: 20px;
-            border: 1.5px solid var(--border);
-            overflow: hidden;
-        }
-        .slider-label {
-            position: absolute;
-            width: 100%; text-align: center;
-            line-height: 38px;
-            color: var(--gray);
-            pointer-events: none;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: .5px;
-            z-index: 1;
-        }
-        .slide-unlock {
-            -webkit-appearance: none;
-            width: 100%; height: 40px;
-            background: transparent;
-            outline: none;
-            position: absolute; top: 0; left: 0;
-            z-index: 2;
-        }
-        .slide-unlock::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 40px; height: 38px;
-            border-radius: 18px;
-            background: var(--primary);
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(26,115,232,.4);
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='white' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: center;
-        }
-
-        /* ── TOAST ─────────────────────────────────────────────────── */
-        .toast-container {
-            position: fixed;
-            top: 16px; left: 50%;
-            transform: translateX(-50%);
-            z-index: 99999;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-        .toast {
-            background: var(--surface);
-            padding: 10px 18px;
-            border-radius: 50px;
-            box-shadow: var(--shadow-lg);
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            animation: toastIn .35s cubic-bezier(.175,.885,.32,1.275);
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--dark);
-            border: 1px solid var(--border);
-            max-width: 340px;
-        }
-        .toast i { font-size: 15px; flex-shrink: 0; }
-        @keyframes toastIn { from{transform:translateY(-20px);opacity:0} to{transform:translateY(0);opacity:1} }
-        @keyframes toastOut { to{transform:translateY(-10px);opacity:0} }
-
-        /* ── ACK POPUP ─────────────────────────────────────────────── */
-        .ack-modal {
-            max-width: 360px !important;
-            border-radius: var(--radius-lg) !important;
-        }
-        .ack-icon-wrap { font-size: 3rem; margin-bottom: 12px; text-align: center; }
-        .ack-title { font-size: 1.15rem; font-weight: 800; color: var(--dark); text-align: center; margin-bottom: 8px; }
-        .ack-message { color: var(--gray); font-size: 13.5px; line-height: 1.55; margin-bottom: 20px; word-break: break-word; }
-
-        /* ── HISTORY PAGE ──────────────────────────────────────────── */
-        #historyPage {
-            display: none;
-            position: fixed; inset: 0;
-            background: var(--bg);
-            z-index: 8000;
-            overflow-y: auto;
-        }
-        .history-card {
-            background: var(--surface);
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-            margin: 14px 16px;
-        }
-        .history-table { width: 100%; border-collapse: collapse; min-width: 560px; }
-        .history-table th {
-            background: var(--bg);
-            padding: 12px 14px;
-            text-align: left;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: .6px;
-            text-transform: uppercase;
-            color: var(--gray);
-            border-bottom: 1.5px solid var(--border);
-        }
-        .history-table td {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border);
-            font-size: 13px;
-        }
-        .history-table tbody tr:last-child td { border-bottom: none; }
-        .history-table tbody tr:hover { background: var(--bg); }
-        .loc-tag-old { background: #f3f4f6; color: var(--gray); border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; }
-        .loc-tag-new { background: var(--primary-light); color: var(--primary); border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 700; }
-        .ts-cell { font-family: var(--mono); font-size: 11px; color: var(--gray); }
-
-        /* ── DEV TOOLS ─────────────────────────────────────────────── */
-        #dev-tools-group { display: none; margin-top: 36px; }
-        .dev-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--danger); margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid #fecaca; display: flex; align-items: center; gap: 8px; }
-
-        /* ── RESPONSIVE ────────────────────────────────────────────── */
-        @media (max-width: 480px) {
-            .quick-actions { gap: 6px; padding: 10px 12px; }
-            .action-btn { font-size: 11px; padding: 7px 11px; }
-            .modal { border-radius: var(--radius-md) !important; }
-            .modal-body { padding: 16px; }
-            .modal-actions { flex-direction: column; }
-            .form-row { flex-direction: column; }
-            .inventory-table td, .inventory-table th { padding: 11px 10px !important; font-size: 12px !important; }
-            .inventory-table td:first-child, .inventory-table th:first-child { padding-left: 14px !important; }
-        }
+        .history-card { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; margin: 15px; }
+        .history-table { width: 100%; border-collapse: collapse; min-width: 600px;}
+        .history-table th { background: #f1f3f4; padding: 14px 16px; text-align: left; font-size: 0.85rem; color: #5f6368; border-bottom: 2px solid #dadce0; }
+        .history-table td { padding: 14px 16px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .history-table tr:hover { background-color: #f8f9fa; }
     </style>
 </head>
 <body>
 
-    <!-- ═══════════════ FIORI LAUNCHPAD ═══════════════ -->
     <div id="fiori-wrapper">
         <header class="fiori-header">
-            <div style="display:flex;align-items:center;gap:12px;">
-                <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" class="fiori-logo-img" alt="Tabreed">
+            <div style="display:flex; align-items:center; gap:14px;">
+                <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" class="fiori-logo-img" alt="Tabreed Logo">
                 <span class="fiori-header-title">Automation App</span>
             </div>
-            <div class="fiori-header-actions">
-                <button class="header-icon-btn" id="darkModeToggle" onclick="toggleDarkMode()" title="Toggle Dark Mode" aria-label="Toggle dark mode">
-                    <i class="fas fa-moon" id="darkModeIcon"></i>
-                </button>
-                <button class="btn-install-small" onclick="startSmartInstall()" aria-label="Install app">
-                    <i class="fas fa-mobile-alt" style="margin-right:5px;"></i> INSTALL <span class="beta-badge">BETA</span>
+            <div style="display: flex; align-items: center; height: 100%; gap: 15px;">
+                <i class="fas fa-moon" style="cursor: pointer; font-size: 18px; color: #cbd5e0;" onclick="showToast('Dark mode coming soon!', 'info')" title="Toggle Dark Mode"></i>
+                <button class="btn-install-small" onclick="startSmartInstall()">
+                    <i class="fas fa-mobile-alt" style="margin-right: 6px; font-size: 13px;"></i> INSTALL <span class="beta-badge">BETA</span>
                 </button>
             </div>
         </header>
 
         <div id="launchpad-view">
-            <p class="group-label">Automation &amp; Control</p>
+            <h2 class="group-title">Automation & Control</h2>
             <div class="tile-grid">
-                <div class="tile" onclick="openApp('NATIVE_INSTRUMENT')" role="button" tabindex="0" aria-label="Open Master Instrument List">
+                <div class="tile" onclick="openApp('NATIVE_INSTRUMENT')">
                     <div class="tile-title">Master Instrument List</div>
                     <div class="tile-subtitle">AI1 Database</div>
-                    <i class="fas fa-clipboard-list tile-icon" aria-hidden="true"></i>
-                    <div class="tile-status"><i class="fas fa-bolt" aria-hidden="true"></i> Fast Offline</div>
+                    <i class="fas fa-clipboard-list tile-icon"></i>
+                    <div class="tile-status status-ready"><i class="fas fa-bolt"></i> Fast Offline</div>
                 </div>
-                <div class="tile" onclick="showToast('Under Development', 'info')" role="button" tabindex="0" aria-label="Service Report - Under Development">
+                <div class="tile" onclick="showToast('Under Development', 'info')">
                     <div class="tile-title">Service Report</div>
                     <div class="tile-subtitle">Time Entry Format</div>
-                    <i class="fas fa-file-invoice tile-icon" style="color:var(--gray);" aria-hidden="true"></i>
-                    <div class="tile-status" style="color:var(--danger);background:#fee2e2;"><i class="fas fa-tools" aria-hidden="true"></i> Dev</div>
+                    <i class="fas fa-file-invoice tile-icon"></i>
+                    <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
                 </div>
             </div>
 
-            <p class="group-label">Offline Tools &amp; Support</p>
+            <h2 class="group-title">Offline Tools & Support</h2>
             <div class="tile-grid">
-                <div class="tile" onclick="viewPendingSyncs()" role="button" tabindex="0" aria-label="View pending syncs">
+                <div class="tile" onclick="viewPendingSyncs()">
                     <div class="tile-title">Pending Syncs</div>
                     <div class="tile-subtitle">Data waiting for network</div>
-                    <i class="fas fa-sync tile-icon" style="color:var(--gray);" aria-hidden="true"></i>
-                    <div class="tile-status" style="color:var(--danger);background:#fee2e2;" id="pending-sync-tile">0 Pending</div>
+                    <i class="fas fa-sync tile-icon" style="color: #6a6d70;"></i>
+                    <div class="tile-status" style="color: #ea4335;" id="pending-sync-tile">0 Pending</div>
                 </div>
-                <div class="tile tile-feedback" onclick="openFeedbackModal()" role="button" tabindex="0" aria-label="Share feedback">
-                    <div class="tile-title" style="color:#b45309;">Share Feedback</div>
+                <div class="tile tile-feedback" onclick="openFeedbackModal()">
+                    <div class="tile-title" style="color: #e65100;">Share Feedback</div>
                     <div class="tile-subtitle">Report bugs or ideas</div>
-                    <i class="fas fa-comment-dots tile-icon" style="color:#f59e0b;" aria-hidden="true"></i>
+                    <i class="fas fa-comment-dots tile-icon" style="color: #ff9800;"></i>
                 </div>
             </div>
 
-            <!-- Dev Tools (hidden by default) -->
-            <div id="dev-tools-group">
-                <p class="dev-label"><i class="fas fa-user-shield" aria-hidden="true"></i> Developer Tools (Admin Only)</p>
+            <div id="dev-tools-group" style="display: none; margin-top: 40px;">
+                <h2 class="group-title" style="color: #d50000; border-bottom-color: #ffcdd2;"><i class="fas fa-user-shield"></i> Developer Tools (Admin Only)</h2>
                 <div class="tile-grid">
-                    <div class="tile" onclick="checkDevAccess('PingLogger', '#')" role="button" tabindex="0">
-                        <div class="tile-title">PingLogger</div>
+                    <div class="tile" onclick="checkDevAccess('PingLogger Ultimate', '#')">
+                        <div class="tile-title">PingLogger Ultimate</div>
                         <div class="tile-subtitle">Network Monitor</div>
-                        <i class="fas fa-network-wired tile-icon" aria-hidden="true"></i>
-                        <div class="tile-status" style="color:var(--danger);background:#fee2e2;"><i class="fas fa-tools"></i> Dev</div>
+                        <i class="fas fa-network-wired tile-icon"></i>
+                        <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
                     </div>
-                    <div class="tile" onclick="checkDevAccess('IFRAME','https://draw.automation3000.com/?key=Dubai@123')" role="button" tabindex="0">
+                    <div class="tile" onclick="checkDevAccess('IFRAME', 'https://draw.automation3000.com/?key=Dubai@123')">
                         <div class="tile-title">Drawing Hub</div>
-                        <div class="tile-subtitle">Schematics &amp; P&amp;ID</div>
-                        <i class="fas fa-pen-nib tile-icon" aria-hidden="true"></i>
-                        <div class="tile-status" style="color:var(--danger);background:#fee2e2;"><i class="fas fa-tools"></i> Dev</div>
+                        <div class="tile-subtitle">Schematics & P&ID</div>
+                        <i class="fas fa-pen-nib tile-icon"></i>
+                        <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
                     </div>
-                    <div class="tile" onclick="devShowLog()" role="button" tabindex="0">
+                    <div class="tile" onclick="devShowLog()">
                         <div class="tile-title">System Logs</div>
                         <div class="tile-subtitle">View API Requests</div>
-                        <i class="fas fa-terminal tile-icon" style="color:var(--dark);" aria-hidden="true"></i>
+                        <i class="fas fa-terminal tile-icon" style="color: #333;"></i>
                     </div>
-                    <div class="tile" onclick="devClearCache()" role="button" tabindex="0">
-                        <div class="tile-title">Clear Cache</div>
+                    <div class="tile" onclick="devClearCache()">
+                        <div class="tile-title">Force Clear Cache</div>
                         <div class="tile-subtitle">Nuke Local Storage</div>
-                        <i class="fas fa-trash-alt tile-icon" style="color:var(--danger);" aria-hidden="true"></i>
+                        <i class="fas fa-trash-alt tile-icon" style="color: #d50000;"></i>
                     </div>
+
+                    <!-- ═══ BETA SWITCH TILE ═══ -->
+                    <div class="tile tile-beta" onclick="switchToBetaTheme()">
+                        <span class="beta-tag">BETA</span>
+                        <div class="tile-title">Beta Theme</div>
+                        <div class="tile-subtitle">Try the new UI design</div>
+                        <i class="fas fa-flask tile-icon"></i>
+                        <div class="tile-status" style="color:#9090cc; background:rgba(102,126,234,0.1); padding:3px 8px; border-radius:20px; font-size:10px;">
+                            <i class="fas fa-wand-magic-sparkles" style="font-size:9px;"></i> New
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
 
         <div class="launchpad-footer">
-            Code developed by <span id="dev-trigger" onclick="handleDevClick()" title="Click 3x for dev mode">Majeed</span>
+            <span>Code Developed by <span id="dev-trigger" onclick="handleDevClick()">Majeed</span></span>
         </div>
     </div>
 
-    <!-- ═══════════════ IFRAME LAYER ═══════════════ -->
-    <div id="fiori-iframe-header" class="fiori-app-header" role="banner">
-        <button class="back-btn-fiori" onclick="closeApp()" aria-label="Back to Launchpad">
-            <i class="fas fa-arrow-left" aria-hidden="true"></i> Back to Launchpad
-        </button>
-        <div style="font-size:14px;border-left:1px solid rgba(255,255,255,.2);padding-left:14px;color:#94a3b8;">External App</div>
+    <div id="fiori-iframe-header" class="fiori-app-header">
+        <button class="back-btn-fiori" onclick="closeApp()"><i class="fas fa-arrow-left"></i> Back to Launchpad</button>
+        <div style="margin-left: 20px; font-size: 15px; border-left: 1px solid rgba(255,255,255,0.3); padding-left: 20px;">External App</div>
     </div>
     <div id="iframeWrapper" class="iframe-container">
-        <iframe id="active-iframe" class="full-screen-iframe" title="External Application"></iframe>
+        <iframe id="active-iframe" class="full-screen-iframe"></iframe>
     </div>
 
-    <!-- ═══════════════ INSTRUMENT APP ═══════════════ -->
     <div id="premium-wrapper">
-        <header class="app-header" role="banner">
-            <div class="header-content">
-                <div class="brand">
-                    <button onclick="closeApp()" style="background:none;border:none;cursor:pointer;color:var(--primary);padding:4px 8px 4px 0;font-size:1.1rem;" aria-label="Back to Launchpad">
-                        <i class="fas fa-arrow-left" aria-hidden="true"></i>
-                    </button>
-                    <div class="logo">
-                        <img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" alt="Tabreed Logo" style="width:100%;height:100%;object-fit:contain;">
-                    </div>
-                    <div>
-                        <div class="brand-title">
-                            TABREED — Master Instrument List
-                            <span id="queue-badge" style="display:none;font-size:10px;background:var(--danger);color:#fff;padding:2px 7px;border-radius:10px;margin-left:6px;font-weight:700;"></span>
-                        </div>
-                        <div class="brand-sub" id="dev-subtitle">AI1 · Automation App</div>
-                    </div>
-                </div>
-                <div class="connection-status pop-anim" id="connectionStatus" role="status" aria-live="polite">
-                    <span class="status-dot" id="statusDot" aria-hidden="true"></span>
-                    <span class="status-text" id="statusText">Connecting…</span>
-                </div>
-            </div>
-        </header>
-
         <div class="app-container">
+            <header class="app-header">
+                <div class="header-content">
+                    <div class="brand">
+                        <button onclick="closeApp()" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--primary); padding-right:10px;"><i class="fas fa-arrow-left"></i></button>
+                        <div class="logo">
+                            <img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                        <div class="brand-text">
+                            <h1 style="font-size: 1.1rem;">TABREED : Master Instrument List AI1 <span id="queue-badge" style="display:none; font-size:0.6rem; background:#ea4335; color:white; padding:2px 6px; border-radius:10px; margin-left:5px;"></span></h1>
+                            <p id="dev-subtitle" style="font-size: 0.7rem; color: var(--gray);">Automation App</p>
+                        </div>
+                    </div>
+                    <div class="connection-status pop-anim" id="connectionStatus">
+                        <span class="status-dot"></span>
+                        <span class="status-text">Wait...</span>
+                    </div>
+                </div>
+            </header>
+
             <div class="search-container">
                 <div class="search-box">
-                    <i class="fas fa-search search-icon" aria-hidden="true"></i>
-                    <input type="search" id="searchInput" placeholder="Search instrument or location…" autocomplete="off" aria-label="Search instruments">
-                    <button class="search-clear" id="searchClear" onclick="clearSearch()" aria-label="Clear search">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                    </button>
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search instrument or location...">
                 </div>
             </div>
 
-            <div class="quick-actions" role="toolbar" aria-label="Filter actions">
-                <button id="btn-refresh" class="action-btn" onclick="refreshAndReset()" aria-label="Refresh data">
-                    <i class="fas fa-sync-alt" style="color:var(--primary);" aria-hidden="true"></i> Refresh
-                </button>
-
-                <button id="btn-location-wrapper" class="action-btn" style="position:relative;" aria-label="Filter by location">
-                    <i class="fas fa-map-marker-alt" style="color:var(--secondary);" aria-hidden="true"></i>
-                    <span id="label-location">All Locations</span>
-                    <select id="locationFilter" class="select-wrapper" onchange="handleFilterChange('location')" aria-label="Select location">
+            <div class="quick-actions">
+                <button id="btn-refresh" class="action-btn" onclick="refreshAndReset()"><i class="fas fa-sync-alt" style="color: var(--primary); margin-bottom: 5px;"></i><span>Refresh</span></button>
+                
+                <div id="btn-location-wrapper" class="action-btn" style="padding: 0;">
+                    <div class="action-content">
+                        <i class="fas fa-filter" style="color: var(--secondary); margin-bottom: 5px;"></i>
+                        <span id="label-location">All Locations</span>
+                    </div>
+                    <select id="locationFilter" class="select-wrapper" onchange="updateFilterLabel(this, 'label-location', 'All Locations'); applyFilters(); triggerPopAnim('btn-refresh');">
                         <option value="ALL">All Locations</option>
                     </select>
-                </button>
+                </div>
 
-                <button id="btn-expiry-wrapper" class="action-btn" style="position:relative;" aria-label="Filter by expiry">
-                    <i class="fas fa-hourglass-half" style="color:#1976d2;" aria-hidden="true"></i>
-                    <span id="label-expiry">Expiry</span>
-                    <select id="expiryFilter" class="select-wrapper" onchange="handleFilterChange('expiry')" aria-label="Select expiry range">
+                <div id="btn-expiry-wrapper" class="action-btn" style="padding: 0;">
+                    <div class="action-content">
+                        <i class="fas fa-hourglass-half" style="color: #1976d2; margin-bottom: 5px;"></i>
+                        <span id="label-expiry">Expiry</span>
+                    </div>
+                    <select id="expiryFilter" class="select-wrapper" onchange="updateFilterLabel(this, 'label-expiry', 'Expiry'); applyFilters(); triggerPopAnim('btn-refresh');">
                         <option value="ALL">Expiry</option>
                         <option value="15">15 Days</option>
                         <option value="30">30 Days</option>
@@ -941,1212 +355,717 @@
                         <option value="90">3 Months</option>
                         <option value="180">6 Months</option>
                         <option value="EXPIRED">Expired</option>
-                        <option value="NOT_MENTIONED">Expiry Not Set</option>
+                        <option value="NOT_MENTIONED">Expiry not Mention</option>
                     </select>
-                </button>
-
-                <button id="btn-cal" class="action-btn" onclick="filterCalibration()" aria-label="Show instruments going for calibration">
-                    <i class="fas fa-wrench" style="color:#ff5722;" aria-hidden="true"></i> Calibration
-                </button>
-                <button class="action-btn" onclick="openAddModal()" aria-label="Add new instrument">
-                    <i class="fas fa-plus" style="color:#6200ee;" aria-hidden="true"></i> Add
-                </button>
-                <button class="action-btn" onclick="showStats()" aria-label="View statistics">
-                    <i class="fas fa-chart-pie" style="color:var(--warning);" aria-hidden="true"></i> Stats
-                </button>
-                <button class="action-btn" onclick="showHistoryPage()" aria-label="View update history">
-                    <i class="fas fa-history" style="color:#673ab7;" aria-hidden="true"></i> History
-                </button>
-                <button class="action-btn" onclick="openFeedbackModal()" aria-label="Send feedback">
-                    <i class="fas fa-comment-dots" style="color:#0b8043;" aria-hidden="true"></i> Feedback
-                </button>
-                <button class="action-btn" onclick="exportData()" aria-label="Export as PDF">
-                    <i class="fas fa-file-pdf" style="color:var(--danger);" aria-hidden="true"></i> PDF
-                </button>
+                </div>
+                
+                <button id="btn-cal" class="action-btn" onclick="filterCalibration()"><i class="fas fa-wrench" style="color: #ff5722; margin-bottom: 5px;"></i><span>Goes for Cal.</span></button>
+                <button class="action-btn" onclick="openAddModal()"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
+                <button class="action-btn" onclick="showStats()"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
+                <button class="action-btn" onclick="showHistoryPage()"><i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i><span>View History</span></button>
+                <button class="action-btn" onclick="openFeedbackModal()"><i class="fas fa-comment-dots" style="color: #0b8043; margin-bottom: 5px;"></i><span>Feedback</span></button>
+                <button class="action-btn" onclick="exportData()"><i class="fas fa-file-pdf" style="color: var(--dark); margin-bottom: 5px;"></i><span>Download PDF</span></button>
             </div>
 
-            <!-- Quick stats bar -->
-            <div class="stats-bar" id="statsBar" aria-label="Summary statistics"></div>
-
-            <section class="inventory-section" aria-label="Instrument inventory table">
-                <div class="table-container" role="region" aria-label="Scrollable table">
-                    <table class="inventory-table" id="inventoryTable">
-                        <colgroup>
-                            <col><col><col><col><col>
-                        </colgroup>
+            <section class="inventory-section">
+                <div class="table-container">
+                    <table class="inventory-table">
                         <thead>
                             <tr>
-                                <th scope="col">Instrument</th>
-                                <th scope="col">Location</th>
-                                <th scope="col" class="th-center">Action</th>
-                                <th scope="col" class="th-center" style="cursor:pointer;color:var(--primary);" onclick="toggleExpiryDisplay()" title="Click to toggle Days / Date">
-                                    Expiry <i class="fas fa-sync-alt" style="font-size:10px;" aria-label="Toggle expiry display"></i>
-                                </th>
-                                <th scope="col">Updated By</th>
+                                <th>Instrument</th>
+                                <th>Location</th>
+                                <th style="text-align:center;">Action</th>
+                                <th class="expiry-td" style="cursor:pointer; color:var(--primary); text-align:center;" onclick="toggleExpiryDisplay()" title="Click to toggle Days/Date">Expiry 🔄</th>
+                                <th>Updated By</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBody" aria-live="polite"></tbody>
+                        <tbody id="tableBody"></tbody>
                     </table>
                 </div>
             </section>
         </div>
     </div>
-
-    <!-- ═══════════════ UPDATE / ADD MODAL ═══════════════ -->
-    <div class="modal-overlay" id="updateModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    
+    <div class="modal-overlay" id="updateModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 id="modalTitle"><i class="fas fa-edit" aria-hidden="true"></i> Update Details</h3>
-                <button class="modal-close-btn" onclick="closeModal(true)" aria-label="Close modal">&times;</button>
+                <h3 id="modalTitle"><i class="fas fa-edit"></i> Update Details</h3>
+                <button onclick="closeModal(true)" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="modalItemName">Instrument Name</label>
-                    <input type="text" id="modalItemName" autocomplete="off">
+                    <label>Instrument Name</label>
+                    <input type="text" id="modalItemName" readonly style="background: #f5f5f5;">
                 </div>
                 <div class="form-group">
-                    <label for="modalLocation">Current Location *</label>
+                    <label>Current Location *</label>
                     <select id="modalLocation" onchange="handleLocationChange(this.value)"></select>
-                    <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none;margin-top:8px;" autocomplete="off">
-                    <p id="locationHint" style="display:none;font-size:11px;color:var(--gray);margin-top:4px;"><i class="fas fa-info-circle"></i> This location will be added as new.</p>
+                    <input type="text" id="customLocation" placeholder="Enter new location name" style="display:none; margin-top:10px;">
                 </div>
+
                 <div class="form-group">
                     <label>Expiry Date (Optional)</label>
-                    <div id="sliderContainer" class="slider-track">
-                        <div id="sliderText" class="slider-label">⟶ Slide to Edit Expiry</div>
-                        <input type="range" min="0" max="100" value="0" id="unlockSlider" class="slide-unlock" oninput="checkUnlock(this)" onchange="snapUnlock(this)" aria-label="Slide to unlock expiry editing">
+                    <div id="sliderContainer" style="position: relative; width: 100%; height: 36px; background: #e9ecef; border-radius: 18px; border: 1px solid #ced4da;">
+                        <div id="sliderText" style="position: absolute; width: 100%; text-align: center; line-height: 34px; color: #6c757d; pointer-events: none; font-size: 0.8rem; font-weight: bold;">Slide to Edit Expiry</div>
+                        <input type="range" min="0" max="100" value="0" id="unlockSlider" class="slide-unlock" oninput="checkUnlock(this)" onchange="snapUnlock(this)">
                     </div>
-                    <div id="expiryDateContainer" style="display:none;margin-top:8px;">
-                        <input type="date" id="modalExpiry" style="cursor:pointer;" aria-label="Expiry date">
+                    <div id="expiryDateContainer" style="display:none;">
+                        <input type="date" id="modalExpiry" style="cursor: pointer; background: white; color: var(--dark); width: 100%;">
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="modalRemark">Remark (Optional)</label>
-                    <textarea id="modalRemark" placeholder="Add a note…" style="min-height:70px;resize:vertical;" aria-label="Remark"></textarea>
+
+                <div style="display:none;">
+                    <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+                        <input type="checkbox" id="remarkCheckbox" onchange="document.getElementById('remarkGroup').style.display = this.checked ? 'block' : 'none'" style="width: 20px; height: 20px; cursor: pointer;">
+                        <label for="remarkCheckbox" style="margin:0; font-size: 0.95rem; cursor: pointer;">Add Remark</label>
+                    </div>
+                    <div class="form-group" id="remarkGroup" style="display:none;">
+                        <textarea id="modalRemark" placeholder="Write a remark..." style="width:100%; min-height:80px; padding:10px; border: 2px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; background: white; color: var(--dark);"></textarea>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="modalUpdatedBy">Updated By *</label>
-                    <input type="text" id="modalUpdatedBy" placeholder="Your Name" required autocomplete="off">
+
+                <div class="update-flex-row">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Updated By *</label>
+                        <input type="text" id="modalUpdatedBy" placeholder="Your Name" required>
+                    </div>
                 </div>
+                
                 <div class="modal-actions">
-                    <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">Save Changes</button>
-                    <button class="btn-secondary" onclick="closeModal(true)">Cancel</button>
+                    <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
+                    <button class="btn-secondary" onclick="closeModal(true)">CANCEL</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ═══════════════ FEEDBACK MODAL ═══════════════ -->
-    <div class="modal-overlay feedback-overlay" id="feedbackModal" role="dialog" aria-modal="true" aria-label="Send feedback">
+    <div class="modal-overlay feedback-overlay" id="feedbackModal">
         <div class="modal">
             <div class="modal-header">
-                <h3><i class="fas fa-comment-dots" aria-hidden="true"></i> Send Feedback</h3>
-                <button class="modal-close-btn" onclick="closeFeedbackModal()" aria-label="Close feedback">&times;</button>
+                <h3><i class="fas fa-comment-dots"></i> Send Feedback</h3>
+                <button onclick="closeFeedbackModal()" style="background: none; border: none; cursor: pointer; font-size: 1.5rem; color: white;">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="feedbackEmpId">Employee ID</label>
-                        <input type="text" inputmode="numeric" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()" autocomplete="off">
+                <div class="update-flex-row" style="margin-bottom: 1rem;">
+                    <div class="form-group" style="flex: 1; min-width: 120px; margin-bottom: 0;">
+                        <label>Employee ID</label>
+                        <input type="text" inputmode="numeric" id="feedbackEmpId" placeholder="e.g. 41764" oninput="autoFillName()">
                     </div>
-                    <div class="form-group" style="flex:2;">
-                        <label for="feedbackName">Name</label>
-                        <input type="text" id="feedbackName" placeholder="Your Name" oninput="autoFillEmpId()" autocomplete="off">
+                    <div class="form-group" style="flex: 2; min-width: 180px; margin-bottom: 0;">
+                        <label>Name</label>
+                        <input type="text" id="feedbackName" placeholder="Your Name" oninput="autoFillEmpId()">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="feedbackText">Feedback / Suggestion</label>
-                    <textarea id="feedbackText" placeholder="Write your feedback…" style="min-height:100px;resize:vertical;" aria-label="Feedback text"></textarea>
+                    <label>Feedback / Suggestion</label>
+                    <textarea id="feedbackText" placeholder="Write your feedback..." style="min-height: 100px;"></textarea>
                 </div>
                 <div class="modal-actions">
-                    <button class="btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">Send Feedback</button>
-                    <button class="btn-secondary" onclick="closeFeedbackModal()">Cancel</button>
+                    <button class="btn-primary" onclick="submitFeedback()" id="submitFeedbackBtn">SEND FEEDBACK</button>
+                    <button class="btn-secondary" onclick="closeFeedbackModal()">CANCEL</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ═══════════════ ACK / ALERT POPUP ═══════════════ -->
-    <div class="modal-overlay ack-overlay" id="ackModalOverlay" role="dialog" aria-modal="true" aria-labelledby="ackTitle">
-        <div class="modal ack-modal" id="ackModalCard">
-            <div class="modal-body" style="padding:24px 20px;">
-                <div class="ack-icon-wrap" id="ackIcon"></div>
-                <div class="ack-title" id="ackTitle"></div>
-                <div class="ack-message" id="ackMessage"></div>
-                <button class="btn-primary" onclick="closeAckModal()" style="width:100%;border-radius:var(--radius-sm);">OK, Got It</button>
+    <div class="modal-overlay ack-overlay" id="ackModalOverlay">
+        <div class="modal ack-modal" id="ackModalCard" style="max-width: 320px; width: 95%; text-align: center; border-radius: 20px; padding: 10px; transition: max-width 0.3s ease;">
+            <div class="modal-body" style="padding: 20px 15px;">
+                <div id="ackIcon" style="font-size: 3.5rem; margin-bottom: 15px;"></div>
+                <h2 id="ackTitle" style="margin-top: 0; color: #1a202c; font-weight: 800; font-size: 1.3rem;"></h2>
+                <p id="ackMessage" style="color: #4a5568; font-size: 0.95rem; line-height: 1.5; margin-bottom: 25px; word-wrap:break-word; text-align: left;"></p>
+                <button class="btn-primary" onclick="document.getElementById('ackModalOverlay').classList.remove('active')" style="width: 100%; border-radius: 12px; padding: 12px;">OK, GOT IT</button>
             </div>
         </div>
     </div>
 
-    <!-- ═══════════════ HISTORY PAGE ═══════════════ -->
-    <div id="historyPage" role="main" aria-label="Update history">
+    <div id="historyPage" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#e4edf5; z-index:9000; overflow-y:auto;">
         <header class="app-header">
             <div class="header-content">
                 <div class="brand">
-                    <button onclick="closeHistoryPage()" style="border:none;background:none;cursor:pointer;color:var(--primary);font-size:1.1rem;padding:4px 8px 4px 0;" aria-label="Close history">
-                        <i class="fas fa-arrow-left" aria-hidden="true"></i>
-                    </button>
-                    <div class="brand-title">Update History</div>
+                    <button onclick="closeHistoryPage()" style="border:none; background:none; cursor:pointer; margin-right:10px; color: var(--primary); font-size: 1.2rem;"><i class="fas fa-arrow-left fa-lg"></i></button>
+                    <h1 style="font-size: 1.1rem; margin:0;">Update History</h1>
                 </div>
-                <button class="action-btn" onclick="loadHistoryData()" style="border-radius:50%;width:36px;height:36px;justify-content:center;padding:0;" aria-label="Reload history">
-                    <i class="fas fa-sync-alt" aria-hidden="true"></i>
-                </button>
+                <button class="action-btn" onclick="loadHistoryData()" style="min-width:50px; box-shadow:none;"><i class="fas fa-sync-alt"></i></button>
             </div>
         </header>
-
-        <div style="max-width:900px;margin:0 auto;padding-top:14px;">
-            <div style="padding:0 16px 14px;">
+        
+        <div class="app-container" style="max-width: 900px; padding-top: 15px;">
+            <div class="search-container" style="margin: 0 15px 15px 15px;">
                 <div class="search-box">
-                    <i class="fas fa-search search-icon" aria-hidden="true"></i>
-                    <input type="search" id="historySearch" placeholder="Filter by name, user, location…" oninput="filterHistory()" autocomplete="off" style="padding:.7rem 1rem .7rem 2.8rem;border:1.5px solid var(--border);border-radius:50px;font-size:15px;font-family:var(--font);background:var(--surface);color:var(--dark);width:100%;outline:none;" aria-label="Filter history">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="historySearch" placeholder="Filter history..." oninput="filterHistory()">
                 </div>
             </div>
-
+            
             <div class="history-card">
                 <div class="table-container">
-                    <table class="history-table" aria-label="History records">
+                    <table class="history-table">
                         <thead>
                             <tr>
-                                <th scope="col">Date &amp; Time</th>
-                                <th scope="col">Instrument</th>
-                                <th scope="col">From</th>
-                                <th scope="col">To</th>
-                                <th scope="col">Updated By</th>
+                                <th>Date & Time</th>
+                                <th>Instrument</th>
+                                <th>From Location</th>
+                                <th>To Location</th>
+                                <th>Updated By</th>
                             </tr>
                         </thead>
-                        <tbody id="historyTableBody" aria-live="polite"></tbody>
+                        <tbody id="historyTableBody"></tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="toast-container" id="toastContainer" aria-live="assertive" aria-atomic="true"></div>
+    <div class="toast-container" id="toastContainer"></div>
 
-    <!-- ═══════════════════════════════════════════════════════════
-         JAVASCRIPT
-    ═══════════════════════════════════════════════════════════ -->
     <script>
-    'use strict';
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw0nKm-j24HwBwVd2u9ji3gqEtQ7j2dtQZmqEd0oA15mmB7nHMtGYOgUfhMrL7TjEc8cQ/exec";
+        
+        const EMPLOYEES = [
+            { code: "40311", full: "JERLIN DELA VEGA CABRAL", short: "Jerlin" },
+            { code: "40334", full: "RAJESH KUMAR SINGH", short: "Rajesh" },
+            { code: "40414", full: "EUGINERAJ KAMARAJ", short: "Eugine" },
+            { code: "40528", full: "PRASANTH M PURUSHOTHAMAN", short: "Prashant" },
+            { code: "40659", full: "THOMAS GEEVARGHESE", short: "Thomas" },
+            { code: "40663", full: "AKBARSHA NALAKATH KALLINGAL", short: "Akbar" },
+            { code: "41380", full: "MANIKANDAN SUBRAMANIAN", short: "Manikandan" },
+            { code: "41383", full: "JIBIN JOHN", short: "Jibin" },
+            { code: "41600", full: "PRAMOD DEJAPPA POOJARY", short: "Pramod" },
+            { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed" },
+            { code: "41806", full: "YOOSAF MUNDODAN", short: "Yoosaf" }
+        ];
 
-    /* ── CONFIG ──────────────────────────────────────────────── */
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw0nKm-j24HwBwVd2u9ji3gqEtQ7j2dtQZmqEd0oA15mmB7nHMtGYOgUfhMrL7TjEc8cQ/exec";
-    const DEV_PASSWORD = "Dubai@123";
-    const UNLOCK_CODE   = "123";
-    const DEBUG_KEY     = "tabreed_debug_logs";
-    const CACHE_KEY     = "localTabreedInventory";
-    const HISTORY_KEY   = "localTabreedHistory";
-    const QUEUE_KEY     = "tabreed_sync_queue";
-    const VIEW_KEY      = "tabreed_currentView";
+        let inventoryData = []; let locations = []; let currentItem = null; let fullHistoryData = []; let isEditMode = false;
+        let searchDebounceTimer; let showExpiryAsDays = false;
+        let currentView = localStorage.getItem('tabreed_currentView') || 'LAUNCHPAD'; 
+        let isDevModeActive = false;
 
-    const EMPLOYEES = [
-        { code:"40311", full:"JERLIN DELA VEGA CABRAL",            short:"Jerlin"    },
-        { code:"40334", full:"RAJESH KUMAR SINGH",                  short:"Rajesh"    },
-        { code:"40414", full:"EUGINERAJ KAMARAJ",                   short:"Eugine"    },
-        { code:"40528", full:"PRASANTH M PURUSHOTHAMAN",            short:"Prashant"  },
-        { code:"40659", full:"THOMAS GEEVARGHESE",                  short:"Thomas"    },
-        { code:"40663", full:"AKBARSHA NALAKATH KALLINGAL",         short:"Akbar"     },
-        { code:"41380", full:"MANIKANDAN SUBRAMANIAN",              short:"Manikandan"},
-        { code:"41383", full:"JIBIN JOHN",                          short:"Jibin"     },
-        { code:"41600", full:"PRAMOD DEJAPPA POOJARY",              short:"Pramod"    },
-        { code:"41764", full:"ABDUL MAJEED ABDUL HAFEEZ ANSARI",    short:"Majeed"    },
-        { code:"41806", full:"YOOSAF MUNDODAN",                     short:"Yoosaf"    }
-    ];
-
-    /* ── STATE ───────────────────────────────────────────────── */
-    let inventoryData   = [];
-    let locations       = [];
-    let currentItem     = null;
-    let fullHistoryData = [];
-    let isEditMode      = false;
-    let showExpiryAsDays = false;
-    let currentView     = localStorage.getItem(VIEW_KEY) || 'LAUNCHPAD';
-    let isDevModeActive = false;
-    let searchDebounceTimer;
-    let devClickCount   = 0;
-    let devClickTimer;
-    let deferredPrompt;
-
-    /* ── UTILS ───────────────────────────────────────────────── */
-    /** Escape HTML special characters for safe textContent insertion */
-    function escHtml(str) {
-        if (str == null) return '';
-        return String(str)
-            .replace(/&/g,'&amp;')
-            .replace(/</g,'&lt;')
-            .replace(/>/g,'&gt;')
-            .replace(/"/g,'&quot;')
-            .replace(/'/g,'&#39;');
-    }
-
-    /** Safely set text (never innerHTML) */
-    function setText(el, value) {
-        if (typeof el === 'string') el = document.getElementById(el);
-        if (el) el.textContent = value != null ? value : '';
-    }
-
-    /**
-     * Parse DD.MM.YYYY → Date object. Returns null on invalid input.
-     */
-    function parseDMY(str) {
-        if (!str || str === '-') return null;
-        const p = str.split('.');
-        if (p.length !== 3) return null;
-        const d = new Date(+p[2], +p[1] - 1, +p[0]);
-        if (isNaN(d.getTime())) return null;
-        return d;
-    }
-
-    /**
-     * Days remaining from today for a DD.MM.YYYY string.
-     * Returns null if date is not set.
-     */
-    function daysFromNow(dateStr) {
-        const d = parseDMY(dateStr);
-        if (!d) return null;
-        return Math.ceil((d - new Date()) / 864e5);
-    }
-
-    function getDubaiTime() {
-        const now   = new Date();
-        const dubai = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + 3600000 * 4);
-        const pad   = n => String(n).padStart(2, '0');
-        return `${pad(dubai.getDate())}.${pad(dubai.getMonth()+1)}.${dubai.getFullYear()}   ${pad(dubai.getHours())}:${pad(dubai.getMinutes())}:${pad(dubai.getSeconds())}`;
-    }
-
-    /* ── LOGGER ──────────────────────────────────────────────── */
-    function addLog(type, msg, details) {
-        try {
-            const logs = JSON.parse(localStorage.getItem(DEBUG_KEY) || '[]');
-            logs.unshift({ time: new Date().toLocaleTimeString(), type, msg, details: details ? JSON.stringify(details) : 'None' });
-            if (logs.length > 50) logs.pop();
-            localStorage.setItem(DEBUG_KEY, JSON.stringify(logs));
-        } catch (_) {}
-        console[type === 'ERROR' ? 'error' : 'log']('[LOG]', type, msg, details);
-    }
-    window.onerror = (msg, _url, line) => addLog('ERROR', 'Window Error', { msg, line });
-    window.addEventListener('unhandledrejection', e => addLog('ERROR', 'Unhandled Promise Rejection', { reason: e.reason?.message || 'Unknown' }));
-
-    const handleError = (error, context = 'Operation') => {
-        console.error(`[${context}]`, error);
-        addLog('ERROR', `Context: ${context}`, { message: error?.message || String(error) });
-        showToast('An error occurred. Check logs.', 'error');
-    };
-
-    /* ── DARK MODE ───────────────────────────────────────────── */
-    function toggleDarkMode() {
-        const isDark = document.body.classList.toggle('dark-mode');
-        localStorage.setItem('tabreed_dark', isDark ? '1' : '0');
-        document.getElementById('darkModeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
-    }
-
-    /* ── TOAST ───────────────────────────────────────────────── */
-    function showToast(msg, type = 'info') {
-        const container = document.getElementById('toastContainer');
-        const t = document.createElement('div');
-        t.className = 'toast';
-        const colors = { success: 'var(--secondary)', error: 'var(--danger)', warning: 'var(--warning)', info: 'var(--primary)' };
-        const icons  = { success: 'fa-check-circle',  error: 'fa-times-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
-        const icon = document.createElement('i');
-        icon.className = `fas ${icons[type] || icons.info}`;
-        icon.style.color = colors[type] || colors.info;
-        icon.setAttribute('aria-hidden', 'true');
-        const span = document.createElement('span');
-        span.textContent = msg; // safe textContent — no XSS
-        t.append(icon, span);
-        container.appendChild(t);
-        setTimeout(() => {
-            t.style.animation = 'toastOut .3s ease forwards';
-            setTimeout(() => t.remove(), 320);
-        }, 2800);
-    }
-
-    /* ── ACK POPUP ───────────────────────────────────────────── */
-    function showAckPopup(title, messageHTML, iconClass, iconColor) {
-        const card = document.getElementById('ackModalCard');
-        const isWide = (title === 'System Logs');
-        card.style.maxWidth = isWide ? '620px' : '360px';
-        document.getElementById('ackIcon').innerHTML = `<i class="${escHtml(iconClass)}" style="color:${escHtml(iconColor)};" aria-hidden="true"></i>`;
-        setText('ackTitle', title);
-        // messageHTML is developer-controlled or sanitised before this call
-        document.getElementById('ackMessage').innerHTML = messageHTML;
-        document.getElementById('ackModalOverlay').classList.add('active');
-    }
-
-    function closeAckModal() {
-        document.getElementById('ackModalOverlay').classList.remove('active');
-        // Reset width for next use
-        document.getElementById('ackModalCard').style.maxWidth = '360px';
-    }
-
-    /* ── DEVELOPER MODE ──────────────────────────────────────── */
-    function handleDevClick() {
-        devClickCount++;
-        clearTimeout(devClickTimer);
-        if (devClickCount >= 3) {
-            const pass = prompt('Enter Developer Password:');
-            if (pass === DEV_PASSWORD) activateDeveloperMode();
-            else if (pass !== null) showToast('Access Denied', 'error');
-            devClickCount = 0;
-            return;
+        const DEBUG_LOGS = "tabreed_debug_logs";
+        function addLog(type, msg, details) {
+            let logs = JSON.parse(localStorage.getItem(DEBUG_LOGS) || '[]');
+            logs.unshift({ time: new Date().toLocaleTimeString(), type: type, msg: msg, details: details ? JSON.stringify(details) : 'None' });
+            if(logs.length > 50) logs.pop(); 
+            localStorage.setItem(DEBUG_LOGS, JSON.stringify(logs));
+            console.log("[LOGGER]", type, msg, details);
         }
-        devClickTimer = setTimeout(() => { devClickCount = 0; }, 1000);
-    }
+        window.onerror = function(msg, url, line) { addLog('ERROR', 'Window Crash', {msg, line}); };
+        window.addEventListener('unhandledrejection', e => { addLog('ERROR', 'API Promise Rejected', {reason: e.reason ? e.reason.message : 'Unknown'}); });
 
-    function activateDeveloperMode() {
-        isDevModeActive = true;
-        document.getElementById('dev-tools-group').style.display = 'block';
-        showAckPopup('Developer Mode', 'Admin tools and privileges are now unlocked.', 'fas fa-user-shield', 'var(--danger)');
-        setTimeout(() => {
-            document.getElementById('fiori-wrapper').scrollTo({ top: document.getElementById('fiori-wrapper').scrollHeight, behavior: 'smooth' });
-        }, 300);
-    }
-
-    function checkDevAccess(type, url) {
-        if (isDevModeActive) openApp(type, url);
-        else showToast('Under Development', 'info');
-    }
-
-    function devClearCache() {
-        if (!confirm('Clear all local storage? This cannot be undone.')) return;
-        localStorage.clear();
-        showToast('Cache cleared. Reloading…', 'info');
-        setTimeout(() => location.reload(), 1200);
-    }
-
-    function devShowLog() {
-        let logs;
-        try { logs = JSON.parse(localStorage.getItem(DEBUG_KEY) || '[]'); } catch (_) { logs = []; }
-        if (logs.length === 0) {
-            showAckPopup('System Logs', 'No errors found. System is healthy.', 'fas fa-check-circle', 'var(--secondary)');
-            return;
-        }
-        let html = `<div style="text-align:left;font-size:.75rem;max-height:240px;overflow-y:auto;background:var(--bg);padding:10px;border-radius:8px;border:1px solid var(--border);word-break:break-all;">`;
-        logs.forEach(l => {
-            const color = l.type === 'ERROR' ? 'var(--danger)' : 'var(--primary)';
-            html += `<div style="margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px;">
-                <strong style="color:${color}">${escHtml(l.type)}</strong>
-                <span style="color:var(--gray)"> [${escHtml(l.time)}]</span><br>
-                <b>${escHtml(l.msg)}</b><br>
-                <code style="color:#db2777;font-size:10px;">${escHtml(l.details)}</code>
-            </div>`;
-        });
-        html += '</div>';
-        html += `<div style="display:flex;gap:10px;margin-top:12px;">
-            <button class="btn-secondary" onclick="navigator.clipboard.writeText(JSON.stringify(JSON.parse(localStorage.getItem('${DEBUG_KEY}')||'[]'),null,2)).then(()=>showToast('Logs copied!','success'));" style="flex:1;padding:10px;">Copy</button>
-            <button class="btn-secondary" onclick="localStorage.removeItem('${DEBUG_KEY}');closeAckModal();showToast('Logs cleared!','success');" style="flex:1;padding:10px;color:var(--danger);">Clear</button>
-        </div>`;
-        showAckPopup('System Logs', html, 'fas fa-terminal', 'var(--dark)');
-    }
-
-    /* ── PWA INSTALL ─────────────────────────────────────────── */
-    window.addEventListener('beforeinstallprompt', e => {
-        e.preventDefault();
-        deferredPrompt = e;
-    });
-
-    async function startSmartInstall() {
-        const ua = navigator.userAgent || '';
-        let os = 'Desktop';
-        if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) os = 'iOS';
-        else if (/android/i.test(ua)) os = 'Android';
-
-        if (os === 'iOS') {
-            window.location.href = 'https://tabreed.automation3000.com/Automation.mobileconfig';
-            showAckPopup('Profile Downloaded!', 'Install via your iPhone <b>Settings</b> app.', 'fab fa-apple', 'var(--dark)');
-            return;
-        }
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                deferredPrompt = null;
-                document.querySelector('.btn-install-small').style.display = 'none';
-            }
-        } else if (os === 'Android') {
-            window.location.href = 'https://tabreed.automation3000.com/Automation.apk';
-            showAckPopup('Downloading APK…', 'Tap <b>Install</b> when the download completes.', 'fas fa-download', 'var(--primary)');
-        } else {
-            showAckPopup('Already Installed', 'The app is already installed on this device. Look for it in your apps or use the address bar icon to open it.', 'fas fa-check-circle', 'var(--secondary)');
-        }
-    }
-
-    /* ── NAVIGATION ──────────────────────────────────────────── */
-    function openApp(type, url = '', saveState = true) {
-        document.getElementById('fiori-wrapper').style.display = 'none';
-        if (saveState) localStorage.setItem(VIEW_KEY, type);
-        if (type === 'NATIVE_INSTRUMENT') {
-            document.getElementById('premium-wrapper').style.display = 'block';
-            loadInventory();
-        } else if (type === 'IFRAME') {
-            if (!navigator.onLine) showToast('Iframe needs a network connection.', 'warning');
-            document.getElementById('fiori-iframe-header').style.display = 'flex';
-            document.getElementById('iframeWrapper').style.display = 'block';
-            document.getElementById('active-iframe').src = url;
-        }
-    }
-
-    function closeApp() {
-        localStorage.setItem(VIEW_KEY, 'LAUNCHPAD');
-        document.getElementById('premium-wrapper').style.display = 'none';
-        document.getElementById('fiori-iframe-header').style.display = 'none';
-        document.getElementById('iframeWrapper').style.display = 'none';
-        document.getElementById('active-iframe').src = '';
-        document.getElementById('fiori-wrapper').style.display = 'flex';
-    }
-
-    /* ── UI HELPERS ──────────────────────────────────────────── */
-    function triggerPopAnim(id) {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.classList.remove('pop-anim');
-        void el.offsetWidth; // reflow
-        el.classList.add('pop-anim');
-    }
-
-    function clearSearch() {
-        document.getElementById('searchInput').value = '';
-        document.getElementById('searchClear').style.display = 'none';
-        applyFilters();
-    }
-
-    /* ── DATA LOADING ────────────────────────────────────────── */
-    function loadInventory() {
-        const tbody = document.getElementById('tableBody');
-        const saved = localStorage.getItem(CACHE_KEY);
-        if (saved) {
-            try {
-                const res = JSON.parse(saved);
-                inventoryData = res.data || [];
-                locations     = res.locations || [];
-                updateLocationsDropdown();
-                applyFilters();
-                updateStatus(navigator.onLine);
-            } catch (e) {
-                localStorage.removeItem(CACHE_KEY);
-                addLog('WARN', 'Cache corrupt — removed', {});
-            }
-        } else {
-            renderSkeletonRows(tbody, 7);
+        function sanitizeInput(str) {
+            if (typeof str !== 'string') return '';
+            return str.replace(/[<>\"'&]/g, (char) => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' }[char]));
         }
 
-        if (!navigator.onLine) { updateStatus(false); return; }
-
-        fetch(`${GAS_API_URL}?key=AI1&action=getItems`)
-            .then(async r => {
-                if (!r.ok) { const txt = await r.text(); throw new Error(`HTTP ${r.status}: ${txt.slice(0,200)}`); }
-                return r.json();
-            })
-            .then(res => {
-                if (!res.success) { addLog('ERROR', 'API rejected request', res); return; }
-                try {
-                    localStorage.setItem(CACHE_KEY, JSON.stringify(res));
-                    inventoryData = res.data || [];
-                    locations     = res.locations || [];
-                    updateLocationsDropdown();
-                    applyFilters();
-                    updateStatus(true);
-                } catch (e) { handleError(e, 'Cache Write'); }
-            })
-            .catch(e => { handleError(e, 'loadInventory fetch'); updateStatus(false); });
-    }
-
-    function renderSkeletonRows(tbody, count = 6) {
-        tbody.innerHTML = Array.from({length: count}, () => `
-            <tr class="skeleton-row">
-                <td><div class="skeleton-cell" style="width:80%;"></div></td>
-                <td><div class="skeleton-cell" style="width:60%;"></div></td>
-                <td><div class="skeleton-cell" style="width:50px;margin:0 auto;"></div></td>
-                <td><div class="skeleton-cell" style="width:70%;margin:0 auto;"></div></td>
-                <td><div class="skeleton-cell" style="width:55%;"></div></td>
-            </tr>`).join('');
-    }
-
-    /* ── FILTERING ───────────────────────────────────────────── */
-    function handleFilterChange(type) {
-        if (type === 'location') {
-            const sel = document.getElementById('locationFilter');
-            const label = sel.value === 'ALL' ? 'All Locations' : sel.options[sel.selectedIndex].text;
-            setText('label-location', label);
-            document.getElementById('btn-location-wrapper').classList.toggle('filter-active', sel.value !== 'ALL');
-        } else {
-            const sel = document.getElementById('expiryFilter');
-            const label = sel.value === 'ALL' ? 'Expiry' : sel.options[sel.selectedIndex].text;
-            setText('label-expiry', label);
-            document.getElementById('btn-expiry-wrapper').classList.toggle('filter-active', sel.value !== 'ALL');
-        }
-        applyFilters();
-    }
-
-    function filterCalibration() {
-        document.getElementById('searchInput').value = 'Calibration';
-        document.getElementById('searchClear').style.display = 'block';
-        const btn = document.getElementById('btn-cal');
-        // toggle: if already active, clear
-        if (btn.classList.contains('filter-active')) {
-            clearSearch();
-            btn.classList.remove('filter-active');
-        } else {
-            applyFilters();
-            btn.classList.add('filter-active');
-        }
-    }
-
-    function refreshAndReset() {
-        triggerPopAnim('btn-refresh');
-        document.getElementById('locationFilter').value = 'ALL';
-        document.getElementById('expiryFilter').value  = 'ALL';
-        document.getElementById('searchInput').value   = '';
-        document.getElementById('searchClear').style.display = 'none';
-        setText('label-location', 'All Locations');
-        setText('label-expiry',   'Expiry');
-        ['btn-location-wrapper','btn-expiry-wrapper','btn-cal'].forEach(id => {
-            document.getElementById(id)?.classList.remove('filter-active');
-        });
-        applyFilters();
-        loadInventory();
-    }
-
-    function toggleExpiryDisplay() {
-        showExpiryAsDays = !showExpiryAsDays;
-        applyFilters();
-    }
-
-    function applyFilters() {
-        const term    = document.getElementById('searchInput').value.toLowerCase().trim();
-        const loc     = document.getElementById('locationFilter').value;
-        const expDays = document.getElementById('expiryFilter').value;
-
-        // Search clear button visibility
-        document.getElementById('searchClear').style.display = term ? 'block' : 'none';
-
-        // Calibration button active state
-        document.getElementById('btn-cal').classList.toggle('filter-active', term.includes('calibration'));
-
-        const filtered = inventoryData.filter(item => {
-            const matchSearch = item.name.toLowerCase().includes(term) || item.location.toLowerCase().includes(term);
-            const matchLoc    = (loc === 'ALL' || item.location === loc);
-            let   matchExp    = true;
-
-            if (expDays !== 'ALL') {
-                if (expDays === 'NOT_MENTIONED') {
-                    matchExp = !item.expiry || item.expiry === '-';
-                } else if (!item.expiry || item.expiry === '-') {
-                    matchExp = false;
-                } else {
-                    const diff = daysFromNow(item.expiry);
-                    if (diff === null) { matchExp = false; }
-                    else if (expDays === 'EXPIRED') { matchExp = diff < 0; }
-                    else { matchExp = diff >= 0 && diff <= parseInt(expDays, 10); }
-                }
-            }
-            return matchSearch && matchLoc && matchExp;
-        });
-
-        renderTable(filtered);
-        updateStatsBar();
-    }
-
-    /* ── RENDER TABLE ────────────────────────────────────────── */
-    function renderTable(data) {
-        const tbody = document.getElementById('tableBody');
-        if (!data || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5">
-                <div class="empty-state">
-                    <i class="fas fa-inbox" aria-hidden="true"></i>
-                    <p>No instruments found</p>
-                </div>
-            </td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = data.map(item => {
-            const realIdx = inventoryData.findIndex(i => i.name === item.name);
-            const diff    = daysFromNow(item.expiry);
-
-            let expiryBadgeClass = '';
-            let expiryContent    = escHtml(item.expiry || '—');
-
-            if (diff !== null) {
-                if (diff < 0)   expiryBadgeClass = 'expired';
-                else if (diff <= 30) expiryBadgeClass = 'expiring-soon';
-                else                 expiryBadgeClass = 'healthy';
-
-                if (showExpiryAsDays) {
-                    expiryContent = diff < 0 ? 'Expired' : diff === 0 ? 'Today!' : `${diff}d left`;
-                }
-            }
-
-            const remarkHTML = item.remark
-                ? ` <i class="fas fa-comment-dots remark-icon" title="${escHtml(item.remark)}" aria-label="Has remark: ${escHtml(item.remark)}"></i>`
-                : '';
-
-            return `
-            <tr>
-                <td>${escHtml(item.name)}</td>
-                <td><span class="location-tag">${escHtml(item.location)}</span></td>
-                <td class="td-center">
-                    <button class="update-btn" onclick="openUpdateModalByIndex(${realIdx})" aria-label="Update ${escHtml(item.name)}">Update</button>
-                </td>
-                <td class="td-center">
-                    <span class="expiry-badge ${expiryBadgeClass}" onclick="showExpiryDetail('${escHtml(item.expiry || '')}')">
-                        ${expiryContent}
-                    </span>
-                </td>
-                <td style="font-size:12px;color:var(--gray);">${escHtml(item.updatedBy || '—')}${remarkHTML}</td>
-            </tr>`;
-        }).join('');
-    }
-
-    function showExpiryDetail(dateStr) {
-        if (!dateStr || dateStr === '-' || dateStr === '—') {
-            showToast('No expiry date set.', 'info'); return;
-        }
-        const diff = daysFromNow(dateStr);
-        if (diff === null) { showToast('Invalid date format.', 'warning'); return; }
-        if (diff < 0)      showToast(`Expired ${Math.abs(diff)} day(s) ago!`, 'error');
-        else if (diff === 0) showToast('Expires today!', 'warning');
-        else                 showToast(`${diff} day(s) until expiry.`, 'success');
-    }
-
-    /* ── STATS BAR ───────────────────────────────────────────── */
-    function updateStatsBar() {
-        const bar = document.getElementById('statsBar');
-        if (!bar) return;
-        const total    = inventoryData.length;
-        const expired  = inventoryData.filter(i => { const d = daysFromNow(i.expiry); return d !== null && d < 0; }).length;
-        const soon     = inventoryData.filter(i => { const d = daysFromNow(i.expiry); return d !== null && d >= 0 && d <= 30; }).length;
-        bar.innerHTML = `
-            <span class="stat-chip"><i class="fas fa-layer-group" aria-hidden="true"></i> ${total} Instruments</span>
-            ${soon   ? `<span class="stat-chip warn"><i class="fas fa-hourglass-half"></i> ${soon} expiring soon</span>` : ''}
-            ${expired ? `<span class="stat-chip danger"><i class="fas fa-exclamation-circle"></i> ${expired} expired</span>` : ''}
-        `;
-    }
-
-    /* ── MODALS ──────────────────────────────────────────────── */
-    function updateLocationsDropdown() {
-        const modalSel  = document.getElementById('modalLocation');
-        const filterSel = document.getElementById('locationFilter');
-        const opts      = locations.map(l => `<option value="${escHtml(l)}">${escHtml(l)}</option>`).join('');
-        modalSel.innerHTML  = opts + `<option value="NOT_LISTED" style="font-weight:700;color:var(--danger);">+ Not Listed (Add New)</option>`;
-        filterSel.innerHTML = `<option value="ALL">All Locations</option>` + opts;
-    }
-
-    function handleLocationChange(value) {
-        const cInput = document.getElementById('customLocation');
-        const hint   = document.getElementById('locationHint');
-        if (value === 'NOT_LISTED') {
-            document.getElementById('modalLocation').style.display = 'none';
-            cInput.style.display = 'block';
-            hint.style.display   = 'block';
-            cInput.focus();
-        } else {
-            cInput.style.display = 'none';
-            hint.style.display   = 'none';
-        }
-    }
-
-    function resetModalLocation() {
-        document.getElementById('modalLocation').style.display = 'block';
-        document.getElementById('customLocation').style.display = 'none';
-        document.getElementById('customLocation').value = '';
-        document.getElementById('locationHint').style.display = 'none';
-    }
-
-    function openUpdateModalByIndex(idx) {
-        if (!inventoryData[idx]) return;
-        const item = inventoryData[idx];
-        openUpdateModal(item.name, item.location, item.expiry || '', item.remark || '');
-    }
-
-    function openAddModal() {
-        isEditMode  = false;
-        currentItem = null;
-        const title = document.getElementById('modalTitle');
-        title.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> Add New Instrument';
-        document.getElementById('modalItemName').value    = '';
-        document.getElementById('modalItemName').readOnly = false;
-        document.getElementById('modalItemName').style.background = 'var(--surface)';
-        document.getElementById('modalRemark').value    = '';
-        document.getElementById('modalUpdatedBy').value = '';
-        if (locations.length) document.getElementById('modalLocation').value = locations[0];
-        resetSlider();
-        resetModalLocation();
-        document.getElementById('updateModal').classList.add('active');
-    }
-
-    function openUpdateModal(name, loc, exp, remark = '') {
-        isEditMode  = true;
-        currentItem = name;
-        const title = document.getElementById('modalTitle');
-        title.innerHTML = '<i class="fas fa-edit" aria-hidden="true"></i> Update Details';
-        document.getElementById('modalItemName').value    = name;
-        document.getElementById('modalItemName').readOnly = true;
-        document.getElementById('modalItemName').style.background = 'var(--bg)';
-        document.getElementById('modalLocation').value   = loc;
-        document.getElementById('modalRemark').value     = remark;
-        document.getElementById('modalUpdatedBy').value  = '';
-        // Populate expiry field if exists
-        const expDate = parseDMY(exp);
-        if (expDate) {
-            const pad = n => String(n).padStart(2,'0');
-            document.getElementById('modalExpiry').value = `${expDate.getFullYear()}-${pad(expDate.getMonth()+1)}-${pad(expDate.getDate())}`;
-        } else {
-            document.getElementById('modalExpiry').value = '';
-        }
-        resetSlider();
-        resetModalLocation();
-        document.getElementById('updateModal').classList.add('active');
-    }
-
-    function checkUnlock(slider) {
-        if (+slider.value >= 95) {
-            const pass = prompt('Enter unlock code:');
-            if (pass === UNLOCK_CODE) {
-                document.getElementById('sliderContainer').style.display    = 'none';
-                document.getElementById('expiryDateContainer').style.display = 'block';
-                document.getElementById('modalExpiry').disabled = false;
-            } else {
-                showToast('Incorrect code!', 'error');
-                slider.value = 0;
-            }
-        }
-    }
-
-    function snapUnlock(slider) { if (+slider.value < 100) slider.value = 0; }
-
-    function resetSlider() {
-        document.getElementById('unlockSlider').value = 0;
-        document.getElementById('sliderContainer').style.display    = 'block';
-        document.getElementById('expiryDateContainer').style.display = 'none';
-        document.getElementById('modalExpiry').disabled = true;
-    }
-
-    function closeModal(showCancelMsg = false) {
-        document.getElementById('updateModal').classList.remove('active');
-        if (showCancelMsg) showToast('Cancelled — no changes made.', 'warning');
-        setTimeout(() => {
-            resetModalLocation();
-            document.getElementById('modalExpiry').value = '';
-        }, 300);
-    }
-
-    function submitUpdate() {
-        const name      = document.getElementById('modalItemName').value.trim();
-        const customLoc = document.getElementById('customLocation').value.trim();
-        let   loc       = document.getElementById('modalLocation').value.trim();
-        const user      = document.getElementById('modalUpdatedBy').value.trim();
-        const remark    = document.getElementById('modalRemark').value.trim();
-        const expiryRaw = document.getElementById('modalExpiry').value;
-        const expiryUnlocked = !document.getElementById('modalExpiry').disabled;
-
-        // Validation
-        if (!name)  { showToast('Instrument name is required.', 'error'); return; }
-        if (!user)  { showToast('"Updated By" is required.', 'error'); return; }
-        if (loc === 'NOT_LISTED') {
-            if (!customLoc || customLoc.length < 2) { showToast('Please enter a valid new location.', 'error'); return; }
-            loc = customLoc;
-        }
-
-        // Format expiry
-        let expFormatted = '';
-        if (expiryUnlocked && expiryRaw) {
-            const d = new Date(expiryRaw);
-            const pad = n => String(n).padStart(2,'0');
-            expFormatted = `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}`;
-        } else if (isEditMode) {
-            // Preserve existing expiry if slider not unlocked
-            const original = inventoryData.find(i => i.name === currentItem);
-            expFormatted = original?.expiry || '';
-        }
-
-        const btn = document.getElementById('submitUpdateBtn');
-        btn.disabled = true;
-        btn.textContent = 'Processing…';
-
-        // Optimistic local update
-        if (isEditMode) {
-            const idx = inventoryData.findIndex(i => i.name === currentItem);
-            if (idx !== -1) {
-                inventoryData[idx] = { ...inventoryData[idx], location: loc, expiry: expFormatted, remark, updatedBy: user };
-            }
-        } else {
-            inventoryData.push({ name, location: loc, expiry: expFormatted, remark, updatedBy: user });
-        }
-        applyFilters();
-
-        const params = {
-            action:      isEditMode ? 'update' : 'add',
-            itemName:    currentItem || name,
-            name,
-            location:    loc,
-            newLocation: loc,
-            expiry:      expFormatted,
-            newExpiry:   expFormatted,
-            remark,
-            user,
-            updatedBy:   user
+        const handleError = (error, context = 'Operation') => {
+            console.error(`[${context}]`, error); 
+            addLog('ERROR', `Context: ${context}`, { message: error.message || error });
+            showToast('Error Logged - Check Dev Tools', 'error');
         };
-        submitActionToQueue(params);
 
-        btn.disabled = false;
-        btn.textContent = 'Save Changes';
-        closeModal(false);
-    }
-
-    /* ── OFFLINE QUEUE ───────────────────────────────────────── */
-    function submitActionToQueue(params) {
-        if (navigator.onLine) {
-            const qs = Object.keys(params).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join('&');
-            fetch(`${GAS_API_URL}?key=AI1&${qs}`)
-                .then(r => r.json())
-                .then(res => {
-                    if (res.success) {
-                        showToast('Saved and synced online.', 'success');
-                        loadInventory();
-                    } else {
-                        addLog('ERROR', 'API Save Rejected', res);
-                        showToast(res.error || 'Save failed on server.', 'error');
-                    }
-                })
-                .catch(() => pushToQueue(params));
-        } else {
-            pushToQueue(params);
-        }
-    }
-
-    function pushToQueue(params) {
-        const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
-        queue.push(params);
-        localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
-        showToast('Saved offline. Will sync when online.', 'warning');
-        updatePendingTile();
-    }
-
-    /**
-     * Process the sync queue. Retries individually — keeps failed items in queue.
-     */
-    async function processSyncQueue(manual = false) {
-        const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
-        if (queue.length === 0) { if (manual) showToast('No pending syncs.', 'success'); return; }
-        if (!navigator.onLine)  { if (manual) showToast('Still offline.', 'error'); return; }
-
-        showToast(`Syncing ${queue.length} offline change(s)…`, 'warning');
-        const failed = [];
-        for (const task of queue) {
-            const qs = Object.keys(task).map(k => `${encodeURIComponent(k)}=${encodeURIComponent(task[k])}`).join('&');
-            try {
-                const res = await fetch(`${GAS_API_URL}?key=AI1&${qs}`).then(r => r.json());
-                if (!res.success) failed.push(task);
-            } catch (_) { failed.push(task); }
-        }
-        if (failed.length === 0) {
-            localStorage.removeItem(QUEUE_KEY);
-            updatePendingTile();
-            showToast('All offline changes synced!', 'success');
-            loadInventory();
-        } else {
-            localStorage.setItem(QUEUE_KEY, JSON.stringify(failed));
-            updatePendingTile();
-            showToast(`${failed.length} item(s) still pending.`, 'warning');
-        }
-    }
-
-    function viewPendingSyncs() {
-        const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
-        if (queue.length === 0) { showToast('No pending data to sync.', 'success'); return; }
-        let html = `<div style="text-align:left;font-size:.8rem;max-height:200px;overflow-y:auto;">`;
-        queue.forEach((q, i) => {
-            html += `<div style="padding:8px;border-bottom:1px solid var(--border);">
-                <strong>${i+1}. ${escHtml(q.name)}</strong><br>
-                <span style="color:var(--gray)">${escHtml(q.action)} · ${escHtml(q.updatedBy)}</span>
-            </div>`;
-        });
-        html += `</div>
-        <div style="margin-top:14px;">
-            <button class="btn-primary" onclick="processSyncQueue(true);closeAckModal();" style="width:100%;border-radius:var(--radius-sm);">Sync Now</button>
-        </div>`;
-        showAckPopup(`Pending Syncs (${queue.length})`, html, 'fas fa-sync', 'var(--warning)');
-    }
-
-    function updatePendingTile() {
-        const queue = JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
-        const tile  = document.getElementById('pending-sync-tile');
-        const badge = document.getElementById('queue-badge');
-        if (tile) tile.textContent = `${queue.length} Pending`;
-        if (badge) {
-            badge.textContent     = queue.length > 0 ? `${queue.length} pending` : '';
-            badge.style.display   = queue.length > 0 ? 'inline-block' : 'none';
-        }
-    }
-
-    function updateStatus(online) {
-        triggerPopAnim('connectionStatus');
-        const dot  = document.getElementById('statusDot');
-        const text = document.getElementById('statusText');
-        if (dot)  { dot.className = `status-dot ${online ? 'online' : 'offline'}`; }
-        if (text) { text.textContent = online ? 'Online' : 'Offline'; }
-        if (online) processSyncQueue();
-    }
-
-    window.addEventListener('online',  () => updateStatus(true));
-    window.addEventListener('offline', () => updateStatus(false));
-
-    /* ── STATS POPUP ─────────────────────────────────────────── */
-    function showStats() {
-        const total    = inventoryData.length;
-        const locCount = locations.length;
-        const expired  = inventoryData.filter(i => { const d = daysFromNow(i.expiry); return d !== null && d < 0; }).length;
-        const expiring = inventoryData.filter(i => { const d = daysFromNow(i.expiry); return d !== null && d >= 0 && d <= 30; }).length;
-        const noExpiry = inventoryData.filter(i => !i.expiry || i.expiry === '-').length;
-
-        const row = (label, value, color='var(--primary)') =>
-            `<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
-                <span style="font-weight:600;">${label}</span>
-                <span style="font-size:1rem;font-weight:800;color:${color};">${value}</span>
-            </div>`;
-
-        const html = row('Total Instruments', total)
-            + row('Total Locations', locCount)
-            + row('Expired', expired, 'var(--danger)')
-            + row('Expiring within 30 days', expiring, 'var(--warning)')
-            + row('Expiry not set', noExpiry, 'var(--gray)');
-        showAckPopup('Inventory Statistics', `<div>${html}</div>`, 'fas fa-chart-pie', 'var(--primary)');
-    }
-
-    /* ── FEEDBACK ────────────────────────────────────────────── */
-    function openFeedbackModal() {
-        document.getElementById('feedbackEmpId').value  = '';
-        document.getElementById('feedbackName').value   = '';
-        document.getElementById('feedbackText').value   = '';
-        document.getElementById('feedbackModal').classList.add('active');
-    }
-    function closeFeedbackModal() {
-        document.getElementById('feedbackModal').classList.remove('active');
-    }
-
-    function autoFillName() {
-        const id    = document.getElementById('feedbackEmpId').value.trim();
-        const match = EMPLOYEES.find(e => e.code === id);
-        if (match) document.getElementById('feedbackName').value = match.short;
-    }
-    function autoFillEmpId() {
-        const name = document.getElementById('feedbackName').value.trim().toLowerCase();
-        if (name.length < 3) return; // avoid premature matching
-        const match = EMPLOYEES.find(e =>
-            e.full.toLowerCase().includes(name) || e.short.toLowerCase().includes(name)
-        );
-        if (match && !document.getElementById('feedbackEmpId').value) {
-            document.getElementById('feedbackEmpId').value = match.code;
-        }
-    }
-
-    function submitFeedback() {
-        const empId   = document.getElementById('feedbackEmpId').value.trim();
-        const empName = document.getElementById('feedbackName').value.trim();
-        const rawText = document.getElementById('feedbackText').value.trim();
-
-        if (!rawText || (!empId && !empName)) {
-            showToast('Please fill in your name/ID and feedback.', 'warning');
-            return;
-        }
-        if (!navigator.onLine) {
-            showToast('You are offline. Please connect and retry.', 'warning');
-            return;
+        // ── BETA THEME SWITCH ──────────────────────────────────────────
+        function switchToBetaTheme() {
+            showAckPopup(
+                "Switch to Beta Theme?",
+                "Yeh action page ko reload karega aur <b>new Beta UI</b> load hogi. Aapka data safe rahega.<br><br><button class='btn-primary' onclick=\"localStorage.setItem('tabreed_use_beta','1'); window.location.reload();\" style='width:100%; border-radius:10px; padding:12px; margin-top:5px;'>Yes, Load Beta Theme</button>",
+                "fas fa-flask",
+                "#667eea"
+            );
         }
 
-        const combined = `${getDubaiTime()} ${empId}... ${empName}.... ${rawText}`;
-        const btn = document.getElementById('submitFeedbackBtn');
-        btn.disabled = true;
-        btn.textContent = 'Sending…';
-
-        fetch(`${GAS_API_URL}?key=AI1&action=feedback&text=${encodeURIComponent(combined)}`)
-            .then(r => r.json())
-            .then(res => {
-                btn.disabled = false; btn.textContent = 'Send Feedback';
-                if (res.success) {
-                    showAckPopup('Feedback Sent!', 'Thank you — your feedback was delivered to the Automation team.', 'fas fa-check-circle', 'var(--secondary)');
-                    closeFeedbackModal();
-                } else {
-                    showToast('Server rejected the feedback.', 'error');
+        // ── BETA REDIRECT CHECK (runs on every page load) ──────────────
+        (function checkBetaRedirect() {
+            if (localStorage.getItem('tabreed_use_beta') === '1') {
+                // Beta URL — same folder, different file name
+                // Aap apni actual beta file ka URL yahan daalein:
+                const BETA_URL = "tabreed_app_v2_beta.html";
+                // Agar same domain par ho toh simple redirect:
+                if (window.location.href.indexOf('tabreed_app_v1') !== -1 || window.location.pathname.endsWith('/') || window.location.pathname === '') {
+                    // Redirect to beta
+                    window.location.replace(BETA_URL);
                 }
-            })
-            .catch(() => {
-                // Network glitch after onLine check — treat as sent to avoid frustration
-                btn.disabled = false; btn.textContent = 'Send Feedback';
-                showAckPopup('Feedback Sent!', 'Thank you — your feedback was delivered.', 'fas fa-check-circle', 'var(--secondary)');
-                closeFeedbackModal();
+            }
+        })();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setupSearch(); updatePendingTile(); processSyncQueue();
+            
+            if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+                let installBtn = document.querySelector('.btn-install-small');
+                if(installBtn) installBtn.style.display = 'none';
+            }
+
+            if (currentView === 'NATIVE_INSTRUMENT') openApp('NATIVE_INSTRUMENT', '', false); 
+            else document.getElementById('fiori-wrapper').style.display = 'block';
+        });
+
+        let devClickCount = 0; let devClickTimer;
+        function handleDevClick() {
+            devClickCount++; clearTimeout(devClickTimer);
+            if (devClickCount >= 3) {
+                let pass = prompt("Enter Developer Password:");
+                if (pass === "Dubai@123") activateDeveloperMode();
+                else if (pass !== null) showToast("Access Denied", "error");
+                devClickCount = 0; return;
+            }
+            devClickTimer = setTimeout(() => { devClickCount = 0; }, 1000);
+        }
+
+        function activateDeveloperMode() {
+            isDevModeActive = true; document.getElementById('dev-tools-group').style.display = 'block';
+            showAckPopup("Developer Mode", "Extra Tools and Admin privileges have been unlocked.", "fas fa-user-shield", "var(--danger)");
+            setTimeout(() => { document.getElementById('fiori-wrapper').scrollTo({ top: document.getElementById('fiori-wrapper').scrollHeight, behavior: 'smooth' }); }, 300);
+        }
+
+        function checkDevAccess(type, url) { if(isDevModeActive) openApp(type, url); else showToast("Under Development", "warning"); }
+
+        function devClearCache() { if(confirm("Nuke all local storage. Proceed?")) { localStorage.clear(); showToast("Cache Cleared. Reloading...", "info"); setTimeout(() => window.location.reload(), 1000); } }
+        
+        function devShowLog() { 
+            let logs = JSON.parse(localStorage.getItem(DEBUG_LOGS) || '[]');
+            if(logs.length === 0) { showAckPopup("System Logs", "No errors found. System is healthy!", "fas fa-check-circle", "var(--secondary)"); return; }
+            let html = "<div style='text-align:left; font-size:0.75rem; max-height:250px; overflow-y:auto; background:#f8f9fa; padding:10px; border-radius:8px; border:1px solid #ddd; word-break:break-all;'>";
+            logs.forEach(l => {
+                let color = l.type === 'ERROR' ? 'var(--danger)' : 'var(--primary)';
+                html += `<div style="margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:5px;"><strong style="color:${color}">${l.type}</strong> <span style="color:var(--gray)">[${l.time}]</span><br><b>${l.msg}</b><br><code style="color:#d81b60;">${l.details}</code></div>`;
             });
-    }
+            html += "</div>";
+            html += `<div style="display:flex; gap:10px; margin-top:10px;">
+                        <button class='btn-secondary' onclick="navigator.clipboard.writeText(JSON.stringify(JSON.parse(localStorage.getItem('${DEBUG_LOGS}')||'[]'),null,2)); showToast('Logs Copied!', 'success');" style='flex:1; padding:10px;'>COPY LOGS</button>
+                        <button class='btn-secondary' onclick=\"localStorage.removeItem('${DEBUG_LOGS}'); document.getElementById('ackModalOverlay').classList.remove('active'); showToast('Logs cleared!', 'success');\" style='flex:1; padding:10px; color:var(--danger);'>CLEAR LOGS</button>
+                     </div>`;
+            
+            document.getElementById('ackModalCard').style.maxWidth = '600px';
+            showAckPopup("System Logs", html, "fas fa-terminal", "#333"); 
+        }
 
-    /* ── PDF EXPORT ──────────────────────────────────────────── */
-    function exportData() {
-        showToast('Preparing PDF…', 'info');
-        const doExport = () => generatePDF();
-        if (typeof html2pdf === 'undefined') {
-            const s = document.createElement('script');
-            s.src     = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-            s.onload  = doExport;
-            s.onerror = () => showToast('Could not load PDF library.', 'error');
-            document.body.appendChild(s);
-        } else { doExport(); }
-    }
+        let deferredPrompt; 
+        window.addEventListener('beforeinstallprompt', (e) => { 
+            e.preventDefault(); 
+            deferredPrompt = e; 
+        });
 
-    function generatePDF() {
-        const el = document.querySelector('.inventory-section');
-        if (!el) { showToast('Nothing to export.', 'warning'); return; }
-        const pad = n => String(n).padStart(2,'0');
-        const now = new Date();
-        const fileName = `MIL_${pad(now.getDate())}-${pad(now.getMonth()+1)}-${now.getFullYear()}.pdf`;
-        html2pdf()
-            .set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } })
-            .from(el)
-            .save()
-            .then(() => showToast('PDF downloaded!', 'success'))
-            .catch(() => showToast('PDF export failed.', 'error'));
-    }
+        window.startSmartInstall = async function() {
+            const androidApkLink = "https://tabreed.automation3000.com/Automation.apk"; 
+            const iosProfileLink = "https://tabreed.automation3000.com/Automation.mobileconfig";
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera; let os = "Desktop";
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) os = "iOS"; else if (/android/i.test(userAgent)) os = "Android";
 
-    /* ── HISTORY ─────────────────────────────────────────────── */
-    function showHistoryPage() {
-        document.getElementById('historyPage').style.display = 'block';
-        loadHistoryData();
-    }
-    function closeHistoryPage() {
-        document.getElementById('historyPage').style.display = 'none';
-    }
-
-    function loadHistoryData() {
-        const tbody = document.getElementById('historyTableBody');
-        renderSkeletonRows(tbody, 8);
-
-        if (navigator.onLine) {
-            fetch(`${GAS_API_URL}?key=AI1&action=getHistory`)
-                .then(r => r.json())
-                .then(res => {
-                    if (res.success) {
-                        fullHistoryData = res.data || [];
-                        // Cache for offline use
-                        try { localStorage.setItem(HISTORY_KEY, JSON.stringify(res)); } catch (_) {}
-                        renderHistoryTable(fullHistoryData);
-                    } else {
-                        showToast('Could not load history.', 'error');
-                    }
-                })
-                .catch(e => {
-                    handleError(e, 'loadHistoryData');
-                    // Fall back to cache
-                    const saved = localStorage.getItem(HISTORY_KEY);
-                    if (saved) { try { fullHistoryData = JSON.parse(saved).data || []; renderHistoryTable(fullHistoryData); } catch (_) {} }
-                    else { tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-wifi-slash"></i><p>No cached history available</p></div></td></tr>`; }
-                });
-        } else {
-            showToast('Offline — loading cached history.', 'warning');
-            const saved = localStorage.getItem(HISTORY_KEY);
-            if (saved) {
-                try { fullHistoryData = JSON.parse(saved).data || []; renderHistoryTable(fullHistoryData); }
-                catch (_) { tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><p>Cache unreadable</p></div></td></tr>`; }
-            } else {
-                tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-inbox"></i><p>No offline history found</p></div></td></tr>`;
+            if (os === "Android" || os === "Desktop") {
+                if (deferredPrompt) { 
+                    deferredPrompt.prompt(); 
+                    const { outcome } = await deferredPrompt.userChoice; 
+                    if(outcome === 'accepted') {
+                        deferredPrompt = null; 
+                        document.querySelector('.btn-install-small').style.display = 'none';
+                    } 
+                } 
+                else if (os === "Android") { 
+                    window.location.href = androidApkLink; 
+                    showAckPopup("Downloading APK...", "Tap <b>'Install'</b> when the download is complete.", "fas fa-download", "var(--primary)");
+                }
+                else {
+                    showAckPopup("App Already Installed", "Ye app aapke system par pehle se install hai!", "fas fa-check-circle", "var(--secondary)");
+                }
+            } else if (os === "iOS") {
+                window.location.href = iosProfileLink; 
+                showAckPopup("Profile Downloaded!", "Install via your iPhone <b>Settings</b> app.", "fab fa-apple", "var(--dark)");
             }
-        }
-    }
-
-    function filterHistory() {
-        const term = document.getElementById('historySearch').value.toLowerCase().trim();
-        if (!Array.isArray(fullHistoryData) || fullHistoryData.length === 0) return;
-        renderHistoryTable(
-            fullHistoryData.filter(log =>
-                (log.item   || '').toLowerCase().includes(term) ||
-                (log.user   || '').toLowerCase().includes(term) ||
-                (log.oldLoc || '').toLowerCase().includes(term) ||
-                (log.newLoc || '').toLowerCase().includes(term)
-            )
-        );
-    }
-
-    function renderHistoryTable(data) {
-        const tbody = document.getElementById('historyTableBody');
-        if (!Array.isArray(data) || data.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-inbox"></i><p>No history found</p></div></td></tr>`;
-            return;
-        }
-        tbody.innerHTML = data.map(log => `
-            <tr>
-                <td class="ts-cell">${escHtml(log.time || '')}</td>
-                <td style="font-weight:600;">${escHtml(log.item || '')}</td>
-                <td><span class="loc-tag-old">${escHtml(log.oldLoc || '')}</span></td>
-                <td><span class="loc-tag-new">${escHtml(log.newLoc || '')}</span></td>
-                <td style="font-weight:600;">${escHtml(log.user || '')}</td>
-            </tr>`).join('');
-    }
-
-    /* ── KEYBOARD SHORTCUTS ──────────────────────────────────── */
-    let ctrlMCount = 0, ctrlMTimer;
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
-            return;
-        }
-        if (!e.ctrlKey) return;
-        const key = e.key.toLowerCase();
-        const shortcuts = {
-            p: () => { e.preventDefault(); exportData(); },
-            e: () => { e.preventDefault(); refreshAndReset(); },
-            s: () => { e.preventDefault(); processSyncQueue(true); },
-            f: () => { e.preventDefault(); document.getElementById('searchInput')?.focus(); },
-            h: () => { e.preventDefault(); showHistoryPage(); },
-            q: () => { e.preventDefault(); openFeedbackModal(); },
-            '+': () => { e.preventDefault(); openAddModal(); },
-            '=': () => { e.preventDefault(); openAddModal(); }
         };
-        if (key === 'backspace') { e.preventDefault(); closeApp(); closeHistoryPage(); return; }
-        if (shortcuts[key]) { shortcuts[key](); return; }
-        if (key === 'm') {
-            e.preventDefault();
-            ctrlMCount++;
-            clearTimeout(ctrlMTimer);
-            if (ctrlMCount >= 3) {
-                const pass = prompt('Enter Developer Password:');
-                if (pass === DEV_PASSWORD) activateDeveloperMode();
-                else if (pass !== null) showToast('Access Denied', 'error');
-                ctrlMCount = 0;
+
+        function openApp(type, url, saveState = true) {
+            document.getElementById('fiori-wrapper').style.display = 'none';
+            if(saveState) localStorage.setItem('tabreed_currentView', type);
+
+            if(type === 'NATIVE_INSTRUMENT') { document.getElementById('premium-wrapper').style.display = 'block'; loadInventory(); } 
+            else if (type === 'IFRAME') { document.getElementById('fiori-iframe-header').style.display = 'flex'; document.getElementById('iframeWrapper').style.display = 'block'; if(!navigator.onLine) showToast("Iframe needs network.", "warning"); document.getElementById('active-iframe').src = url; } 
+        }
+        function closeApp() { 
+            localStorage.setItem('tabreed_currentView', 'LAUNCHPAD');
+            document.getElementById('premium-wrapper').style.display = 'none'; document.getElementById('fiori-iframe-header').style.display = 'none'; document.getElementById('iframeWrapper').style.display = 'none'; document.getElementById('active-iframe').src = ''; document.getElementById('fiori-wrapper').style.display = 'block'; 
+        }
+
+        function triggerPopAnim(elementId) { const el = document.getElementById(elementId); if(el) { el.classList.remove('pop-anim'); void el.offsetWidth; el.classList.add('pop-anim'); } }
+
+        function showToast(msg, type) {
+            const container = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = 'toast';
+            const colors = { 'success': 'var(--secondary)', 'error': 'var(--danger)', 'warning': 'var(--warning)', 'info': 'var(--primary)' };
+            const icons = { 'success': 'fa-check-circle', 'error': 'fa-exclamation-circle', 'warning': 'fa-exclamation-triangle', 'info': 'fa-info-circle' };
+            t.innerHTML = `<i class="fas ${icons[type] || icons['info']}" style="color:${colors[type] || colors['info']}; font-size:1.2rem;"></i> <span>${sanitizeInput(msg)}</span>`;
+            container.appendChild(t); setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 2500);
+        }
+
+        function showAckPopup(title, message, iconClass, iconColor) {
+            if(title !== "System Logs") document.getElementById('ackModalCard').style.maxWidth = '320px';
+            document.getElementById('ackIcon').innerHTML = `<i class="${iconClass}" style="color: ${iconColor};"></i>`;
+            document.getElementById('ackTitle').innerText = title; document.getElementById('ackMessage').innerHTML = message;
+            document.getElementById('ackModalOverlay').classList.add('active');
+        }
+
+        function updateFilterLabel(selectElement, labelId, defaultText) {
+            let label = document.getElementById(labelId);
+            if(selectElement.value === 'ALL') label.innerText = defaultText || selectElement.options[0].text; 
+            else label.innerText = selectElement.options[selectElement.selectedIndex].text;
+        }
+
+        function filterCalibration() {
+            document.getElementById('searchInput').value = 'Calibration';
+            applyFilters();
+            triggerPopAnim('btn-cal');
+        }
+
+        function refreshAndReset() {
+            triggerPopAnim('btn-refresh');
+            document.getElementById('locationFilter').value = 'ALL'; document.getElementById('expiryFilter').value = 'ALL'; document.getElementById('searchInput').value = '';
+            document.getElementById('label-location').innerText = 'All Locations'; document.getElementById('label-expiry').innerText = 'Expiry'; 
+            applyFilters();
+            loadInventory();
+        }
+
+        function loadInventory() {
+            const tbody = document.getElementById('tableBody'); const savedDataStr = localStorage.getItem("localTabreedInventory");
+
+            if (savedDataStr) {
+                try { const res = JSON.parse(savedDataStr); inventoryData = res.data || []; locations = res.locations || []; updateLocationsDropdown(); applyFilters(); updateStatus(navigator.onLine);
+                } catch (e) { localStorage.removeItem("localTabreedInventory"); }
             } else {
-                ctrlMTimer = setTimeout(() => { ctrlMCount = 0; }, 1000);
+                tbody.innerHTML = `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 85%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 60px;"></div></td><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 50%;"></div></td></tr>`;
+            }
+
+            if (navigator.onLine) {
+                fetch(`${GAS_API_URL}?key=AI1&action=getItems`)
+                    .then(async r => {
+                        if (!r.ok) { let rawText = await r.text(); addLog('ERROR', 'API HTTP Status Error', { status: r.status, response: rawText }); throw new Error(`HTTP Error ${r.status}`); }
+                        return r.json();
+                    })
+                    .then(res => {
+                        if (res.success) {
+                            try { localStorage.setItem("localTabreedInventory", JSON.stringify(res)); inventoryData = res.data || []; locations = res.locations || [];
+                                updateLocationsDropdown(); applyFilters(); updateStatus(true);
+                            } catch (e) { handleError(e, 'Save Response'); }
+                        } else { addLog('ERROR', 'API Returned Success: False', res); handleError('API Rejected Request', 'Backend'); }
+                    }).catch(e => { handleError(e, 'Fetch Execution Failed'); updateStatus(false); });
+            } else { updateStatus(false); }
+        }
+
+        function toggleExpiryDisplay() { showExpiryAsDays = !showExpiryAsDays; applyFilters(); }
+
+        function setupSearch() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                clearTimeout(searchDebounceTimer);
+                searchDebounceTimer = setTimeout(() => { applyFilters(); }, 300);
+            });
+        }
+
+        function applyFilters() {
+            const term = document.getElementById('searchInput').value.toLowerCase().trim(); 
+            const loc = document.getElementById('locationFilter').value; 
+            const expDays = document.getElementById('expiryFilter').value; 
+
+            document.getElementById('btn-location-wrapper').classList.toggle('filter-active', loc !== 'ALL');
+            document.getElementById('btn-expiry-wrapper').classList.toggle('filter-active', expDays !== 'ALL');
+            
+            if(term.includes("calibration")) {
+                document.getElementById('btn-cal').classList.add('filter-active');
+            } else {
+                document.getElementById('btn-cal').classList.remove('filter-active');
+            }
+
+            let filtered = inventoryData.filter(i => {
+                const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term); 
+                const matchLoc = (loc === "ALL" || i.location === loc);
+                let matchExp = true; 
+
+                if (expDays !== "ALL") {
+                    if (expDays === "NOT_MENTIONED") { matchExp = (!i.expiry || i.expiry === '-'); } 
+                    else if (!i.expiry || i.expiry === '-') { matchExp = false; } 
+                    else {
+                        const parts = i.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]); const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
+                        if (expDays === "EXPIRED") { matchExp = (diff < 0); } else { matchExp = (diff >= 0 && diff <= parseInt(expDays)); }
+                    }
+                }
+                return matchSearch && matchLoc && matchExp;
+            }); 
+            renderTable(filtered);
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('tableBody');
+            if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray);">No instruments found</td></tr>'; return; }
+
+            tbody.innerHTML = data.map((item, idx) => {
+                let isExpired = false;
+                if (item.expiry && item.expiry !== '-') {
+                    const parts = item.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    isExpired = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24)) < 0;
+                }
+
+                let expiryDisplay = `<span class="expiry-badge ${isExpired ? 'expired' : ''}" onclick="showExpiryDays('${item.expiry || '-'}')">${sanitizeInput(item.expiry || '-')}</span>`;
+                
+                if (showExpiryAsDays && item.expiry && item.expiry !== '-') {
+                    const parts = item.expiry.split('.'); const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    const diff = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
+                    if (diff < 0) expiryDisplay = `<span class="expiry-badge expired" onclick="showExpiryDays('${item.expiry}')">Expired</span>`;
+                    else if (diff === 0) expiryDisplay = `<span class="expiry-badge" style="color:var(--warning); border-color:var(--warning); background:#fff3e0;" onclick="showExpiryDays('${item.expiry}')">Today</span>`;
+                    else expiryDisplay = `<span class="expiry-badge" style="color:var(--secondary); border-color:var(--secondary); background:#e8f5e9;" onclick="showExpiryDays('${item.expiry}')">${diff} Days Left</span>`;
+                }
+                const realIdx = inventoryData.findIndex(i => i.name === item.name);
+                let remarkIcon = item.remark ? ` <i class="fas fa-comment-dots" style="color:var(--primary); cursor:pointer;" title="${sanitizeInput(item.remark)}"></i>` : '';
+
+                return `
+                <tr>
+                    <td style="font-weight:600;">${sanitizeInput(item.name)}</td>
+                    <td><span class="location-tag">${sanitizeInput(item.location)}</span></td>
+                    <td style="text-align:center;">
+                        <button onclick="openUpdateModalByIndex(${realIdx})" style="padding:6px 16px; background:var(--primary); color:white; border:none; border-radius:6px; font-weight:600; cursor:pointer;">Update</button>
+                    </td>
+                    <td class="expiry-td" style="text-align:center; cursor:pointer;">${expiryDisplay}</td>
+                    <td style="font-size:0.8rem; color:var(--gray);">${sanitizeInput(item.updatedBy || '-')}${remarkIcon}</td>
+                </tr>
+            `;
+            }).join('');
+        }
+
+        function showExpiryDays(dateStr) {
+            if(!dateStr || dateStr === '-') return showToast('No expiry date set.', 'info');
+            const parts = dateStr.split('.'); if(parts.length !== 3) return;
+            const expDate = new Date(parts[2], parts[1] - 1, parts[0]);
+            const diffDays = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
+            if(diffDays < 0) showToast(`Expired ${Math.abs(diffDays)} days ago!`, 'error');
+            else if(diffDays === 0) showToast(`Expiring Today!`, 'warning');
+            else showToast(`${diffDays} days remaining for expiry.`, 'success');
+        }
+
+        function openUpdateModalByIndex(idx) { if (!inventoryData[idx]) return; const item = inventoryData[idx]; openUpdateModal(item.name, item.location, item.expiry || '', item.remark || ''); }
+
+        function openAddModal() {
+            isEditMode = false; currentItem = null; document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument'; document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'white'; document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = ''; 
+            document.getElementById('remarkCheckbox').checked = false; document.getElementById('remarkGroup').style.display='none'; document.getElementById('modalRemark').value = '';
+            resetSlider(); document.getElementById('updateModal').classList.add('active');
+        }
+
+        function openUpdateModal(name, loc, exp, remark = '') {
+            isEditMode = true; currentItem = name; document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Update Details'; document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee'; document.getElementById('modalLocation').value = loc;
+            if (exp && exp !== '-' ) { const p = exp.split('.'); if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${p[1]}-${p[0]}`; } else { document.getElementById('modalExpiry').value = ''; }
+            
+            document.getElementById('remarkCheckbox').checked = Boolean(remark);
+            document.getElementById('remarkGroup').style.display = remark ? 'block' : 'none';
+            document.getElementById('modalRemark').value = remark;
+
+            document.getElementById('modalUpdatedBy').value = ''; resetSlider(); document.getElementById('updateModal').classList.add('active');
+        }
+
+        function checkUnlock(slider) {
+            if(slider.value >= 95) {
+                let pass = prompt("Enter unlock code:");
+                if(pass === "123") { document.getElementById('sliderContainer').style.display = 'none'; document.getElementById('expiryDateContainer').style.display = 'block'; document.getElementById('modalExpiry').disabled = false; } 
+                else { showToast("Incorrect Code!", "error"); slider.value = 0; }
             }
         }
-    });
+        function snapUnlock(slider) { if(slider.value < 100) { slider.value = 0; } }
+        function resetSlider() { const slider = document.getElementById('unlockSlider'); slider.value = 0; document.getElementById('sliderContainer').style.display = 'block'; document.getElementById('expiryDateContainer').style.display = 'none'; document.getElementById('modalExpiry').disabled = true; }
+        
+        function closeModal(showCancelMsg = false) { 
+            document.getElementById('updateModal').classList.remove('active');
+            if (showCancelMsg === true) {
+                showToast("Canceled: No changes made", "warning");
+            }
+            setTimeout(() => {
+                document.getElementById('modalLocation').style.display = 'block'; 
+                document.getElementById('customLocation').style.display = 'none'; 
+                document.getElementById('customLocation').value = ''; 
+                const hint = document.getElementById('locationHint'); if(hint) hint.style.display = 'none';
+                document.getElementById('modalExpiry').value = ''; 
+            }, 300);
+        }
+        
+        function updateLocationsDropdown() { const modalSelect = document.getElementById('modalLocation'); let modalOpts = locations.map(l => `<option value="${l}">${l}</option>`).join(''); modalOpts += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`; modalSelect.innerHTML = modalOpts; const filterSelect = document.getElementById('locationFilter'); let filterOpts = `<option value="ALL">All Locations</option>` + locations.map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts; }
+        
+        function handleLocationChange(value) { const cInput = document.getElementById('customLocation'); const hint = document.getElementById('locationHint'); if(value === "NOT_LISTED") { document.getElementById('modalLocation').style.display = 'none'; cInput.style.display = 'block'; hint.style.display = 'block'; cInput.focus(); } else { cInput.style.display = 'none'; hint.style.display = 'none'; } }
 
-    /* ── INIT ────────────────────────────────────────────────── */
-    document.addEventListener('DOMContentLoaded', () => {
-        // Restore dark mode
-        if (localStorage.getItem('tabreed_dark') === '1') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('darkModeIcon').className = 'fas fa-sun';
+        function submitUpdate() {
+            const name = document.getElementById('modalItemName').value.trim(); let loc = document.getElementById('modalLocation').value.trim(); const customLoc = document.getElementById('customLocation').value.trim(); const user = document.getElementById('modalUpdatedBy').value.trim(); let exp = document.getElementById('modalExpiry').value;
+            const remark = document.getElementById('remarkCheckbox').checked ? document.getElementById('modalRemark').value.trim() : '';
+
+            if (!name || !user) { showToast('Name and Updated By are required!', 'error'); return; }
+            if (loc === "NOT_LISTED") { if (!customLoc || customLoc.length < 2) { showToast('Please enter a valid location', 'error'); return; } loc = customLoc; }
+
+            const sanitizedUser = sanitizeInput(user); const sanitizedLoc = sanitizeInput(loc); const sanitizedName = sanitizeInput(name);
+            
+            if (exp && !document.getElementById('modalExpiry').disabled) { const d = new Date(exp); exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`; } 
+            else if (document.getElementById('modalExpiry').disabled) { const originalItem = inventoryData.find(i => i.name === currentItem); exp = originalItem ? originalItem.expiry : ''; }
+
+            const btn = document.getElementById('submitUpdateBtn'); btn.disabled = true; btn.textContent = 'Processing...';
+
+            let actionParams = { action: isEditMode ? 'update' : 'add', itemName: currentItem || '', name: sanitizedName, location: sanitizedLoc, newLocation: sanitizedLoc, expiry: exp, newExpiry: exp, remark: remark, user: sanitizedUser, updatedBy: sanitizedUser };
+
+            if (isEditMode) { let idx = inventoryData.findIndex(i => i.name === currentItem); if (idx !== -1) { inventoryData[idx].location = sanitizedLoc; inventoryData[idx].expiry = exp; inventoryData[idx].remark = remark; inventoryData[idx].updatedBy = sanitizedUser; }
+            } else { inventoryData.push({ name: sanitizedName, location: sanitizedLoc, expiry: exp, remark: remark, updatedBy: sanitizedUser }); }
+            
+            applyFilters();
+            submitActionToQueue(actionParams);
+            
+            btn.disabled = false; btn.textContent = 'SAVE CHANGES';
+            closeModal(false); 
         }
 
-        // Hide install button if already installed
-        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-            document.querySelector('.btn-install-small')?.setAttribute('style','display:none!important');
+        function submitActionToQueue(actionParams) {
+            if (navigator.onLine) {
+                let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
+                fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => { 
+                    if (res.success) { 
+                        showToast("Entry successfully updated and saved online.", "success");
+                        loadInventory(); 
+                    } 
+                    else { addLog('ERROR','Save API Reject', res); showToast(res.error || 'Save failed', 'error'); }
+                }).catch(e => { pushToQueue(actionParams); });
+            } else { pushToQueue(actionParams); }
         }
 
-        // Search input listener
-        document.getElementById('searchInput')?.addEventListener('input', () => {
-            clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = setTimeout(applyFilters, 280);
+        function pushToQueue(actionParams) {
+            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); queue.push(actionParams);
+            localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue)); 
+            showToast("Saved Offline! Will sync automatically.", "warning");
+            updatePendingTile();
+        }
+
+        async function processSyncQueue(manual = false) {
+            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); if (queue.length === 0) { if(manual) showToast("No pending syncs.", "success"); return; }
+            if (!navigator.onLine) { if(manual) showToast("Still offline.", "error"); return; }
+
+            showToast(`Syncing ${queue.length} offline changes...`, 'warning');
+            let successCount = 0; let failureCount = 0;
+            for (let i = 0; i < queue.length; i++) {
+                let task = queue[i]; let query = Object.keys(task).map(k => `${k}=${encodeURIComponent(task[k])}`).join('&');
+                try { let res = await fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()); if (res.success) successCount++; else failureCount++; } catch (e) { failureCount++; }
+            }
+            if (failureCount === 0) { localStorage.removeItem('tabreed_sync_queue'); updatePendingTile(); showToast('Offline changes synced to Automation App!', 'success'); loadInventory(); }
+        }
+
+        function viewPendingSyncs() {
+            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
+            if (queue.length === 0) { showToast("No pending data to sync.", "success"); return; }
+            let html = "<div style='text-align:left; font-size:0.8rem; max-height:200px; overflow-y:auto;'>";
+            queue.forEach((q, i) => { html += `<div style="padding:8px; border-bottom:1px solid #eee;"><b>${i+1}. ${q.name}</b><br><span style="color:var(--gray)">${q.action} - ${q.updatedBy}</span></div>`; });
+            html += "</div>";
+            html += `<div style="margin-top:15px;"><button class="btn-primary" onclick="processSyncQueue(true); document.getElementById('ackModalOverlay').classList.remove('active');" style="width:100%; padding:10px; border-radius:12px;">SYNC NOW</button></div>`;
+            showAckPopup("Pending Syncs (" + queue.length + ")", html, "fas fa-sync", "var(--warning)");
+        }
+
+        function updatePendingTile() { let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); document.getElementById('pending-sync-tile').innerText = queue.length + " Pending"; const badge = document.getElementById('queue-badge'); if(queue.length > 0) { badge.innerText = queue.length + " pending"; badge.style.display = 'inline-block'; } else badge.style.display = 'none'; }
+        
+        function updateStatus(online) { 
+            triggerPopAnim('connectionStatus');
+            const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335'; document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline'; if(online) processSyncQueue(); 
+        }
+        window.addEventListener('online', () => updateStatus(true)); window.addEventListener('offline', () => updateStatus(false));
+
+        function showStats() { 
+            const total = inventoryData.length; const locationsCount = locations.length;
+            const expiringCount = inventoryData.filter(item => { if (!item.expiry || item.expiry === '-') return false; const parts = item.expiry.split('.'); const exp = new Date(parts[2], parts[1] - 1, parts[0]); const diff = Math.ceil((exp - new Date()) / (1000 * 60 * 60 * 24)); return diff <= 30; }).length;
+            let statHtml = `<div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;"><span style="font-weight:600;">Total Instruments:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${total}</span></div><div style="display:flex; justify-content:space-between; margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid #eee;"><span style="font-weight:600;">Total Locations:</span> <span style="font-size:1.1rem; color:var(--primary); font-weight:800;">${locationsCount}</span></div><div style="display:flex; justify-content:space-between;"><span style="font-weight:600; color:var(--danger);">Expiring Soon:</span> <span style="font-size:1.1rem; color:var(--danger); font-weight:800;">${expiringCount}</span></div>`;
+            showAckPopup("Inventory Statistics", statHtml, "fas fa-chart-pie", "var(--primary)");
+        }
+
+        function getDubaiTime() {
+            let d = new Date(); let utc = d.getTime() + (d.getTimezoneOffset() * 60000); let dubaiTime = new Date(utc + (3600000 * 4));
+            let day = String(dubaiTime.getDate()).padStart(2, '0'); let month = String(dubaiTime.getMonth() + 1).padStart(2, '0'); let year = dubaiTime.getFullYear();
+            let hours = String(dubaiTime.getHours()).padStart(2, '0'); let minutes = String(dubaiTime.getMinutes()).padStart(2, '0'); let seconds = String(dubaiTime.getSeconds()).padStart(2, '0');
+            return `${day}.${month}.${year}   ${hours}:${minutes}:${seconds}`;
+        }
+
+        function openFeedbackModal() { document.getElementById('feedbackEmpId').value = ''; document.getElementById('feedbackName').value = ''; document.getElementById('feedbackText').value = ''; document.getElementById('feedbackModal').classList.add('active'); }
+        function closeFeedbackModal() { document.getElementById('feedbackModal').classList.remove('active'); }
+
+        function autoFillName() { const empId = document.getElementById('feedbackEmpId').value.trim(); const nameInput = document.getElementById('feedbackName'); const match = EMPLOYEES.find(emp => emp.code === empId); if (match) { nameInput.value = match.short; } }
+        function autoFillEmpId() { const nameVal = document.getElementById('feedbackName').value.trim().toLowerCase(); const idInput = document.getElementById('feedbackEmpId'); if (nameVal.length >= 3) { const match = EMPLOYEES.find(emp => emp.full.toLowerCase().includes(nameVal) || emp.short.toLowerCase().includes(nameVal)); if (match) { idInput.value = match.code; } } }
+
+        function submitFeedback() {
+            const empId = document.getElementById('feedbackEmpId').value.trim(); const empName = document.getElementById('feedbackName').value.trim(); const rawFeedback = document.getElementById('feedbackText').value.trim();
+            if (!rawFeedback || (!empId && !empName)) { showToast("Please provide details and feedback.", "warning"); return; }
+            const dubaiTimeStamp = getDubaiTime(); const combinedFeedback = `${dubaiTimeStamp} ${empId}... ${empName}.... ${rawFeedback}`;
+            const btn = document.getElementById('submitFeedbackBtn'); btn.disabled = true; btn.textContent = 'SENDING...';
+
+            if (navigator.onLine) {
+                fetch(`${GAS_API_URL}?key=AI1&action=feedback&text=${encodeURIComponent(combinedFeedback)}`).then(r => r.json()).then(res => {
+                        btn.disabled = false; btn.textContent = 'SEND FEEDBACK';
+                        if(res.success) { showAckPopup("Success!", "Feedback sent successfully to Automation Team.", "fas fa-check-circle", "var(--secondary)"); closeFeedbackModal(); } else { showToast("Error saving feedback.", "error"); }
+                    }).catch(() => { btn.disabled = false; btn.textContent = 'SEND FEEDBACK'; showAckPopup("Success!", "Feedback sent to Automation Team.", "fas fa-check-circle", "var(--secondary)"); closeFeedbackModal(); }); 
+            } else { btn.disabled = false; btn.textContent = 'SEND FEEDBACK'; showToast("You are offline. Connect to internet.", "warning"); }
+        }
+
+        function exportData() {
+            showToast('Preparing PDF Engine...', 'info');
+            if (typeof html2pdf === 'undefined') { const script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'; script.onload = () => generatePDF(); document.body.appendChild(script); } else generatePDF();
+        }
+        function generatePDF() {
+            const el = document.querySelector('.inventory-section'); const now = new Date(); const fileName = `List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}.pdf`;
+            html2pdf().set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save().then(() => showToast('PDF Downloaded!', 'success'));
+        }
+
+        function showHistoryPage() { document.getElementById('historyPage').style.display = 'block'; loadHistoryData(); }
+        function closeHistoryPage() { document.getElementById('historyPage').style.display = 'none'; }
+        
+        function loadHistoryData() { 
+            const tbody = document.getElementById('historyTableBody');
+            let skeletonHTML = ''; for(let i=0; i<8; i++){ skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 90%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 60%;"></div></td><td><div class="skeleton-cell" style="width: 80%;"></div></td></tr>`; }
+            tbody.innerHTML = skeletonHTML;
+
+            if (navigator.onLine) { 
+                fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => { if (res.success) { fullHistoryData = res.data || []; renderHistoryTable(res.data); } }); 
+            } else {
+                showToast("You are offline. Loading cached history.", "warning");
+                const saved = localStorage.getItem("localTabreedHistory"); 
+                if (saved) { fullHistoryData = JSON.parse(saved).data; renderHistoryTable(fullHistoryData); } else { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No offline history found</td></tr>'; }
+            }
+        }
+        function filterHistory() { const term = document.getElementById('historySearch').value.toLowerCase().trim(); renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term) || (log.oldLoc || "").toLowerCase().includes(term) || (log.newLoc || "").toLowerCase().includes(term))); }
+        function renderHistoryTable(data) {
+            const tbody = document.getElementById('historyTableBody');
+            if (!data || data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No history found</td></tr>'; return; }
+            tbody.innerHTML = data.map(log => `<tr>
+                <td style="font-size:0.75rem; color:var(--gray);">${sanitizeInput(log.time || '')}</td>
+                <td style="font-weight:600;">${sanitizeInput(log.item || '')}</td>
+                <td><span class="location-tag" style="background:#f0f0f0; color:#666;">${sanitizeInput(log.oldLoc || '')}</span></td>
+                <td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${sanitizeInput(log.newLoc || '')}</span></td>
+                <td style="font-size:0.85rem; font-weight:600;">${sanitizeInput(log.user || '')}</td>
+            </tr>`).join('');
+        }
+
+        let ctrlMCount = 0;
+        let ctrlMTimer;
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey) {
+                const key = e.key.toLowerCase();
+                if (key === 'p') { e.preventDefault(); exportData(); }
+                if (key === 'e') { e.preventDefault(); refreshAndReset(); }
+                if (key === 's') { e.preventDefault(); processSyncQueue(true); }
+                if (key === 'f') { e.preventDefault(); document.getElementById('searchInput').focus(); }
+                if (e.key === 'Backspace') { e.preventDefault(); closeApp(); closeHistoryPage(); }
+                if (key === 'h') { e.preventDefault(); showHistoryPage(); }
+                if (key === 'q') { e.preventDefault(); openFeedbackModal(); }
+                if (key === '+' || key === '=') { e.preventDefault(); openAddModal(); }
+                
+                if (key === 'm') {
+                    e.preventDefault();
+                    ctrlMCount++;
+                    clearTimeout(ctrlMTimer);
+                    if (ctrlMCount >= 3) {
+                        let pass = prompt("Enter Developer Password:");
+                        if (pass === "Dubai@123") activateDeveloperMode();
+                        else if (pass !== null) showToast("Access Denied", "error");
+                        ctrlMCount = 0;
+                    } else {
+                        ctrlMTimer = setTimeout(() => { ctrlMCount = 0; }, 1000);
+                    }
+                }
+            }
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
+            }
         });
 
-        updatePendingTile();
-        processSyncQueue();
-
-        // Restore last view
-        if (currentView === 'NATIVE_INSTRUMENT') openApp('NATIVE_INSTRUMENT', '', false);
-        else document.getElementById('fiori-wrapper').style.display = 'flex';
-
-        // Tile keyboard activation
-        document.querySelectorAll('.tile').forEach(tile => {
-            tile.addEventListener('keypress', e => { if (e.key === 'Enter' || e.key === ' ') tile.click(); });
-        });
-    });
     </script>
 </body>
 </html>
