@@ -667,9 +667,21 @@
                 else {
                     showAckPopup("App Already Installed", "Ye app aapke system par pehle se install hai!", "fas fa-check-circle", "var(--secondary)");
                 }
-            } else if (os === "iOS") {
-                window.location.href = iosProfileLink; 
-                showAckPopup("Profile Downloaded!", "Install via your iPhone <b>Settings</b> app.", "fab fa-apple", "var(--dark)");
+} else if (os === "iOS") {
+                showToast("Preparing iOS Profile...", "info");
+                try {
+                    let res = await fetch(iosProfileLink);
+                    let text = await res.text();
+                    // Ye line GitHub ko bypass karke sahi MIME type lagati hai
+                    let blob = new Blob([text], { type: 'application/x-apple-aspen-config' });
+                    window.location.href = URL.createObjectURL(blob);
+                    
+                    showAckPopup("Profile Ready!", "Install via your iPhone <b>Settings</b> app.", "fab fa-apple", "var(--dark)");
+                } catch(e) {
+                    // Agar network issue ho toh purana method fallback ke liye
+                    window.location.href = iosProfileLink;
+                    showAckPopup("Profile Downloaded!", "Install via your iPhone <b>Settings</b> app.", "fab fa-apple", "var(--dark)");
+                }
             }
         };
 
