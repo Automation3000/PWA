@@ -673,8 +673,8 @@
                     let res = await fetch(iosProfileLink);
                     let text = await res.text();
                     // Ye line GitHub ko bypass karke sahi MIME type lagati hai
-                    let blob = new Blob([text], { type: 'application/x-apple-aspen-config' });
-                    window.location.href = URL.createObjectURL(blob);
+                    let base64 = btoa(unescape(encodeURIComponent(text)));
+                    window.location.href = "data:application/x-apple-aspen-config;base64," + base64;
                     
                     showAckPopup("Profile Ready!", "Install via your iPhone <b>Settings</b> app.", "fab fa-apple", "var(--dark)");
                 } catch(e) {
