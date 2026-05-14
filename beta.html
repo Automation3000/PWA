@@ -230,6 +230,18 @@
                     <i class="fas fa-file-invoice tile-icon"></i>
                     <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
                 </div>
+                <div class="tile" onclick="checkDevAccess('VEHICLE_LOG', '#')">
+                    <div class="tile-title">Vehicle Log Sheet</div>
+                    <div class="tile-subtitle">Daily Entry & Monthly Export</div>
+                    <i class="fas fa-truck-pickup tile-icon"></i>
+                    <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
+                </div>
+                <div class="tile" onclick="checkDevAccess('ETS_DETAILS', '#')">
+                    <div class="tile-title">Instrument Details</div>
+                    <div class="tile-subtitle">ETS Wise Data</div>
+                    <i class="fas fa-server tile-icon"></i>
+                    <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
+                </div>
             </div>
 
             <h2 class="group-title">Offline Tools & Support</h2>
@@ -244,6 +256,11 @@
                     <div class="tile-title" style="color: #e65100;">Share Feedback</div>
                     <div class="tile-subtitle">Report bugs or ideas</div>
                     <i class="fas fa-comment-dots tile-icon" style="color: #ff9800;"></i>
+                </div>
+                <div class="tile" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #64b5f6;" onclick="showReleaseNotes()">
+                    <div class="tile-title" style="color: #1565c0;">Release Notes</div>
+                    <div class="tile-subtitle">Credits & New Features</div>
+                    <i class="fas fa-award tile-icon" style="color: #1976d2;"></i>
                 </div>
             </div>
 
@@ -359,7 +376,7 @@
                     </select>
                 </div>
                 
-                <button id="btn-cal" class="action-btn" onclick="filterCalibration()"><i class="fas fa-wrench" style="color: #ff5722; margin-bottom: 5px;"></i><span>Goes for Cal.</span></button>
+                <button id="btn-cal" class="action-btn" onclick="filterCalibration()"><i class="fas fa-wrench" style="color: #ff5722; margin-bottom: 5px;"></i><span>Sent for Calibration</span></button>
                 <button class="action-btn" onclick="openAddModal()"><i class="fas fa-plus-circle" style="color: #6200ee; margin-bottom: 5px;"></i><span>Add Entry</span></button>
                 <button class="action-btn" onclick="showStats()"><i class="fas fa-chart-pie" style="color: var(--warning); margin-bottom: 5px;"></i><span>Stats</span></button>
                 <button class="action-btn" onclick="showHistoryPage()"><i class="fas fa-history" style="color: #673ab7; margin-bottom: 5px;"></i><span>View History</span></button>
@@ -530,15 +547,30 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // --- AUTO CACHE CLEAR SYSTEM ---
-        const APP_VERSION = "v1.0.1"; // ⚠️ JAB BHI NAYA CODE DALO, ISE "v1.0.2", "v1.0.3" KR DENA
+        // --- AUTO CACHE CLEAR & LOG SYNC SYSTEM ---
+        const APP_VERSION = "v1.0.2"; 
         if (navigator.onLine) {
             let savedVer = localStorage.getItem('tabreed_app_version');
             if (savedVer && savedVer !== APP_VERSION) {
-                if (typeof caches !== 'undefined') caches.keys().then(k => k.forEach(n => caches.delete(n))); // Clear PWA Cache
+                addLog('UPDATE', `App silently updated from ${savedVer} to ${APP_VERSION}`);
+                if (typeof caches !== 'undefined') caches.keys().then(k => k.forEach(n => caches.delete(n)));
                 localStorage.setItem('tabreed_app_version', APP_VERSION);
-                setTimeout(() => window.location.reload(true), 500); // Reload fresh code
+                setTimeout(() => window.location.reload(true), 1000); 
             } else if (!savedVer) { localStorage.setItem('tabreed_app_version', APP_VERSION); }
+            
+            // Auto sync logs to Google Sheet if online
+            setTimeout(syncLogsToBackend, 4000); 
+        }
+
+        function syncLogsToBackend() {
+            let logs = JSON.parse(localStorage.getItem(DEBUG_LOGS) || '[]');
+            if (logs.length > 0 && navigator.onLine) {
+                let payload = encodeURIComponent(JSON.stringify(logs));
+                fetch(`${GAS_API_URL}?key=AI1&action=syncLogs&data=${payload}`)
+                    .then(r => r.json())
+                    .then(res => { if(res.success) localStorage.removeItem(DEBUG_LOGS); })
+                    .catch(e => console.error("Log sync failed"));
+            }
         }
 
         let isDemoMode = false; // Demo Mode Tracker
@@ -599,9 +631,8 @@
         // ── BETA REDIRECT CHECK (runs on every page load) ──────────────
         (function checkBetaRedirect() {
             if (localStorage.getItem('tabreed_use_beta') === '1') {
-                // Beta URL — same folder, different file name
-                const BETA_URL = "tabreed_app_v2_beta.html";
-                if (window.location.href.indexOf('tabreed_app_v1') !== -1 || window.location.pathname.endsWith('/') || window.location.pathname === '') {
+                const BETA_URL = "beta.html";
+                if (window.location.pathname.indexOf('beta.html') === -1) {
                     window.location.replace(BETA_URL);
                 }
             }
@@ -995,6 +1026,19 @@
             const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335'; document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline'; if(online) processSyncQueue(); 
         }
         window.addEventListener('online', () => updateStatus(true)); window.addEventListener('offline', () => updateStatus(false));
+
+        function showReleaseNotes() {
+            let html = `
+            <div style='text-align:left; font-size:0.85rem; line-height:1.6;'>
+                <b style='color:var(--primary); font-size:1rem;'>App Version: ${APP_VERSION}</b><br><br>
+                ✅ Download Excel added <i>(Credit: Majeed)</i><br>
+                ✅ Add Comment option <i>(Credit: Majeed)</i><br>
+                ✅ Auto Log Sync to Cloud <i>(Feature Request)</i><br>
+                ✅ Vehicle Log Sheet <i>(Credit: Majeed)</i><br>
+                ✅ ETS Instrument Details <i>(Credit: Majeed)</i><br>
+            </div>`;
+            showAckPopup("Release Notes & Credits", html, "fas fa-award", "#1976d2");
+        }
 
         function showStats() { 
             const total = inventoryData.length; const locationsCount = locations.length;
