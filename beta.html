@@ -552,7 +552,7 @@
         if (navigator.onLine) {
             let savedVer = localStorage.getItem('tabreed_app_version');
             if (savedVer && savedVer !== APP_VERSION) {
-                addLog('UPDATE', `App silently updated from ${savedVer} to ${APP_VERSION}`);
+                console.log(`App silently updated from ${savedVer} to ${APP_VERSION}`);
                 if (typeof caches !== 'undefined') caches.keys().then(k => k.forEach(n => caches.delete(n)));
                 localStorage.setItem('tabreed_app_version', APP_VERSION);
                 setTimeout(() => window.location.reload(true), 1000); 
