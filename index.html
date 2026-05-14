@@ -1160,36 +1160,43 @@
         deferredPrompt = e;
     });
 
-    window.startSmartInstall = async function () {
-        const ua = navigator.userAgent || navigator.vendor || window.opera;
-        let os = /iPad|iPhone|iPod/.test(ua) && !window.MSStream ? 'iOS' : /android/i.test(ua) ? 'Android' : 'Desktop';
+window.startSmartInstall = async function() {
+    const androidApkLink = "https://tabreed.automation3000.com/Automation.apk"; 
+    const iosProfileLink = "https://tabreed.automation3000.com/Automation.mobileconfig";
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera; 
+    let os = "Desktop";
+    
+    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) os = "iOS"; 
+    else if (/android/i.test(userAgent)) os = "Android";
 
-        if (os === 'iOS') {
-            window.location.href = "https://tabreed.automation3000.com/Automation.mobileconfig";
-            setTimeout(() => showAckPopup(
-                "Profile Downloaded",
-                "1. Open <b>Settings</b> on your iPhone.<br>2. Tap <b>'Profile Downloaded'</b> near the top.<br>3. Tap <b>Install</b>.<br><br>The app will appear on your Home Screen.",
-                "fab fa-apple", "var(--dark)"
-            ), 1500);
-        } else {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    deferredPrompt = null;
-                    const btn = document.querySelector('.btn-install-small');
-                    if (btn) btn.style.display = 'none';
-                    showToast("App installed successfully!", "success");
-                }
-            } else if (os === 'Android') {
-                window.location.href = "https://tabreed.automation3000.com/Automation.apk";
-                showAckPopup("Downloading APK…", "Tap <b>'Install'</b> when the download is complete.", "fas fa-download", "var(--primary)");
-            } else {
-                showAckPopup("Already Installed", "This app is already installed on your device.", "fas fa-check-circle", "var(--secondary)");
-            }
+    if (os === "Android" || os === "Desktop") {
+        if (deferredPrompt) { 
+            deferredPrompt.prompt(); 
+            const { outcome } = await deferredPrompt.userChoice; 
+            if(outcome === 'accepted') {
+                deferredPrompt = null; 
+                document.querySelector('.btn-install-small').style.display = 'none';
+            } 
+        } 
+        else if (os === "Android") { 
+            window.location.href = androidApkLink; 
+            showAckPopup("Downloading APK...", "Tap <b>'Install'</b> when the download is complete.", "fas fa-download", "var(--primary)");
         }
-    };
-
+        else {
+            showAckPopup("App Already Installed", "Ye app aapke system par pehle se install hai!", "fas fa-check-circle", "var(--secondary)");
+        }
+    } else if (os === "iOS") {
+        window.location.href = iosProfileLink;
+        setTimeout(() => {
+            showAckPopup(
+                "Profile Downloaded!", 
+                "1. Open your iPhone <b>Settings</b>.<br><br>2. Tap on <b>'Profile Downloaded'</b> near the top.<br><br>3. Tap <b>Install</b> (Ignore the 'Not Signed' security warning, it is safe).<br><br>The application will be added to your Home Screen.", 
+                "fab fa-apple", 
+                "var(--dark)"
+            );
+        }, 1500);
+    }
+};
     /* ──────────────────────────────────────
        NAVIGATION
     ────────────────────────────────────── */
