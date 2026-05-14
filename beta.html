@@ -21,10 +21,23 @@
             --secondary: #34a853; --warning: #f9ab00; --danger: #ea4335;
             --dark: #202124; --light: #f8f9fa; --gray: #5f6368; --border: #dadce0;
             --shadow: 0 2px 10px rgba(0,0,0,0.1); --radius: 12px; --transition: all 0.3s ease;
+            --bg-color: #e4edf5; --card-bg: white; --text-color: var(--dark);
         }
         
+        body.dark-mode {
+            --primary: #8ab4f8; --primary-light: #3c4043;
+            --dark: #f8f9fa; --light: #202124; --border: #5f6368;
+            --bg-color: #121212; --card-bg: #1e1e1e; --text-color: #e8eaed;
+            --shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .app-header, .search-container, .action-btn, .inventory-section, .modal, .toast, .history-card, .tile, .fiori-header, .fiori-app-header { background: var(--card-bg) !important; color: var(--text-color) !important; transition: background 0.3s; }
+        .search-box input, .form-group input, .form-group select, .form-group textarea, #modalItemName { background: var(--bg-color) !important; color: var(--text-color) !important; border-color: var(--border) !important; }
+        .inventory-table th, .history-table th { background: var(--light) !important; color: var(--text-color) !important; }
+        .tile-title, .group-title, .brand-text h1, .modal-header h3 { color: var(--text-color) !important; }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; background-color: #e4edf5; color: var(--dark); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important; background-color: var(--bg-color); color: var(--text-color); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; transition: background-color 0.3s; }
 
         #premium-wrapper { display: none; width: 100%; height: 100vh; overflow-y: auto; background: linear-gradient(135deg, #667eea 0%, #0AB9FF 100%); }
         .app-container { max-width: 1200px; margin: 0 auto; margin-bottom: 50px; display: flex; flex-direction: column; min-height: 100vh; }
@@ -208,7 +221,7 @@
                 <span class="fiori-header-title">Automation App</span>
             </div>
             <div style="display: flex; align-items: center; height: 100%; gap: 15px;">
-                <i class="fas fa-moon" style="cursor: pointer; font-size: 18px; color: #cbd5e0;" onclick="showToast('Dark mode coming soon!', 'info')" title="Toggle Dark Mode"></i>
+                <i class="fas fa-moon" id="darkModeToggleBtn" style="cursor: pointer; font-size: 18px; color: #cbd5e0; transition: 0.3s;" onclick="toggleDarkMode()" title="Toggle Dark Mode"></i>
                 <button class="btn-install-small" onclick="startSmartInstall()">
                     <i class="fas fa-mobile-alt" style="margin-right: 6px; font-size: 13px;"></i> INSTALL <span class="beta-badge">BETA</span>
                 </button>
@@ -224,24 +237,7 @@
                     <i class="fas fa-clipboard-list tile-icon"></i>
                     <div class="tile-status status-ready"><i class="fas fa-bolt"></i> Fast Offline</div>
                 </div>
-                <div class="tile" onclick="showToast('Under Development', 'info')">
-                    <div class="tile-title">Service Report</div>
-                    <div class="tile-subtitle">Time Entry Format</div>
-                    <i class="fas fa-file-invoice tile-icon"></i>
-                    <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
-                </div>
-                <div class="tile" onclick="checkDevAccess('VEHICLE_LOG', '#')">
-                    <div class="tile-title">Vehicle Log Sheet</div>
-                    <div class="tile-subtitle">Daily Entry & Monthly Export</div>
-                    <i class="fas fa-truck-pickup tile-icon"></i>
-                    <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
-                </div>
-                <div class="tile" onclick="checkDevAccess('ETS_DETAILS', '#')">
-                    <div class="tile-title">Instrument Details</div>
-                    <div class="tile-subtitle">ETS Wise Data</div>
-                    <i class="fas fa-server tile-icon"></i>
-                    <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
-                </div>
+                <!-- Dev Tiles Moved to Admin Panel -->
             </div>
 
             <h2 class="group-title">Offline Tools & Support</h2>
@@ -257,16 +253,35 @@
                     <div class="tile-subtitle">Report bugs or ideas</div>
                     <i class="fas fa-comment-dots tile-icon" style="color: #ff9800;"></i>
                 </div>
-                <div class="tile" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #64b5f6;" onclick="showReleaseNotes()">
-                    <div class="tile-title" style="color: #1565c0;">Release Notes</div>
-                    <div class="tile-subtitle">Credits & New Features</div>
-                    <i class="fas fa-award tile-icon" style="color: #1976d2;"></i>
-                </div>
+                <!-- Release Notes Moved to Admin Panel -->
             </div>
 
             <div id="dev-tools-group" style="display: none; margin-top: 40px;">
                 <h2 class="group-title" style="color: #d50000; border-bottom-color: #ffcdd2;"><i class="fas fa-user-shield"></i> Developer Tools (Admin Only)</h2>
                 <div class="tile-grid">
+                    <div class="tile" onclick="showToast('Under Development', 'info')">
+                        <div class="tile-title">Service Report</div>
+                        <div class="tile-subtitle">Time Entry Format</div>
+                        <i class="fas fa-file-invoice tile-icon"></i>
+                        <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
+                    </div>
+                    <div class="tile" onclick="checkDevAccess('VEHICLE_LOG', '#')">
+                        <div class="tile-title">Vehicle Log Sheet</div>
+                        <div class="tile-subtitle">Daily Entry & Monthly Export</div>
+                        <i class="fas fa-truck-pickup tile-icon"></i>
+                        <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
+                    </div>
+                    <div class="tile" onclick="checkDevAccess('ETS_DETAILS', '#')">
+                        <div class="tile-title">Instrument Details</div>
+                        <div class="tile-subtitle">ETS Wise Data</div>
+                        <i class="fas fa-server tile-icon"></i>
+                        <div class="tile-status" style="color:#bb0000;"><i class="fas fa-tools"></i> Dev</div>
+                    </div>
+                    <div class="tile" style="background: linear-gradient(135deg, #e3f2fd, #bbdefb); border: 1px solid #64b5f6;" onclick="showReleaseNotes()">
+                        <div class="tile-title" style="color: #1565c0;">Release Notes</div>
+                        <div class="tile-subtitle">Credits & New Features</div>
+                        <i class="fas fa-award tile-icon" style="color: #1976d2;"></i>
+                    </div>
                     <div class="tile" onclick="checkDevAccess('PingLogger Ultimate', '#')">
                         <div class="tile-title">PingLogger Ultimate</div>
                         <div class="tile-subtitle">Network Monitor</div>
@@ -596,6 +611,30 @@
         let currentView = localStorage.getItem('tabreed_currentView') || 'LAUNCHPAD'; 
         let isDevModeActive = false;
 
+        function requestDevPassword(callback) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);backdrop-filter:blur(5px);z-index:10000;display:flex;align-items:center;justify-content:center;';
+            const box = document.createElement('div');
+            box.style.cssText = 'background:var(--card-bg, #fff);padding:20px;border-radius:12px;width:90%;max-width:320px;box-shadow:0 10px 25px rgba(0,0,0,0.2);text-align:center;';
+            box.innerHTML = `<h3 style="margin-top:0;color:var(--text-color, #202124);"><i class="fas fa-lock"></i> Developer Access</h3>
+                             <input type="password" id="devPassInput" placeholder="Enter Password" style="width:100%;padding:10px;margin:15px 0;border:2px solid var(--border);border-radius:8px;font-size:16px;outline:none;text-align:center;background:var(--bg-color, white);color:var(--text-color, black);">
+                             <div style="display:flex;gap:10px;">
+                                <button id="devPassCancel" style="flex:1;padding:10px;background:var(--gray);color:white;border:none;border-radius:8px;cursor:pointer;">Cancel</button>
+                                <button id="devPassSubmit" style="flex:1;padding:10px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;">Unlock</button>
+                             </div>`;
+            overlay.appendChild(box);
+            document.body.appendChild(overlay);
+            const input = document.getElementById('devPassInput');
+            input.focus();
+            
+            const close = () => document.body.removeChild(overlay);
+            const submit = () => { const val = input.value; close(); callback(val); };
+            
+            document.getElementById('devPassCancel').onclick = close;
+            document.getElementById('devPassSubmit').onclick = submit;
+            input.addEventListener('keypress', (e) => { if(e.key === 'Enter') submit(); });
+        }
+
         const DEBUG_LOGS = "tabreed_debug_logs";
         function addLog(type, msg, details) {
             let logs = JSON.parse(localStorage.getItem(DEBUG_LOGS) || '[]');
@@ -638,7 +677,16 @@
             }
         })();
 
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('tabreed_dark_mode', isDark ? '1' : '0');
+            const icon = document.getElementById('darkModeToggleBtn');
+            icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            icon.style.color = isDark ? '#f9ab00' : '#cbd5e0';
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('tabreed_dark_mode') === '1') toggleDarkMode();
             setupSearch(); updatePendingTile(); processSyncQueue();
             
             if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
@@ -654,9 +702,10 @@
         function handleDevClick() {
             devClickCount++; clearTimeout(devClickTimer);
             if (devClickCount >= 3) {
-                let pass = prompt("Enter Developer Password:");
-                if (pass === "Dubai@123") activateDeveloperMode();
-                else if (pass !== null) showToast("Access Denied", "error");
+                requestDevPassword((pass) => {
+                    if (pass === "Dubai@123") activateDeveloperMode();
+                    else if (pass !== null && pass !== "") showToast("Access Denied", "error");
+                });
                 devClickCount = 0; return;
             }
             devClickTimer = setTimeout(() => { devClickCount = 0; }, 1000);
@@ -1140,7 +1189,7 @@
             XLSX.utils.book_append_sheet(wb, ws, "Instruments");
             
             const now = new Date();
-            const fileName = `Tabreed_List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`;
+            const fileName = `Automation List ${now.toLocaleDateString('en-GB').replace(/\//g, '.')}.xlsx`;
             
             XLSX.writeFile(wb, fileName);
             showToast('Excel Downloaded Successfully!', 'success');
@@ -1223,9 +1272,10 @@
                     ctrlMCount++;
                     clearTimeout(ctrlMTimer);
                     if (ctrlMCount >= 3) {
-                        let pass = prompt("Enter Developer Password:");
-                        if (pass === "Dubai@123") activateDeveloperMode();
-                        else if (pass !== null) showToast("Access Denied", "error");
+                        requestDevPassword((pass) => {
+                            if (pass === "Dubai@123") activateDeveloperMode();
+                            else if (pass !== null && pass !== "") showToast("Access Denied", "error");
+                        });
                         ctrlMCount = 0;
                     } else {
                         ctrlMTimer = setTimeout(() => { ctrlMCount = 0; }, 1000);
