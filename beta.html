@@ -1030,6 +1030,56 @@
             } else { btn.disabled = false; btn.textContent = 'SEND FEEDBACK'; showToast("You are offline. Connect to internet.", "warning"); }
         }
 
+        function exportExcel() {
+            showToast('Preparing Excel File...', 'info');
+            if (typeof XLSX === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+                script.onload = () => generateExcel();
+                document.body.appendChild(script);
+            } else {
+                generateExcel();
+            }
+        }
+
+        function generateExcel() {
+            const tbody = document.getElementById('tableBody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            if (rows.length === 0 || (rows.length === 1 && rows[0].innerText.includes('No instruments'))) {
+                return showToast('No data available to export!', 'error');
+            }
+
+            let exportData = [['Instrument Name', 'Location', 'Expiry Date', 'Updated By', 'Comments/Remarks']];
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 5) {
+                    const name = cells[0].innerText.trim();
+                    const loc = cells[1].innerText.trim();
+                    const exp = cells[3].innerText.replace('🔄', '').replace('Expired', '').trim();
+                    
+                    const updatedByDiv = cells[4].querySelector('span') ? cells[4].querySelector('span').innerText : cells[4].innerText;
+                    const icon = cells[4].querySelector('i');
+                    const remark = icon ? icon.getAttribute('data-comment') : '';
+                    
+                    exportData.push([name, loc, exp, updatedByDiv.trim(), remark]);
+                }
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(exportData);
+            ws['!cols'] = [{wch: 35}, {wch: 20}, {wch: 15}, {wch: 25}, {wch: 40}];
+            
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Instruments");
+            
+            const now = new Date();
+            const fileName = `Tabreed_List_${now.toLocaleDateString('en-GB').replace(/\//g, '-')}.xlsx`;
+            
+            XLSX.writeFile(wb, fileName);
+            showToast('Excel Downloaded Successfully!', 'success');
+        }
+
         function exportData() {
             showToast('Preparing PDF Engine...', 'info');
             if (typeof html2pdf === 'undefined') { const script = document.createElement('script'); script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'; script.onload = () => generatePDF(); document.body.appendChild(script); } else generatePDF();
