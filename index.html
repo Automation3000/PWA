@@ -49,7 +49,6 @@
         .quick-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; padding: 0 1rem; margin-bottom: 1rem; justify-content: center; }
         .action-btn { background: white; border: none; flex: 1; min-width: 70px; max-width: 110px; padding: 0.8rem 0.4rem; border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: var(--dark); box-shadow: var(--shadow); cursor: pointer; transition: var(--transition); visibility: visible; position: relative; border: 2px solid transparent;}
         
-        /* ACTIVE FILTER CLASS */
         .filter-active { background-color: var(--dark) !important; border: 2px solid #000 !important; color: white !important; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
         .filter-active i { color: #00c6ff !important; }
         .filter-active span { color: white !important; }
@@ -150,6 +149,40 @@
 
         .tile-feedback { background: linear-gradient(135deg, #fff9c4, #fff3e0); border: 1px solid #ffb74d; }
         .tile-feedback::before { background: linear-gradient(90deg, #ff9800, #ff5722); }
+
+        /* ═══ BETA SWITCH TILE — special styling ═══ */
+        .tile-beta {
+            background: linear-gradient(135deg, #0f0f1a 0%, #1a1a3e 100%);
+            border: 1px solid #3b3b7a;
+            position: relative;
+            overflow: hidden;
+        }
+        .tile-beta::before { background: linear-gradient(90deg, #667eea, #764ba2) !important; }
+        .tile-beta:hover { border-color: #667eea; box-shadow: 0 8px 24px rgba(102,126,234,0.35); }
+        .tile-beta .tile-title { color: #e0e0ff; }
+        .tile-beta .tile-subtitle { color: #9090cc; }
+        .tile-beta .tile-icon { color: #667eea; }
+        /* animated shimmer on beta tile */
+        .tile-beta::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -60%;
+            width: 40%; height: 200%;
+            background: linear-gradient(105deg, transparent, rgba(255,255,255,0.07), transparent);
+            animation: betaShimmer 3s infinite;
+        }
+        @keyframes betaShimmer { 0%{left:-60%} 100%{left:160%} }
+        .beta-tag {
+            position: absolute;
+            top: 10px; right: 10px;
+            font-size: 9px; font-weight: 900;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            padding: 2px 8px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
         
         .launchpad-footer { text-align: center; padding: 20px; padding-bottom: 40px; color: #6a6d70; font-size: 12px; }
         #dev-trigger { font-weight: 800; color: #0a6ed1; cursor: pointer; padding: 5px; }
@@ -159,7 +192,6 @@
         .fiori-app-header { height: 48px; background: #3f5161; color: white; display: none; align-items: center; padding: 0 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         .back-btn-fiori { background: none; border: none; color: white; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
 
-        /* MODERN HISTORY PAGE DESIGN */
         .history-card { background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; margin: 15px; }
         .history-table { width: 100%; border-collapse: collapse; min-width: 600px;}
         .history-table th { background: #f1f3f4; padding: 14px 16px; text-align: left; font-size: 0.85rem; color: #5f6368; border-bottom: 2px solid #dadce0; }
@@ -172,7 +204,7 @@
     <div id="fiori-wrapper">
         <header class="fiori-header">
             <div style="display:flex; align-items:center; gap:14px;">
-                <img src="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" class="fiori-logo-img" alt="Tabreed Logo">
+                <img src="icon-192.png" class="fiori-logo-img" alt="Tabreed Logo" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
                 <span class="fiori-header-title">Automation App</span>
             </div>
             <div style="display: flex; align-items: center; height: 100%; gap: 15px;">
@@ -240,6 +272,18 @@
                         <div class="tile-subtitle">Nuke Local Storage</div>
                         <i class="fas fa-trash-alt tile-icon" style="color: #d50000;"></i>
                     </div>
+
+                    <!-- ═══ BETA SWITCH TILE ═══ -->
+                    <div class="tile tile-beta" onclick="switchToBetaTheme()">
+                        <span class="beta-tag">BETA</span>
+                        <div class="tile-title">Beta Theme</div>
+                        <div class="tile-subtitle">Try the new UI design</div>
+                        <i class="fas fa-flask tile-icon"></i>
+                        <div class="tile-status" style="color:#9090cc; background:rgba(102,126,234,0.1); padding:3px 8px; border-radius:20px; font-size:10px;">
+                            <i class="fas fa-wand-magic-sparkles" style="font-size:9px;"></i> New
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -264,7 +308,7 @@
                     <div class="brand">
                         <button onclick="closeApp()" style="background:none; border:none; cursor:pointer; font-size:1.2rem; color:var(--primary); padding-right:10px;"><i class="fas fa-arrow-left"></i></button>
                         <div class="logo">
-                            <img src="https://cdn.brandfetch.io/idYzxNpaam/w/100/h/100/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                            <img src="icon-192.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
                         </div>
                         <div class="brand-text">
                             <h1 style="font-size: 1.1rem;">TABREED : Master Instrument List AI1 <span id="queue-badge" style="display:none; font-size:0.6rem; background:#ea4335; color:white; padding:2px 6px; border-radius:10px; margin-left:5px;"></span></h1>
@@ -476,6 +520,19 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+        // --- AUTO CACHE CLEAR SYSTEM ---
+        const APP_VERSION = "v1.0.1"; // ⚠️ JAB BHI NAYA CODE DALO, ISE "v1.0.2", "v1.0.3" KR DENA
+        if (navigator.onLine) {
+            let savedVer = localStorage.getItem('tabreed_app_version');
+            if (savedVer && savedVer !== APP_VERSION) {
+                if (typeof caches !== 'undefined') caches.keys().then(k => k.forEach(n => caches.delete(n))); // Clear PWA Cache
+                localStorage.setItem('tabreed_app_version', APP_VERSION);
+                setTimeout(() => window.location.reload(true), 500); // Reload fresh code
+            } else if (!savedVer) { localStorage.setItem('tabreed_app_version', APP_VERSION); }
+        }
+
+        let isDemoMode = false; // Demo Mode Tracker
+
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbw0nKm-j24HwBwVd2u9ji3gqEtQ7j2dtQZmqEd0oA15mmB7nHMtGYOgUfhMrL7TjEc8cQ/exec";
         
         const EMPLOYEES = [
@@ -497,7 +554,6 @@
         let currentView = localStorage.getItem('tabreed_currentView') || 'LAUNCHPAD'; 
         let isDevModeActive = false;
 
-        // --- ERROR LOGGER SYSTEM ---
         const DEBUG_LOGS = "tabreed_debug_logs";
         function addLog(type, msg, details) {
             let logs = JSON.parse(localStorage.getItem(DEBUG_LOGS) || '[]');
@@ -511,7 +567,7 @@
 
         function sanitizeInput(str) {
             if (typeof str !== 'string') return '';
-            return str.replace(/[<>\"'&]/g, (char) => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' }[char]));
+            return str.replace(/[<>"'&]/g, (char) => ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' }[char]));
         }
 
         const handleError = (error, context = 'Operation') => {
@@ -520,11 +576,30 @@
             showToast('Error Logged - Check Dev Tools', 'error');
         };
 
-        // --- PAGE INITIALIZATION & PERSISTENCE ---
+        // ── BETA THEME SWITCH ──────────────────────────────────────────
+        function switchToBetaTheme() {
+            showAckPopup(
+                "Switch to Beta Theme?",
+                "Yeh action page ko reload karega aur <b>new Beta UI</b> load hogi. Aapka data safe rahega.<br><br><button class='btn-primary' onclick=\"localStorage.setItem('tabreed_use_beta','1'); window.location.reload();\" style='width:100%; border-radius:10px; padding:12px; margin-top:5px;'>Yes, Load Beta Theme</button>",
+                "fas fa-flask",
+                "#667eea"
+            );
+        }
+
+        // ── BETA REDIRECT CHECK (runs on every page load) ──────────────
+        (function checkBetaRedirect() {
+            if (localStorage.getItem('tabreed_use_beta') === '1') {
+                // Beta URL — same folder, different file name
+                const BETA_URL = "tabreed_app_v2_beta.html";
+                if (window.location.href.indexOf('tabreed_app_v1') !== -1 || window.location.pathname.endsWith('/') || window.location.pathname === '') {
+                    window.location.replace(BETA_URL);
+                }
+            }
+        })();
+
         document.addEventListener('DOMContentLoaded', () => {
             setupSearch(); updatePendingTile(); processSyncQueue();
             
-            // App Standalone/Installed check to immediately hide Install button
             if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
                 let installBtn = document.querySelector('.btn-install-small');
                 if(installBtn) installBtn.style.display = 'none';
@@ -534,7 +609,6 @@
             else document.getElementById('fiori-wrapper').style.display = 'block';
         });
 
-        // --- DEVELOPER MODE ---
         let devClickCount = 0; let devClickTimer;
         function handleDevClick() {
             devClickCount++; clearTimeout(devClickTimer);
@@ -575,7 +649,6 @@
             showAckPopup("System Logs", html, "fas fa-terminal", "#333"); 
         }
 
-        // --- SMART PWA INSTALL ---
         let deferredPrompt; 
         window.addEventListener('beforeinstallprompt', (e) => { 
             e.preventDefault(); 
@@ -585,8 +658,11 @@
         window.startSmartInstall = async function() {
             const androidApkLink = "https://tabreed.automation3000.com/Automation.apk"; 
             const iosProfileLink = "https://tabreed.automation3000.com/Automation.mobileconfig";
-            const userAgent = navigator.userAgent || navigator.vendor || window.opera; let os = "Desktop";
-            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) os = "iOS"; else if (/android/i.test(userAgent)) os = "Android";
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera; 
+            let os = "Desktop";
+            
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) os = "iOS"; 
+            else if (/android/i.test(userAgent)) os = "Android";
 
             if (os === "Android" || os === "Desktop") {
                 if (deferredPrompt) { 
@@ -602,16 +678,21 @@
                     showAckPopup("Downloading APK...", "Tap <b>'Install'</b> when the download is complete.", "fas fa-download", "var(--primary)");
                 }
                 else {
-                    // Agar desktop par hai aur deferredPrompt null hai, matlab Chrome me already installed hai
-                    showAckPopup("App Already Installed", "Ye app aapke system par pehle se install hai! <br><br> Browser ke address bar me <b>'Open in app'</b> icon (jo aapke screenshot me dikh raha hai) par click karein ya apne PC ke Apps menu se ise direct open karein.", "fas fa-check-circle", "var(--secondary)");
+                    showAckPopup("App Already Installed", "Ye app aapke system par pehle se install hai!", "fas fa-check-circle", "var(--secondary)");
                 }
             } else if (os === "iOS") {
-                window.location.href = iosProfileLink; 
-                showAckPopup("Profile Downloaded!", "Install via your iPhone <b>Settings</b> app.", "fab fa-apple", "var(--dark)");
+                window.location.href = iosProfileLink;
+                setTimeout(() => {
+                    showAckPopup(
+                        "Profile Downloaded!", 
+                        "1. Open your iPhone <b>Settings</b>.<br><br>2. Tap on <b>'Profile Downloaded'</b> near the top.<br><br>3. Tap <b>Install</b> (Ignore the 'Not Signed' security warning, it is safe).<br><br>The application will be added to your Home Screen.", 
+                        "fab fa-apple", 
+                        "var(--dark)"
+                    );
+                }, 1500);
             }
         };
 
-        // --- APP NAVIGATION ---
         function openApp(type, url, saveState = true) {
             document.getElementById('fiori-wrapper').style.display = 'none';
             if(saveState) localStorage.setItem('tabreed_currentView', type);
@@ -624,7 +705,6 @@
             document.getElementById('premium-wrapper').style.display = 'none'; document.getElementById('fiori-iframe-header').style.display = 'none'; document.getElementById('iframeWrapper').style.display = 'none'; document.getElementById('active-iframe').src = ''; document.getElementById('fiori-wrapper').style.display = 'block'; 
         }
 
-        // --- UI HELPER ---
         function triggerPopAnim(elementId) { const el = document.getElementById(elementId); if(el) { el.classList.remove('pop-anim'); void el.offsetWidth; el.classList.add('pop-anim'); } }
 
         function showToast(msg, type) {
@@ -648,7 +728,6 @@
             else label.innerText = selectElement.options[selectElement.selectedIndex].text;
         }
 
-        // --- FILTERING & DATA LOADING ---
         function filterCalibration() {
             document.getElementById('searchInput').value = 'Calibration';
             applyFilters();
@@ -777,7 +856,6 @@
             else showToast(`${diffDays} days remaining for expiry.`, 'success');
         }
 
-        // --- MODALS & UPDATE LOGIC ---
         function openUpdateModalByIndex(idx) { if (!inventoryData[idx]) return; const item = inventoryData[idx]; openUpdateModal(item.name, item.location, item.expiry || '', item.remark || ''); }
 
         function openAddModal() {
@@ -851,8 +929,11 @@
             closeModal(false); 
         }
 
-        // --- OFFLINE SYNC ---
         function submitActionToQueue(actionParams) {
+            if (isDemoMode) {
+                showToast("[DEMO MODE] Request Blocked. Data not saved.", "warning");
+                return;
+            }
             if (navigator.onLine) {
                 let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
                 fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => { 
@@ -910,7 +991,6 @@
             showAckPopup("Inventory Statistics", statHtml, "fas fa-chart-pie", "var(--primary)");
         }
 
-        // --- FEEDBACK SYSTEM ---
         function getDubaiTime() {
             let d = new Date(); let utc = d.getTime() + (d.getTimezoneOffset() * 60000); let dubaiTime = new Date(utc + (3600000 * 4));
             let day = String(dubaiTime.getDate()).padStart(2, '0'); let month = String(dubaiTime.getMonth() + 1).padStart(2, '0'); let year = dubaiTime.getFullYear();
@@ -947,7 +1027,6 @@
             html2pdf().set({ margin: 10, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(el).save().then(() => showToast('PDF Downloaded!', 'success'));
         }
 
-        // --- HISTORY WITH SKELETON LOADING ---
         function showHistoryPage() { document.getElementById('historyPage').style.display = 'block'; loadHistoryData(); }
         function closeHistoryPage() { document.getElementById('historyPage').style.display = 'none'; }
         
@@ -977,10 +1056,29 @@
             </tr>`).join('');
         }
 
-        // --- KEYBOARD SHORTCUTS ---
         let ctrlMCount = 0;
         let ctrlMTimer;
         document.addEventListener('keydown', function(e) {
+            // DEMO MODE SHORTCUT (Ctrl + Shift + D)
+            if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'd') {
+                e.preventDefault();
+                isDemoMode = !isDemoMode;
+                if (isDemoMode) {
+                    isDevModeActive = true; 
+                    document.getElementById('dev-tools-group').style.display = 'block'; // Unlock Admin Tools
+                    let grid = document.querySelector('.tile-grid');
+                    if(!document.getElementById('demo-add-tile')) {
+                        grid.innerHTML += `<div class="tile" id="demo-add-tile" style="border: 2px dashed #0a6ed1; background: #f0f8ff;" onclick="showToast('Demo Action: Custom Plugin Clicked!', 'info')"><div class="tile-title">Custom Plugin</div><div class="tile-subtitle">Demo Mode Exclusive</div><i class="fas fa-plus-circle tile-icon" style="color:#0a6ed1;"></i></div>`;
+                    }
+                    showAckPopup("Demo Mode Activated", "Admin tools unlocked. Changes will <b>NOT</b> save to the database.", "fas fa-laptop-code", "var(--warning)");
+                    setTimeout(() => { document.getElementById('fiori-wrapper').scrollTo({ top: document.getElementById('fiori-wrapper').scrollHeight, behavior: 'smooth' }); }, 300);
+                } else {
+                    let dt = document.getElementById('demo-add-tile'); if(dt) dt.remove();
+                    showToast("Demo Mode Deactivated", "info");
+                }
+                return;
+            }
+
             if (e.ctrlKey) {
                 const key = e.key.toLowerCase();
                 if (key === 'p') { e.preventDefault(); exportData(); }
