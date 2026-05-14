@@ -1029,15 +1029,37 @@
 
         function showReleaseNotes() {
             let html = `
-            <div style='text-align:left; font-size:0.85rem; line-height:1.6;'>
-                <b style='color:var(--primary); font-size:1rem;'>App Version: ${APP_VERSION}</b><br><br>
-                ✅ Download Excel added <i>(Credit: Majeed)</i><br>
-                ✅ Add Comment option <i>(Credit: Majeed)</i><br>
-                ✅ Auto Log Sync to Cloud <i>(Feature Request)</i><br>
-                ✅ Vehicle Log Sheet <i>(Credit: Majeed)</i><br>
-                ✅ ETS Instrument Details <i>(Credit: Majeed)</i><br>
+            <div style='text-align:left; font-size:0.85rem; line-height:1.6; max-height: 60vh; overflow-y: auto; padding-right: 5px;'>
+                <b style='color:var(--primary); font-size:1.1rem;'>App Version: ${APP_VERSION}</b><br><br>
+                
+                <b style='color:#d50000;'>🔥 What's New in v1.0.2:</b>
+                <ul style='margin-left: 20px; margin-bottom: 15px; padding-left: 5px;'>
+                    <li><b>Download Excel:</b> Export data with comments to XLSX <i>(Credit: Majeed)</i></li>
+                    <li><b>Add Comment:</b> Interactive notes on updates <i>(Credit: Majeed)</i></li>
+                    <li><b>Cloud Sync:</b> Auto Error Log Sync <i>(Feature Request)</i></li>
+                    <li><b>New Modules:</b> Vehicle Log Sheet & ETS Details (Dev) <i>(Credit: Majeed)</i></li>
+                </ul>
+
+                <b style='color:var(--secondary);'>🌟 Core Features & Modules:</b>
+                <ul style='margin-left: 20px; margin-bottom: 15px; padding-left: 5px;'>
+                    <li><b>SAP Fiori UI:</b> Enterprise-grade dashboard with Beta Theme switch.</li>
+                    <li><b>100% Offline Ready:</b> Work without internet; auto-syncs pending updates.</li>
+                    <li><b>Smart Search & Filters:</b> Filter by location, expiry timelines, and calibration status.</li>
+                    <li><b>Secure Updates:</b> Slide-to-unlock mechanism for editing expiry dates.</li>
+                    <li><b>Audit Trail:</b> View History page to track instrument movements and users.</li>
+                    <li><b>PDF Engine:</b> Generate and download formatted reports instantly.</li>
+                    <li><b>Smart Install:</b> Native PWA installation for iOS, Android, and Windows.</li>
+                    <li><b>Live Feedback:</b> In-app bug reporting connected directly to Automation Team.</li>
+                </ul>
+
+                <b style='color:#f9ab00;'>🛠️ Admin & Dev Tools (Credit: Majeed):</b>
+                <ul style='margin-left: 20px; margin-bottom: 10px; padding-left: 5px;'>
+                    <li><b>Hidden Admin Mode:</b> Password protected access to PingLogger & Drawing Hub.</li>
+                    <li><b>Demo Mode:</b> (Ctrl+Shift+D) Test app safely without saving to database.</li>
+                    <li><b>System Auto-Care:</b> Background cache clearing & Version management.</li>
+                </ul>
             </div>`;
-            showAckPopup("Release Notes & Credits", html, "fas fa-award", "#1976d2");
+            showAckPopup("Release Notes & Complete Feature List", html, "fas fa-award", "#1976d2");
         }
 
         function showStats() { 
