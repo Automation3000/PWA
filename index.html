@@ -435,6 +435,15 @@
         .log-msg   { color:var(--text-primary); font-weight:700; margin:2px 0; }
         .log-detail{ color:var(--text-muted); word-break:break-all; font-size:10px; }
 
+        /* Custom scrollbar hiding */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
         /* Responsive */
         @media (max-width:600px) {
             #launchpad-view { padding:18px 12px; }
@@ -478,6 +487,12 @@
                 <i class="fas fa-clipboard-list tile-icon"></i>
                 <div class="tile-status"><i class="fas fa-bolt"></i> Fast Offline</div>
             </div>
+            <div class="tile" onclick="window.location.href='DocumentFolder.html'">
+                <div class="tile-title">Document Library</div>
+                <div class="tile-subtitle">View Important Files &amp; Media</div>
+                <i class="fas fa-folder-open tile-icon" style="color:var(--warning);"></i>
+                <div class="tile-status" style="color:var(--secondary);"><i class="fas fa-check-circle"></i> Ready</div>
+            </div>
         </div>
 
         <h2 class="group-title">Offline Tools &amp; Support</h2>
@@ -487,6 +502,11 @@
                 <div class="tile-subtitle">Data waiting for network</div>
                 <i class="fas fa-sync tile-icon" style="color:var(--text-muted);"></i>
                 <div class="tile-status" style="color:var(--danger);" id="pending-sync-tile">0 Pending</div>
+            </div>
+            <div class="tile" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#93c5fd;" onclick="showReleaseNotes()">
+                <div class="tile-title" style="color:#1d4ed8;">Release Notes</div>
+                <div class="tile-subtitle">Credits &amp; New Features</div>
+                <i class="fas fa-award tile-icon" style="color:#2563eb;"></i>
             </div>
             <div class="tile tile-feedback" onclick="openFeedbackModal()">
                 <div class="tile-title" style="color:#ea580c;">Share Feedback</div>
@@ -518,11 +538,6 @@
                     <div class="tile-subtitle">ETS Wise Data</div>
                     <i class="fas fa-server tile-icon"></i>
                     <div class="tile-status" style="color:var(--danger);"><i class="fas fa-tools"></i> Dev</div>
-                </div>
-                <div class="tile" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#93c5fd;" onclick="showReleaseNotes()">
-                    <div class="tile-title" style="color:#1d4ed8;">Release Notes</div>
-                    <div class="tile-subtitle">Credits &amp; New Features</div>
-                    <i class="fas fa-award tile-icon" style="color:#2563eb;"></i>
                 </div>
                 <div class="tile" onclick="checkDevAccess('PingLogger','#')">
                     <div class="tile-title">PingLogger Ultimate</div>
@@ -615,7 +630,7 @@
                     <i class="fas fa-filter" style="color:var(--secondary);margin-bottom:4px;"></i>
                     <span id="label-location">All Locations</span>
                 </div>
-                <select id="locationFilter" class="select-wrapper" onchange="updateFilterLabel(this,'label-location','All Locations');applyFilters();triggerPopAnim('btn-refresh');"></select>
+                <select id="locationFilter" class="select-wrapper" onchange="handleLocationFilterChange(this)"></select>
             </div>
             <div id="btn-expiry-wrapper" class="action-btn" style="padding:0;">
                 <div class="action-content">
@@ -766,12 +781,13 @@
      ACK / INFO MODAL
 ═══════════════════════════════════════ -->
 <div class="modal-overlay ack-overlay" id="ackModalOverlay">
-    <div class="modal ack-modal" id="ackModalCard" style="max-width:340px;width:95%;text-align:center;border-radius:20px;padding:10px;">
+    <div class="modal ack-modal" id="ackModalCard" style="max-width:340px;width:95%;text-align:center;border-radius:20px;padding:10px;position:relative;">
+        <button id="ackModalCloseBtn" onclick="closeAckModal()" style="display: none; position:absolute; top: 10px; right: 15px; font-size: 1.8rem; background: none; border: none; color: var(--text-muted); cursor: pointer; z-index: 10;">&times;</button>
         <div class="modal-body" style="padding:20px 16px;">
             <div id="ackIcon" style="font-size:3rem;margin-bottom:12px;"></div>
             <h2 id="ackTitle" style="margin-top:0;color:var(--text-primary);font-weight:800;font-size:1.2rem;"></h2>
             <div id="ackMessage" style="color:var(--text-secondary);font-size:.9rem;line-height:1.6;margin-bottom:20px;word-wrap:break-word;text-align:left;"></div>
-            <button class="btn-primary" onclick="document.getElementById('ackModalOverlay').classList.remove('active')" style="width:100%;border-radius:var(--radius-sm);padding:11px;">OK, GOT IT</button>
+            <button class="btn-primary" onclick="closeAckModal()" style="width:100%;border-radius:var(--radius-sm);padding:11px;">OK, GOT IT</button>
         </div>
     </div>
 </div>
@@ -828,8 +844,8 @@
     /* ──────────────────────────────────────
        CONSTANTS & CONFIG
     ────────────────────────────────────── */
-    const APP_VERSION   = "v1.0.2";
-    const GAS_API_URL   = "https://script.google.com/macros/s/AKfycbw0nKm-j24HwBwVd2u9ji3gqEtQ7j2dtQZmqEd0oA15mmB7nHMtGYOgUfhMrL7TjEc8cQ/exec";
+    const APP_VERSION   = "v1.0.3";
+    const GAS_API_URL   = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
     const LS_INVENTORY  = "localTabreedInventory";
     const LS_HISTORY    = "localTabreedHistory";
     const LS_QUEUE      = "tabreed_sync_queue";
@@ -837,7 +853,6 @@
     const LS_VERSION    = "tabreed_app_version";
     const LS_DARK       = "tabreed_dark_mode";
     const LS_VIEW       = "tabreed_currentView";
-    const LS_BETA       = "tabreed_use_beta";
     const LOG_MAX       = 80;  // max stored log entries
     const API_TIMEOUT   = 12000; // 12s
 
@@ -922,15 +937,6 @@
             setTimeout(() => window.location.reload(true), 1200);
         } else if (!saved) {
             localStorage.setItem(LS_VERSION, APP_VERSION);
-        }
-    })();
-
-    /* ──────────────────────────────────────
-       BETA REDIRECT
-    ────────────────────────────────────── */
-    (function checkBetaRedirect() {
-        if (localStorage.getItem(LS_BETA) === '1' && window.location.pathname.indexOf('beta.html') === -1) {
-            window.location.replace('beta.html');
         }
     })();
 
@@ -1025,9 +1031,16 @@
        ERROR HANDLER
     ────────────────────────────────────── */
     function handleError(error, context = 'Operation') {
-        const msg = error && error.message ? error.message : String(error);
-        addLog('ERROR', `[${context}] ${msg}`, { stack: error && error.stack ? error.stack.slice(0,300) : null });
-        showToast(`Error: ${msg.slice(0,60)}`, 'error');
+        let msg = error && error.message ? error.message : String(error);
+        // Provide more user-friendly messages for common network errors
+        if (msg.toLowerCase().includes('failed to fetch')) {
+            msg = 'Network error or server is offline. Please check your connection or re-deploy the script.';
+        } else if (error.name === 'AbortError') {
+            msg = 'Request timed out. The server is not responding.';
+        }
+
+        addLog('ERROR', `[${context}] ${error.message}`, { stack: error && error.stack ? error.stack.slice(0,300) : null });
+        showToast(`Error: ${msg.slice(0,120)}`, 'error');
     }
 
     /* ──────────────────────────────────────
@@ -1241,14 +1254,24 @@ window.startSmartInstall = async function() {
     /* ──────────────────────────────────────
        ACK POPUP
     ────────────────────────────────────── */
-    function showAckPopup(title, message, iconClass, iconColor) {
-        if (title !== "System Logs" && !title.startsWith("System Logs")) {
+    function showAckPopup(title, message, iconClass, iconColor, showClose = false) {
+        const closeBtn = document.getElementById('ackModalCloseBtn');
+        if (closeBtn) closeBtn.style.display = showClose ? 'block' : 'none';
+
+        if (title !== "System Logs" && !title.startsWith("System Logs") && title !== "Release Notes" && title !== "Edit Locations") {
             document.getElementById('ackModalCard').style.maxWidth = '340px';
         }
         document.getElementById('ackIcon').innerHTML    = `<i class="${iconClass}" style="color:${iconColor};"></i>`;
         document.getElementById('ackTitle').innerText   = title;
         document.getElementById('ackMessage').innerHTML = message;
         document.getElementById('ackModalOverlay').classList.add('active');
+    }
+
+    function closeAckModal() {
+        document.getElementById('ackModalOverlay').classList.remove('active');
+        // Clean up any special classes added to the modal body
+        const modalBody = document.querySelector('#ackModalOverlay .modal-body');
+        if (modalBody) modalBody.classList.remove('no-scrollbar');
     }
 
     function showCommentPopup(text) {
@@ -1264,19 +1287,6 @@ window.startSmartInstall = async function() {
         el.classList.remove('pop-anim');
         void el.offsetWidth;
         el.classList.add('pop-anim');
-    }
-
-    /* ──────────────────────────────────────
-       BETA THEME
-    ────────────────────────────────────── */
-    function switchToBetaTheme() {
-        showAckPopup(
-            "Switch to Beta Theme?",
-            "This will reload the page and load the new Beta UI. Your data will be safe.<br><br>" +
-            "<button class='btn-primary' onclick=\"localStorage.setItem('" + LS_BETA + "','1');window.location.reload();\" style='width:100%;border-radius:8px;padding:11px;margin-top:6px;'>" +
-            "Yes, Load Beta Theme</button>",
-            "fas fa-flask", "#7c3aed"
-        );
     }
 
     /* ──────────────────────────────────────
@@ -1547,11 +1557,13 @@ window.startSmartInstall = async function() {
     function updateLocationsDropdown() {
         const modalSelect = document.getElementById('modalLocation');
         modalSelect.innerHTML = locations.map(l => `<option value="${sanitizeInput(l)}">${sanitizeInput(l)}</option>`).join('') +
-            `<option value="NOT_LISTED" style="font-weight:700;color:var(--danger);">+ Not Listed (Add New)</option>`;
+            `<option value="NOT_LISTED" style="font-weight:700;color:var(--danger);">+ Not Listed (Add New)</option>` +
+            `<option value="EDIT_LOCATIONS" style="font-weight:700;color:var(--primary);border-top: 2px solid var(--border);background-color: var(--bg-surface);">-- Edit Locations --</option>`;
 
         const filterSelect = document.getElementById('locationFilter');
         filterSelect.innerHTML = `<option value="ALL">All Locations</option>` +
-            locations.map(l => `<option value="${sanitizeInput(l)}">${sanitizeInput(l)}</option>`).join('');
+            locations.map(l => `<option value="${sanitizeInput(l)}">${sanitizeInput(l)}</option>`).join('') +
+            `<option value="EDIT_LOCATIONS" style="font-weight:700;color:var(--primary);border-top: 2px solid var(--border);background-color: var(--bg-surface);">-- Edit Locations --</option>`;
     }
 
     function handleLocationChange(value) {
@@ -1562,9 +1574,104 @@ window.startSmartInstall = async function() {
             cInput.style.display = 'block';
             hint.style.display   = 'block';
             cInput.focus();
+        } else if (value === 'EDIT_LOCATIONS') {
+            // Reset dropdown immediately to prevent it from getting stuck if user cancels.
+            const modalLocationDropdown = document.getElementById('modalLocation');
+            let valueToRestore = null;
+
+            if (currentItem) {
+                const currentItemData = inventoryData.find(i => i.name === currentItem);
+                if (currentItemData && locations.includes(currentItemData.location)) {
+                    valueToRestore = currentItemData.location;
+                }
+            }
+            // If no value found, default to the first option in the list.
+            modalLocationDropdown.value = valueToRestore || (modalLocationDropdown.options.length > 0 ? modalLocationDropdown.options[0].value : '');
+
+            openLocationEditor();
         } else {
             cInput.style.display = 'none';
             if (hint) hint.style.display = 'none';
+        }
+    }
+
+    function handleLocationFilterChange(select) {
+        const value = select.value;
+
+        if (value === 'EDIT_LOCATIONS') {
+            // Reset the dropdown to 'ALL' immediately to prevent it from getting stuck.
+            select.value = 'ALL';
+            // Then open the editor.
+            openLocationEditor();
+        }
+
+        // Run the standard filter logic.
+        updateFilterLabel(select, 'label-location', 'All Locations');
+        applyFilters();
+        triggerPopAnim('btn-refresh');
+    }
+
+    function openLocationEditor() {
+        requestDevPassword(pass => {
+            if (pass === "Dubai@123") {
+                showLocationEditorModal();
+            } else if (pass && pass.trim()) {
+                showToast("Incorrect Password. Access Denied.", "error");
+            }
+        });
+    }
+
+    function showLocationEditorModal() {
+        let editorHtml = `<div style="text-align:left; max-height: 40vh; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px; margin-bottom: 1rem;">`;
+        locations.forEach((loc, index) => {
+            editorHtml += `
+                <div class="form-group" style="margin-bottom: .8rem;">
+                    <label style="font-size:.75rem; color: var(--text-muted);">Location ${index + 1}</label>
+                    <input type="text" class="location-edit-input" data-original-name="${sanitizeInput(loc)}" value="${sanitizeInput(loc)}" style="padding:.5rem .75rem; font-size:14px;">
+                </div>
+            `;
+        });
+        editorHtml += `</div>
+        <div style="display:flex; gap: .8rem;">
+            <button class="btn-secondary" onclick="closeAckModal()">Cancel</button>
+            <button class="btn-primary" onclick="saveLocationChanges()">Save Changes</button>
+        </div>
+        <p style="font-size: .75rem; color: var(--text-muted); margin-top: 1rem; text-align: center;">
+            Warning: Changing a location name will update it for all instruments at that location.
+        </p>`;
+
+        showAckPopup("Edit Locations", editorHtml, "fas fa-map-marker-alt", "var(--primary)", true);
+    }
+
+    async function saveLocationChanges() {
+        const inputs = document.querySelectorAll('.location-edit-input');
+        const updates = [];
+        inputs.forEach(input => {
+            const originalName = input.getAttribute('data-original-name');
+            const newName = input.value.trim();
+            if (newName && newName !== originalName) {
+                updates.push({ old: originalName, 'new': newName });
+            }
+        });
+
+        if (updates.length === 0) { return showToast("No changes to save.", "info"); }
+        if (!navigator.onLine) { return showToast("Cannot edit locations while offline.", "error"); }
+
+        const saveBtn = document.querySelector('#ackModalCard .btn-primary');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+
+        try {
+            const res = await fetchWithTimeout(`${GAS_API_URL}?key=AI1&action=updateLocations&updates=${encodeURIComponent(JSON.stringify(updates))}`).then(r => r.json());
+            if (res && res.success) {
+                showToast("Locations updated successfully!", "success");
+                closeAckModal();
+                refreshAndReset(); // Reload all data
+            } else { throw new Error(res.error || "Server rejected the update."); }
+        } catch (e) {
+            handleError(e, 'saveLocationChanges');
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'Save Changes';
         }
     }
 
@@ -1815,10 +1922,26 @@ window.startSmartInstall = async function() {
     ────────────────────────────────────── */
     const RELEASE_HISTORY = [
         {
-            version: "v1.0.2",
-            date: "May 2026",
+            version: "v1.0.3",
+            date: "July 2026",
             badge: "Latest",
             badgeColor: "#16a34a",
+            sections: [
+                {
+                    emoji: "🔥",
+                    title: "New Features & Improvements",
+                    color: "var(--danger)",
+                    items: [
+                        { text: "Edit Locations — Admin can now update all location names from both filter and update modal.", credit: "Bibin Sir" },
+                        { text: "UI/UX: Release Notes tile moved to main tools and scrollbar issue fixed.", credit: "Majeed" },
+                    ]
+                }
+            ]
+        },
+        {
+            version: "v1.0.2",
+            date: "May 2026",
+            badge: "",
             sections: [
                 {
                     emoji: "🔥",
@@ -1898,9 +2021,12 @@ window.startSmartInstall = async function() {
     ];
 
     function showReleaseNotes() {
+        const modalBody = document.querySelector('#ackModalOverlay .modal-body');
+        if (modalBody) modalBody.classList.add('no-scrollbar');
+
         document.getElementById('ackModalCard').style.maxWidth = '600px';
 
-        let html = `<div style="max-height:65vh;overflow-y:auto;padding-right:2px;">`;
+        let html = `<div>`;
 
         RELEASE_HISTORY.forEach((rel, ri) => {
             html += `
@@ -1939,7 +2065,7 @@ window.startSmartInstall = async function() {
             <span style="font-size:11px;color:var(--text-muted);">Automation App ${APP_VERSION} · Developed by <b style="color:var(--primary);">Majeed</b> · Tabreed</span>
         </div>`;
 
-        showAckPopup("Release Notes", html, "fas fa-award", "#2563eb");
+        showAckPopup("Release Notes", html, "fas fa-award", "#2563eb", true);
     }
 
     /* ──────────────────────────────────────

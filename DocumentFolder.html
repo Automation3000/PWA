@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Library - Automation App</title>
+    <!-- Reusing styles from index.html for consistency -->
+    <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    <style>
+        :root {
+            --primary: #1a73e8; --primary-dark: #0d62d9; --primary-light: #e8f0fe; --secondary: #1e8e3e; --warning: #f9ab00; --danger: #d93025; --dark: #202124; --light: #f8f9fa; --gray: #5f6368; --border: #dadce0; --shadow-sm: 0 1px 4px rgba(0,0,0,.08); --shadow: 0 2px 12px rgba(0,0,0,.10); --radius: 12px; --radius-sm: 8px; --bg-page: #e8f0f8; --bg-card: #ffffff; --bg-surface: #f3f6fb; --text-primary: #202124; --text-secondary: #5f6368; --text-muted: #80868b;
+        }
+        body.dark-mode {
+            --primary: #7baaf7; --primary-light: #1e2d45; --secondary: #34c779; --warning: #fdd663; --danger: #f28b82; --dark: #e8eaed; --light: #2d2f31; --gray: #9aa0a6; --border: #3c3f43; --bg-page: #111213; --bg-card: #1e2022; --bg-surface: #2d2f31; --text-primary: #e8eaed; --text-secondary: #9aa0a6; --text-muted: #6e7275;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-page); color: var(--text-primary); line-height: 1.5; }
+        .app-container { max-width:1200px; margin:0 auto; padding: 1rem; }
+        .app-header { background: var(--bg-card); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
+        .header-content { display:flex; align-items:center; justify-content:space-between; }
+        .brand { display:flex; align-items:center; gap:.75rem; }
+        .logo { width:42px; height:42px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:var(--shadow-sm); border:1px solid var(--border); flex-shrink:0; }
+        .search-container { padding:1rem; margin:1rem 0; background:var(--bg-card); border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--border); }
+        .search-box { position:relative; }
+        .search-box input { width:100%; padding:.8rem 1rem .8rem 3rem; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:16px; background:var(--bg-surface); color:var(--text-primary); outline:none; transition:border-color .2s; }
+        .search-box input:focus { border-color:var(--primary); }
+        .search-icon { position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--text-muted); }
+        .doc-section { background: var(--bg-card); margin: 1.5rem 0; padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+        .doc-section h2 { font-size: 1.2rem; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: .5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
+        .doc-list { list-style: none; }
+        .doc-list li { margin-bottom: .75rem; }
+        .doc-list a { color: var(--primary); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: .5rem; transition: color .2s; }
+        .doc-list a:hover { color: var(--primary-dark); }
+        .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+        .media-item img, .media-item video { width: 100%; height: auto; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); cursor: pointer; transition: transform .2s; }
+        .media-item img:hover, .media-item video:hover { transform: scale(1.05); }
+        .media-item p { font-size: .8rem; text-align: center; color: var(--text-secondary); margin-top: .5rem; font-weight: 600; }
+        .no-results { text-align: center; padding: 2rem; color: var(--text-muted); }
+        
+        /* Dark Mode specific styles */
+        body.dark-mode .app-header, body.dark-mode .doc-section { background: var(--bg-card) !important; border-color: var(--border) !important; }
+        body.dark-mode .doc-section h2 { color: var(--text-primary) !important; border-color: var(--border) !important; }
+        body.dark-mode .doc-list a { color: var(--primary) !important; }
+        body.dark-mode .media-item p { color: var(--text-secondary) !important; }
+    </style>
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="header-content">
+            <div class="brand">
+                <button onclick="window.location.href='index.html'" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--primary);padding-right:10px;"><i class="fas fa-arrow-left"></i></button>
+                <div class="logo">
+                    <img src="icon-192.png" alt="Logo" style="width:100%;height:100%;object-fit:contain;" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
+                </div>
+                <div>
+                    <h1 style="font-size:1rem;font-weight:700;color:var(--text-primary);">Document Library</h1>
+                    <p style="font-size:.7rem;color:var(--text-muted);">Shared Files & Media</p>
+                </div>
+            </div>
+            <i class="fas fa-moon" id="darkModeToggleBtn" style="cursor:pointer;font-size:17px;color:var(--text-muted);" onclick="toggleDarkMode()" title="Toggle Dark Mode"></i>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="docSearchInput" placeholder="Search documents, images, or videos…">
+            </div>
+        </div>
+
+        <!-- PDF Section -->
+        <div class="doc-section">
+            <h2><i class="fas fa-file-pdf" style="color:var(--danger)"></i> PDF Documents</h2>
+            <ul class="doc-list" id="pdf-list"></ul>
+        </div>
+
+        <!-- Images Section -->
+        <div class="doc-section">
+            <h2><i class="fas fa-file-image" style="color:var(--secondary)"></i> Image Gallery</h2>
+            <div class="media-grid" id="image-grid"></div>
+        </div>
+
+        <!-- Videos Section -->
+        <div class="doc-section">
+            <h2><i class="fas fa-file-video" style="color:var(--primary)"></i> Video Tutorials</h2>
+            <div class="media-grid" id="video-grid"></div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: .8rem;">
+            <p>Note: Files are now managed automatically from Google Drive. Add or remove files in the shared folders to update this list.</p>
+        </div>
+    </div>
+
+    <script>
+        let allFiles = { pdfs: [], images: [], videos: [] };
+
+        // Simple dark mode toggle to maintain theme consistency
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('tabreed_dark_mode', isDark ? '1' : '0');
+            const icon = document.getElementById('darkModeToggleBtn');
+            icon.className  = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            icon.style.color = isDark ? '#fdd663' : '#9aa0a6';
+        }
+
+        // Function to open media in a new tab
+        function openMedia(url) {
+            window.open(url, '_blank');
+        }
+
+        // --- DYNAMICALLY LOAD AND RENDER FILES ---
+        async function loadDocuments() {
+            try {
+                // Fetch the file list from Google Apps Script
+                const gasApiUrl = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
+                const response = await fetch(`${gasApiUrl}?key=AI1&action=getDocuments`);
+                if (!response.ok) throw new Error('Network response was not ok.');
+                const result = await response.json();
+                if (!result.success) throw new Error(result.error || 'Backend script returned an error.');
+                allFiles = result.data;
+                renderAll(allFiles);
+            } catch (error) {
+                console.error('Failed to load documents from backend:', error);
+                document.getElementById('pdf-list').innerHTML = `<p class="no-results">Development Ongoing: ${error.message}</p>`;
+            }
+        }
+
+        function renderAll(files) {
+            const pdfList = document.getElementById('pdf-list');
+            const imageGrid = document.getElementById('image-grid');
+            const videoGrid = document.getElementById('video-grid');
+
+            pdfList.innerHTML = files.pdfs.length ? files.pdfs.map(pdf =>
+                `<li data-name="${pdf.name.toLowerCase()}"><a href="${pdf.path}" target="_blank"><i class="fas fa-download"></i> ${pdf.name}</a></li>`
+            ).join('') : '<p class="no-results">No PDF documents found.</p>';
+
+            imageGrid.innerHTML = files.images.length ? files.images.map(img =>
+                `<div class="media-item" data-name="${img.name.toLowerCase()}">
+                    <img src="${img.path}" alt="${img.name}" onclick="openMedia('${img.path}')" referrerpolicy="no-referrer">
+                    <p>${img.name}</p>
+                </div>`
+            ).join('') : '<p class="no-results">No images found.</p>';
+
+            videoGrid.innerHTML = files.videos.length ? files.videos.map(vid =>
+                `<div class="media-item" data-name="${vid.name.toLowerCase()}">
+                    <video controls preload="metadata">
+                        <source src="${vid.path}#t=0.5" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p>${vid.name}</p>
+                </div>`
+            ).join('') : '<p class="no-results">No videos found.</p>';
+        }
+
+        // --- SEARCH FUNCTIONALITY ---
+        function filterDocuments() {
+            const searchTerm = document.getElementById('docSearchInput').value.toLowerCase();
+            
+            document.querySelectorAll('#pdf-list li').forEach(item => {
+                item.style.display = item.dataset.name.includes(searchTerm) ? '' : 'none';
+            });
+            document.querySelectorAll('#image-grid .media-item').forEach(item => {
+                item.style.display = item.dataset.name.includes(searchTerm) ? '' : 'none';
+            });
+            document.querySelectorAll('#video-grid .media-item').forEach(item => {
+                item.style.display = item.dataset.name.includes(searchTerm) ? '' : 'none';
+            });
+        }
+
+        // --- INITIALIZE ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Restore dark mode on page load
+            if (localStorage.getItem('tabreed_dark_mode') === '1') {
+                document.body.classList.add('dark-mode');
+                const icon = document.getElementById('darkModeToggleBtn');
+                icon.className = 'fas fa-sun';
+                icon.style.color = '#fdd663';
+            }
+
+            // Load documents from JSON
+            loadDocuments();
+
+            // Setup search
+            document.getElementById('docSearchInput').addEventListener('input', filterDocuments);
+        });
+    </script>
+
+</body>
+</html>

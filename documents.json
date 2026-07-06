@@ -1,0 +1,16 @@
+{
+  "pdfs": [
+    { "name": "00000007-TM08 ETS location and FOC network", "path": "documents/00000007-TM08 ETS location and FOC network.pdf" },
+    { "name": "Technical Manual.pdf", "path": "documents/technical-manual.pdf" },
+    { "name": "Safety Guidelines.pdf", "path": "documents/safety-guidelines.pdf" }
+  ],
+  "images": [
+    { "name": "Site Schematic A", "path": "images/schematic-1.jpg" },
+    { "name": "Control Panel Wiring", "path": "images/panel-photo.png" },
+    { "name": "Process Flow Diagram", "path": "images/diagram.gif" }
+  ],
+  "videos": [
+    { "name": "Calibration Tutorial", "path": "videos/calibration-tutorial.mp4" },
+    { "name": "Troubleshooting Guide", "path": "videos/troubleshooting.mp4" }
+  ]
+}
