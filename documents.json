@@ -1,16 +1,17 @@
 {
   "pdfs": [
-    { "name": "00000007-TM08 ETS location and FOC network", "path": "documents/00000007-TM08 ETS location and FOC network.pdf" },
-    { "name": "Technical Manual.pdf", "path": "documents/technical-manual.pdf" },
-    { "name": "Safety Guidelines.pdf", "path": "documents/safety-guidelines.pdf" }
+    { "name": "00000007-TM08 ETS location and FOC network", "path": "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE" },
+    { "name": "Technical Manual", "path": "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE" },
+    { "name": "Safety Guidelines", "path": "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE" }
   ],
   "images": [
-    { "name": "Site Schematic A", "path": "images/schematic-1.jpg" },
-    { "name": "Control Panel Wiring", "path": "images/panel-photo.png" },
-    { "name": "Process Flow Diagram", "path": "images/diagram.gif" }
+    { "name": "Site Schematic A", "path": "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE" },
+    { "name": "Control Panel Wiring", "path": "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE" },
+    { "name": "Process Flow Diagram", "path": "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE" }
   ],
   "videos": [
-    { "name": "Calibration Tutorial", "path": "videos/calibration-tutorial.mp4" },
-    { "name": "Troubleshooting Guide", "path": "videos/troubleshooting.mp4" }
-  ]
+    { "name": "Calibration Tutorial", "path": "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE" },
+    { "name": "Troubleshooting Guide", "path": "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE" }
+  ],
+  "readme": "HOW TO USE: To use your files from Google Drive, get the shareable link for each file (e.g., https://drive.google.com/file/d/FILE_ID/view?usp=sharing), copy the FILE_ID, and replace 'YOUR_FILE_ID_HERE' in the path above. Make sure each file is shared as 'Anyone with the link can view'."
 }

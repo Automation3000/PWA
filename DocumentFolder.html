@@ -38,11 +38,68 @@
         .media-item p { font-size: .8rem; text-align: center; color: var(--text-secondary); margin-top: .5rem; font-weight: 600; }
         .no-results { text-align: center; padding: 2rem; color: var(--text-muted); }
         
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 56px;
+            height: 56px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            border: none;
+            box-shadow: var(--shadow-md);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            transition: transform .2s, background-color .2s;
+        }
+        .fab:hover { transform: scale(1.08); background-color: var(--primary-dark); }
+        
+        /* Accordion styles */
+        .accordion-header { cursor: pointer; transition: background-color .2s; display: flex; justify-content: space-between; align-items: center; }
+        .accordion-header:hover { background-color: var(--bg-surface); }
+        .accordion-header .accordion-icon { transition: transform .3s; }
+        .accordion-header.active .accordion-icon { transform: rotate(180deg); }
+        .accordion-content { display: none; padding-top: 1rem; animation: fadeIn .4s ease; }
+        .doc-section.is-open .accordion-content { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Iframe styles */
+        .drive-iframe { width: 100%; height: 450px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+
+        /* Modal styles for consistency */
+        .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); display:none; z-index:9999; align-items:center; justify-content:center; }
+        .modal-overlay.active { display:flex; }
+        .modal { background:var(--bg-card); width:95%; max-width:500px; border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.25); border:1px solid var(--border); }
+        .modal-header { padding:1.1rem 1.4rem; background:var(--primary); color:white; display:flex; justify-content:space-between; align-items:center; }
+        .modal-header h3 { font-size:1rem; font-weight:700; }
+        .modal-body { padding:1.5rem; }
+        .form-group { margin-bottom:1.2rem; }
+        .form-group label { display:block; margin-bottom:.4rem; font-weight:600; font-size:.85rem; }
+        .modal-actions { display:flex; gap:.8rem; margin-top:1.2rem; }
+        .btn-primary { flex:1; padding:.9rem; background:var(--primary); color:white; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-size:.9rem; transition:.2s; }
+        .btn-primary:hover { background:var(--primary-dark); }
+        .btn-secondary { flex:1; padding:.9rem; background:var(--bg-surface); color:var(--text-primary); border:1.5px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; font-weight:600; font-size:.9rem; transition:.2s; }
+        .btn-secondary:hover { border-color:var(--primary); }
+
         /* Dark Mode specific styles */
         body.dark-mode .app-header, body.dark-mode .doc-section { background: var(--bg-card) !important; border-color: var(--border) !important; }
         body.dark-mode .doc-section h2 { color: var(--text-primary) !important; border-color: var(--border) !important; }
+        body.dark-mode .accordion-header:hover { background-color: var(--bg-surface) !important; }
         body.dark-mode .doc-list a { color: var(--primary) !important; }
         body.dark-mode .media-item p { color: var(--text-secondary) !important; }
+        body.dark-mode .modal { background: var(--bg-card); border-color: var(--border); }
+        body.dark-mode .form-group label { color: var(--text-primary); }
+        body.dark-mode .btn-secondary { background: var(--bg-surface); color: var(--text-primary); border-color: var(--border); }
+        body.dark-mode #fileUploadInput { background: var(--bg-surface); border-color: var(--border); color: var(--text-primary); }
     </style>
 </head>
 <body>
@@ -67,35 +124,76 @@
         <div class="search-container">
             <div class="search-box">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" id="docSearchInput" placeholder="Search documents, images, or videos…">
+                <input type="text" id="docSearchInput" placeholder="Use the search inside each section below..." readonly style="cursor: not-allowed; background: var(--bg-surface) !important;">
             </div>
         </div>
 
         <!-- PDF Section -->
         <div class="doc-section">
-            <h2><i class="fas fa-file-pdf" style="color:var(--danger)"></i> PDF Documents</h2>
-            <ul class="doc-list" id="pdf-list"></ul>
+            <h2 class="accordion-header">
+                <span><i class="fas fa-file-pdf" style="color:var(--danger)"></i> PDF Documents</span>
+                <i class="fas fa-chevron-down accordion-icon"></i>
+            </h2>
+            <div class="accordion-content">
+                <iframe class="drive-iframe" src="https://drive.google.com/embeddedfolderview?id=1CZIU9gxrpYA3gO1Kf6trVfkpilt7aOMJ#grid" loading="lazy"></iframe>
+            </div>
         </div>
 
         <!-- Images Section -->
         <div class="doc-section">
-            <h2><i class="fas fa-file-image" style="color:var(--secondary)"></i> Image Gallery</h2>
-            <div class="media-grid" id="image-grid"></div>
+            <h2 class="accordion-header">
+                <span><i class="fas fa-file-image" style="color:var(--secondary)"></i> Image Gallery</span>
+                <i class="fas fa-chevron-down accordion-icon"></i>
+            </h2>
+            <div class="accordion-content">
+                <iframe class="drive-iframe" src="https://drive.google.com/embeddedfolderview?id=1_4z-Gyuvpm42SYBKwcEXsBvGzLWtUJAt#grid" loading="lazy"></iframe>
+            </div>
         </div>
 
         <!-- Videos Section -->
         <div class="doc-section">
-            <h2><i class="fas fa-file-video" style="color:var(--primary)"></i> Video Tutorials</h2>
-            <div class="media-grid" id="video-grid"></div>
+            <h2 class="accordion-header">
+                <span><i class="fas fa-file-video" style="color:var(--primary)"></i> Video Tutorials</span>
+                <i class="fas fa-chevron-down accordion-icon"></i>
+            </h2>
+            <div class="accordion-content">
+                <iframe class="drive-iframe" src="https://drive.google.com/embeddedfolderview?id=1Ome7auV6yg2jCzZaJPs4kmPj_E3UZJpp#grid" loading="lazy"></iframe>
+            </div>
         </div>
-        
-        <div style="text-align: center; margin-top: 2rem; color: var(--text-muted); font-size: .8rem;">
-            <p>Note: Files are now managed automatically from Google Drive. Add or remove files in the shared folders to update this list.</p>
+
+    </div>
+
+    <!-- Floating Action Button for Upload -->
+    <button class="fab" onclick="openUploadModal()" title="Upload a File">
+        <i class="fas fa-upload"></i>
+    </button>
+
+    <!-- UPLOAD MODAL -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-cloud-upload-alt"></i> Upload to Library</h3>
+                <button onclick="closeUploadModal()" style="background:none;border:none;cursor:pointer;font-size:1.5rem;color:white;line-height:1;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="fileUploadInput">Select a PDF, Image, or Video file</label>
+                    <input type="file" id="fileUploadInput" accept=".pdf,image/*,video/*" style="width:100%; padding: 1rem; border: 2px dashed var(--border); background: var(--bg-surface); border-radius: var(--radius-sm); text-align: center; cursor: pointer;">
+                </div>
+                <div id="upload-progress" style="display:none; text-align:center; margin-top:1rem; color: var(--primary); font-weight: 600;">
+                    <p><i class="fas fa-spinner fa-spin"></i> Uploading, please wait...</p>
+                    <p style="font-size: .8rem; color: var(--text-muted);">(This may take a moment for large files)</p>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" onclick="handleFileUpload()" id="submitUploadBtn">UPLOAD FILE</button>
+                    <button class="btn-secondary" onclick="closeUploadModal()">CANCEL</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        let allFiles = { pdfs: [], images: [], videos: [] };
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
 
         // Simple dark mode toggle to maintain theme consistency
         function toggleDarkMode() {
@@ -106,68 +204,64 @@
             icon.style.color = isDark ? '#fdd663' : '#9aa0a6';
         }
 
-        // Function to open media in a new tab
-        function openMedia(url) {
-            window.open(url, '_blank');
+        // --- UPLOAD FUNCTIONALITY ---
+        function openUploadModal() {
+            document.getElementById('uploadModal').classList.add('active');
         }
 
-        // --- DYNAMICALLY LOAD AND RENDER FILES ---
-        async function loadDocuments() {
-            try {
-                // Fetch the file list from Google Apps Script
-                const gasApiUrl = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
-                const response = await fetch(`${gasApiUrl}?key=AI1&action=getDocuments`);
-                if (!response.ok) throw new Error('Network response was not ok.');
-                const result = await response.json();
-                if (!result.success) throw new Error(result.error || 'Backend script returned an error.');
-                allFiles = result.data;
-                renderAll(allFiles);
-            } catch (error) {
-                console.error('Failed to load documents from backend:', error);
-                document.getElementById('pdf-list').innerHTML = `<p class="no-results">Development Ongoing: ${error.message}</p>`;
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.remove('active');
+            document.getElementById('fileUploadInput').value = ''; // Reset file input
+            document.getElementById('upload-progress').style.display = 'none';
+            document.getElementById('submitUploadBtn').disabled = false;
+        }
+
+        function handleFileUpload() {
+            const fileInput = document.getElementById('fileUploadInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a file to upload.');
+                return;
             }
-        }
 
-        function renderAll(files) {
-            const pdfList = document.getElementById('pdf-list');
-            const imageGrid = document.getElementById('image-grid');
-            const videoGrid = document.getElementById('video-grid');
+            document.getElementById('upload-progress').style.display = 'block';
+            document.getElementById('submitUploadBtn').disabled = true;
 
-            pdfList.innerHTML = files.pdfs.length ? files.pdfs.map(pdf =>
-                `<li data-name="${pdf.name.toLowerCase()}"><a href="${pdf.path}" target="_blank"><i class="fas fa-download"></i> ${pdf.name}</a></li>`
-            ).join('') : '<p class="no-results">No PDF documents found.</p>';
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const fileData = e.target.result.split(',')[1]; // Get Base64 part
+                const payload = {
+                    filename: file.name,
+                    mimeType: file.type,
+                    data: fileData
+                };
 
-            imageGrid.innerHTML = files.images.length ? files.images.map(img =>
-                `<div class="media-item" data-name="${img.name.toLowerCase()}">
-                    <img src="${img.path}" alt="${img.name}" onclick="openMedia('${img.path}')" referrerpolicy="no-referrer">
-                    <p>${img.name}</p>
-                </div>`
-            ).join('') : '<p class="no-results">No images found.</p>';
-
-            videoGrid.innerHTML = files.videos.length ? files.videos.map(vid =>
-                `<div class="media-item" data-name="${vid.name.toLowerCase()}">
-                    <video controls preload="metadata">
-                        <source src="${vid.path}#t=0.5" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <p>${vid.name}</p>
-                </div>`
-            ).join('') : '<p class="no-results">No videos found.</p>';
-        }
-
-        // --- SEARCH FUNCTIONALITY ---
-        function filterDocuments() {
-            const searchTerm = document.getElementById('docSearchInput').value.toLowerCase();
-            
-            document.querySelectorAll('#pdf-list li').forEach(item => {
-                item.style.display = item.dataset.name.includes(searchTerm) ? '' : 'none';
-            });
-            document.querySelectorAll('#image-grid .media-item').forEach(item => {
-                item.style.display = item.dataset.name.includes(searchTerm) ? '' : 'none';
-            });
-            document.querySelectorAll('#video-grid .media-item').forEach(item => {
-                item.style.display = item.dataset.name.includes(searchTerm) ? '' : 'none';
-            });
+                // Send to Google Apps Script
+                fetch(GAS_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('File uploaded successfully! It will appear in the library shortly.');
+                        // Refresh the iframes to show the new file
+                        document.querySelectorAll('.drive-iframe').forEach(iframe => {
+                            iframe.src = iframe.src;
+                        });
+                    } else {
+                        throw new Error(result.error || 'Unknown server error.');
+                    }
+                    closeUploadModal();
+                })
+                .catch(error => {
+                    console.error('Upload Error:', error);
+                    alert('Upload failed WORKING on this MODULE: ' + error.message);
+                    closeUploadModal();
+                });
+            };
+            reader.readAsDataURL(file);
         }
 
         // --- INITIALIZE ---
@@ -180,11 +274,14 @@
                 icon.style.color = '#fdd663';
             }
 
-            // Load documents from JSON
-            loadDocuments();
-
-            // Setup search
-            document.getElementById('docSearchInput').addEventListener('input', filterDocuments);
+            // Accordion functionality
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const section = header.closest('.doc-section');
+                    section.classList.toggle('is-open');
+                    header.classList.toggle('active');
+                });
+            });
         });
     </script>
 
