@@ -844,7 +844,7 @@
     /* ──────────────────────────────────────
        CONSTANTS & CONFIG
     ────────────────────────────────────── */
-    const APP_VERSION   = "v1.0.3";
+    const APP_VERSION   = "v1.0.4";
     const GAS_API_URL   = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
     const LS_INVENTORY  = "localTabreedInventory";
     const LS_HISTORY    = "localTabreedHistory";
@@ -1922,9 +1922,35 @@ window.startSmartInstall = async function() {
     ────────────────────────────────────── */
     const RELEASE_HISTORY = [
         {
+            version: "v1.0.4",
+            date: "August 2026",
+            badge: "Latest",
+            badgeColor: "#16a34a",
+            sections: [
+                {
+                    emoji: "🚀",
+                    title: "Major Feature: Document Library v2",
+                    color: "var(--primary)",
+                    items: [
+                        { text: "Switched to a stable `iframe` accordion view for reliability.", credit: "Majeed" },
+                        { text: "Added a file upload feature with a floating button.", credit: "Majeed" },
+                        { text: "Uploads now automatically sort into PDF, Image, or Video folders in Google Drive.", credit: "Majeed" },
+                    ]
+                },
+                {
+                    emoji: "🐛",
+                    title: "Bug Fixes",
+                    color: "var(--warning)",
+                    items: [
+                        { text: "Permanently fixed 'Failed to fetch' errors in the Document Library.", credit: "" },
+                    ]
+                }
+            ]
+        },
+        {
             version: "v1.0.3",
             date: "July 2026",
-            badge: "Latest",
+            badge: "",
             badgeColor: "#16a34a",
             sections: [
                 {
