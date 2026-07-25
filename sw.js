@@ -1,10 +1,12 @@
-const CACHE_NAME = 'tabreed-pro-v5'; // Version change taaki browser naya SW load kare
+const CACHE_NAME = 'tabreed-pro-v6'; // v6: Updated DocumentFolder.html with new GAS URL
 const STATIC_ASSETS = [
   '/',
   '/NEW.html',
+  '/DocumentFolder.html', // Added page with upload functionality
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
+  '/documents.json', // Document list ko offline available karne ke liye
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 

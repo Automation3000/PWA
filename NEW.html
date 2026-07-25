@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #e4edf5; margin: 0; padding: 15px; }
+        h1 { color: #333; text-align: center; }
+        #document-container { display: grid; gap: 15px; }
+        .category { background-color: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .category h2 { color: #1a73e8; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; margin-top: 0; text-transform: capitalize; }
+        ul { list-style-type: none; padding: 0; }
+        li { margin-bottom: 12px; }
+        a { text-decoration: none; color: #0056b3; font-size: 1.1em; display: flex; align-items: center; padding: 5px; border-radius: 4px; transition: background-color 0.2s; }
+        a:hover { background-color: #f0f8ff; text-decoration: underline; }
+        a i { margin-right: 12px; color: #555; width: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+    <h1>Document Library</h1>
+    <div id="document-container">
+        <!-- Content will be loaded here by JavaScript -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('documents.json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const container = document.getElementById('document-container');
+                    container.innerHTML = ''; // Clear existing content
+
+                    // Define icons for each category
+                    const icons = {
+                        pdfs: 'fa-solid fa-file-pdf',
+                        images: 'fa-solid fa-file-image',
+                        videos: 'fa-solid fa-file-video',
+                        drawings: 'fa-solid fa-file-pen-ruler' // Icon for drawings
+                    };
+
+                    for (const category in data) {
+                        if (category === 'readme') continue; // Skip the 'readme' key
+
+                        const items = data[category];
+                        if (Array.isArray(items) && items.length > 0) {
+                            const section = document.createElement('div');
+                            section.className = 'category';
+
+                            const title = document.createElement('h2');
+                            title.textContent = category;
+                            section.appendChild(title);
+
+                            const list = document.createElement('ul');
+                            items.forEach(item => {
+                                const listItem = document.createElement('li');
+                                const link = document.createElement('a');
+                                link.href = item.path;
+                                link.target = '_blank'; // Open in new tab
+                                
+                                const iconClass = icons[category] || 'fa-solid fa-file';
+                                link.innerHTML = `<i class="${iconClass}"></i> ${item.name}`;
+                                
+                                listItem.appendChild(link);
+                                list.appendChild(listItem);
+                            });
+                            section.appendChild(list);
+                            container.appendChild(section);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching or parsing documents.json:', error);
+                    const container = document.getElementById('document-container');
+                    container.innerHTML = '<p style="color: red; text-align: center;">Could not load documents. Please try again later.</p>';
+                });
+        });
+    </script>
+</body>
+</html>

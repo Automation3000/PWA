@@ -27,7 +27,13 @@
         .search-box input:focus { border-color:var(--primary); }
         .search-icon { position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--text-muted); }
         .doc-section { background: var(--bg-card); margin: 1.5rem 0; padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
-        .doc-section h2 { font-size: 1.2rem; color: var(--text-primary); border-bottom: 1px solid var(--border); padding-bottom: .5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
+        /* --- Section Header Base Style --- */
+        .doc-section h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0; /* Reset margin for new accordion header */
+        }
         .doc-list { list-style: none; }
         .doc-list li { margin-bottom: .75rem; }
         .doc-list a { color: var(--primary); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: .5rem; transition: color .2s; }
@@ -60,20 +66,48 @@
         }
         .fab:hover { transform: scale(1.08); background-color: var(--primary-dark); }
         
-        /* Accordion styles */
-        .accordion-header { cursor: pointer; transition: background-color .2s; display: flex; justify-content: space-between; align-items: center; }
-        .accordion-header:hover { background-color: var(--bg-surface); }
-        .accordion-header .accordion-icon { transition: transform .3s; }
+        /* Accordion styles - with click effect */
+        .accordion-header {
+            cursor: pointer;
+            transition: all .3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-sm);
+            background-color: var(--bg-surface);
+        }
+        .accordion-header:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .accordion-header.active {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .accordion-header .accordion-icon { transition: transform .3s ease; }
         .accordion-header.active .accordion-icon { transform: rotate(180deg); }
-        .accordion-content { display: none; padding-top: 1rem; animation: fadeIn .4s ease; }
-        .doc-section.is-open .accordion-content { display: block; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: scale(0.98);
+            transform-origin: top;
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .doc-section.is-open .accordion-content {
+            max-height: 110vh; /* Accommodate 100vh iframe + padding */
+            opacity: 1;
+            transform: scale(1);
+            padding-top: 1rem;
         }
         
         /* Iframe styles */
-        .drive-iframe { width: 100%; height: 450px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+        .drive-iframe { width: 100%; height: 100vh; /* Set to full viewport height to minimize inner scrolling */ border: 1px solid var(--border); border-radius: var(--radius-sm); }
 
         /* Modal styles for consistency */
         .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); display:none; z-index:9999; align-items:center; justify-content:center; }
@@ -125,6 +159,18 @@
             <div class="search-box">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="docSearchInput" placeholder="Use the search inside each section below..." readonly style="cursor: not-allowed; background: var(--bg-surface) !important;">
+            </div>
+        </div>
+
+        <!-- Drawings Section -->
+        <div class="doc-section">
+            <h2 class="accordion-header">
+                <span><i class="fas fa-drafting-compass" style="color:var(--warning)"></i> Drawings</span>
+                <i class="fas fa-chevron-down accordion-icon"></i>
+            </h2>
+            <div class="accordion-content">
+                <!-- IMPORTANT: Replace YOUR_DRAWINGS_FOLDER_ID_HERE with your actual Google Drive Folder ID -->
+                <iframe class="drive-iframe" src="https://drive.google.com/embeddedfolderview?id=1KUQpoKUJHbr9GjPwfpOIqSBmQZ1TrKSN#grid" loading="lazy"></iframe>
             </div>
         </div>
 
@@ -193,7 +239,9 @@
     </div>
 
     <script>
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
+        // IMPORTANT: Replace this URL with the one you got after deploying the Google Apps Script.
+        // IMPORTANT: Paste the NEW URL you get after re-deploying the script with the correct permissions.
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyuU8Ex0xKje6OmnaGKYFIJIp6U16ZoOhQPiVhL5URULn060tydvJL_koJDa7psrJc-6Q/exec";
 
         // Simple dark mode toggle to maintain theme consistency
         function toggleDarkMode() {
@@ -240,24 +288,34 @@
                 // Send to Google Apps Script
                 fetch(GAS_API_URL, {
                     method: 'POST',
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    // The 'redirect' option can help debug, but we'll handle non-JSON responses instead.
+                    // redirect: 'follow' 
                 })
-                .then(response => response.json())
+                .then(response => {
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        return response.json(); // Response is JSON, proceed as normal.
+                    } else {
+                        // Response is HTML, which means a permission or deployment error on Google's side.
+                        throw new Error("Server returned an invalid response (not JSON). This is likely a permission issue. Please re-deploy the script and grant all permissions.");
+                    }
+                })
                 .then(result => {
                     if (result.success) {
                         alert('File uploaded successfully! It will appear in the library shortly.');
                         // Refresh the iframes to show the new file
                         document.querySelectorAll('.drive-iframe').forEach(iframe => {
-                            iframe.src = iframe.src;
+                            iframe.src = iframe.src; // This reloads the iframe
                         });
                     } else {
-                        throw new Error(result.error || 'Unknown server error.');
+                        throw new Error(result.error || 'An unknown server error occurred.');
                     }
                     closeUploadModal();
                 })
                 .catch(error => {
                     console.error('Upload Error:', error);
-                    alert('Upload failed WORKING on this MODULE: ' + error.message);
+                    alert('Upload failed: ' + error.message);
                     closeUploadModal();
                 });
             };

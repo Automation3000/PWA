@@ -13,5 +13,9 @@
     { "name": "Calibration Tutorial", "path": "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE" },
     { "name": "Troubleshooting Guide", "path": "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE" }
   ],
+  "drawings": [
+    { "name": "Sample Drawing 1", "path": "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE" },
+    { "name": "Sample Drawing 2", "path": "https://drive.google.com/uc?export=view&id=YOUR_FILE_ID_HERE" }
+  ],
   "readme": "HOW TO USE: To use your files from Google Drive, get the shareable link for each file (e.g., https://drive.google.com/file/d/FILE_ID/view?usp=sharing), copy the FILE_ID, and replace 'YOUR_FILE_ID_HERE' in the path above. Make sure each file is shared as 'Anyone with the link can view'."
 }
