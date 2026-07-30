@@ -1,8 +1,9 @@
-const CACHE_NAME = 'tabreed-pro-v6'; // v6: Updated DocumentFolder.html with new GAS URL
+const CACHE_NAME = 'tabreed-pro-v7'; // v7: Added PM Checklist Generator page
 const STATIC_ASSETS = [
   '/',
   '/NEW.html',
   '/DocumentFolder.html', // Added page with upload functionality
+  '/PM Checklist Generator.html', // Added PM Checklist Generator
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png',
