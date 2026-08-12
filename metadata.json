@@ -1,0 +1,6 @@
+{
+  "name": "TABREED Automation App",
+  "description": "Industrial Automation, Instrumentation tools, and SAP Launchpad Dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
