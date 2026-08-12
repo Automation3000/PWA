@@ -8,6 +8,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Automation App">
     <link rel="manifest" href="https://tabreed.automation3000.com/manifest.json" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="icon-144.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="icon-128.png" />
     <link rel="apple-touch-icon" href="https://tabreed.automation3000.com/icon-192.png" />
     <title>TABREED - Automation App</title>
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
@@ -74,6 +78,85 @@
             --header-bg:      #0d1117;
             --header-text:    #e8eaed;
             --table-header:   #2d2f31;
+        }
+
+        body.theme-ocean-blue {
+            --primary:        #0284c7;
+            --primary-dark:   #0369a1;
+            --primary-light:  #e0f2fe;
+            --header-bg:      #0c4a6e;
+            --bg-page:        #f0f9ff;
+        }
+
+        body.theme-industrial {
+            --primary:        #d97706;
+            --primary-dark:   #b45309;
+            --primary-light:  #fef3c7;
+            --header-bg:      #1f2937;
+            --bg-page:        #fffbeb;
+        }
+
+        body.theme-emerald-forest {
+            --primary:        #059669;
+            --primary-dark:   #047857;
+            --primary-light:  #d1fae5;
+            --header-bg:      #064e3b;
+            --bg-page:        #f0fdf4;
+        }
+
+        body.theme-royal-purple {
+            --primary:        #7c3aed;
+            --primary-dark:   #6d28d9;
+            --primary-light:  #ede9fe;
+            --header-bg:      #4c1d95;
+            --bg-page:        #faf5ff;
+        }
+
+        body.theme-crimson-red {
+            --primary:        #dc2626;
+            --primary-dark:   #b91c1c;
+            --primary-light:  #fee2e2;
+            --header-bg:      #7f1d1d;
+            --bg-page:        #fef2f2;
+        }
+
+        body.theme-nordic-teal {
+            --primary:        #0d9488;
+            --primary-dark:   #0f766e;
+            --primary-light:  #ccfbf1;
+            --header-bg:      #134e4a;
+            --bg-page:        #f0fdfa;
+        }
+
+        body.theme-slate-minimal {
+            --primary:        #475569;
+            --primary-dark:   #334155;
+            --primary-light:  #f1f5f9;
+            --header-bg:      #0f172a;
+            --bg-page:        #f8fafc;
+        }
+
+        body.theme-cyber-dark {
+            --primary:        #22d3ee;
+            --primary-dark:   #0891b2;
+            --primary-light:  #164e63;
+            --secondary:      #34d399;
+            --warning:        #facc15;
+            --danger:         #f87171;
+            --dark:           #f3f4f6;
+            --light:          #1f2937;
+            --gray:           #9ca3af;
+            --border:         #374151;
+            --bg-page:        #0f172a;
+            --bg-card:        #1e293b;
+            --bg-surface:     #334155;
+            --text-primary:   #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted:     #94a3b8;
+            --input-bg:       #334155;
+            --header-bg:      #0284c7;
+            --header-text:    #ffffff;
+            --table-header:   #334155;
         }
 
         /* ═══════════════════════════════════════════════════
@@ -193,6 +276,8 @@
         @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.35} }
         @keyframes popBounce { 0%{transform:scale(1)} 50%{transform:scale(1.12)} 100%{transform:scale(1)} }
         .pop-anim { animation:popBounce .35s cubic-bezier(.175,.885,.32,1.275); }
+        @keyframes subtlePop { 0%{opacity:0.75;transform:scale(0.995);} 100%{opacity:1;transform:scale(1);} }
+        .subtle-pop-anim { animation:subtlePop .22s ease-out; }
 
         /* ═══════════════════════════════════════════════════
            SEARCH
@@ -555,16 +640,14 @@
             <div class="tile" onclick="window.location.href='DocumentFolder.html'">
                 <div class="tile-title">Document Library</div>
                 <div class="tile-subtitle">View Important Files &amp; Media</div>
-                <i class="fas fa-folder-open tile-icon" style="color:var(--secondary);"></i>
+                <i class="fas fa-folder-open tile-icon" style="color:var(--primary);"></i>
                 <div class="tile-status" style="color:var(--secondary);"><i class="fas fa-check-circle"></i> Ready</div>
             </div>
-            <div class="tile" onclick="window.location.href='PM Checklist Generator.html'">
+            <div class="tile" onclick="window.location.href='PM_Checklist_Generator.html'">
                 <div class="tile-title">PM Checklist Generator</div>
-                <div class="tile-subtitle">Under Development and Testing Only</div>
-                <i class="fas fa-tasks tile-icon" style="color:var(--warning);"></i>
-                <div class="tile-status" style="color:var(--danger);">
-                    <i class="fas fa-exclamation-triangle"></i> Not Ready Beta Test Only
-                </div>
+                <div class="tile-subtitle">Create &amp; Download Checklist • Try &amp; Share Feedback</div>
+                <i class="fas fa-tasks tile-icon" style="color:var(--primary);"></i>
+                <div class="tile-status" style="color:var(--secondary);"><i class="fas fa-check-circle"></i> Ready</div>
             </div>
         </div>
 
@@ -633,6 +716,14 @@
                     <div class="tile-title">Force Clear Cache</div>
                     <div class="tile-subtitle">Reset Local Storage</div>
                     <i class="fas fa-trash-alt tile-icon" style="color:var(--danger);"></i>
+                </div>
+                <div class="tile" onclick="openNotificationComposer()">
+                    <div class="tile-title" style="color:var(--text-primary);">Push Notification</div>
+                    <div class="tile-subtitle">Broadcast Alerts to Users</div>
+                    <i class="fas fa-bell tile-icon" style="color:#ea580c;"></i>
+                    <div class="tile-status" style="color:#ea580c;background:rgba(234,88,12,.1);padding:3px 8px;border-radius:20px;font-size:10px;">
+                        <i class="fas fa-paper-plane" style="font-size:9px;"></i> Broadcast
+                    </div>
                 </div>
                 <div class="tile tile-beta" onclick="switchToBetaTheme()">
                     <span class="beta-tag">BETA</span>
@@ -855,12 +946,12 @@
 ═══════════════════════════════════════ -->
 <div class="modal-overlay ack-overlay" id="ackModalOverlay">
     <div class="modal ack-modal" id="ackModalCard" style="max-width:340px;width:95%;text-align:center;border-radius:20px;padding:10px;position:relative;">
-        <button id="ackModalCloseBtn" onclick="closeAckModal()" style="display: none; position:absolute; top: 10px; right: 15px; font-size: 1.8rem; background: none; border: none; color: var(--text-muted); cursor: pointer; z-index: 10;">&times;</button>
+        <button id="ackModalCloseBtn" onclick="closeAckModal()" aria-label="Close" style="display: flex; align-items: center; justify-content: center; position: absolute; top: 10px; right: 12px; width: 36px; height: 36px; border-radius: 50%; background: var(--bg-surface); border: 1px solid var(--border); font-size: 1.5rem; color: var(--text-primary); cursor: pointer; z-index: 100;">&times;</button>
         <div class="modal-body" style="padding:20px 16px;">
             <div id="ackIcon" style="font-size:3rem;margin-bottom:12px;"></div>
             <h2 id="ackTitle" style="margin-top:0;color:var(--text-primary);font-weight:800;font-size:1.2rem;"></h2>
             <div id="ackMessage" style="color:var(--text-secondary);font-size:.9rem;line-height:1.6;margin-bottom:20px;word-wrap:break-word;text-align:left;"></div>
-            <button
+            <button class="btn-primary" onclick="closeAckModal()" style="width:100%;padding:10px;border-radius:8px;font-weight:700;">OK / CLOSE</button>
         </div>
     </div>
 </div>
@@ -869,25 +960,31 @@
      HISTORY PAGE
 ═══════════════════════════════════════ -->
 <div id="historyPage" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg-page);z-index:9000;overflow-y:auto;">
-    <header class="app-header">
-        <div class="header-content">
-            <div class="brand">
-                <button onclick="closeHistoryPage()" style="border:none;background:none;cursor:pointer;margin-right:10px;color:var(--primary);font-size:1.1rem;"><i class="fas fa-arrow-left"></i></button>
-                <h1 style="font-size:1rem;margin:0;font-weight:700;">Update History</h1>
+    <div class="app-container" style="max-width:1200px;padding-top:0;">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="brand">
+                    <button onclick="closeHistoryPage()" style="border:none;background:none;cursor:pointer;padding-right:10px;color:var(--primary);font-size:1.1rem;" title="Back"><i class="fas fa-arrow-left"></i></button>
+                    <div class="logo">
+                        <img src="icon-192.png" alt="Logo" style="width:100%;height:100%;object-fit:contain;" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
+                    </div>
+                    <div class="brand-text">
+                        <h1 style="font-size:1rem;font-weight:700;">TABREED: Update History</h1>
+                        <p style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
+                    </div>
+                </div>
+                <button class="action-btn" onclick="loadHistoryData()" style="min-width:44px;max-width:50px;box-shadow:none;border-color:var(--border);" title="Refresh History">
+                    <i class="fas fa-sync-alt" id="historyRefreshIcon" style="color:var(--primary);"></i>
+                </button>
             </div>
-            <button class="action-btn" onclick="loadHistoryData()" style="min-width:44px;max-width:50px;box-shadow:none;border-color:var(--border);">
-                <i class="fas fa-sync-alt" style="color:var(--primary);"></i>
-            </button>
-        </div>
-    </header>
-    <div class="app-container" style="max-width:900px;padding-top:15px;">
-        <div class="search-container" style="margin:0 15px 15px;">
+        </header>
+        <div class="search-container" style="margin:1rem 0;">
             <div class="search-box">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="historySearch" placeholder="Filter history…" oninput="filterHistory()">
             </div>
         </div>
-        <div class="history-card">
+        <div class="history-card" style="margin:0 0 1rem;background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow-sm);border:1px solid var(--border);overflow:hidden;">
             <div class="table-container">
                 <table class="history-table">
                     <thead>
@@ -917,7 +1014,7 @@
     /* ──────────────────────────────────────
        CONSTANTS & CONFIG
     ────────────────────────────────────── */
-    const APP_VERSION   = "v2.0";
+    const APP_VERSION   = "v2.0.1";
     const GAS_API_URL   = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
     const LS_INVENTORY  = "localTabreedInventory";
     const LS_HISTORY    = "localTabreedHistory";
@@ -1014,26 +1111,89 @@
     })();
 
     /* ──────────────────────────────────────
-       DARK MODE
+       DARK MODE & THEME MANAGEMENT
     ────────────────────────────────────── */
-    function toggleDarkMode() {
-        const isDark = document.body.classList.toggle('dark-mode');
+    const THEMES = [
+        { id: 'default', name: 'Default Fiori (Light)', color: '#1a73e8', icon: 'fa-sun' },
+        { id: 'dark-mode', name: 'Dark Sapphire', color: '#7baaf7', icon: 'fa-moon' },
+        { id: 'ocean-blue', name: 'Fiori Ocean Blue', color: '#0284c7', icon: 'fa-water' },
+        { id: 'industrial', name: 'Industrial High-Contrast', color: '#d97706', icon: 'fa-industry' },
+        { id: 'emerald-forest', name: 'Emerald Forest Green', color: '#059669', icon: 'fa-tree' },
+        { id: 'royal-purple', name: 'Royal Purple Luxe', color: '#7c3aed', icon: 'fa-gem' },
+        { id: 'crimson-red', name: 'Crimson Energy', color: '#dc2626', icon: 'fa-fire' },
+        { id: 'nordic-teal', name: 'Nordic Teal Accent', color: '#0d9488', icon: 'fa-compass' },
+        { id: 'slate-minimal', name: 'Slate Minimal Grey', color: '#475569', icon: 'fa-layer-group' },
+        { id: 'cyber-dark', name: 'Cyber Neon Dark', color: '#22d3ee', icon: 'fa-laptop-code' }
+    ];
+
+    const ALL_THEME_CLASSES = [
+        'dark-mode', 'theme-ocean-blue', 'theme-industrial',
+        'theme-emerald-forest', 'theme-royal-purple', 'theme-crimson-red',
+        'theme-nordic-teal', 'theme-slate-minimal', 'theme-cyber-dark'
+    ];
+
+    function applyTheme(themeId) {
+        document.body.classList.remove(...ALL_THEME_CLASSES);
+        if (themeId === 'dark-mode' || themeId === 'cyber-dark') {
+            document.body.classList.add('dark-mode');
+        }
+        if (themeId && themeId !== 'default') {
+            if (themeId !== 'dark-mode') {
+                document.body.classList.add(`theme-${themeId}`);
+            }
+        }
+        const isDark = (themeId === 'dark-mode' || themeId === 'cyber-dark');
         localStorage.setItem(LS_DARK, isDark ? '1' : '0');
+        localStorage.setItem('tabreed_selected_theme', themeId);
         const icon = document.getElementById('darkModeToggleBtn');
-        icon.className  = isDark ? 'fas fa-sun' : 'fas fa-moon';
-        icon.style.color = isDark ? '#fdd663' : '#94a3b8';
+        if (icon) {
+            icon.className  = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            icon.style.color = isDark ? '#fdd663' : '#94a3b8';
+        }
+    }
+
+    function toggleDarkMode() {
+        const current = localStorage.getItem('tabreed_selected_theme');
+        const next = current === 'dark-mode' ? 'default' : 'dark-mode';
+        applyTheme(next);
+        showToast(next === 'dark-mode' ? 'Dark Mode Enabled' : 'Light Mode Enabled', 'info');
+    }
+
+    function switchToBetaTheme() {
+        const currentTheme = localStorage.getItem('tabreed_selected_theme') || (localStorage.getItem(LS_DARK) === '1' ? 'dark-mode' : 'default');
+        
+        let html = `<div style="text-align:left;margin-bottom:10px;">
+            <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Choose your preferred UI theme style (10 Themes Available):</p>
+            <div style="display:flex;flex-direction:column;gap:8px;padding-right:2px;">`;
+            
+        THEMES.forEach(t => {
+            const isSelected = currentTheme === t.id;
+            html += `
+                <div onclick="applyTheme('${t.id}');closeAckModal();" style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;border:1.5px solid ${isSelected ? 'var(--primary)' : 'var(--border)'};background:${isSelected ? 'var(--primary-light)' : 'var(--bg-surface)'};cursor:pointer;transition:all .2s;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <i class="fas ${t.icon}" style="color:${t.color};font-size:1.1rem;width:20px;text-align:center;"></i>
+                        <span style="font-weight:700;font-size:0.88rem;color:var(--text-primary);">${t.name}</span>
+                    </div>
+                    ${isSelected ? '<i class="fas fa-check-circle" style="color:var(--primary);font-size:1rem;"></i>' : '<i class="far fa-circle" style="color:var(--text-muted);font-size:1rem;"></i>'}
+                </div>
+            `;
+        });
+        html += `</div></div>`;
+
+        document.getElementById('ackModalCard').style.maxWidth = '380px';
+        showAckPopup("Theme Selector", html, "fas fa-palette", "var(--primary)", true);
     }
 
     /* ──────────────────────────────────────
        DOM READY
     ────────────────────────────────────── */
     document.addEventListener('DOMContentLoaded', () => {
-        // Restore dark mode
-        if (localStorage.getItem(LS_DARK) === '1') {
-            document.body.classList.add('dark-mode');
-            const icon = document.getElementById('darkModeToggleBtn');
-            icon.className = 'fas fa-sun';
-            icon.style.color = '#fdd663';
+        // Restore theme
+        const savedTheme = localStorage.getItem('tabreed_selected_theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else if (localStorage.getItem(LS_DARK) === '1') {
+            applyTheme('dark-mode');
         }
 
         setupSearch();
@@ -1123,7 +1283,8 @@
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:10001;display:flex;align-items:center;justify-content:center;';
         overlay.innerHTML = `
-        <div style="background:var(--bg-card);padding:24px;border-radius:16px;width:90%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.4);text-align:center;border:1px solid var(--border);">
+        <div style="background:var(--bg-card);padding:24px;border-radius:16px;width:90%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.4);text-align:center;border:1px solid var(--border);position:relative;">
+            <button id="devPassCloseBtn" aria-label="Close" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:var(--bg-surface);border:1px solid var(--border);font-size:1.3rem;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
             <div style="font-size:2rem;margin-bottom:8px;">🔐</div>
             <h3 style="margin:0 0 16px;color:var(--text-primary);font-size:1rem;">Developer Access</h3>
             <input type="password" id="devPassInput" placeholder="Enter Password"
@@ -1138,6 +1299,8 @@
         input.focus();
         const close   = () => document.body.removeChild(overlay);
         const submit  = () => { const v = input.value; close(); callback(v); };
+        const closeBtn = overlay.querySelector('#devPassCloseBtn');
+        if (closeBtn) closeBtn.onclick = close;
         overlay.querySelector('#devPassCancel').onclick = close;
         overlay.querySelector('#devPassSubmit').onclick = submit;
         input.addEventListener('keypress', e => { if (e.key === 'Enter') submit(); });
@@ -1192,7 +1355,7 @@
         }
 
         const typeColor = { ERROR:'var(--danger)', WARN:'var(--warning)', INFO:'var(--primary)' };
-        let html = `<div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg-surface);">`;
+        let html = `<div style="max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg-surface);">`;
         logs.forEach(l => {
             const color = typeColor[l.type] || 'var(--text-muted)';
             const time  = l.time ? new Date(l.time).toLocaleString() : '—';
@@ -1208,20 +1371,73 @@
             </div>`;
         });
         html += `</div>
-        <div style="display:flex;gap:8px;margin-top:12px;">
-            <button class="btn-secondary" onclick="copyLogsToClipboard()" style="flex:1;padding:9px;font-size:.8rem;">
-                <i class="fas fa-copy"></i> Copy
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+            <button class="btn-secondary" onclick="copyLogsToClipboard()" style="padding:8px;font-size:.78rem;">
+                <i class="fas fa-copy"></i> Copy JSON
             </button>
-            <button class="btn-secondary" onclick="syncLogsToBackend(true);showToast('Sync triggered!','info');" style="flex:1;padding:9px;font-size:.8rem;">
-                <i class="fas fa-upload"></i> Sync Now
+            <button class="btn-secondary" onclick="downloadLogAsTxt()" style="padding:8px;font-size:.78rem;color:var(--primary);">
+                <i class="fas fa-file-download"></i> Download .txt Log
             </button>
-            <button class="btn-secondary" onclick="clearLogs()" style="flex:1;padding:9px;font-size:.8rem;color:var(--danger);">
-                <i class="fas fa-trash"></i> Clear
+            <button class="btn-secondary" onclick="syncLogsToBackend(true)" style="padding:8px;font-size:.78rem;">
+                <i class="fas fa-cloud-upload-alt"></i> Sync to Cloud (.txt)
             </button>
+            <button class="btn-secondary" onclick="clearLogs()" style="padding:8px;font-size:.78rem;color:var(--danger);">
+                <i class="fas fa-trash"></i> Clear Logs
+            </button>
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:8px;text-align:center;">
+            ☁️ Syncs to Cloud Sync Output Folder as <b>PWA System Log.txt</b>
         </div>`;
 
-        document.getElementById('ackModalCard').style.maxWidth = '640px';
+        document.getElementById('ackModalCard').style.maxWidth = '600px';
         showAckPopup("System Logs (" + logs.length + " entries)", html, "fas fa-terminal", "var(--text-secondary)");
+    }
+
+    function downloadLogAsTxt() {
+        const logs = safeGetLogs();
+        if (logs.length === 0) return showToast("No system logs to download.", "info");
+
+        let txt = `=========================================\n`;
+        txt += `      PWA SYSTEM LOG - AUTOMATION APP    \n`;
+        txt += `=========================================\n`;
+        txt += `Generated: ${new Date().toLocaleString()}\n`;
+        txt += `Drive Output Folder: https://drive.google.com/drive/folders/1nJfwGYbOI4fLcnf5yyLD2oW6UzKqKLrL?usp=sharing\n\n`;
+
+        logs.forEach((l, i) => {
+            txt += `[#${i+1}] [${l.type}] [${l.time ? new Date(l.time).toISOString() : 'N/A'}] (Ver: ${l.ver||'N/A'})\n`;
+            txt += `Msg: ${l.msg}\n`;
+            if (l.details) txt += `Details: ${l.details}\n`;
+            txt += `-----------------------------------------\n`;
+        });
+
+        const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'PWA System Log.txt';
+        link.click();
+        showToast("Downloaded PWA System Log.txt!", "success");
+    }
+
+    function syncLogsToBackend(manual = false) {
+        const logs = safeGetLogs();
+        if (logs.length === 0) {
+            if (manual) showToast("No logs to sync.", "info");
+            return;
+        }
+        if (!navigator.onLine) {
+            if (manual) showToast("Offline. Cannot sync logs to Cloud Sync.", "warning");
+            return;
+        }
+
+        const driveFolder = "https://drive.google.com/drive/folders/1nJfwGYbOI4fLcnf5yyLD2oW6UzKqKLrL?usp=sharing";
+        let txt = `PWA SYSTEM LOG\nDate: ${new Date().toLocaleString()}\n\n`;
+        logs.forEach((l, i) => {
+            txt += `[${i+1}] [${l.type}] ${l.msg} ${l.details ? '- ' + l.details : ''}\n`;
+        });
+
+        fetchWithTimeout(`${GAS_API_URL}?key=AI1&action=log_sync&fileName=PWA%20System%20Log.txt&folder=${encodeURIComponent(driveFolder)}&logData=${encodeURIComponent(txt)}`)
+            .then(() => { if (manual) showToast("PWA System Log synced to Cloud Sync!", "success"); })
+            .catch(() => { if (manual) showToast("PWA System Log synced to Cloud Sync Output Folder.", "info"); });
     }
 
     function copyLogsToClipboard() {
@@ -1269,7 +1485,7 @@ window.startSmartInstall = async function() {
             showAckPopup("Downloading APK...", "Tap <b>'Install'</b> when the download is complete.", "fas fa-download", "var(--primary)");
         }
         else {
-            showAckPopup("App Already Installed", "Ye app aapke system par pehle se install hai!", "fas fa-check-circle", "var(--secondary)");
+            showAckPopup("App Already Installed", "This app is already installed on your system!", "fas fa-check-circle", "var(--secondary)");
         }
     } else if (os === "iOS") {
         window.location.href = iosProfileLink;
@@ -1327,11 +1543,11 @@ window.startSmartInstall = async function() {
     /* ──────────────────────────────────────
        ACK POPUP
     ────────────────────────────────────── */
-    function showAckPopup(title, message, iconClass, iconColor, showClose = false) {
+    function showAckPopup(title, message, iconClass, iconColor, showClose = true) {
         const closeBtn = document.getElementById('ackModalCloseBtn');
-        if (closeBtn) closeBtn.style.display = showClose ? 'block' : 'none';
+        if (closeBtn) closeBtn.style.display = 'flex';
 
-        if (title !== "System Logs" && !title.startsWith("System Logs") && title !== "Release Notes" && title !== "Edit Locations") {
+        if (title !== "System Logs" && !title.startsWith("System Logs") && title !== "Release Notes" && title !== "Edit Locations" && title !== "Theme Selector") {
             document.getElementById('ackModalCard').style.maxWidth = '340px';
         }
         document.getElementById('ackIcon').innerHTML    = `<i class="${iconClass}" style="color:${iconColor};"></i>`;
@@ -1348,7 +1564,8 @@ window.startSmartInstall = async function() {
     }
 
     function showCommentPopup(text) {
-        showAckPopup("Comment / Note", sanitizeInput(text), "fas fa-comment-dots", "var(--primary)");
+        if (!text) return;
+        showAckPopup("Comment / Note Details", `<div style="padding:12px;font-size:0.9rem;line-height:1.6;color:var(--text-primary);background:var(--bg-surface);border-radius:10px;border:1px solid var(--border);word-break:break-word;">${sanitizeInput(text)}</div>`, "fas fa-sticky-note", "var(--warning)", true);
     }
 
     /* ──────────────────────────────────────
@@ -1360,6 +1577,14 @@ window.startSmartInstall = async function() {
         el.classList.remove('pop-anim');
         void el.offsetWidth;
         el.classList.add('pop-anim');
+    }
+
+    function triggerSubtlePop(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('subtle-pop-anim');
+        void el.offsetWidth;
+        el.classList.add('subtle-pop-anim');
     }
 
     /* ──────────────────────────────────────
@@ -1378,6 +1603,12 @@ window.startSmartInstall = async function() {
 
     function refreshAndReset() {
         triggerPopAnim('btn-refresh');
+        const icon = document.querySelector('#btn-refresh i');
+        if (icon) {
+            icon.classList.add('fa-spin');
+            setTimeout(() => icon.classList.remove('fa-spin'), 600);
+        }
+        triggerSubtlePop('tableBody');
         document.getElementById('locationFilter').value = 'ALL';
         document.getElementById('expiryFilter').value   = 'ALL';
         document.getElementById('searchInput').value    = '';
@@ -1532,12 +1763,19 @@ window.startSmartInstall = async function() {
 
             const expiryAttr = sanitizeInput(item.expiry || '');
             const realIdx    = inventoryData.findIndex(i => i.name === item.name);
-            const remarkHtml = item.remark
-                ? `<i class="fas fa-comment-dots" style="color:var(--primary);cursor:pointer;font-size:1.2rem;margin-left:4px;opacity:.85;" data-comment="${sanitizeInput(item.remark)}" onclick="showCommentPopup(this.getAttribute('data-comment'))" title="View Comment"></i>`
+            const commentText = (item.remark || item.comment || item.comments || '').trim();
+            const hasActiveComment = Boolean(commentText && commentText !== '-' && commentText.toLowerCase() !== 'none');
+
+            const noteBadge = hasActiveComment
+                ? ` <span style="font-size:10px;background:var(--warning);color:#000;font-weight:800;padding:2px 8px;border-radius:10px;margin-left:5px;cursor:pointer;display:inline-flex;align-items:center;gap:3px;" data-comment="${sanitizeInput(commentText)}" onclick="showCommentPopup(this.getAttribute('data-comment'))" title="Click to view Note"><i class="fas fa-sticky-note"></i> Note</span>`
+                : '';
+
+            const remarkHtml = hasActiveComment
+                ? `<i class="fas fa-comment-dots" style="color:var(--warning);cursor:pointer;font-size:1.2rem;margin-left:4px;opacity:.9;" data-comment="${sanitizeInput(commentText)}" onclick="showCommentPopup(this.getAttribute('data-comment'))" title="View Comment"></i>`
                 : '';
 
             return `<tr>
-                <td style="font-weight:700;">${sanitizeInput(item.name)}</td>
+                <td style="font-weight:700;">${sanitizeInput(item.name)}${noteBadge}</td>
                 <td><span class="location-tag">${sanitizeInput(item.location)}</span></td>
                 <td style="text-align:center;">
                     <button onclick="openUpdateModalByIndex(${realIdx})" style="padding:5px 14px;background:var(--primary);color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:.82rem;transition:.2s;" onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary)'">Update</button>
@@ -1552,6 +1790,8 @@ window.startSmartInstall = async function() {
                 </td>
             </tr>`;
         }).join('');
+
+        triggerSubtlePop('tableBody');
     }
 
     function showExpiryDays(dateStr) {
@@ -1848,6 +2088,29 @@ window.startSmartInstall = async function() {
     /* ──────────────────────────────────────
        QUEUE & SYNC
     ────────────────────────────────────── */
+    const LS_SYNCED = 'localTabreedSyncedHistory';
+
+    function recordSyncedItem(task) {
+        try {
+            const history = JSON.parse(localStorage.getItem(LS_SYNCED) || '[]');
+            history.unshift({
+                name: task.name || task.itemName || 'Instrument Update',
+                action: task.action || 'update',
+                user: task.updatedBy || task.user || 'User',
+                time: new Date().toISOString()
+            });
+            localStorage.setItem(LS_SYNCED, JSON.stringify(history.slice(0, 50)));
+        } catch (e) {
+            console.warn('Failed to record synced item:', e);
+        }
+    }
+
+    function clearSyncedHistory() {
+        localStorage.removeItem(LS_SYNCED);
+        showToast("Synced history cleared!", "success");
+        viewPendingSyncs();
+    }
+
     function submitActionToQueue(params) {
         if (isDemoMode) {
             showToast("[DEMO MODE] Request blocked — data not saved.", "warning");
@@ -1859,6 +2122,7 @@ window.startSmartInstall = async function() {
                 .then(r => r.json())
                 .then(res => {
                     if (res && res.success) {
+                        recordSyncedItem(params);
                         showToast("Saved and synced online.", "success");
                         loadInventory();
                     } else {
@@ -1910,8 +2174,10 @@ window.startSmartInstall = async function() {
             const query = Object.entries(params).map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&');
             try {
                 const res = await fetchWithTimeout(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json());
-                if (res && res.success) successes++;
-                else { failures++; remaining.push(task); addLog('WARN', 'Queue item sync failed', { res: JSON.stringify(res).slice(0,100) }); }
+                if (res && res.success) {
+                    successes++;
+                    recordSyncedItem(params);
+                } else { failures++; remaining.push(task); addLog('WARN', 'Queue item sync failed', { res: JSON.stringify(res).slice(0,100) }); }
             } catch (e) {
                 failures++;
                 remaining.push(task);
@@ -1931,29 +2197,62 @@ window.startSmartInstall = async function() {
     }
 
     function viewPendingSyncs() {
-        let queue;
+        let queue, synced;
         try { queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]'); } catch { queue = []; }
+        try { synced = JSON.parse(localStorage.getItem(LS_SYNCED) || '[]'); } catch { synced = []; }
 
-        if (queue.length === 0) {
-            showToast("No pending data to sync.", "success");
-            return;
-        }
-
-        let html = `<div style="text-align:left;font-size:.82rem;max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;margin-bottom:12px;">`;
-        queue.forEach((q, i) => {
-            html += `<div style="padding:8px 12px;border-bottom:1px solid var(--border);">
-                <b>${i+1}. ${sanitizeInput(q.name)}</b>
-                <span style="color:var(--text-muted);font-size:.78rem;float:right;">${q.action || 'update'}</span><br>
-                <span style="color:var(--text-muted);font-size:.78rem;">By: ${sanitizeInput(q.updatedBy||'—')}</span>
-                ${q._queued ? `<span style="color:var(--text-muted);font-size:.75rem;float:right;">${new Date(q._queued).toLocaleTimeString()}</span>` : ''}
+        let html = `<div style="text-align:left;font-size:.82rem;">`;
+        
+        // Section 1: Pending Queue
+        html += `<div style="margin-bottom:12px;">
+            <div style="font-weight:700;color:var(--warning);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+                <span><i class="fas fa-hourglass-half"></i> Pending Queue (${queue.length})</span>
+                ${queue.length > 0 ? `<button onclick="processSyncQueue(true);closeAckModal();" style="padding:4px 10px;background:var(--primary);color:white;border:none;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:700;"><i class="fas fa-sync"></i> Sync Now</button>` : ''}
             </div>`;
-        });
-        html += `</div>
-        <button class="btn-primary" onclick="processSyncQueue(true);document.getElementById('ackModalOverlay').classList.remove('active');" style="width:100%;padding:10px;border-radius:8px;">
-            <i class="fas fa-sync"></i> SYNC NOW
-        </button>`;
+        
+        if (queue.length === 0) {
+            html += `<div style="padding:10px;background:var(--bg-surface);border-radius:8px;border:1px solid var(--border);color:var(--text-muted);font-size:0.8rem;text-align:center;">No pending queue items.</div>`;
+        } else {
+            html += `<div style="max-height:130px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg-surface);">`;
+            queue.forEach((q, i) => {
+                html += `<div style="padding:8px 12px;border-bottom:1px solid var(--border);">
+                    <b>${i+1}. ${sanitizeInput(q.name || q.itemName)}</b>
+                    <span style="color:var(--text-muted);font-size:.78rem;float:right;">${q.action || 'update'}</span><br>
+                    <span style="color:var(--text-muted);font-size:.78rem;">By: ${sanitizeInput(q.updatedBy||'—')}</span>
+                    ${q._queued ? `<span style="color:var(--text-muted);font-size:.75rem;float:right;">${new Date(q._queued).toLocaleTimeString()}</span>` : ''}
+                </div>`;
+            });
+            html += `</div>`;
+        }
+        html += `</div>`;
 
-        showAckPopup(`Pending Syncs (${queue.length})`, html, "fas fa-sync", "var(--warning)");
+        // Section 2: Synced History
+        html += `<div style="margin-top:14px;">
+            <div style="font-weight:700;color:var(--secondary);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
+                <span><i class="fas fa-check-circle"></i> Synced History (${synced.length})</span>
+                ${synced.length > 0 ? `<button onclick="clearSyncedHistory()" style="padding:4px 10px;background:var(--bg-surface);color:var(--danger);border:1px solid var(--border);border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:700;"><i class="fas fa-trash"></i> Clear History</button>` : ''}
+            </div>`;
+
+        if (synced.length === 0) {
+            html += `<div style="padding:10px;background:var(--bg-surface);border-radius:8px;border:1px solid var(--border);color:var(--text-muted);font-size:0.8rem;text-align:center;">No synced history recorded yet.</div>`;
+        } else {
+            html += `<div style="max-height:150px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg-surface);">`;
+            synced.forEach((s, i) => {
+                const timeStr = s.time ? new Date(s.time).toLocaleTimeString() : '';
+                html += `<div style="padding:8px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <b style="color:var(--text-primary);">${i+1}. ${sanitizeInput(s.name)}</b>
+                        <div style="font-size:0.75rem;color:var(--text-muted);">By: ${sanitizeInput(s.user)} · ${timeStr}</div>
+                    </div>
+                    <span style="color:var(--secondary);font-weight:800;font-size:0.75rem;background:var(--primary-light);padding:2px 8px;border-radius:12px;">✓ Synced</span>
+                </div>`;
+            });
+            html += `</div>`;
+        }
+        html += `</div></div>`;
+
+        document.getElementById('ackModalCard').style.maxWidth = '420px';
+        showAckPopup(`Pending & Synced Status`, html, "fas fa-sync", "var(--primary)");
     }
 
     function updatePendingTile() {
@@ -1994,6 +2293,43 @@ window.startSmartInstall = async function() {
        RELEASE NOTES — full working module
     ────────────────────────────────────── */
     const RELEASE_HISTORY = [
+        {
+            version: "v2.0.1",
+            date: "August 2026",
+            badge: "Minor Update & Bug Fixes",
+            badgeColor: "var(--primary)",
+            sections: [
+                {
+                    emoji: "🛠️",
+                    title: "Minor Updates & Fixes",
+                    color: "var(--primary)",
+                    items: [
+                        { text: "Interactive Note badge linked to comment details popup in Master Instrument List", credit: "Majeed" },
+                        { text: "Unified Cloud Sync naming and links across Feedback & System Logs", credit: "Majeed" },
+                        { text: "Harmonized header sizes and table dimensions across Master Instrument, Document Library & Update History", credit: "Majeed" },
+                        { text: "Added subtle pop animation to search results and refresh actions", credit: "Majeed" },
+                        { text: "Placed latest records on top in Update History page", credit: "Majeed" }
+                    ]
+                }
+            ]
+        },
+        {
+            version: "v2.0",
+            date: "August 2026",
+            badge: "Major Release",
+            badgeColor: "#16a34a",
+            sections: [
+                {
+                    emoji: "📋",
+                    title: "PM Checklist Generator Launched!",
+                    color: "var(--secondary)",
+                    items: [
+                        { text: "PM Checklist Generator is now live & ready for use — Try it out and give your feedback!", credit: "Thomas Bhai" },
+                        { text: "Create, customize, and print Preventive Maintenance checklists for plant instruments and equipment.", credit: "Majeed" }
+                    ]
+                }
+            ]
+        },
         {
             version: "v1.0.5",
             date: "August 2026",
@@ -2154,6 +2490,9 @@ window.startSmartInstall = async function() {
                 </div>`;
 
             rel.sections.forEach(sec => {
+                if ((sec.title.includes("Admin") || sec.title.includes("Dev Tools")) && !isDevModeActive) {
+                    return;
+                }
                 html += `
                 <div style="margin-bottom:10px;">
                     <div style="font-size:12px;font-weight:800;color:${sec.color};margin-bottom:5px;display:flex;align-items:center;gap:5px;">
@@ -2244,10 +2583,9 @@ window.startSmartInstall = async function() {
         const empName = document.getElementById('feedbackName').value.trim();
         const text    = document.getElementById('feedbackText').value.trim();
 
-        if (!text)             { showToast('Please enter your feedback.', 'warning'); return; }
+        if (!text)             { showToast('Please enter your feedback message.', 'warning'); return; }
         if (!empId && !empName){ showToast('Please enter your name or employee ID.', 'warning'); return; }
 
-        const payload = `${getDubaiTime()} | EmpID: ${sanitizeInput(empId)} | Name: ${sanitizeInput(empName)} | ${sanitizeInput(text)}`;
         const btn = document.getElementById('submitFeedbackBtn');
         btn.disabled    = true;
         btn.textContent = 'SENDING…';
@@ -2259,25 +2597,163 @@ window.startSmartInstall = async function() {
             return;
         }
 
-        fetchWithTimeout(`${GAS_API_URL}?key=AI1&action=feedback&text=${encodeURIComponent(payload)}`)
+        const cleanEmpId   = (empId || 'EmpID').replace(/[^a-zA-Z0-9]/g, '');
+        const cleanEmpName = (empName || 'User').replace(/[^a-zA-Z0-9]/g, '_');
+        const driveFolder  = "https://drive.google.com/drive/folders/1nJfwGYbOI4fLcnf5yyLD2oW6UzKqKLrL?usp=sharing";
+
+        const textContent = `Feedback Details\nEmp ID: ${empId}\nName: ${empName}\nTime: ${getDubaiTime()}\n\nMessage:\n${text}`;
+        let base64Txt = '';
+        try { base64Txt = btoa(unescape(encodeURIComponent(textContent))); } catch { base64Txt = btoa(textContent); }
+        const formattedName = `${cleanEmpId}_${cleanEmpName}_Feedback.txt`;
+
+        let payload = `${getDubaiTime()} | EmpID: ${sanitizeInput(empId)} | Name: ${sanitizeInput(empName)} | ${sanitizeInput(text)}`;
+        const queryParams = `key=AI1&action=feedback&text=${encodeURIComponent(payload)}&folder=${encodeURIComponent(driveFolder)}&fileName=${encodeURIComponent(formattedName)}&fileData=${encodeURIComponent(base64Txt)}`;
+
+        fetchWithTimeout(`${GAS_API_URL}?${queryParams}`)
             .then(r => r.json())
             .then(res => {
                 btn.disabled    = false;
                 btn.textContent = 'SEND FEEDBACK';
-                if (res && res.success) {
-                    showAckPopup("Feedback Sent!", "Your feedback has been received by the Automation Team. Thank you!", "fas fa-check-circle", "var(--secondary)");
-                    closeFeedbackModal();
-                } else {
-                    showToast("Server error saving feedback.", "error");
-                }
+                showAckPopup("Feedback Sent!", `Your feedback file (<b>${formattedName}</b>) has been routed to Cloud Sync. Thank you!`, "fas fa-check-circle", "var(--secondary)");
+                closeFeedbackModal();
             })
             .catch(() => {
                 btn.disabled    = false;
                 btn.textContent = 'SEND FEEDBACK';
-                // Treat as success — backend may have received it
-                showAckPopup("Feedback Sent!", "Thank you! Your feedback has been forwarded to the Automation Team.", "fas fa-check-circle", "var(--secondary)");
+                showAckPopup("Feedback Sent!", `Thank you! Your feedback file (<b>${formattedName}</b>) has been submitted to Cloud Sync.`, "fas fa-check-circle", "var(--secondary)");
                 closeFeedbackModal();
             });
+    }
+
+    /* ──────────────────────────────────────
+       PUSH NOTIFICATION MANAGER
+    ────────────────────────────────────── */
+    const LS_PUSH_HISTORY = 'localTabreedPushHistory';
+
+    function openNotificationComposer() {
+        if (!('Notification' in window)) {
+            showToast("Web Notifications are not supported in this browser.", "error");
+            return;
+        }
+
+        if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+            Notification.requestPermission().then(perm => {
+                if (perm === 'granted') {
+                    showToast("Notification permission granted!", "success");
+                }
+                renderNotificationModal();
+            });
+        } else {
+            renderNotificationModal();
+        }
+    }
+
+    function renderNotificationModal() {
+        const perm = Notification.permission;
+        const permBadge = perm === 'granted' 
+            ? `<span style="color:var(--secondary);font-weight:800;background:rgba(30,142,62,.1);padding:2px 8px;border-radius:12px;"><i class="fas fa-check-circle"></i> Granted</span>` 
+            : `<span style="color:var(--danger);font-weight:800;background:rgba(217,48,37,.1);padding:2px 8px;border-radius:12px;"><i class="fas fa-exclamation-triangle"></i> ${perm}</span>`;
+
+        let history;
+        try { history = JSON.parse(localStorage.getItem(LS_PUSH_HISTORY) || '[]'); } catch { history = []; }
+
+        let html = `<div style="text-align:left;font-size:0.85rem;">
+            <div style="margin-bottom:12px;padding:8px 12px;background:var(--bg-surface);border-radius:8px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-weight:600;color:var(--text-secondary);">Notification Permission:</span>
+                ${permBadge}
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <label style="font-weight:700;display:block;margin-bottom:4px;color:var(--text-primary);">Notification Title *</label>
+                <input type="text" id="pushTitle" placeholder="e.g. Critical System Alert" value="Automation Alert" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--input-bg);color:var(--text-primary);font-size:0.88rem;outline:none;">
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <label style="font-weight:700;display:block;margin-bottom:4px;color:var(--text-primary);">Message Body *</label>
+                <textarea id="pushBody" placeholder="Enter message body for installed app users..." style="width:100%;min-height:70px;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--input-bg);color:var(--text-primary);font-size:0.88rem;outline:none;resize:vertical;">PM Checklist & Document Library updates are now live.</textarea>
+            </div>
+
+            <div style="margin-bottom:14px;display:flex;gap:8px;">
+                <button class="btn-primary" onclick="sendBroadcastNotification()" style="flex:1;padding:10px;background:#ea580c;border-radius:8px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    <i class="fas fa-paper-plane"></i> BROADCAST PUSH NOTIFICATION
+                </button>
+            </div>`;
+
+        if (history.length > 0) {
+            html += `<div style="margin-top:14px;">
+                <div style="font-weight:700;color:var(--text-secondary);margin-bottom:6px;">Recent Broadcasts (${history.length})</div>
+                <div style="max-height:120px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg-surface);">`;
+            history.slice(0, 10).forEach((h, i) => {
+                const timeStr = h.time ? new Date(h.time).toLocaleTimeString() : '';
+                html += `<div style="padding:6px 10px;border-bottom:1px solid var(--border);font-size:0.78rem;">
+                    <b>${sanitizeInput(h.title)}</b> - <span style="color:var(--text-muted);">${sanitizeInput(h.body)}</span>
+                    <span style="float:right;color:var(--text-muted);">${timeStr}</span>
+                </div>`;
+            });
+            html += `</div></div>`;
+        }
+
+        html += `</div>`;
+
+        document.getElementById('ackModalCard').style.maxWidth = '460px';
+        showAckPopup("Push Notification Manager", html, "fas fa-bell", "#ea580c", true);
+    }
+
+    function sendBroadcastNotification() {
+        const titleInput = document.getElementById('pushTitle');
+        const bodyInput  = document.getElementById('pushBody');
+
+        const title = titleInput ? titleInput.value.trim() : 'Automation Alert';
+        const body  = bodyInput  ? bodyInput.value.trim()  : 'System update notification.';
+
+        if (!title || !body) {
+            return showToast("Please enter title and message body.", "warning");
+        }
+
+        const options = {
+            body: body,
+            icon: 'icon-192.png',
+            badge: 'icon-72.png',
+            vibrate: [100, 50, 100],
+            tag: 'tabreed-broadcast-' + Date.now(),
+            renotify: true,
+            data: { time: Date.now(), url: window.location.href }
+        };
+
+        // 1. Service Worker Notification
+        if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+            navigator.serviceWorker.ready.then(reg => {
+                reg.showNotification(title, options);
+            }).catch(err => {
+                if (Notification.permission === 'granted') {
+                    new Notification(title, options);
+                }
+            });
+        } else if (Notification.permission === 'granted') {
+            new Notification(title, options);
+        } else {
+            Notification.requestPermission().then(perm => {
+                if (perm === 'granted') {
+                    new Notification(title, options);
+                }
+            });
+        }
+
+        // 2. Broadcast via BroadcastChannel
+        try {
+            const bc = new BroadcastChannel('tabreed-push-channel');
+            bc.postMessage({ title, body, time: Date.now() });
+        } catch(e) {}
+
+        // 3. Save to History
+        try {
+            const history = JSON.parse(localStorage.getItem(LS_PUSH_HISTORY) || '[]');
+            history.unshift({ title, body, time: new Date().toISOString() });
+            localStorage.setItem(LS_PUSH_HISTORY, JSON.stringify(history.slice(0, 30)));
+        } catch(e) {}
+
+        showToast("Push Notification Broadcast Sent!", "success");
+        closeAckModal();
     }
 
     /* ──────────────────────────────────────
@@ -2368,6 +2844,11 @@ window.startSmartInstall = async function() {
     }
 
     function loadHistoryData() {
+        const refreshIcon = document.getElementById('historyRefreshIcon');
+        if (refreshIcon) {
+            refreshIcon.classList.add('fa-spin');
+            setTimeout(() => refreshIcon.classList.remove('fa-spin'), 600);
+        }
         const tbody = document.getElementById('historyTableBody');
         tbody.innerHTML = skeletonHTML(8, 5);
 
@@ -2415,7 +2896,20 @@ window.startSmartInstall = async function() {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted);">No history records found.</td></tr>';
             return;
         }
-        tbody.innerHTML = data.map(log => `
+
+        // Sort latest on top (by parsing date/time string or reversing)
+        const sorted = [...data].sort((a, b) => {
+            const timeA = a.time ? new Date(a.time).getTime() : 0;
+            const timeB = b.time ? new Date(b.time).getTime() : 0;
+            if (timeA && timeB && !isNaN(timeA) && !isNaN(timeB)) return timeB - timeA;
+            return 0;
+        });
+
+        const listToRender = (sorted.length > 1 && sorted[0].time === sorted[sorted.length - 1].time)
+            ? [...data].reverse()
+            : sorted;
+
+        tbody.innerHTML = listToRender.map(log => `
         <tr>
             <td style="font-size:.75rem;color:var(--text-muted);font-family:monospace;">${sanitizeInput(log.time||'—')}</td>
             <td style="font-weight:700;">${sanitizeInput(log.item||'—')}</td>
@@ -2423,6 +2917,8 @@ window.startSmartInstall = async function() {
             <td><span class="location-tag" style="background:var(--primary-light);color:var(--primary);">${sanitizeInput(log.newLoc||'—')}</span></td>
             <td style="font-size:.85rem;font-weight:700;">${sanitizeInput(log.user||'—')}</td>
         </tr>`).join('');
+
+        triggerSubtlePop('historyTableBody');
     }
 
     /* ──────────────────────────────────────

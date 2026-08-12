@@ -27,6 +27,14 @@
             <integer>1</integer>
             <key>URL</key>
             <string>https://tabreed.automation3000.com</string>
+            <key>Precomposed</key>
+            <true/>
+            <key>Icon</key>
+            <data>
+            iVBORw0KGgoAAAANSAhEUgAAAMAAAADACAYAAABS3GwHAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
+            jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAedEVYdFNvZnR3YXJlAEdyYXBoaWNNYWdpY2sg
+            MS4zLjM1AFl3bgAA
+            </data>
         </dict>
     </array>
     <key>PayloadDescription</key>

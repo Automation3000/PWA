@@ -1,14 +1,23 @@
-const CACHE_NAME = 'tabreed-pro-v7'; // v7: Added PM Checklist Generator page
+const CACHE_NAME = 'tabreed-pro-v8'; // v8: Added offline capability & push handling
 const STATIC_ASSETS = [
   '/',
+  '/index.html',
   '/NEW.html',
-  '/DocumentFolder.html', // Added page with upload functionality
-  '/PM Checklist Generator.html', // Added PM Checklist Generator
+  '/DocumentFolder.html',
+  '/PM_Checklist_Generator.html',
   '/manifest.json',
+  '/icon-72.png',
+  '/icon-96.png',
+  '/icon-128.png',
+  '/icon-144.png',
   '/icon-192.png',
   '/icon-512.png',
-  '/documents.json', // Document list ko offline available karne ke liye
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+  '/documents.json',
+  '/config.js',
+  '/storage.js',
+  '/offline.html',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+  'https://fonts.googleapis.com/icon?family=Material+Icons+Round'
 ];
 
 // ==========================================
@@ -47,19 +56,23 @@ self.addEventListener('activate', event => {
 // 3. SMART FETCH STRATEGY (Offline Support)
 // ==========================================
 self.addEventListener('fetch', event => {
-  // Ignore non-GET requests (POST requests shouldn't be cached this way)
+  // Ignore non-GET requests
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       const networkFetch = fetch(event.request).then(networkResponse => {
-        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse.clone()));
+        if (networkResponse && networkResponse.status === 200) {
+          const cacheCopy = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, cacheCopy));
         }
         return networkResponse;
       }).catch(() => {
-        // Return cached response if network fails
-        return cachedResponse;
+        if (cachedResponse) return cachedResponse;
+        if (event.request.mode === 'navigate') {
+          return caches.match('/index.html') || caches.match('/');
+        }
+        return Promise.reject('offline');
       });
       return cachedResponse || networkFetch;
     })
