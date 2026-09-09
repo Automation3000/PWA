@@ -1,0 +1,16 @@
+TABREED ETS LOCATOR - GOOGLE SHEET SETUP
+==========================================
+
+Instructions:
+1. Create a new Google Sheet.
+2. Rename the sheet tab at the bottom to "Data".
+3. Copy the columns below and paste them into Row 1 (A1 to F1).
+
+|     A    |   B   |     C    |     D     |      E      |      F      |
+-----------------------------------------------------------------------
+| ETS Name | Plant | Latitude | Longitude |   Comment   | Timestamp   |
+
+Note: 
+- Make sure exactly these names are in Row 1.
+- You no longer need an "ID" column.
+- Timestamp will be generated automatically by the script.

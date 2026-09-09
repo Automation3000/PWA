@@ -1,10 +1,11 @@
-const CACHE_NAME = 'tabreed-pro-v8'; // v8: Added offline capability & push handling
+const CACHE_NAME = 'tabreed-pro-v9'; // v9: Added ETS Locator
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/NEW.html',
   '/DocumentFolder.html',
   '/PM_Checklist_Generator.html',
+  '/ETS_Locator.html',
   '/manifest.json',
   '/icon-72.png',
   '/icon-96.png',

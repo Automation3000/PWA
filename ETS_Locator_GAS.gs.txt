@@ -1,0 +1,103 @@
+/* TABREED ETS LOCATOR - BACKEND GOOGLE APPS SCRIPT
+================================================
+INSTRUCTIONS:
+1. Copy this entire code.
+2. Go to script.google.com and open your project.
+3. Paste this code into Code.gs (replace everything there).
+4. Replace 'YOUR_SPREADSHEET_ID_HERE' on line 17 with your actual Google Sheet ID.
+5. Click "Deploy" -> "Manage deployments" -> Edit -> New Version -> Deploy.
+6. Make sure "Who has access" is set to "Anyone".
+
+Columns in your Sheet MUST BE exactly (in Row 1, from A to E):
+ETS Name | Plant | Coordinates | Comment | Timestamp
+*/
+
+const SHEET_ID = '1hhfW12MeNOGgX2Le6HVXXTDRdEwUi9ehVWi-FX1yYNc'; // <--- UPDATED WITH YOUR REAL SHEET ID
+const SHEET_NAME = 'Data'; 
+
+function getSheet() {
+  return SpreadsheetApp.openById(SHEET_ID).getSheetByName(SHEET_NAME);
+}
+
+// Handle GET requests (Read Data)
+function doGet(e) {
+  try {
+    const sheet = getSheet();
+    if (!sheet) return response(false, "Sheet 'Data' not found.");
+    
+    const data = sheet.getDataRange().getValues();
+    data.shift(); // Remove headers
+    
+    // Map to objects, include rowIdx (i + 2 because rows are 1-indexed and header is row 1)
+    const result = data.map((row, i) => {
+      // Parse coordinates (e.g. "24.452254, 54.614217") back to lat/lng for the UI
+      let lat = "";
+      let lng = "";
+      let coordsStr = row[2] || "";
+      if (coordsStr) {
+        let parts = coordsStr.toString().split(',');
+        if (parts.length >= 2) {
+            lat = parseFloat(parts[0].trim());
+            lng = parseFloat(parts[1].trim());
+        }
+      }
+
+      return {
+        rowIdx: i + 2,
+        name: row[0] || "",
+        plant: row[1] || "",
+        coords: coordsStr,
+        lat: lat,
+        lng: lng,
+        comment: row[3] || "",
+        timestamp: row[4] || ""
+      };
+    }).filter(row => row.name !== ""); // Only return rows with ETS Name
+    
+    return response(true, "Success", result);
+  } catch (error) {
+    return response(false, "Error: " + error.toString());
+  }
+}
+
+// Handle POST requests (Add/Update Data)
+function doPost(e) {
+  try {
+    if (!e.postData || !e.postData.contents) return response(false, "No data received.");
+    
+    const payload = JSON.parse(e.postData.contents);
+    const action = payload.action;
+    const item = payload.data;
+    
+    const sheet = getSheet();
+    if (!sheet) return response(false, "Sheet 'Data' not found.");
+
+    const timestamp = new Date().toISOString();
+
+    if (action === 'add') {
+      sheet.appendRow([item.name, item.plant, item.coords, item.comment, timestamp]);
+      return response(true, "Added successfully");
+    } 
+    else if (action === 'update') {
+      if (!item.rowIdx) return response(false, "Row index missing for update.");
+      // Update specific row: RowIdx, Column 1, 1 row, 5 columns
+      sheet.getRange(item.rowIdx, 1, 1, 5).setValues([[item.name, item.plant, item.coords, item.comment, timestamp]]);
+      return response(true, "Updated successfully");
+    }
+    
+    return response(false, "Invalid action");
+  } catch (error) {
+    return response(false, error.toString());
+  }
+}
+
+// Helper for JSON response
+function response(isSuccess, message, data = []) {
+  const output = JSON.stringify({
+    status: isSuccess ? 'success' : 'error',
+    message: message,
+    data: data
+  });
+  
+  return ContentService.createTextOutput(output).setMimeType(ContentService.MimeType.JSON);
+}

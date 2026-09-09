@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TABREED | ETS Locator</title>
+    
+    <meta name="theme-color" content="#1a2935">
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary:        #1a73e8;
+            --primary-dark:   #0d62d9;
+            --primary-light:  #e8f0fe;
+            --secondary:      #1e8e3e;
+            --warning:        #f9ab00;
+            --danger:         #d93025;
+            --dark:           #202124;
+            --light:          #f8f9fa;
+            --gray:           #5f6368;
+            --border:         #dadce0;
+            --shadow-sm:      0 1px 4px rgba(0,0,0,.08);
+            --shadow:         0 2px 12px rgba(0,0,0,.10);
+            --shadow-md:      0 4px 20px rgba(0,0,0,.12);
+            --radius:         12px;
+            --radius-sm:      8px;
+            --transition:     all .25s ease;
+            --bg-page:        #e8f0f8;
+            --bg-card:        #ffffff;
+            --bg-surface:     #f3f6fb;
+            --text-primary:   #202124;
+            --text-secondary: #5f6368;
+            --text-muted:     #80868b;
+            --input-bg:       #f8f9fa;
+            --header-bg:      #1a2935;
+            --header-text:    #ffffff;
+            --table-header:   #f1f3f4;
+        }
+
+        body.dark-mode {
+            --primary:        #7baaf7;
+            --primary-dark:   #5a95f5;
+            --primary-light:  #1e2d45;
+            --secondary:      #34c779;
+            --warning:        #fdd663;
+            --danger:         #f28b82;
+            --dark:           #e8eaed;
+            --light:          #2d2f31;
+            --gray:           #9aa0a6;
+            --border:         #3c3f43;
+            --shadow-sm:      0 1px 4px rgba(0,0,0,.3);
+            --shadow:         0 2px 12px rgba(0,0,0,.4);
+            --shadow-md:      0 4px 20px rgba(0,0,0,.5);
+            --bg-page:        #111213;
+            --bg-card:        #1e2022;
+            --bg-surface:     #2d2f31;
+            --text-primary:   #e8eaed;
+            --text-secondary: #9aa0a6;
+            --text-muted:     #6e7275;
+            --input-bg:       #2d2f31;
+            --header-bg:      #0d1117;
+            --header-text:    #e8eaed;
+            --table-header:   #2d2f31;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color .3s, color .3s;
+        }
+
+        .app-container { max-width: 1200px; margin: 0 auto; padding: 15px; }
+
+        /* HEADER */
+        .app-header {
+            background: var(--bg-card);
+            padding: 1rem 1.5rem;
+            border-radius: 0 0 var(--radius) var(--radius);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background .3s, box-shadow .3s;
+        }
+        .header-content { display:flex; align-items:center; justify-content:space-between; }
+        .brand { display:flex; align-items:center; gap:.75rem; }
+        
+        .connection-status {
+            display:flex; align-items:center; gap:.4rem;
+            font-size:.75rem; padding:5px 12px; border-radius:20px;
+            font-weight:700; letter-spacing:.3px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            cursor:pointer;
+        }
+        
+        /* SEARCH & FILTER */
+        .search-container { padding:1rem; margin:1rem; background:var(--bg-card); border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--border); }
+        .search-box { position:relative; }
+        .search-box input {
+            width:100%; padding:.8rem 1rem .8rem 3rem;
+            border:1.5px solid var(--border); border-radius:var(--radius-sm);
+            font-size:16px; background:var(--input-bg); color:var(--text-primary);
+            outline:none; transition:border-color .2s;
+        }
+        .search-box input:focus     { border-color:var(--primary); }
+        .search-box input::placeholder { color:var(--text-muted); opacity:1; }
+        .search-icon { position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--text-muted); }
+
+        /* QUICK ACTIONS */
+        .quick-actions { display:flex; flex-wrap:wrap; gap:.5rem; padding:0 1rem; margin-bottom:1rem; justify-content:center; }
+        .action-btn {
+            background:var(--bg-card); border:1.5px solid var(--border);
+            flex:1; min-width:70px; max-width:110px;
+            padding:.8rem .4rem; border-radius:var(--radius);
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            font-size:.7rem; font-weight:700; color:var(--text-primary);
+            box-shadow:var(--shadow-sm); cursor:pointer; transition:var(--transition);
+            position:relative;
+        }
+        .action-btn:hover { transform:translateY(-2px); box-shadow:var(--shadow); border-color:var(--primary); }
+        .action-btn span  { color:var(--text-secondary); font-size:.65rem; text-align:center; margin-top:3px; }
+        .filter-active { background:var(--primary-light) !important; border-color:var(--primary) !important; }
+        .filter-active i, .filter-active span { color:var(--primary) !important; }
+        .select-wrapper { position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer; }
+        .action-content { pointer-events:none; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; }
+
+        /* TABLE */
+        .card-container {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 12px 15px; font-size: .85rem; border-bottom: 1px solid var(--border); }
+        th { background: var(--table-header); color: var(--text-secondary); text-transform: uppercase; letter-spacing: .3px; font-weight: 700; white-space: nowrap; }
+        tr:last-child td { border-bottom: none; }
+        tbody tr { transition: background-color .15s; }
+        tbody tr:hover { background: var(--bg-surface); }
+
+        /* TAGS & BADGES */
+        .location-tag {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: .75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .note-badge {
+            font-size: 10px;
+            background: var(--warning);
+            color: #000;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: 5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        /* BUTTONS */
+        .btn-dir {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: .8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        .btn-dir:hover { background: #177a31; }
+        
+        .btn-edit {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: .8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: var(--transition);
+        }
+        .btn-edit:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+            z-index: 2000; display: none; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .modal-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 450px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            animation: modalIn .3s cubic-bezier(.175,.885,.32,1.275);
+            display: flex;
+            flex-direction: column;
+        }
+        @keyframes modalIn { 0%{opacity:0;transform:scale(0.9);} 100%{opacity:1;transform:scale(1);} }
+        .modal-header {
+            padding: 15px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .modal-close {
+            background: none; border: none; font-size: 1.2rem; cursor: pointer;
+            color: var(--text-muted); transition: color .2s;
+        }
+        .modal-close:hover { color: var(--danger); }
+        .modal-body { padding: 15px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: .8rem; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary); }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: .9rem;
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+        .modal-footer {
+            padding: 12px 15px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background: var(--bg-surface);
+        }
+
+        /* ANIMATIONS */
+        @keyframes popBounce { 0%{transform:scale(1)} 50%{transform:scale(1.12)} 100%{transform:scale(1)} }
+        .pop-anim { animation:popBounce .35s cubic-bezier(.175,.885,.32,1.275); }
+        @keyframes subtlePop { 0%{opacity:0.75;transform:scale(0.995);} 100%{opacity:1;transform:scale(1);} }
+        .subtle-pop-anim { animation:subtlePop .22s ease-out; }
+        
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: var(--dark); color: #fff; padding: 10px 20px; border-radius: 30px;
+            font-size: 0.85rem; font-weight: 600; box-shadow: var(--shadow-md); z-index: 9999;
+            opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    </style>
+</head>
+<body onload="initApp()">
+
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="brand">
+                    <button onclick="window.parent.location.href='index.html'" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--primary);padding-right:10px;" title="Back">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="brand-text">
+                        <h1 style="font-size:1rem;font-weight:700;">TABREED: ETS Locator
+                            <span style="font-size:.6rem;background:var(--primary-light);color:var(--primary);padding:2px 6px;border-radius:10px;margin-left:5px;font-weight:800;">GAS Cloud</span>
+                        </h1>
+                        <p style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
+                    </div>
+                </div>
+                <div class="connection-status pop-anim" id="connectionStatus" onclick="toggleDarkMode()">
+                    <i class="fas fa-moon" id="darkModeToggleBtn" style="font-size:12px;color:var(--text-muted);"></i>
+                    <span class="status-text" style="color:var(--text-secondary);">Theme</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Search ETS Name or Plant..." oninput="filterETS()">
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <button id="btn-refresh" class="action-btn" onclick="refreshTable(true)">
+                <i class="fas fa-sync-alt" style="color:var(--primary);margin-bottom:4px;"></i><span>Refresh</span>
+            </button>
+            <div id="btn-location-wrapper" class="action-btn" style="padding:0;">
+                <div class="action-content">
+                    <i class="fas fa-filter" style="color:var(--secondary);margin-bottom:4px;"></i>
+                    <span id="label-location">All Plants</span>
+                </div>
+                <select id="locationFilter" class="select-wrapper" onchange="filterETS()"></select>
+            </div>
+            <button class="action-btn" onclick="openAddModal()">
+                <i class="fas fa-plus-circle" style="color:#7c3aed;margin-bottom:4px;"></i><span>Add ETS</span>
+            </button>
+            <button class="action-btn" onclick="showToast('Stats view coming soon!')">
+                <i class="fas fa-chart-pie" style="color:var(--warning);margin-bottom:4px;"></i><span>Stats</span>
+            </button>
+            <button class="action-btn" onclick="showToast('Exporting to Excel...')">
+                <i class="fas fa-file-excel" style="color:#16a34a;margin-bottom:4px;"></i><span>Excel</span>
+            </button>
+            <button class="action-btn" onclick="showToast('Generating PDF...')">
+                <i class="fas fa-file-pdf" style="color:var(--danger);margin-bottom:4px;"></i><span>PDF</span>
+            </button>
+        </div>
+
+        <div class="card-container" style="margin: 0 1rem 1rem;">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ETS Name</th>
+                            <th>Plant</th>
+                            <th style="text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="etsTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div style="text-align:center;color:var(--text-muted);font-size:0.75rem;margin-top:10px;">
+            <p><i class="fas fa-cloud"></i> Connected to Google Apps Script Backend</p>
+        </div>
+    </div>
+
+    <!-- ADD/UPDATE MODAL -->
+    <div class="modal-overlay" id="etsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span id="modalTitle">Add New ETS</span>
+                <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editIndex" value="-1">
+                <div class="form-group">
+                    <label>ETS Name / Code</label>
+                    <input type="text" id="etsName" placeholder="e.g. ETS-01, JLT Plant, etc." required>
+                </div>
+                <div class="form-group" style="display:flex;gap:10px;">
+                    <div style="flex:1;">
+                        <label>Latitude (Lat)</label>
+                        <input type="number" step="any" id="etsLat" placeholder="e.g. 25.2048" required>
+                    </div>
+                    <div style="flex:1;">
+                        <label>Longitude (Lng)</label>
+                        <input type="number" step="any" id="etsLng" placeholder="e.g. 55.2708" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Comment / Landmark Note (Optional)</label>
+                    <textarea id="etsComment" placeholder="Any specific location hints or notes..." rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-edit" onclick="closeModal()">Cancel</button>
+                <button class="btn-action" onclick="saveETS()" id="saveBtn">Save ETS</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMMENT VIEW MODAL -->
+    <div class="modal-overlay" id="commentModal">
+        <div class="modal-card" style="max-width:350px;">
+            <div class="modal-header">
+                <span><i class="fas fa-sticky-note" style="color:var(--warning);margin-right:5px;"></i> Note Details</span>
+                <button class="modal-close" onclick="closeCommentModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="commentTextDisplay" style="font-size:0.9rem;line-height:1.6;color:var(--text-primary);background:var(--bg-page);padding:12px;border-radius:8px;border:1px solid var(--border);word-break:break-word;">
+                    <!-- Note goes here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" onclick="closeCommentModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastMsg" class="toast">Action completed</div>
+
+    <script>
+        // REPLACE WITH YOUR PUBLISHED WEB APP URL:
+        const GAS_API_URL = "YOUR_WEB_APP_URL_HERE";
+        
+        let etsList = [];
+
+        function initApp() {
+            // Theme setup
+            if (localStorage.getItem('tabreed_theme') === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+            
+            refreshTable(false); // Initial load without pop animation
+        }
+
+        function refreshTable(showAnim = true) {
+            if(showAnim) {
+                const btn = document.getElementById('btn-refresh');
+                if (btn) {
+                    btn.classList.add('pop-anim');
+                    setTimeout(() => btn.classList.remove('pop-anim'), 350);
+                }
+            }
+            
+            document.getElementById('etsTableBody').innerHTML = `<tr><td colspan="3" style="text-align:center;padding:30px;color:var(--text-muted);"><i class="fas fa-circle-notch fa-spin"></i> Loading Data from Cloud...</td></tr>`;
+
+            if(GAS_API_URL === "YOUR_WEB_APP_URL_HERE") {
+                document.getElementById('etsTableBody').innerHTML = `<tr><td colspan="3" style="text-align:center;padding:30px;color:var(--danger);">Please paste your GAS Web App URL in the HTML file first!</td></tr>`;
+                return;
+            }
+
+            fetch(GAS_API_URL)
+                .then(response => response.json())
+                .then(result => {
+                    if(result.status === 'success') {
+                        etsList = result.data;
+                        document.getElementById('searchInput').value = '';
+                        populateLocationFilter();
+                        renderTable(etsList);
+                        if(showAnim) showToast('Data refreshed successfully');
+                    } else {
+                        throw new Error(result.message);
+                    }
+                })
+                .catch(error => {
+                    showToast('Failed to load data. Check URL or connection.');
+                    document.getElementById('etsTableBody').innerHTML = `<tr><td colspan="3" style="text-align:center;padding:30px;color:var(--danger);">Error loading data.</td></tr>`;
+                });
+        }
+
+        function populateLocationFilter() {
+            const select = document.getElementById('locationFilter');
+            if (!select) return;
+            const uniquePlants = [...new Set(etsList.map(item => {
+                if(item.name.includes(' ')) return item.name.split(' ')[0];
+                return item.name;
+            }))].sort();
+            
+            let html = `<option value="ALL">All Plants</option>`;
+            uniquePlants.forEach(p => {
+                html += `<option value="${p}">${p}</option>`;
+            });
+            select.innerHTML = html;
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('tabreed_theme', isDark ? 'dark' : 'light');
+            
+            const btn = document.getElementById('darkModeToggleBtn');
+            btn.classList.add('pop-anim');
+            setTimeout(() => btn.classList.remove('pop-anim'), 350);
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('etsTableBody');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:30px;color:var(--text-muted);">No ETS locations found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = data.map((item, idx) => {
+                const commentText = (item.comment || '').trim();
+                const hasComment = commentText.length > 0;
+                
+                const noteBadge = hasComment 
+                    ? `<span class="note-badge" onclick="showComment('${escapeHtml(commentText)}')"><i class="fas fa-sticky-note"></i> Note</span>` 
+                    : '';
+                
+                const plantName = item.name.includes(' ') ? item.name.split(' ')[0] : item.name;
+
+                return `<tr>
+                    <td style="font-weight:700;color:var(--primary);">${escapeHtml(item.name)} ${noteBadge}</td>
+                    <td>
+                        <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px;">${escapeHtml(plantName)}</div>
+                        <span class="location-tag"><i class="fas fa-map-marker-alt"></i> ${item.lat.toFixed(4)}, ${item.lng.toFixed(4)}</span>
+                    </td>
+                    <td style="text-align:right;">
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=${item.lat},${item.lng}" target="_blank" class="btn-dir">
+                            <i class="fas fa-directions"></i> <span class="hide-mobile">Direction</span>
+                        </a>
+                        <button onclick="openUpdateModal(${idx})" class="btn-edit" style="margin-left:5px;">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>`;
+            }).join('');
+            
+            const tableEl = document.querySelector('.card-container');
+            tableEl.classList.remove('subtle-pop-anim');
+            void tableEl.offsetWidth;
+            tableEl.classList.add('subtle-pop-anim');
+        }
+
+        function filterETS() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const locationSelect = document.getElementById('locationFilter');
+            const locFilter = locationSelect ? locationSelect.value : 'ALL';
+            
+            const labelEl = document.getElementById('label-location');
+            if (labelEl && locationSelect && locationSelect.options.length > 0) {
+                labelEl.innerText = locationSelect.options[locationSelect.selectedIndex].text;
+            }
+
+            const filtered = etsList.filter(item => {
+                const matchesQuery = item.name.toLowerCase().includes(query) || 
+                                     item.lat.toString().includes(query) || 
+                                     item.lng.toString().includes(query);
+                const matchesLoc = (locFilter === 'ALL' || item.name.includes(locFilter));
+                return matchesQuery && matchesLoc;
+            });
+            
+            renderTable(filtered);
+            
+            const btn = document.getElementById('btn-location-wrapper');
+            if (btn && locFilter !== 'ALL') {
+                btn.classList.add('filter-active');
+                btn.classList.add('pop-anim');
+                setTimeout(() => btn.classList.remove('pop-anim'), 350);
+            } else if (btn) {
+                btn.classList.remove('filter-active');
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-map-marked-alt"></i> Add New ETS';
+            document.getElementById('editIndex').value = '-1';
+            document.getElementById('etsName').value = '';
+            document.getElementById('etsLat').value = '';
+            document.getElementById('etsLng').value = '';
+            document.getElementById('etsComment').value = '';
+            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Save ETS';
+            document.getElementById('etsModal').style.display = 'flex';
+        }
+
+        function openUpdateModal(index) {
+            const item = etsList[index];
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit ETS Location';
+            document.getElementById('editIndex').value = index;
+            document.getElementById('etsName').value = item.name;
+            document.getElementById('etsLat').value = item.lat;
+            document.getElementById('etsLng').value = item.lng;
+            document.getElementById('etsComment').value = item.comment || '';
+            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-check"></i> Update ETS';
+            document.getElementById('etsModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('etsModal').style.display = 'none';
+        }
+
+        function saveETS() {
+            const idx = parseInt(document.getElementById('editIndex').value);
+            const name = document.getElementById('etsName').value.trim();
+            const lat = parseFloat(document.getElementById('etsLat').value);
+            const lng = parseFloat(document.getElementById('etsLng').value);
+            const comment = document.getElementById('etsComment').value.trim();
+
+            if (!name || isNaN(lat) || isNaN(lng)) {
+                showToast("Please fill Name, Latitude, and Longitude.");
+                return;
+            }
+            
+            if(GAS_API_URL === "YOUR_WEB_APP_URL_HERE") {
+                showToast("Please configure Web App URL first!");
+                return;
+            }
+
+            const payload = { action: idx >= 0 ? 'update' : 'add', data: { name, lat, lng, comment } };
+            
+            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            document.getElementById('saveBtn').disabled = true;
+
+            fetch(GAS_API_URL, {
+                method: "POST",
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(result => {
+                if(result.status === 'success') {
+                    showToast(idx >= 0 ? "ETS Updated Successfully!" : "New ETS Added!");
+                    closeModal();
+                    refreshTable(false); // reload data
+                } else {
+                    throw new Error(result.message);
+                }
+            })
+            .catch(err => {
+                showToast("Error saving data: " + err.message);
+            })
+            .finally(() => {
+                document.getElementById('saveBtn').disabled = false;
+                document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Save ETS';
+            });
+        }
+
+        function showComment(text) {
+            document.getElementById('commentTextDisplay').innerText = text;
+            document.getElementById('commentModal').style.display = 'flex';
+        }
+
+        function closeCommentModal() {
+            document.getElementById('commentModal').style.display = 'none';
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toastMsg');
+            t.innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => { t.classList.remove('show'); }, 3000);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+    </script>
+</body>
+</html>
