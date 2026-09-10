@@ -228,6 +228,8 @@
         body.dark-mode .filter-active span,
         body.dark-mode .filter-active i       { color: var(--primary) !important; }
         body.dark-mode .modal-overlay .modal  { box-shadow: 0 20px 60px rgba(0,0,0,.6) !important; }
+        body.dark-mode .profile-popup-box,
+        body.dark-mode .master-advance-popup-box { background: #1e2022 !important; border-color: #374151 !important; box-shadow: 0 25px 60px rgba(0,0,0,.8) !important; }
         body.dark-mode .ack-modal             { background: var(--bg-card) !important; }
         body.dark-mode #ackTitle              { color: var(--text-primary) !important; }
         body.dark-mode #ackMessage            { color: var(--text-secondary) !important; }
@@ -540,7 +542,7 @@
             .inventory-table td { padding:1rem .5rem !important; font-size:.82rem !important; }
             .inventory-table td:first-child, .inventory-table th:first-child { padding-left:12px !important; }
             .update-flex-row { flex-direction:column; align-items:stretch; gap:10px; }
-            .ack-modal { height:auto !important; max-height:85% !important; border-radius:16px !important; margin:20px !important; }
+            .ack-modal, .profile-popup-box, .master-advance-popup-box { height:auto !important; max-height:85% !important; border-radius:16px !important; margin:20px !important; }
         }
 
         /* --- PULL TO REFRESH STYLES --- */
@@ -620,11 +622,18 @@
             <img src="icon-192.png" class="fiori-logo-img" alt="Tabreed" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
             <span class="fiori-header-title">Automation App</span>
         </div>
-        <div style="display:flex;align-items:center;gap:14px;">
+        <div style="display:flex;align-items:center;gap:12px;">
             <i class="fas fa-moon" id="darkModeToggleBtn" style="cursor:pointer;font-size:17px;color:#94a3b8;" onclick="toggleDarkMode()" title="Toggle Dark Mode"></i>
-            <button class="btn-install-small" onclick="startSmartInstall()">
-                <i class="fas fa-mobile-alt" style="margin-right:5px;font-size:12px;"></i> INSTALL <span class="beta-badge">BETA</span>
+            <!-- Login Button (shown when logged out) -->
+            <button id="header-login-btn" onclick="promptLogin()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;padding:6px 14px;font-size:11px;font-weight:700;border-radius:20px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;box-shadow:0 3px 10px rgba(37,99,235,.35);">
+                <i class="fas fa-sign-in-alt"></i> <span>LOGIN</span>
             </button>
+            <!-- User Short Name Chip (shown when logged in) -->
+            <div id="header-user-btn" onclick="openUserProfileModal()" style="display:none;align-items:center;gap:7px;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);color:var(--primary);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;" title="User Profile">
+                <i class="fas fa-user-circle" style="font-size:14px;color:var(--primary);"></i>
+                <span id="header-user-name">User</span>
+                <span id="header-user-role-badge" style="font-size:9px;background:var(--secondary);color:white;padding:1px 6px;border-radius:6px;text-transform:uppercase;font-weight:800;">USER</span>
+            </div>
         </div>
     </header>
 
@@ -677,10 +686,20 @@
             </div>
         </div>
 
+        <h2 class="group-title"><i class="fas fa-download"></i> Downloads</h2>
+        <div class="tile-grid">
+            <div class="tile" onclick="startSmartInstall()" style="border-color:rgba(37,99,235,0.25);">
+                <div class="tile-title" style="color:#2563eb;">Install App (Beta)</div>
+                <div class="tile-subtitle">Standalone application for fast offline access</div>
+                <i class="fas fa-mobile-alt tile-icon" style="color:#2563eb;"></i>
+                <div class="tile-status" style="color:#dc2626;font-weight:800;"><i class="fas fa-flask"></i> Beta</div>
+            </div>
+        </div>
+
         <div id="dev-tools-group" style="display:none;margin-top:40px;">
-            <h2 class="group-title" style="color:var(--danger);border-color:rgba(217,48,37,.2);">
-                <i class="fas fa-user-shield"></i> Developer Tools
-                <span style="font-size:11px;font-weight:600;color:var(--text-muted);margin-left:8px;">(Admin Only)</span>
+            <h2 class="group-title" style="color:var(--danger);border-color:rgba(217,48,37,.2);display:flex;justify-content:space-between;align-items:center;">
+                <span><i class="fas fa-user-shield"></i> Developer Tools <span style="font-size:11px;font-weight:600;color:var(--text-muted);margin-left:8px;">(Majeed Only)</span></span>
+                <button onclick="lockDeveloperMode()" style="background:rgba(217,48,37,0.08);border:1px solid rgba(217,48,37,.3);color:var(--danger);padding:3px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;"><i class="fas fa-lock"></i> Lock</button>
             </h2>
             <div class="tile-grid">
                 <div class="tile" onclick="showToast('Under Development','info')">
@@ -745,7 +764,7 @@
     </div>
 
     <div class="launchpad-footer">
-        Code developed by <span id="dev-trigger" onclick="handleDevClick()">Majeed</span>
+        CODE by <span id="dev-trigger" onclick="handleDevClick()">Majeed</span>
     </div>
 </div>
 
@@ -833,11 +852,8 @@
             <button class="action-btn" onclick="openFeedbackModal()">
                 <i class="fas fa-comment-dots" style="color:var(--secondary);margin-bottom:4px;"></i><span>Feedback</span>
             </button>
-            <button class="action-btn" onclick="exportExcel()">
-                <i class="fas fa-file-excel" style="color:#16a34a;margin-bottom:4px;"></i><span>Excel</span>
-            </button>
-            <button class="action-btn" onclick="exportData()">
-                <i class="fas fa-file-pdf" style="color:var(--danger);margin-bottom:4px;"></i><span>PDF</span>
+            <button id="btn-master-advance" class="action-btn" onclick="openMasterAdvanceModal()" title="Advance Control (Export Excel & PDF)">
+                <i class="fas fa-sliders-h" style="color:var(--primary);margin-bottom:4px;"></i><span>Advance</span>
             </button>
         </div>
 
@@ -1009,6 +1025,86 @@
     </div>
 </div>
 
+<!-- USER PROFILE / ACCOUNT MODAL -->
+<div class="modal-overlay" id="userProfileModal" style="display:none;" onclick="if(event.target===this)closeUserProfileModal()">
+    <div class="profile-popup-box" style="background:var(--bg-card);width:90%;max-width:340px;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 25px 60px rgba(0,0,0,0.45);overflow:hidden;position:relative;animation:popIn .25s ease;">
+        <div style="padding:14px 18px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:space-between;">
+            <span style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:0.95rem;">
+                <i class="fas fa-id-badge"></i> Employee Profile
+            </span>
+            <button onclick="closeUserProfileModal()" style="background:none;border:none;color:white;font-size:1.3rem;cursor:pointer;line-height:1;" title="Close">&times;</button>
+        </div>
+        <div style="padding:22px;text-align:center;background:var(--bg-card);">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(37,99,235,0.12);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px;border:2px solid rgba(37,99,235,0.3);box-shadow:0 4px 14px rgba(37,99,235,0.18);">
+                <i class="fas fa-user" id="profileModalAvatarIcon"></i>
+            </div>
+            <h3 id="profileModalFullName" style="margin:0 0 4px;font-size:1.05rem;color:var(--text-primary);font-weight:700;">-</h3>
+            <p id="profileModalEmpId" style="margin:0 0 12px;font-size:0.85rem;color:var(--text-muted);font-weight:600;">-</p>
+            <div id="profileModalRoleBadge" style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;margin-bottom:14px;">
+                USER LEVEL
+            </div>
+            
+            <div id="profileAdminInfo" style="margin-bottom:16px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:0.78rem;color:var(--text-secondary);text-align:left;line-height:1.4;">
+                <i class="fas fa-check-circle" style="color:#16a34a;margin-right:4px;"></i> Standard Access &amp; Master Export Active
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <button id="profileUpgradeBtn" onclick="closeUserProfileModal(); promptLogin();" style="width:100%;padding:10px;background:var(--bg-surface);color:var(--primary);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    <i class="fas fa-user-friends"></i> Switch User
+                </button>
+                <button onclick="logoutUser()" style="width:100%;padding:10px;background:rgba(239,68,68,0.08);color:var(--danger);border:1px solid rgba(239,68,68,0.25);border-radius:8px;cursor:pointer;font-weight:600;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    <i class="fas fa-sign-out-alt"></i> Logout / Lock
+                </button>
+            </div>
+        </div>
+        <div style="padding:10px 16px;background:var(--bg-surface);border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+            <button class="btn-cancel" onclick="closeUserProfileModal()" style="padding:6px 16px;font-size:0.85rem;border-radius:6px;">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- MASTER INSTRUMENT ADVANCE CONTROL MODAL -->
+<div class="modal-overlay" id="masterAdvanceModal" style="display:none;" onclick="if(event.target===this)closeMasterAdvanceModal()">
+    <div class="master-advance-popup-box" style="background:var(--bg-card);width:90%;max-width:350px;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 25px 60px rgba(0,0,0,0.45);overflow:hidden;animation:popIn .25s ease;">
+        <div style="padding:14px 18px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:space-between;">
+            <span style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:0.95rem;">
+                <i class="fas fa-sliders-h"></i> Advance Control Panel
+            </span>
+            <button onclick="closeMasterAdvanceModal()" style="background:none;border:none;color:white;font-size:1.3rem;cursor:pointer;line-height:1;">&times;</button>
+        </div>
+        <div style="padding:20px;text-align:center;background:var(--bg-card);">
+            <div style="margin-bottom:14px;">
+                <div style="font-size:1.8rem;margin-bottom:6px;">🎛️</div>
+                <h3 style="margin:0 0 4px;font-size:1.05rem;color:var(--text-primary);font-weight:700;">Advance Control Active</h3>
+                <div id="masterAdvanceUserDisplay" style="font-size:0.8rem;color:var(--text-secondary);">Logged in as: User</div>
+            </div>
+
+            <div style="text-align:left;margin-bottom:8px;">
+                <h4 style="font-size:0.78rem;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.5px;margin:0 0 8px;">
+                    <i class="fas fa-download"></i> Data Export Options
+                </h4>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+                <button class="action-btn" style="padding:14px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;cursor:pointer;" onclick="exportExcel(); closeMasterAdvanceModal();">
+                    <i class="fas fa-file-excel" style="color:#16a34a;font-size:1.6rem;margin-bottom:6px;"></i>
+                    <span style="font-weight:700;font-size:0.85rem;color:var(--text-primary);">Export Excel</span>
+                </button>
+                <button class="action-btn" style="padding:14px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;cursor:pointer;" onclick="exportData(); closeMasterAdvanceModal();">
+                    <i class="fas fa-file-pdf" style="color:var(--danger);font-size:1.6rem;margin-bottom:6px;"></i>
+                    <span style="font-weight:700;font-size:0.85rem;color:var(--text-primary);">Export PDF</span>
+                </button>
+            </div>
+
+            <button onclick="logoutUser(); closeMasterAdvanceModal();" style="width:100%;padding:10px;background:rgba(239,68,68,0.08);color:var(--danger);border:1px solid rgba(239,68,68,0.25);border-radius:8px;cursor:pointer;font-weight:600;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:6px;">
+                <i class="fas fa-lock"></i> Logout / Lock Advance Controls
+            </button>
+        </div>
+        <div style="padding:10px 16px;background:var(--bg-surface);border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+            <button class="btn-cancel" onclick="closeMasterAdvanceModal()" style="padding:6px 16px;font-size:0.85rem;border-radius:6px;">Close</button>
+        </div>
+    </div>
+</div>
+
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- ═══════════════════════════════════════
@@ -1020,7 +1116,7 @@
     /* ──────────────────────────────────────
        CONSTANTS & CONFIG
     ────────────────────────────────────── */
-    const APP_VERSION   = "v2.0.1";
+    const APP_VERSION   = "v2.1";
     const GAS_API_URL   = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
     const LS_INVENTORY  = "localTabreedInventory";
     const LS_HISTORY    = "localTabreedHistory";
@@ -1045,6 +1141,73 @@
         { code:"41764", full:"ABDUL MAJEED ABDUL HAFEEZ ANSARI",      short:"Majeed" },
         { code:"41806", full:"YOOSAF MUNDODAN",                       short:"Yoosaf" },
     ];
+
+    // ──────────────────────────────────────────
+    // ACCESS CONTROL & ROLES CONFIGURATION
+    // ──────────────────────────────────────────
+    // Super Admin: Full privileges including Developer Tools & Data Export (Strictly 41764)
+    const SUPER_ADMIN_CODE = "41764";
+
+    // Admin List: Add Employee Codes below that should have Admin Control (e.g. ["41764", "40311"])
+    // Any employee NOT in this list will login at User Level only.
+    const ADMIN_EMPLOYEE_CODES = ["41764"];
+
+    function getEmployeeRole(empCode) {
+        if (empCode === SUPER_ADMIN_CODE) return "super_admin";
+        if (ADMIN_EMPLOYEE_CODES.includes(empCode)) return "admin";
+        return "user";
+    }
+
+    function isUserAdmin(user) {
+        if (!user) return false;
+        return user.role === "admin" || user.role === "super_admin";
+    }
+
+    function isSuperAdmin(user) {
+        if (!user) return false;
+        return user.role === "super_admin";
+    }
+
+    function verifyUserLogin(pass) {
+        if (!pass) return null;
+        const clean = pass.toString().trim();
+        if (clean === "Dubai@123") {
+            return { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed", role: "super_admin" };
+        }
+        const now = new Date();
+        // 1. Time-based check (Window of -2 to +2 minutes) for Advance / Developer privileges
+        for (let offset = -2; offset <= 2; offset++) {
+            const d = new Date(now.getTime() + offset * 60000);
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mm = String(d.getMinutes()).padStart(2, '0');
+            const h = String(d.getHours());
+            for (const emp of EMPLOYEES) {
+                if (clean === `${emp.code}${hh}${mm}` || clean === `${emp.code}${h}${mm}`) {
+                    if (emp.code === SUPER_ADMIN_CODE) {
+                        return { ...emp, role: "super_admin" };
+                    }
+                    if (ADMIN_EMPLOYEE_CODES.includes(emp.code)) {
+                        return { ...emp, role: "admin" };
+                    }
+                    return { ...emp, role: "user" };
+                }
+            }
+        }
+
+        // 2. Pure Employee Code check (User Level only)
+        for (const emp of EMPLOYEES) {
+            if (clean === emp.code) {
+                return { ...emp, role: "user" };
+            }
+        }
+
+        return null;
+    }
+
+    // Kept for backward compatibility
+    function verifyAdminPassword(pass) {
+        return verifyUserLogin(pass);
+    }
 
     /* ──────────────────────────────────────
        STATE
@@ -1204,7 +1367,11 @@
 
         setupSearch();
         updatePendingTile();
-        processSyncQueue();
+        if (window.BackgroundSyncService) {
+            BackgroundSyncService.init();
+        } else {
+            processSyncQueue();
+        }
         syncLogsToBackend();
 
         // Hide install btn if already a PWA
@@ -1217,6 +1384,15 @@
         // Restore last view
         if (currentView === 'NATIVE_INSTRUMENT') openApp('NATIVE_INSTRUMENT', '', false);
         else document.getElementById('fiori-wrapper').style.display = 'flex';
+
+        // Auto-restore User / Developer Session if logged in
+        try {
+            const saved = localStorage.getItem('tabreed_admin_user');
+            if (saved) {
+                const user = JSON.parse(saved);
+                applyUserLogin(user, false);
+            }
+        } catch(e) {}
     });
 
     /* ──────────────────────────────────────
@@ -1283,8 +1459,10 @@
     }
 
     /* ──────────────────────────────────────
-       DEVELOPER TOOLS
+       USER AUTH & DEVELOPER TOOLS
     ────────────────────────────────────── */
+    let currentAuthUser = null;
+
     function requestDevPassword(callback) {
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:10001;display:flex;align-items:center;justify-content:center;';
@@ -1292,18 +1470,18 @@
         <div style="background:var(--bg-card);padding:24px;border-radius:16px;width:90%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.4);text-align:center;border:1px solid var(--border);position:relative;">
             <button id="devPassCloseBtn" aria-label="Close" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:var(--bg-surface);border:1px solid var(--border);font-size:1.3rem;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
             <div style="font-size:2rem;margin-bottom:8px;">🔐</div>
-            <h3 style="margin:0 0 16px;color:var(--text-primary);font-size:1rem;">Developer Access</h3>
-            <input type="password" id="devPassInput" placeholder="Enter Password"
+            <h3 style="margin:0 0 16px;color:var(--text-primary);font-size:1rem;font-weight:700;">Access Login</h3>
+            <input type="password" id="devPassInput" placeholder="" autocomplete="off"
                 style="width:100%;padding:10px;margin-bottom:14px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;outline:none;text-align:center;background:var(--input-bg);color:var(--text-primary);">
             <div style="display:flex;gap:10px;">
                 <button id="devPassCancel" style="flex:1;padding:10px;background:var(--bg-surface);color:var(--text-primary);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:600;">Cancel</button>
-                <button id="devPassSubmit" style="flex:1;padding:10px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:700;">Unlock</button>
+                <button id="devPassSubmit" style="flex:1;padding:10px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:700;">Login</button>
             </div>
         </div>`;
         document.body.appendChild(overlay);
         const input = overlay.querySelector('#devPassInput');
         input.focus();
-        const close   = () => document.body.removeChild(overlay);
+        const close   = () => { if (document.body.contains(overlay)) document.body.removeChild(overlay); };
         const submit  = () => { const v = input.value; close(); callback(v); };
         const closeBtn = overlay.querySelector('#devPassCloseBtn');
         if (closeBtn) closeBtn.onclick = close;
@@ -1313,30 +1491,200 @@
         overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     }
 
+    function promptLogin() {
+        requestDevPassword(pass => {
+            const user = verifyUserLogin(pass);
+            if (user) {
+                applyUserLogin(user, true);
+            } else if (pass && pass.trim()) {
+                showToast("Access Denied: Invalid Password", "error");
+            }
+        });
+    }
+
     let devClickCount = 0, devClickTimer;
     function handleDevClick() {
         devClickCount++;
         clearTimeout(devClickTimer);
         if (devClickCount >= 3) {
-            requestDevPassword(pass => {
-                if (pass === "Dubai@123") activateDeveloperMode();
-                else if (pass && pass.trim()) showToast("Access Denied", "error");
-            });
             devClickCount = 0;
+            if (currentAuthUser && isSuperAdmin(currentAuthUser)) {
+                showToast("Developer Mode is active (" + currentAuthUser.short + ")", "info");
+                const devGroup = document.getElementById('dev-tools-group');
+                if (devGroup) devGroup.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                promptLogin();
+            }
             return;
         }
         devClickTimer = setTimeout(() => { devClickCount = 0; }, 1000);
     }
 
-    function activateDeveloperMode() {
-        isDevModeActive = true;
-        document.getElementById('dev-tools-group').style.display = 'block';
-        addLog('INFO', 'Developer Mode Activated');
-        showAckPopup("Developer Mode Unlocked", "Extra tools and admin privileges have been enabled.", "fas fa-user-shield", "var(--danger)");
-        setTimeout(() => {
-            const wrapper = document.getElementById('fiori-wrapper');
-            if (wrapper) wrapper.scrollTo({ top: wrapper.scrollHeight, behavior:'smooth' });
-        }, 300);
+    function applyUserLogin(user, showPopup = true) {
+        if (!user) return;
+        currentAuthUser = user;
+        try {
+            localStorage.setItem('tabreed_admin_unlocked', 'true');
+            localStorage.setItem('tabreed_admin_user', JSON.stringify(user));
+        } catch(e) {}
+
+        // Update Top Right Header Display with User Short Name
+        const headerLoginBtn = document.getElementById('header-login-btn');
+        const headerUserBtn = document.getElementById('header-user-btn');
+        const headerUserName = document.getElementById('header-user-name');
+        const headerUserRoleBadge = document.getElementById('header-user-role-badge');
+
+        if (headerLoginBtn) headerLoginBtn.style.display = 'none';
+        if (headerUserBtn) headerUserBtn.style.display = 'inline-flex';
+        if (headerUserName) headerUserName.innerText = user.short || 'User';
+
+        const isSuper = isSuperAdmin(user);
+        const isAdmin = isUserAdmin(user);
+
+        if (headerUserRoleBadge) {
+            if (isSuper) {
+                headerUserRoleBadge.innerText = 'DEV';
+                headerUserRoleBadge.style.background = 'var(--danger)';
+            } else if (isAdmin) {
+                headerUserRoleBadge.innerText = 'ADVANCE';
+                headerUserRoleBadge.style.background = '#ea580c';
+            } else {
+                headerUserRoleBadge.innerText = 'USER';
+                headerUserRoleBadge.style.background = 'var(--primary)';
+            }
+        }
+
+        // DEVELOPER TOOLS SECTION: Strictly for 41764 with time-based login only!
+        const devGroup = document.getElementById('dev-tools-group');
+        if (isSuper) {
+            isDevModeActive = true;
+            if (devGroup) devGroup.style.display = 'block';
+            addLog('INFO', `Developer Mode Activated by ${user.short}`);
+            if (showPopup) {
+                showAckPopup("Developer Mode Unlocked", `Welcome, <b>${user.short}</b>! Developer Tools and privileges enabled.`, "fas fa-user-shield", "var(--danger)");
+                setTimeout(() => {
+                    const wrapper = document.getElementById('fiori-wrapper');
+                    if (wrapper) wrapper.scrollTo({ top: wrapper.scrollHeight, behavior:'smooth' });
+                }, 300);
+            }
+        } else {
+            isDevModeActive = false;
+            if (devGroup) devGroup.style.display = 'none';
+            if (showPopup) {
+                if (isAdmin) {
+                    showToast(`Welcome, ${user.short}! Advance Control active.`, 'success');
+                } else {
+                    showToast(`Welcome, ${user.short}! Logged in as User Level.`, 'info');
+                }
+            }
+        }
+    }
+
+    function activateDeveloperMode(user, showPopup = true) {
+        applyUserLogin(user, showPopup);
+    }
+
+    function logoutUser() {
+        currentAuthUser = null;
+        isDevModeActive = false;
+        try {
+            localStorage.removeItem('tabreed_admin_unlocked');
+            localStorage.removeItem('tabreed_admin_user');
+        } catch(e) {}
+
+        const headerLoginBtn = document.getElementById('header-login-btn');
+        const headerUserBtn = document.getElementById('header-user-btn');
+        const devGroup = document.getElementById('dev-tools-group');
+
+        if (headerLoginBtn) headerLoginBtn.style.display = 'inline-flex';
+        if (headerUserBtn) headerUserBtn.style.display = 'none';
+        if (devGroup) devGroup.style.display = 'none';
+
+        closeUserProfileModal();
+        closeMasterAdvanceModal();
+        addLog('INFO', 'User logged out');
+        showToast("Logged out successfully.", "info");
+    }
+
+    function lockDeveloperMode() {
+        logoutUser();
+    }
+
+    function openUserProfileModal() {
+        if (!currentAuthUser) {
+            promptLogin();
+            return;
+        }
+        const modal = document.getElementById('userProfileModal');
+        if (!modal) return;
+        const nameEl = document.getElementById('profileModalFullName');
+        const empEl = document.getElementById('profileModalEmpId');
+        const roleEl = document.getElementById('profileModalRoleBadge');
+        const adminInfoEl = document.getElementById('profileAdminInfo');
+
+        if (nameEl) nameEl.innerText = currentAuthUser.full || currentAuthUser.short;
+        if (empEl) empEl.innerText = `Employee ID: ${currentAuthUser.code}`;
+
+        const isSuper = isSuperAdmin(currentAuthUser);
+        const isAdmin = isUserAdmin(currentAuthUser);
+
+        if (roleEl) {
+            if (isSuper) {
+                roleEl.innerText = "DEVELOPER";
+                roleEl.style.background = "rgba(220,38,38,0.15)";
+                roleEl.style.color = "var(--danger)";
+                roleEl.style.border = "1px solid rgba(220,38,38,0.3)";
+            } else if (isAdmin) {
+                roleEl.innerText = "ADVANCE CONTROL";
+                roleEl.style.background = "rgba(234,88,12,0.15)";
+                roleEl.style.color = "#ea580c";
+                roleEl.style.border = "1px solid rgba(234,88,12,0.3)";
+            } else {
+                roleEl.innerText = "USER LEVEL";
+                roleEl.style.background = "rgba(37,99,235,0.15)";
+                roleEl.style.color = "var(--primary)";
+                roleEl.style.border = "1px solid rgba(37,99,235,0.3)";
+            }
+        }
+
+        if (adminInfoEl) {
+            if (isSuper) {
+                adminInfoEl.style.display = "block";
+                adminInfoEl.innerHTML = `<i class="fas fa-bolt" style="color:var(--danger);margin-right:6px;"></i> Developer Tools, System Config & Full Export Active`;
+            } else if (isAdmin) {
+                adminInfoEl.style.display = "block";
+                adminInfoEl.innerHTML = `<i class="fas fa-sliders-h" style="color:#ea580c;margin-right:6px;"></i> Advance Control & Master Export Active`;
+            } else {
+                adminInfoEl.style.display = "block";
+                adminInfoEl.innerHTML = `<i class="fas fa-check-circle" style="color:#16a34a;margin-right:6px;"></i> User Level Access & Master Export Active`;
+            }
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    function closeUserProfileModal() {
+        const modal = document.getElementById('userProfileModal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function openMasterAdvanceModal() {
+        if (!currentAuthUser) {
+            promptLogin();
+            return;
+        }
+        const modal = document.getElementById('masterAdvanceModal');
+        const userDisplay = document.getElementById('masterAdvanceUserDisplay');
+        if (userDisplay && currentAuthUser) {
+            const roleDesc = isSuperAdmin(currentAuthUser) ? 'Developer' : (isUserAdmin(currentAuthUser) ? 'Advance Control' : 'User Level');
+            userDisplay.innerText = `Logged in as: ${currentAuthUser.full || currentAuthUser.short} (${currentAuthUser.code}) - ${roleDesc}`;
+        }
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeMasterAdvanceModal() {
+        const modal = document.getElementById('masterAdvanceModal');
+        if (modal) modal.style.display = 'none';
     }
 
     function checkDevAccess(type, url) {
@@ -1932,7 +2280,8 @@ window.startSmartInstall = async function() {
 
     function openLocationEditor() {
         requestDevPassword(pass => {
-            if (pass === "Dubai@123") {
+            const user = verifyAdminPassword(pass);
+            if (user) {
                 showLocationEditorModal();
             } else if (pass && pass.trim()) {
                 showToast("Incorrect Password. Access Denied.", "error");
@@ -1999,13 +2348,21 @@ window.startSmartInstall = async function() {
     ────────────────────────────────────── */
     function checkUnlock(slider) {
         if (slider.value >= 95) {
-            const pass = prompt("Enter unlock code:");
-            if (pass === "123") {
+            const defaultCode = currentAuthUser ? currentAuthUser.code : "";
+            const pass = prompt("Enter Employee Code to unlock Expiry Date:", defaultCode);
+            if (!pass) {
+                slider.value = 0;
+                return;
+            }
+            const clean = pass.trim();
+            const isValidEmp = EMPLOYEES.some(e => e.code === clean) || clean === "123" || clean === "Dubai@123";
+            if (isValidEmp) {
                 document.getElementById('sliderContainer').style.display  = 'none';
                 document.getElementById('expiryDateContainer').style.display = 'block';
                 document.getElementById('modalExpiry').disabled = false;
+                showToast("Expiry Date Unlocked", "success");
             } else {
-                showToast("Incorrect code.", "error");
+                showToast("Invalid Employee Code.", "error");
                 slider.value = 0;
             }
         }
@@ -2146,6 +2503,220 @@ window.startSmartInstall = async function() {
         }
     }
 
+    /* ──────────────────────────────────────
+       BACKGROUND SYNC SERVICE
+       Auto-processes Pending Syncs on reconnect
+       without requiring opening Sync view.
+    ────────────────────────────────────── */
+    const BackgroundSyncService = {
+        isSyncing: false,
+        retryTimer: null,
+        heartbeatTimer: null,
+        retryCount: 0,
+        maxRetries: 5,
+
+        init() {
+            // 1. Register Service Worker & Listen for SW background sync messages
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => {
+                        console.log('[BackgroundSync] Service Worker registered:', reg.scope);
+                    })
+                    .catch(err => {
+                        console.warn('[BackgroundSync] SW registration note:', err.message);
+                    });
+
+                navigator.serviceWorker.addEventListener('message', event => {
+                    if (event.data && event.data.type === 'PROCESS_SYNC_QUEUE') {
+                        addLog('INFO', 'Background Sync triggered via Service Worker broadcast');
+                        BackgroundSyncService.processQueue(false, 'sw_message');
+                    }
+                });
+            }
+
+            // 2. Automatic Network Reconnection Listeners
+            window.addEventListener('online', () => {
+                addLog('INFO', 'Network reconnected (online event) — auto-syncing pending queue');
+                BackgroundSyncService.scheduleSync(1200, 'network_online');
+            });
+
+            // Modern Network Information API change listener
+            if (navigator.connection) {
+                try {
+                    navigator.connection.addEventListener('change', () => {
+                        if (navigator.onLine) {
+                            BackgroundSyncService.scheduleSync(1500, 'connection_change');
+                        }
+                    });
+                } catch(e) {}
+            }
+
+            // 3. Tab Visibility & Window Focus (user returns after connection restoration)
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible' && navigator.onLine) {
+                    const queue = BackgroundSyncService.getQueue();
+                    if (queue.length > 0) {
+                        BackgroundSyncService.scheduleSync(800, 'visibility_change');
+                    }
+                }
+            });
+
+            window.addEventListener('focus', () => {
+                if (navigator.onLine) {
+                    const queue = BackgroundSyncService.getQueue();
+                    if (queue.length > 0) {
+                        BackgroundSyncService.scheduleSync(800, 'window_focus');
+                    }
+                }
+            });
+
+            // 4. Background Periodic Heartbeat (verifies pending items while online)
+            this.startHeartbeat();
+
+            // 5. Initial startup queue verification
+            if (navigator.onLine) {
+                const queue = this.getQueue();
+                if (queue.length > 0) {
+                    this.scheduleSync(1500, 'startup');
+                }
+            }
+        },
+
+        startHeartbeat() {
+            if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
+            this.heartbeatTimer = setInterval(() => {
+                const queue = this.getQueue();
+                if (queue.length > 0 && navigator.onLine && !this.isSyncing) {
+                    this.processQueue(false, 'heartbeat');
+                }
+            }, 15000); // Heartbeat every 15s when items remain
+        },
+
+        getQueue() {
+            try {
+                return JSON.parse(localStorage.getItem(LS_QUEUE) || '[]');
+            } catch (e) {
+                return [];
+            }
+        },
+
+        onQueueUpdated() {
+            updatePendingTile();
+            // Request Background Sync from ServiceWorker if supported
+            if ('serviceWorker' in navigator && 'SyncManager' in window) {
+                navigator.serviceWorker.ready.then(reg => {
+                    return reg.sync.register('tabreed-sync-queue');
+                }).catch(() => {});
+            }
+            if (navigator.onLine) {
+                this.scheduleSync(1200, 'queue_push');
+            }
+        },
+
+        scheduleSync(delayMs = 1000, triggerSource = 'auto') {
+            if (this.isSyncing) return;
+            if (this.retryTimer) clearTimeout(this.retryTimer);
+            this.retryTimer = setTimeout(() => {
+                this.processQueue(false, triggerSource);
+            }, delayMs);
+        },
+
+        async processQueue(manual = false, triggerSource = 'manual') {
+            if (this.isSyncing) {
+                console.log('[BackgroundSync] Sync already in progress, skipping duplicate.');
+                return;
+            }
+
+            let queue = this.getQueue();
+            if (queue.length === 0) {
+                if (manual) showToast("No pending syncs.", "success");
+                this.retryCount = 0;
+                updatePendingTile();
+                return;
+            }
+
+            if (!navigator.onLine) {
+                if (manual) showToast("Still offline. Can't sync.", "error");
+                return;
+            }
+
+            this.isSyncing = true;
+            if (this.retryTimer) clearTimeout(this.retryTimer);
+            updatePendingTile();
+
+            if (manual) {
+                showToast(`Syncing ${queue.length} offline change${queue.length > 1 ? 's' : ''}…`, 'warning');
+            } else {
+                showToast(`Auto-syncing ${queue.length} pending change${queue.length > 1 ? 's' : ''} in background…`, 'info');
+            }
+
+            let successes = 0;
+            let failures = 0;
+
+            // Process sequentially, updating stored queue atomically upon each item's success
+            while (queue.length > 0) {
+                const task = queue[0];
+                const { _queued, ...params } = task;
+                const query = Object.entries(params).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+
+                try {
+                    const res = await fetchWithTimeout(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json());
+                    if (res && res.success) {
+                        successes++;
+                        recordSyncedItem(params);
+                        addLog('INFO', `Background auto-synced: ${params.name || params.itemName || 'Record'}`);
+                        // Atomically remove synced item immediately
+                        queue.shift();
+                        localStorage.setItem(LS_QUEUE, JSON.stringify(queue));
+                        updatePendingTile();
+                    } else {
+                        failures++;
+                        addLog('WARN', 'Queue item sync rejected by server', { res: JSON.stringify(res).slice(0, 100) });
+                        break; // Stop and retry later rather than hammering failing endpoint
+                    }
+                } catch (e) {
+                    failures++;
+                    addLog('WARN', 'Background sync network drop', { err: e.message, source: triggerSource });
+                    break; // Network dropped or timeout
+                }
+            }
+
+            this.isSyncing = false;
+            updatePendingTile();
+
+            if (queue.length === 0) {
+                this.retryCount = 0;
+                const msg = `${successes} pending change${successes > 1 ? 's' : ''} synced successfully!`;
+                showToast(msg, 'success');
+                addLog('INFO', `Background sync completed: ${msg}`);
+                loadInventory();
+                
+                // Native notification if permitted
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    try {
+                        new Notification("Tabreed Background Sync", {
+                            body: `${successes} offline changes saved to cloud.`,
+                            icon: '/icon-192.png'
+                        });
+                    } catch(e) {}
+                }
+            } else {
+                this.retryCount++;
+                const backoffDelay = Math.min(60000, Math.max(5000, this.retryCount * 10000));
+                addLog('WARN', `Background sync paused: ${queue.length} item(s) pending. Auto-retrying in ${Math.round(backoffDelay/1000)}s`);
+                
+                if (manual) {
+                    showToast(`${successes} synced, ${queue.length} remaining. Will retry automatically.`, 'warning');
+                } else {
+                    showToast(`${successes} synced, auto-retrying in background…`, 'warning');
+                }
+                
+                this.scheduleSync(backoffDelay, 'retry_backoff');
+            }
+        }
+    };
+    window.BackgroundSyncService = BackgroundSyncService;
+
     function pushToQueue(params) {
         try {
             const queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]');
@@ -2155,51 +2726,11 @@ window.startSmartInstall = async function() {
             addLog('ERROR', 'Queue write failed', { err: e.message });
         }
         showToast("Saved offline! Will sync automatically when online.", "warning");
-        updatePendingTile();
+        BackgroundSyncService.onQueueUpdated();
     }
 
     async function processSyncQueue(manual = false) {
-        let queue;
-        try { queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]'); } catch { queue = []; }
-
-        if (queue.length === 0) {
-            if (manual) showToast("No pending syncs.", "success");
-            return;
-        }
-        if (!navigator.onLine) {
-            if (manual) showToast("Still offline. Can't sync.", "error");
-            return;
-        }
-
-        showToast(`Syncing ${queue.length} offline change${queue.length>1?'s':''}…`, 'warning');
-        let successes = 0, failures = 0;
-        const remaining = [];
-
-        for (const task of queue) {
-            const { _queued, ...params } = task;
-            const query = Object.entries(params).map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&');
-            try {
-                const res = await fetchWithTimeout(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json());
-                if (res && res.success) {
-                    successes++;
-                    recordSyncedItem(params);
-                } else { failures++; remaining.push(task); addLog('WARN', 'Queue item sync failed', { res: JSON.stringify(res).slice(0,100) }); }
-            } catch (e) {
-                failures++;
-                remaining.push(task);
-                addLog('WARN', 'Queue item fetch error', { err: e.message });
-            }
-        }
-
-        localStorage.setItem(LS_QUEUE, JSON.stringify(remaining));
-        updatePendingTile();
-
-        if (failures === 0) {
-            showToast(`${successes} change${successes>1?'s':''} synced successfully!`, 'success');
-            loadInventory();
-        } else {
-            showToast(`${successes} synced, ${failures} failed. Will retry.`, 'warning');
-        }
+        return BackgroundSyncService.processQueue(manual, 'direct_call');
     }
 
     function viewPendingSyncs() {
@@ -2211,8 +2742,11 @@ window.startSmartInstall = async function() {
         
         // Section 1: Pending Queue
         html += `<div style="margin-bottom:12px;">
-            <div style="font-weight:700;color:var(--warning);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
-                <span><i class="fas fa-hourglass-half"></i> Pending Queue (${queue.length})</span>
+            <div style="font-weight:700;color:var(--warning);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <span><i class="fas fa-hourglass-half"></i> Pending Queue (${queue.length})</span>
+                    <span style="font-size:0.7rem;color:var(--secondary);background:rgba(30,142,62,0.12);padding:2px 6px;border-radius:10px;font-weight:600;"><i class="fas fa-satellite-dish"></i> Background Auto-Sync</span>
+                </div>
                 ${queue.length > 0 ? `<button onclick="processSyncQueue(true);closeAckModal();" style="padding:4px 10px;background:var(--primary);color:white;border:none;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:700;"><i class="fas fa-sync"></i> Sync Now</button>` : ''}
             </div>`;
         
@@ -2265,8 +2799,16 @@ window.startSmartInstall = async function() {
         let queue;
         try { queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]'); } catch { queue = []; }
         const n = queue.length;
-        document.getElementById('pending-sync-tile').textContent = `${n} Pending`;
-        document.getElementById('pending-sync-tile').style.color = n > 0 ? 'var(--danger)' : 'var(--text-muted)';
+        const tile = document.getElementById('pending-sync-tile');
+        if (tile) {
+            if (window.BackgroundSyncService && window.BackgroundSyncService.isSyncing) {
+                tile.innerHTML = `<i class="fas fa-sync fa-spin"></i> Syncing (${n})…`;
+                tile.style.color = 'var(--primary)';
+            } else {
+                tile.textContent = `${n} Pending`;
+                tile.style.color = n > 0 ? 'var(--danger)' : 'var(--text-muted)';
+            }
+        }
         const badge = document.getElementById('queue-badge');
         if (badge) {
             badge.textContent    = n > 0 ? `${n} pending` : '';
@@ -2289,7 +2831,9 @@ window.startSmartInstall = async function() {
         else if (state === 'cached')  { dot.classList.add('loading'); text.textContent = 'Cached'; }
         else { dot.classList.add('loading'); text.textContent = 'Wait…'; }
 
-        if (state === 'online') processSyncQueue();
+        if (state === 'online' && window.BackgroundSyncService) {
+            BackgroundSyncService.scheduleSync(1000, 'network_online');
+        }
     }
 
     window.addEventListener('online',  () => updateStatus('online'));
@@ -2299,6 +2843,30 @@ window.startSmartInstall = async function() {
        RELEASE NOTES — full working module
     ────────────────────────────────────── */
     const RELEASE_HISTORY = [
+        {
+            version: "v2.1",
+            date: "September 2026",
+            badge: "ETS Locator & Minor Updates",
+            badgeColor: "#16a34a",
+            sections: [
+                {
+                    emoji: "📍",
+                    title: "ETS Locator",
+                    color: "var(--primary)",
+                    items: [
+                        { text: "ETS Locator tool integrated and launched.", credit: "Majeed" }
+                    ]
+                },
+                {
+                    emoji: "🛠️",
+                    title: "Minor Updates",
+                    color: "var(--secondary)",
+                    items: [
+                        { text: "Minor updates, UI refinements, and stability improvements.", credit: "Majeed" }
+                    ]
+                }
+            ]
+        },
         {
             version: "v2.0.1",
             date: "August 2026",
@@ -2766,6 +3334,11 @@ window.startSmartInstall = async function() {
        EXPORT — EXCEL
     ────────────────────────────────────── */
     function exportExcel() {
+        if (!currentAuthUser) {
+            showToast('Please login with your Employee Code to export.', 'warning');
+            promptLogin();
+            return;
+        }
         showToast('Preparing Excel…', 'info');
         if (typeof XLSX === 'undefined') {
             const s = document.createElement('script');
@@ -2811,6 +3384,11 @@ window.startSmartInstall = async function() {
        EXPORT — PDF
     ────────────────────────────────────── */
     function exportData() {
+        if (!currentAuthUser) {
+            showToast('Please login with your Employee Code to export.', 'warning');
+            promptLogin();
+            return;
+        }
         showToast('Preparing PDF…', 'info');
         if (typeof html2pdf === 'undefined') {
             const s = document.createElement('script');
@@ -2965,11 +3543,8 @@ window.startSmartInstall = async function() {
                 ctrlMCount++;
                 clearTimeout(ctrlMTimer);
                 if (ctrlMCount >= 3) {
-                    requestDevPassword(pass => {
-                        if (pass === "Dubai@123") activateDeveloperMode();
-                        else if (pass && pass.trim()) showToast("Access Denied", "error");
-                    });
                     ctrlMCount = 0;
+                    promptLogin();
                 } else {
                     ctrlMTimer = setTimeout(() => { ctrlMCount = 0; }, 1000);
                 }

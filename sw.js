@@ -88,10 +88,12 @@ self.addEventListener('sync', event => {
   
   if (event.tag === 'tabreed-sync-queue') {
     event.waitUntil(
-      // Yahan hum future me offline to online API push logic add kar sakte hain
-      new Promise((resolve) => {
-        console.log('[Service Worker] Processing offline data queue...');
-        resolve();
+      self.clients.matchAll({ includeUncontrolled: true, type: 'window' }).then(clients => {
+        if (clients && clients.length) {
+          clients.forEach(client => {
+            client.postMessage({ type: 'PROCESS_SYNC_QUEUE' });
+          });
+        }
       })
     );
   }

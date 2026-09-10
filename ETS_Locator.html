@@ -221,7 +221,31 @@
         /* Plant Mobile Toggle */
         @media (max-width: 768px) {
             .col-plant, .col-coords { display: none !important; }
-            .badge-plant-mobile { display: inline-flex !important; }
+            .badge-plant-mobile {
+                display: inline-flex !important;
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+                font-size: 0.65rem !important;
+                padding: 2px 5px !important;
+                line-height: 1.2 !important;
+                max-width: 120px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .ets-mobile-line {
+                display: flex !important;
+                align-items: center !important;
+                flex-wrap: nowrap !important;
+                white-space: nowrap !important;
+                gap: 5px !important;
+                max-width: 100% !important;
+            }
+            .ets-name-text {
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                font-size: 0.88rem !important;
+            }
         }
         .badge-plant-mobile {
             display: none;
@@ -240,18 +264,26 @@
             transition: all 0.2s ease;
             white-space: nowrap;
             overflow: hidden;
+            text-align: right !important;
         }
         .col-coords.collapsed {
-            width: 30px !important;
-            max-width: 30px !important;
-            min-width: 30px !important;
-            padding-left: 5px !important;
-            padding-right: 5px !important;
+            width: 34px !important;
+            max-width: 34px !important;
+            min-width: 34px !important;
+            padding-left: 4px !important;
+            padding-right: 6px !important;
             text-align: right;
             color: transparent !important;
         }
         .col-coords.collapsed .coords-text {
-            display: none;
+            display: none !important;
+        }
+        .coords-header-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 6px;
+            cursor: pointer;
         }
         .coords-icon {
             cursor: pointer;
@@ -420,12 +452,20 @@
             <button class="action-btn" onclick="showStats()">
                 <i class="fas fa-chart-pie" style="color:var(--warning);margin-bottom:4px;"></i><span>Stats</span>
             </button>
-            <button class="action-btn" onclick="exportToExcel()">
-                <i class="fas fa-file-excel" style="color:#16a34a;margin-bottom:4px;"></i><span>Excel</span>
+            <!-- Advance Control Option (Contains Excel & PDF Export) -->
+            <button id="btn-admin-control" class="action-btn" onclick="handleAdminControlClick()" title="Advance Control">
+                <i class="fas fa-sliders-h" id="admin-icon" style="color:var(--primary);margin-bottom:4px;"></i>
+                <span id="admin-label">Advance</span>
             </button>
-            <button class="action-btn" onclick="exportToPDF()">
-                <i class="fas fa-file-pdf" style="color:var(--danger);margin-bottom:4px;"></i><span>PDF</span>
-            </button>
+            <!-- Unlocked Advance Actions (Excel & PDF Export for Dev) -->
+            <div id="admin-unlocked-actions" style="display:none;contents;">
+                <button class="action-btn pop-anim" onclick="exportToExcel()" style="border-color:rgba(22,163,74,0.35);" title="Export Excel">
+                    <i class="fas fa-file-excel" style="color:#16a34a;margin-bottom:4px;"></i><span>Excel</span>
+                </button>
+                <button class="action-btn pop-anim" onclick="exportToPDF()" style="border-color:rgba(239,68,68,0.35);" title="Export PDF">
+                    <i class="fas fa-file-pdf" style="color:var(--danger);margin-bottom:4px;"></i><span>PDF</span>
+                </button>
+            </div>
         </div>
 
         <div class="card-container">
@@ -435,9 +475,11 @@
                         <tr>
                             <th style="width: 35%; min-width: 150px;">ETS Name</th>
                             <th class="col-plant" style="width: 20%; min-width: 100px;">Plant</th>
-                            <th class="col-coords collapsed" id="th-coords" style="width: 25%; min-width: 130px;">
-                                <span class="coords-text">Coordinates</span>
-                                <i class="fas fa-eye coords-icon" onclick="toggleCoords()" title="Toggle Coordinates"></i>
+                            <th class="col-coords collapsed" id="th-coords" style="width: 25%; min-width: 130px; text-align: right;">
+                                <span class="coords-header-wrap" onclick="toggleCoords()" title="Toggle Coordinates">
+                                    <i class="fas fa-eye coords-icon"></i>
+                                    <span class="coords-text">Coordinates</span>
+                                </span>
                             </th>
                             <th style="text-align:right; width: auto;">
                                 <span class="actions-text" style="margin-right:5px;">Actions</span>
@@ -452,8 +494,12 @@
             </div>
         </div>
         
-        <div style="text-align:center;color:var(--text-muted);font-size:0.75rem;margin-top:10px;">
-            <p><i class="fas fa-cloud"></i> Connected to Cloud</p>
+        <div class="launchpad-footer" style="text-align:center;color:var(--text-muted);font-size:0.75rem;margin-top:16px;margin-bottom:12px;user-select:none;">
+            <p style="margin:0;">CODE by <span id="dev-trigger" onclick="handleDevClick()" style="cursor:pointer;font-weight:700;color:var(--primary);" title="Triple click for Advance Control">Majeed</span>
+                <span id="admin-footer-badge" style="display:none;margin-left:8px;padding:2px 8px;border-radius:10px;background:rgba(22,163,74,0.15);color:#16a34a;font-size:0.7rem;font-weight:700;cursor:pointer;" onclick="showAdminModal()" title="Advance Active - Click for options">
+                    <i class="fas fa-user-shield"></i> Admin
+                </span>
+            </p>
         </div>
     </div>
 
@@ -543,12 +589,305 @@
         </div>
     </div>
 
+    <!-- ADMIN CONTROLS MODAL -->
+    <div class="modal-overlay" id="adminModal" style="display:none;">
+        <div class="modal-card" style="max-width:380px;">
+            <div class="modal-header">
+                <span id="adminModalTitle" style="display:flex;align-items:center;gap:8px;">
+                    <i class="fas fa-sliders-h" style="color:var(--primary);"></i> Advance Controls
+                </span>
+                <button class="modal-close" onclick="closeAdminModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="padding:20px;">
+                <div style="margin-bottom:16px;padding:12px;border-radius:10px;background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.25);text-align:center;">
+                    <div style="font-weight:700;color:var(--primary);font-size:0.9rem;margin-bottom:4px;">
+                        <i class="fas fa-check-circle"></i> Advance Control Active
+                    </div>
+                    <div id="adminUserDisplay" style="font-size:0.8rem;color:var(--text-secondary);">Logged in as: Majeed (41764)</div>
+                </div>
+                
+                <div id="adminExportSection" style="display:none;">
+                    <h4 style="font-size:0.8rem;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.5px;margin:0 0 10px;text-align:left;">
+                        <i class="fas fa-download"></i> Data Export Options
+                    </h4>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+                        <button class="action-btn" style="padding:14px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;" onclick="exportToExcel(); closeAdminModal();">
+                            <i class="fas fa-file-excel" style="color:#16a34a;font-size:1.6rem;margin-bottom:6px;"></i>
+                            <span style="font-weight:700;font-size:0.85rem;">Export Excel</span>
+                        </button>
+                        <button class="action-btn" style="padding:14px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;" onclick="exportToPDF(); closeAdminModal();">
+                            <i class="fas fa-file-pdf" style="color:var(--danger);font-size:1.6rem;margin-bottom:6px;"></i>
+                            <span style="font-weight:700;font-size:0.85rem;">Export PDF</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <button onclick="lockAdminMode()" style="width:100%;padding:10px;background:rgba(239,68,68,0.1);color:var(--danger);border:1px solid rgba(239,68,68,0.3);border-radius:8px;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    <i class="fas fa-lock"></i> Lock Advance Controls
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-edit" onclick="closeAdminModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Notification -->
     <div id="toastMsg" class="toast"><i class="fas fa-info-circle"></i> <span>Action completed</span></div>
 
     <script>
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwtbDjkB35lpSHZAN40I6voWUbQHHGVZo9LHtfah_y3IZO149gJgeY33K-98MqxBeGc1g/exec";
         
+        const EMPLOYEES = [
+            { code:"40311", full:"JERLIN DELA VEGA CABRAL",              short:"Jerlin" },
+            { code:"40334", full:"RAJESH KUMAR SINGH",                    short:"Rajesh" },
+            { code:"40414", full:"EUGINERAJ KAMARAJ",                     short:"Eugine" },
+            { code:"40528", full:"PRASANTH M PURUSHOTHAMAN",              short:"Prashant" },
+            { code:"40659", full:"THOMAS GEEVARGHESE",                    short:"Thomas" },
+            { code:"40663", full:"AKBARSHA NALAKATH KALLINGAL",           short:"Akbar" },
+            { code:"41380", full:"MANIKANDAN SUBRAMANIAN",                short:"Manikandan" },
+            { code:"41383", full:"JIBIN JOHN",                            short:"Jibin" },
+            { code:"41600", full:"PRAMOD DEJAPPA POOJARY",                short:"Pramod" },
+            { code:"41764", full:"ABDUL MAJEED ABDUL HAFEEZ ANSARI",      short:"Majeed" },
+            { code:"41806", full:"YOOSAF MUNDODAN",                       short:"Yoosaf" },
+        ];
+
+        const SUPER_ADMIN_CODE = "41764";
+        const ADMIN_EMPLOYEE_CODES = ["41764", "40311", "40334", "40414", "40528", "40659", "40663", "41380", "41383", "41600", "41806"];
+
+        function getEmployeeRole(empCode) {
+            if (empCode === SUPER_ADMIN_CODE) return "super_admin";
+            if (ADMIN_EMPLOYEE_CODES.includes(empCode)) return "admin";
+            return "user";
+        }
+
+        function isUserAdmin(user) {
+            return user && (user.role === 'admin' || user.role === 'super_admin');
+        }
+
+        function isSuperAdmin(user) {
+            return user && user.role === 'super_admin';
+        }
+
+        let isAdminModeActive = false;
+        let currentAdminUser = null;
+
+        function verifyAdminPassword(pass) {
+            if (!pass) return null;
+            const clean = pass.toString().trim();
+            if (clean === "Dubai@123") {
+                return { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed", role: "super_admin" };
+            }
+            const now = new Date();
+            // 1. Time-based check (Window of -2 to +2 minutes) for Advance / Developer privileges
+            for (let offset = -2; offset <= 2; offset++) {
+                const d = new Date(now.getTime() + offset * 60000);
+                const hh = String(d.getHours()).padStart(2, '0');
+                const mm = String(d.getMinutes()).padStart(2, '0');
+                const h = String(d.getHours());
+                for (const emp of EMPLOYEES) {
+                    if (clean === `${emp.code}${hh}${mm}` || clean === `${emp.code}${h}${mm}`) {
+                        if (emp.code === SUPER_ADMIN_CODE) {
+                            return { ...emp, role: "super_admin" };
+                        }
+                        if (ADMIN_EMPLOYEE_CODES.includes(emp.code)) {
+                            return { ...emp, role: "admin" };
+                        }
+                        return { ...emp, role: "user" };
+                    }
+                }
+            }
+
+            // 2. Pure Employee Code check (User Level only)
+            for (const emp of EMPLOYEES) {
+                if (clean === emp.code) {
+                    return { ...emp, role: "user" };
+                }
+            }
+
+            return null;
+        }
+
+        function requestAdminPassword(callback) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:10001;display:flex;align-items:center;justify-content:center;';
+            overlay.innerHTML = `
+            <div style="background:var(--bg-card);padding:24px;border-radius:16px;width:90%;max-width:320px;box-shadow:0 20px 50px rgba(0,0,0,.4);text-align:center;border:1px solid var(--border);position:relative;">
+                <button id="adminPassCloseBtn" aria-label="Close" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:var(--bg-page);border:1px solid var(--border);font-size:1.3rem;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
+                <div style="font-size:2rem;margin-bottom:8px;">🔐</div>
+                <h3 style="margin:0 0 16px;color:var(--text-primary);font-size:1.1rem;font-weight:700;">Advance Control Access</h3>
+                <input type="password" id="adminPassInput" placeholder="" autocomplete="off"
+                    style="width:100%;padding:10px;margin-bottom:14px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;outline:none;text-align:center;background:var(--bg-page);color:var(--text-primary);">
+                <div style="display:flex;gap:10px;">
+                    <button id="adminPassCancel" style="flex:1;padding:10px;background:var(--bg-page);color:var(--text-primary);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:600;">Cancel</button>
+                    <button id="adminPassSubmit" style="flex:1;padding:10px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:700;">Unlock</button>
+                </div>
+            </div>`;
+            document.body.appendChild(overlay);
+            const input = overlay.querySelector('#adminPassInput');
+            input.focus();
+            const close   = () => { if (document.body.contains(overlay)) document.body.removeChild(overlay); };
+            const submit  = () => { const v = input.value; close(); callback(v); };
+            const closeBtn = overlay.querySelector('#adminPassCloseBtn');
+            if (closeBtn) closeBtn.onclick = close;
+            overlay.querySelector('#adminPassCancel').onclick = close;
+            overlay.querySelector('#adminPassSubmit').onclick = submit;
+            input.addEventListener('keypress', e => { if (e.key === 'Enter') submit(); });
+            overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+        }
+
+        let devClickCount = 0, devClickTimer;
+        function handleDevClick() {
+            devClickCount++;
+            clearTimeout(devClickTimer);
+            if (devClickCount >= 3) {
+                devClickCount = 0;
+                if (currentAdminUser) {
+                    showToast("Advance Control is active (" + currentAdminUser.short + ")");
+                    showAdminModal();
+                } else {
+                    requestAdminPassword(pass => {
+                        const user = verifyAdminPassword(pass);
+                        if (user) {
+                            activateAdminMode(user);
+                            showAdminModal();
+                        } else if (pass && pass.trim()) {
+                            showToast("Access Denied: Invalid Code", "error");
+                        }
+                    });
+                }
+                return;
+            }
+            devClickTimer = setTimeout(() => { devClickCount = 0; }, 1000);
+        }
+
+        function handleAdminControlClick() {
+            if (currentAdminUser) {
+                showAdminModal();
+            } else {
+                requestAdminPassword(pass => {
+                    const user = verifyAdminPassword(pass);
+                    if (user) {
+                        activateAdminMode(user);
+                        showAdminModal();
+                    } else if (pass && pass.trim()) {
+                        showToast("Access Denied: Invalid Code", "error");
+                    }
+                });
+            }
+        }
+
+        function activateAdminMode(user) {
+            if (!user) return;
+            currentAdminUser = user;
+            isAdminModeActive = isUserAdmin(user);
+            try {
+                localStorage.setItem('tabreed_ets_admin_unlocked', isAdminModeActive ? 'true' : 'false');
+                localStorage.setItem('tabreed_ets_admin_user', JSON.stringify(currentAdminUser));
+            } catch(e) {}
+            updateAdminUI();
+            if (isSuperAdmin(user)) {
+                showToast("Welcome, " + currentAdminUser.short + "! Developer Access Active.");
+            } else if (isUserAdmin(user)) {
+                showToast("Welcome, " + currentAdminUser.short + "! Advance Control Active.");
+            } else {
+                showToast("Welcome, " + currentAdminUser.short + "! User Level Access.");
+            }
+        }
+
+        function lockAdminMode() {
+            isAdminModeActive = false;
+            currentAdminUser = null;
+            try {
+                localStorage.removeItem('tabreed_ets_admin_unlocked');
+                localStorage.removeItem('tabreed_ets_admin_user');
+            } catch(e) {}
+            updateAdminUI();
+            closeAdminModal();
+            showToast("Advance Controls Locked.");
+        }
+
+        function updateAdminUI() {
+            const unlockedActions = document.getElementById('admin-unlocked-actions');
+            const adminIcon = document.getElementById('admin-icon');
+            const adminLabel = document.getElementById('admin-label');
+            const footerBadge = document.getElementById('admin-footer-badge');
+            const adminUserDisplay = document.getElementById('adminUserDisplay');
+            const exportSection = document.getElementById('adminExportSection');
+
+            if (currentAdminUser && isUserAdmin(currentAdminUser)) {
+                // Top bar quick export buttons only for Developer (41764)
+                if (unlockedActions) {
+                    unlockedActions.style.display = isSuperAdmin(currentAdminUser) ? 'contents' : 'none';
+                }
+                if (adminIcon) {
+                    adminIcon.className = 'fas fa-sliders-h';
+                    adminIcon.style.color = '#16a34a';
+                }
+                if (adminLabel) {
+                    adminLabel.innerText = currentAdminUser.short;
+                    adminLabel.style.color = '#16a34a';
+                    adminLabel.style.fontWeight = '700';
+                }
+                if (footerBadge) {
+                    footerBadge.style.display = 'inline-block';
+                    footerBadge.innerHTML = `<i class="fas fa-sliders-h"></i> ${isSuperAdmin(currentAdminUser) ? 'Dev' : 'Advance'}: ${currentAdminUser.short}`;
+                }
+                if (adminUserDisplay) {
+                    const roleDesc = isSuperAdmin(currentAdminUser) ? 'Developer' : 'Advance Control';
+                    adminUserDisplay.innerText = `Logged in as: ${currentAdminUser.full || currentAdminUser.short} (${currentAdminUser.code}) - ${roleDesc}`;
+                }
+                if (exportSection) {
+                    exportSection.style.display = isSuperAdmin(currentAdminUser) ? 'block' : 'none';
+                }
+            } else if (currentAdminUser) {
+                // User level
+                if (unlockedActions) unlockedActions.style.display = 'none';
+                if (adminIcon) {
+                    adminIcon.className = 'fas fa-user';
+                    adminIcon.style.color = 'var(--primary)';
+                }
+                if (adminLabel) {
+                    adminLabel.innerText = currentAdminUser.short;
+                    adminLabel.style.color = 'var(--primary)';
+                    adminLabel.style.fontWeight = '600';
+                }
+                if (footerBadge) {
+                    footerBadge.style.display = 'inline-block';
+                    footerBadge.innerHTML = `<i class="fas fa-user"></i> User: ${currentAdminUser.short}`;
+                }
+                if (adminUserDisplay) {
+                    adminUserDisplay.innerText = `Logged in as: ${currentAdminUser.full || currentAdminUser.short} (${currentAdminUser.code}) - User Level`;
+                }
+                if (exportSection) exportSection.style.display = 'none';
+            } else {
+                if (unlockedActions) unlockedActions.style.display = 'none';
+                if (adminIcon) {
+                    adminIcon.className = 'fas fa-sliders-h';
+                    adminIcon.style.color = 'var(--primary)';
+                }
+                if (adminLabel) {
+                    adminLabel.innerText = 'Advance';
+                    adminLabel.style.color = '';
+                    adminLabel.style.fontWeight = '';
+                }
+                if (footerBadge) {
+                    footerBadge.style.display = 'none';
+                }
+                if (exportSection) exportSection.style.display = 'none';
+            }
+        }
+
+        function showAdminModal() {
+            const modal = document.getElementById('adminModal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeAdminModal() {
+            const modal = document.getElementById('adminModal');
+            if (modal) modal.style.display = 'none';
+        }
+
         let etsList = [];
         let syncQueue = JSON.parse(localStorage.getItem('tabreed_ets_queue')) || [];
 
@@ -556,13 +895,21 @@
             if (localStorage.getItem('tabreed_theme') === 'dark') {
                 document.body.classList.add('dark-mode');
             }
+            try {
+                const saved = localStorage.getItem('tabreed_ets_admin_user');
+                if (saved) {
+                    activateAdminMode(JSON.parse(saved));
+                }
+            } catch(e) {}
             updateStatus(navigator.onLine ? 'loading' : 'offline');
             refreshTable(false);
             if (navigator.onLine) processSyncQueue();
         }
 
-        window.addEventListener('online',  () => { updateStatus('online'); processSyncQueue(); });
+        window.addEventListener('online',  () => { updateStatus('online'); setTimeout(processSyncQueue, 1000); });
         window.addEventListener('offline', () => updateStatus('offline'));
+        document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && navigator.onLine) processSyncQueue(); });
+        window.addEventListener('focus', () => { if (navigator.onLine) processSyncQueue(); });
 
         function updateStatus(state) {
             const el = document.getElementById('connectionStatus');
@@ -773,16 +1120,16 @@
                 const plantName = (item.plant !== undefined && item.plant !== null && item.plant !== "") ? item.plant : "N/A";
 
                 return `<tr class="ets-row" onmousedown="handlePressStart(this)" onmouseup="handlePressEnd()" onmouseleave="handlePressEnd()" ontouchstart="handlePressStart(this)" ontouchend="handlePressEnd()" ontouchcancel="handlePressEnd()">
-                    <td style="font-weight:700;color:var(--primary);">
-                        <div style="display:flex; align-items:center; flex-wrap:nowrap; gap:6px;">
+                    <td style="font-weight:700;color:var(--primary); white-space:nowrap;">
+                        <div class="ets-mobile-line" style="display:flex; align-items:center; flex-wrap:nowrap; gap:6px; white-space:nowrap;">
                             ${nameDisplay} 
-                            <span class="badge-plant-mobile"><i class="fas fa-industry" style="margin-right:3px;"></i>${escapeHtml(plantName)}</span>
+                            <span class="badge-plant-mobile" title="${escapeHtml(plantName)}"><i class="fas fa-industry" style="margin-right:3px;"></i>${escapeHtml(plantName)}</span>
                         </div>
                     </td>
                     <td class="col-plant">
                         <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px;">${escapeHtml(plantName)}</div>
                     </td>
-                    <td class="col-coords collapsed">
+                    <td class="col-coords collapsed" style="text-align: right;">
                         <span class="coords-text">${item.lat}, ${item.lng}</span>
                     </td>
                     <td style="text-align:right; white-space:nowrap;">
@@ -835,8 +1182,13 @@
             }
         }
 
-        // --- Export Functions ---
+        // --- Export Functions (Super Admin Only) ---
         function exportToExcel() {
+            if (!currentAdminUser || !isSuperAdmin(currentAdminUser)) {
+                showToast("Access Denied", "error");
+                if (!currentAdminUser) handleAdminControlClick();
+                return;
+            }
             if (etsList.length === 0) { showToast("No data to export."); return; }
             const wsData = etsList.map(item => ({
                 "ETS Name": item.name,
@@ -852,6 +1204,11 @@
         }
 
         function exportToPDF() {
+            if (!currentAdminUser || !isSuperAdmin(currentAdminUser)) {
+                showToast("Access Denied", "error");
+                if (!currentAdminUser) handleAdminControlClick();
+                return;
+            }
             if (etsList.length === 0) { showToast("No data to export."); return; }
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
