@@ -480,6 +480,13 @@
                     <label>Coordinates (Lat, Lng)</label>
                     <input type="text" id="etsCoords" placeholder="e.g. 24.452254, 54.614217" required>
                 </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom: 8px;">
+                        <input type="checkbox" id="hasContactCb" onchange="toggleContactField()" style="width: 16px; height: 16px;"> 
+                        <span>Add Contact Person</span>
+                    </label>
+                    <input type="text" id="etsContact" placeholder="e.g. Ali (050-XXXXXXX)" style="display:none; margin-bottom: 5px;">
+                </div>
                 <div class="form-group">
                     <label>Comment / Landmark Note (Optional)</label>
                     <textarea id="etsComment" placeholder="Any specific location hints or notes..." rows="3"></textarea>
@@ -759,7 +766,7 @@
                 
                 // If there's a comment, make the name clickable and add a small icon. Otherwise just show the name.
                 const nameDisplay = hasComment 
-                    ? `<span style="cursor:pointer; white-space:nowrap;" onclick="showComment('${escapeHtml(commentText)}')">${escapeHtml(item.name)} <i class="fas fa-sticky-note" style="color:var(--primary); margin-left:3px; font-size:0.85rem;" title="View Note"></i></span>` 
+                    ? `<span style="cursor:pointer; white-space:nowrap;" onclick="showComment(${idx})">${escapeHtml(item.name)} <i class="fas fa-sticky-note" style="color:#FFC107; margin-left:3px; font-size:0.85rem;" title="View Note"></i></span>` 
                     : `<span style="white-space:nowrap;">${escapeHtml(item.name)}</span>`;
                 
                 // Ensure plantName doesn't default to N/A if it just happens to be a falsy string, checking against undefined/null
@@ -880,12 +887,27 @@
         }
 
         // --- Modals & Save ---
+        function toggleContactField() {
+            const cb = document.getElementById('hasContactCb');
+            const field = document.getElementById('etsContact');
+            if (cb.checked) {
+                field.style.display = 'block';
+            } else {
+                field.style.display = 'none';
+                field.value = '';
+            }
+        }
+
         function openAddModal() {
             document.getElementById('modalTitle').innerHTML = '<i class="fas fa-map-marked-alt"></i> Add New ETS';
             document.getElementById('editRowIdx').value = '-1';
             document.getElementById('etsName').value = '';
             document.getElementById('etsPlant').value = '';
             document.getElementById('etsCoords').value = '';
+            
+            document.getElementById('hasContactCb').checked = false;
+            toggleContactField();
+            
             document.getElementById('etsComment').value = '';
             document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Save ETS';
             document.getElementById('etsModal').style.display = 'flex';
@@ -898,7 +920,27 @@
             document.getElementById('etsName').value = item.name;
             document.getElementById('etsPlant').value = item.plant;
             document.getElementById('etsCoords').value = `${item.lat}, ${item.lng}`;
-            document.getElementById('etsComment').value = item.comment || '';
+            
+            let fullComment = item.comment || '';
+            let contact = '';
+            let note = fullComment;
+            
+            if (fullComment.startsWith("Contact: ")) {
+                const splitParts = fullComment.split("\n---\n");
+                contact = splitParts[0].replace("Contact: ", "").trim();
+                note = splitParts.length > 1 ? splitParts.slice(1).join("\n---\n") : "";
+            }
+            
+            if (contact) {
+                document.getElementById('hasContactCb').checked = true;
+                toggleContactField();
+                document.getElementById('etsContact').value = contact;
+            } else {
+                document.getElementById('hasContactCb').checked = false;
+                toggleContactField();
+            }
+            
+            document.getElementById('etsComment').value = note;
             document.getElementById('saveBtn').innerHTML = '<i class="fas fa-check"></i> Update ETS';
             document.getElementById('etsModal').style.display = 'flex';
         }
@@ -912,7 +954,14 @@
             const name = document.getElementById('etsName').value.trim();
             const plant = document.getElementById('etsPlant').value.trim();
             const coordsStr = document.getElementById('etsCoords').value.trim();
-            const comment = document.getElementById('etsComment').value.trim();
+            
+            const contact = document.getElementById('etsContact').value.trim();
+            const rawComment = document.getElementById('etsComment').value.trim();
+            
+            let finalComment = rawComment;
+            if (document.getElementById('hasContactCb').checked && contact) {
+                finalComment = "Contact: " + contact + (rawComment ? "\n---\n" + rawComment : "");
+            }
             
             // Parse coords
             const coordsParts = coordsStr.split(',').map(s => s.trim());
@@ -928,7 +977,7 @@
 
             const payload = { 
                 action: rowIdx >= 0 ? 'update' : 'add', 
-                data: { rowIdx: rowIdx >= 0 ? rowIdx : null, name: name, plant: plant, coords: coordsString, lat: lat, lng: lng, comment: comment } 
+                data: { rowIdx: rowIdx >= 0 ? rowIdx : null, name: name, plant: plant, coords: coordsString, lat: lat, lng: lng, comment: finalComment } 
             };
             
             if (!navigator.onLine) {
@@ -981,8 +1030,35 @@
             });
         }
 
-        function showComment(text) {
-            document.getElementById('commentTextDisplay').innerText = text;
+        function showComment(idx) {
+            const item = etsList[idx];
+            let fullComment = item.comment || '';
+            let contact = '';
+            let note = fullComment;
+            
+            if (fullComment.startsWith("Contact: ")) {
+                const splitParts = fullComment.split("\n---\n");
+                contact = splitParts[0].replace("Contact: ", "").trim();
+                note = splitParts.length > 1 ? splitParts.slice(1).join("\n---\n") : "";
+            }
+
+            let html = '';
+            if (contact) {
+                html += `<div style="margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+                            <strong style="color:var(--text-primary);"><i class="fas fa-user-circle" style="color:var(--primary); margin-right:5px;"></i> Contact Person:</strong><br>
+                            <span style="color:var(--text-secondary); display:inline-block; margin-top:4px;">${escapeHtml(contact)}</span>
+                         </div>`;
+            }
+            if (note) {
+                html += `<div>
+                            <strong style="color:var(--text-primary);"><i class="fas fa-sticky-note" style="color:#FFC107; margin-right:5px;"></i> Note:</strong><br>
+                            <span style="color:var(--text-secondary); white-space:pre-wrap; display:inline-block; margin-top:4px;">${escapeHtml(note)}</span>
+                         </div>`;
+            } else if (!contact && !note) {
+                html = `<span style="color:var(--text-muted);">No notes available.</span>`;
+            }
+
+            document.getElementById('commentTextDisplay').innerHTML = html;
             document.getElementById('commentModal').style.display = 'flex';
         }
 
