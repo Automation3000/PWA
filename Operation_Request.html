@@ -123,7 +123,7 @@
                     <button onclick="window.location.href='index.html'" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--primary);padding-right:10px;">
                         <i class="fas fa-arrow-left"></i>
                     </button>
-                    <div class="logo" style="width:34px;height:34px;background:white;border-radius:8px;padding:4px;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:flex;align-items:center;justify-content:center;margin-right:12px;border:1px solid rgba(0,0,0,0.05);flex-shrink:0;">
+                    <div class="logo" style="width:42px;height:42px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,0.05);border:1px solid var(--border);flex-shrink:0;margin-right:12px;">
                         <img src="icon-192.png" alt="Logo" style="width:100%;height:100%;object-fit:contain;" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
                     </div>
                     <div>
@@ -201,7 +201,8 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <h3 id="profileModalFullName" style="margin:0 0 4px;font-size:1.05rem;color:var(--text-primary);font-weight:700;">-</h3>
-                <p id="profileModalEmpId" style="margin:0 0 12px;font-size:0.85rem;color:var(--text-muted);font-weight:600;">-</p>
+                <p id="profileModalEmpId" style="margin:0 0 4px;font-size:0.85rem;color:var(--text-muted);font-weight:600;">-</p>
+                <p id="profileModalEmail" style="margin:0 0 12px;font-size:0.8rem;color:var(--primary);font-weight:500;">-</p>
                 <div id="profileModalRoleBadge" style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;margin-bottom:14px;">
                     USER LEVEL
                 </div>
@@ -241,7 +242,7 @@
                 </div>
                 <div class="form-group">
                     <label>Plant</label>
-                    <input type="text" id="reqPlant" placeholder="e.g. DCP-01" required>
+                    <input type="text" id="reqPlant" placeholder="AD-027" required>
                 </div>
                 <div class="form-group">
                     <label>Requested Date</label>
@@ -279,20 +280,7 @@
         let requests = [];
         let currentUser = null;
 
-        const EMPLOYEES = [
-            { code:"40311", full:"JERLIN DELA VEGA CABRAL",              short:"Jerlin" },
-            { code:"40334", full:"RAJESH KUMAR SINGH",                    short:"Rajesh" },
-            { code:"40414", full:"EUGINERAJ KAMARAJ",                     short:"Eugine" },
-            { code:"40528", full:"PRASANTH M PURUSHOTHAMAN",              short:"Prashant" },
-            { code:"40659", full:"THOMAS GEEVARGHESE",                    short:"Thomas" },
-            { code:"40663", full:"AKBARSHA NALAKATH KALLINGAL",           short:"Akbar" },
-            { code:"41380", full:"MANIKANDAN SUBRAMANIAN",                short:"Manikandan" },
-            { code:"41383", full:"JIBIN JOHN",                            short:"Jibin" },
-            { code:"41600", full:"PRAMOD DEJAPPA POOJARY",                short:"Pramod" },
-            { code:"41764", full:"ABDUL MAJEED ABDUL HAFEEZ ANSARI",      short:"Majeed" },
-            { code:"41806", full:"YOOSAF MUNDODAN",                       short:"Yoosaf" },
-            { code:"40078", full:"BIBIN IPE ABRAHAM",                     short:"Bibin", role:"supervisor" }
-        ];
+        let EMPLOYEES = [];
 
         // ──────────────────────────────────────────
         // LOGIN SYSTEM
@@ -391,15 +379,33 @@
             if (headerUserBtn) headerUserBtn.style.display = 'inline-flex';
             if (headerUserName) headerUserName.innerText = user.short || 'User';
             
-            const isSupervisor = (user.role === 'supervisor' || user.role === 'super_admin' || user.short === 'Bibin');
+            const isSuper = (user.role === 'super_admin');
+            const isSupervisor = (user.role === 'supervisor' || user.short === 'Bibin');
             
             if (headerUserRoleBadge) {
-                if (isSupervisor) {
+                if (isSuper) {
+                    headerUserRoleBadge.innerText = 'DEV';
+                    headerUserRoleBadge.style.background = 'var(--danger)';
+                } else if (isSupervisor) {
                     headerUserRoleBadge.innerText = 'SUPERVISOR';
                     headerUserRoleBadge.style.background = 'var(--danger)';
                 } else {
                     headerUserRoleBadge.innerText = 'USER';
                     headerUserRoleBadge.style.background = 'var(--primary)';
+                }
+            }
+            
+            const teamSelect = document.getElementById('reqTeam');
+            if (teamSelect) {
+                if (!isSupervisor && !isSuper) {
+                    teamSelect.value = user.short;
+                    teamSelect.disabled = true;
+                    teamSelect.style.background = 'var(--bg-surface)';
+                    teamSelect.style.opacity = '0.8';
+                } else {
+                    teamSelect.disabled = false;
+                    teamSelect.style.background = 'var(--input-bg)';
+                    teamSelect.style.opacity = '1';
                 }
             }
             
@@ -412,10 +418,23 @@
             document.getElementById('profileModalFullName').innerText = currentUser.full || currentUser.short;
             document.getElementById('profileModalEmpId').innerText = `Employee ID: ${currentUser.code}`;
             
-            const roleEl = document.getElementById('profileModalRoleBadge');
-            const isSupervisor = (currentUser.role === 'supervisor' || currentUser.role === 'super_admin' || currentUser.short === 'Bibin');
+            const emailEl = document.getElementById('profileModalEmail');
+            if (emailEl) {
+                emailEl.innerText = currentUser.email || '';
+                emailEl.style.display = currentUser.email ? 'block' : 'none';
+            }
             
-            if (isSupervisor) {
+            const roleEl = document.getElementById('profileModalRoleBadge');
+            const isSuper = (currentUser.role === 'super_admin');
+            const isSupervisor = (currentUser.role === 'supervisor' || currentUser.short === 'Bibin');
+            const hasAdvance = isSuper || isSupervisor;
+            
+            if (isSuper) {
+                roleEl.innerText = "DEVELOPER";
+                roleEl.style.background = "rgba(220,38,38,0.15)";
+                roleEl.style.color = "var(--danger)";
+                roleEl.style.border = "1px solid rgba(220,38,38,0.3)";
+            } else if (isSupervisor) {
                 roleEl.innerText = "SUPERVISOR";
                 roleEl.style.background = "rgba(220,38,38,0.15)";
                 roleEl.style.color = "var(--danger)";
@@ -429,7 +448,7 @@
             
             const adminInfoEl = document.getElementById('profileAdminInfo');
             if (adminInfoEl) {
-                if (isSupervisor) {
+                if (hasAdvance) {
                     adminInfoEl.style.display = "block";
                     adminInfoEl.innerHTML = `<i class="fas fa-sliders-h" style="color:#ea580c;margin-right:6px;"></i> Advance Level Access`;
                 } else {
@@ -455,6 +474,14 @@
             const headerUserBtn = document.getElementById('header-user-btn');
             if (headerLoginBtn) headerLoginBtn.style.display = 'inline-flex';
             if (headerUserBtn) headerUserBtn.style.display = 'none';
+            
+            const teamSelect = document.getElementById('reqTeam');
+            if (teamSelect) {
+                teamSelect.disabled = false;
+                teamSelect.style.background = 'var(--input-bg)';
+                teamSelect.style.opacity = '1';
+                teamSelect.value = '';
+            }
             
             updateUIPermissions();
             showToast("Logged out successfully");
@@ -502,7 +529,14 @@
             localStorage.setItem('tabreed_dark_mode', isDark ? 'true' : 'false');
         }
 
-        window.onload = () => {
+        window.onload = async () => {
+            try {
+                const res = await fetch('employees.json');
+                EMPLOYEES = await res.json();
+            } catch(e) {
+                console.error("Failed to load employees data");
+            }
+
             document.addEventListener('keydown', e => {
                 if (e.key === 'Escape') {
                     const uModal = document.getElementById('userProfileModal');
@@ -653,8 +687,11 @@
 
         function loadDummyData() {
             requests = [
-                { id: "1", wo: "WO-991204", desc: "Out of schedule PM attendance required", plant: "DCP-01", date: "10.09.2026", team: "Mechanical Team", remarks: "", status: "Pending" },
-                { id: "2", wo: "WO-882311", desc: "Operation 0020 missing for Filter Replacement", plant: "DCP-03", date: "09.09.2026", team: "Electrical Team", remarks: "Please create op quickly", status: "Completed" }
+                { id: "1", wo: "WO-991204", desc: "Out of schedule PM attendance required", plant: "AD-027", date: "10.09.2026", team: "Jerlin", remarks: "Urgent", status: "Pending" },
+                { id: "2", wo: "WO-882311", desc: "Operation 0020 missing for Filter Replacement", plant: "AD-027", date: "09.09.2026", team: "Rajesh", remarks: "Please create op quickly", status: "Completed" },
+                { id: "3", wo: "WO-771233", desc: "Require PR creation for new sensor", plant: "AD-027", date: "08.09.2026", team: "Prashant", remarks: "", status: "Pending" },
+                { id: "4", wo: "WO-665123", desc: "Missing operation for Chiller maintenance", plant: "AD-027", date: "11.09.2026", team: "Manikandan", remarks: "Needed for tomorrow", status: "Pending" },
+                { id: "5", wo: "WO-551122", desc: "Update hours in PM work order", plant: "AD-027", date: "12.09.2026", team: "Akbar", remarks: "", status: "Completed" }
             ];
             renderTable();
         }

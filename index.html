@@ -670,6 +670,12 @@
                 <i class="fas fa-tools tile-icon" style="color:var(--primary);"></i>
                 <div class="tile-status" style="color:var(--danger);"><i class="fas fa-times-circle"></i> Not Ready</div>
             </div>
+            <div class="tile" onclick="window.location.href='Team_Contacts.html'">
+                <div class="tile-title">Team Contacts</div>
+                <div class="tile-subtitle">Directory & Contact Information</div>
+                <i class="fas fa-address-book tile-icon" style="color:var(--primary);"></i>
+                <div class="tile-status" style="color:var(--secondary);"><i class="fas fa-check-circle"></i> Ready</div>
+            </div>
         </div>
 
         <h2 class="group-title">Offline Tools &amp; Support</h2>
@@ -1045,7 +1051,8 @@
                 <i class="fas fa-user" id="profileModalAvatarIcon"></i>
             </div>
             <h3 id="profileModalFullName" style="margin:0 0 4px;font-size:1.05rem;color:var(--text-primary);font-weight:700;">-</h3>
-            <p id="profileModalEmpId" style="margin:0 0 12px;font-size:0.85rem;color:var(--text-muted);font-weight:600;">-</p>
+            <p id="profileModalEmpId" style="margin:0 0 4px;font-size:0.85rem;color:var(--text-muted);font-weight:600;">-</p>
+            <p id="profileModalEmail" style="margin:0 0 12px;font-size:0.8rem;color:var(--primary);font-weight:500;">-</p>
             <div id="profileModalRoleBadge" style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;margin-bottom:14px;">
                 USER LEVEL
             </div>
@@ -1134,20 +1141,7 @@
     const LOG_MAX       = 80;  // max stored log entries
     const API_TIMEOUT   = 12000; // 12s
 
-    const EMPLOYEES = [
-        { code:"40311", full:"JERLIN DELA VEGA CABRAL",              short:"Jerlin" },
-        { code:"40334", full:"RAJESH KUMAR SINGH",                    short:"Rajesh" },
-        { code:"40414", full:"EUGINERAJ KAMARAJ",                     short:"Eugine" },
-        { code:"40528", full:"PRASANTH M PURUSHOTHAMAN",              short:"Prashant" },
-        { code:"40659", full:"THOMAS GEEVARGHESE",                    short:"Thomas" },
-        { code:"40663", full:"AKBARSHA NALAKATH KALLINGAL",           short:"Akbar" },
-        { code:"41380", full:"MANIKANDAN SUBRAMANIAN",                short:"Manikandan" },
-        { code:"41383", full:"JIBIN JOHN",                            short:"Jibin" },
-        { code:"41600", full:"PRAMOD DEJAPPA POOJARY",                short:"Pramod" },
-        { code:"41764", full:"ABDUL MAJEED ABDUL HAFEEZ ANSARI",      short:"Majeed" },
-        { code:"41806", full:"YOOSAF MUNDODAN",                       short:"Yoosaf" },
-        { code:"40078", full:"BIBIN IPE ABRAHAM",                     short:"Bibin" },
-    ];
+    let EMPLOYEES = [];
 
     // ──────────────────────────────────────────
     // ACCESS CONTROL & ROLES CONFIGURATION
@@ -1366,7 +1360,14 @@
     /* ──────────────────────────────────────
        DOM READY
     ────────────────────────────────────── */
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const res = await fetch('employees.json');
+            EMPLOYEES = await res.json();
+        } catch(e) {
+            addDebugLog("Failed to load employees.json");
+        }
+        
         // Restore theme
         const savedTheme = localStorage.getItem('tabreed_selected_theme');
         if (savedTheme) {
@@ -1645,11 +1646,16 @@
 
         const nameEl = document.getElementById('profileModalFullName');
         const empEl = document.getElementById('profileModalEmpId');
+        const emailEl = document.getElementById('profileModalEmail');
         const roleEl = document.getElementById('profileModalRoleBadge');
         const adminInfoEl = document.getElementById('profileAdminInfo');
 
         if (nameEl) nameEl.innerText = currentAuthUser.full || currentAuthUser.short;
         if (empEl) empEl.innerText = `Employee ID: ${currentAuthUser.code}`;
+        if (emailEl) {
+            emailEl.innerText = currentAuthUser.email || '';
+            emailEl.style.display = currentAuthUser.email ? 'block' : 'none';
+        }
 
         const isSuper = isSuperAdmin(currentAuthUser);
         const isAdmin = isUserAdmin(currentAuthUser);

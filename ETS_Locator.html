@@ -410,7 +410,7 @@
                     <button onclick="window.location.href='index.html'" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--primary);padding-right:10px;" title="Back">
                         <i class="fas fa-arrow-left"></i>
                     </button>
-                    <div class="logo" style="width:34px;height:34px;background:white;border-radius:8px;padding:4px;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:flex;align-items:center;justify-content:center;margin-right:12px;border:1px solid rgba(0,0,0,0.05);flex-shrink:0;">
+                    <div class="logo" style="width:42px;height:42px;background:white;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,0.05);border:1px solid var(--border);flex-shrink:0;margin-right:12px;">
                         <img src="icon-192.png" alt="Logo" style="width:100%;height:100%;object-fit:contain;" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
                     </div>
                     <div class="brand-text">
@@ -641,19 +641,7 @@
     <script>
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwtbDjkB35lpSHZAN40I6voWUbQHHGVZo9LHtfah_y3IZO149gJgeY33K-98MqxBeGc1g/exec";
         
-        const EMPLOYEES = [
-            { code:"40311", full:"JERLIN DELA VEGA CABRAL",              short:"Jerlin" },
-            { code:"40334", full:"RAJESH KUMAR SINGH",                    short:"Rajesh" },
-            { code:"40414", full:"EUGINERAJ KAMARAJ",                     short:"Eugine" },
-            { code:"40528", full:"PRASANTH M PURUSHOTHAMAN",              short:"Prashant" },
-            { code:"40659", full:"THOMAS GEEVARGHESE",                    short:"Thomas" },
-            { code:"40663", full:"AKBARSHA NALAKATH KALLINGAL",           short:"Akbar" },
-            { code:"41380", full:"MANIKANDAN SUBRAMANIAN",                short:"Manikandan" },
-            { code:"41383", full:"JIBIN JOHN",                            short:"Jibin" },
-            { code:"41600", full:"PRAMOD DEJAPPA POOJARY",                short:"Pramod" },
-            { code:"41764", full:"ABDUL MAJEED ABDUL HAFEEZ ANSARI",      short:"Majeed" },
-            { code:"41806", full:"YOOSAF MUNDODAN",                       short:"Yoosaf" },
-        ];
+        let EMPLOYEES = [];
 
         const SUPER_ADMIN_CODE = "41764";
         const ADMIN_EMPLOYEE_CODES = ["41764", "40311", "40334", "40414", "40528", "40659", "40663", "41380", "41383", "41600", "41806"];
@@ -894,7 +882,13 @@
         let etsList = [];
         let syncQueue = JSON.parse(localStorage.getItem('tabreed_ets_queue')) || [];
 
-        function initApp() {
+        async function initApp() {
+            try {
+                const res = await fetch('employees.json');
+                EMPLOYEES = await res.json();
+            } catch(e) {
+                console.error("Failed to load employees data");
+            }
             if (localStorage.getItem('tabreed_theme') === 'dark') {
                 document.body.classList.add('dark-mode');
             }
