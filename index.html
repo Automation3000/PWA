@@ -1129,7 +1129,7 @@
     /* ──────────────────────────────────────
        CONSTANTS & CONFIG
     ────────────────────────────────────── */
-    const APP_VERSION   = "v2.1";
+    const APP_VERSION   = "v2.2";
     const GAS_API_URL   = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
     const LS_INVENTORY  = "localTabreedInventory";
     const LS_HISTORY    = "localTabreedHistory";
@@ -2881,6 +2881,23 @@ window.startSmartInstall = async function() {
        RELEASE NOTES — full working module
     ────────────────────────────────────── */
     const RELEASE_HISTORY = [
+        {
+            version: "v2.2",
+            date: "September 2026",
+            badge: "Team Contacts & Service Worker Sync",
+            badgeColor: "#2563eb",
+            sections: [
+                {
+                    emoji: "📞",
+                    title: "Team Contacts",
+                    color: "var(--primary)",
+                    items: [
+                        { text: "Centralized contacts fetched dynamically from external JSON.", credit: "Majeed" },
+                        { text: "Updated latest contact numbers and fixed offline PWA cache clearing.", credit: "Majeed" }
+                    ]
+                }
+            ]
+        },
         {
             version: "v2.1",
             date: "September 2026",

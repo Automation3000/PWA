@@ -1,11 +1,13 @@
-const CACHE_NAME = 'tabreed-pro-v9'; // v9: Added ETS Locator
+const CACHE_NAME = 'tabreed-pro-v11'; // v9: Added ETS Locator
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/NEW.html',
+  '/Operation_Request.html',
+  '/Team_Contacts.html',
   '/DocumentFolder.html',
   '/PM_Checklist_Generator.html',
   '/ETS_Locator.html',
+  '/employees.json',
   '/manifest.json',
   '/icon-72.png',
   '/icon-96.png',
