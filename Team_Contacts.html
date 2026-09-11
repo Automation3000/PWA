@@ -79,6 +79,8 @@
         .action-btn { flex: 1; padding: 0.5rem; border: none; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: background 0.2s; text-decoration: none; }
         .btn-whatsapp { background: #25D366; color: white; }
         .btn-whatsapp:hover { background: #20bd5a; }
+        .btn-call { background: var(--primary); color: white; }
+        .btn-call:hover { background: #1d4ed8; }
         .btn-email { background: var(--primary-light); color: var(--primary); }
         .btn-email:hover { background: #dbeafe; }
         
@@ -148,7 +150,8 @@
             grid.innerHTML = '';
             
             data.forEach(emp => {
-                const cleanPhone = emp.phone ? emp.phone.replace(/[^0-9]/g, '') : '';
+                const cleanPhone = emp.phone ? emp.phone.replace(/[^0-9+]/g, '') : '';
+                const cleanWhatsapp = emp.whatsapp ? emp.whatsapp.replace(/[^0-9+]/g, '') : '';
                 
                 const card = document.createElement('div');
                 card.className = 'contact-card';
@@ -167,6 +170,12 @@
                             <span class="detail-text">${emp.phone}</span>
                         </div>
                         ` : ''}
+                        ${emp.whatsapp ? `
+                        <div class="detail-row">
+                            <i class="fab fa-whatsapp detail-icon" style="color:#25D366;"></i>
+                            <span class="detail-text">${emp.whatsapp}</span>
+                        </div>
+                        ` : ''}
                         ${emp.email ? `
                         <div class="detail-row">
                             <i class="fas fa-envelope detail-icon"></i>
@@ -175,7 +184,8 @@
                         ` : ''}
                     </div>
                     <div class="contact-actions">
-                        ${emp.phone ? `<a href="https://wa.me/${cleanPhone}" target="_blank" class="action-btn btn-whatsapp"><i class="fab fa-whatsapp"></i> WhatsApp</a>` : ''}
+                        ${emp.phone && emp.phone !== '0000000000' ? `<a href="tel:${cleanPhone}" class="action-btn btn-call"><i class="fas fa-phone-alt"></i> Call</a>` : ''}
+                        ${emp.whatsapp && emp.whatsapp !== '0000000000' ? `<a href="https://wa.me/${cleanWhatsapp}" target="_blank" class="action-btn btn-whatsapp"><i class="fab fa-whatsapp"></i> Chat</a>` : ''}
                         ${emp.email ? `<a href="mailto:${emp.email}" class="action-btn btn-email"><i class="fas fa-envelope"></i> Email</a>` : ''}
                     </div>
                 `;

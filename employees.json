@@ -1,14 +1,14 @@
 [
-    { "code":"40311", "full":"JERLIN DELA VEGA CABRAL", "short":"Jerlin", "email":"jcabral@tabreed.ae", "phone":"+971 50 123 4567" },
-    { "code":"40334", "full":"RAJESH KUMAR SINGH", "short":"Rajesh", "email":"rksingh@tabreed.ae", "phone":"+971 50 234 5678" },
-    { "code":"40414", "full":"EUGINERAJ KAMARAJ", "short":"Eugine", "email":"ekamaraj@tabreed.ae", "phone":"+971 50 345 6789" },
-    { "code":"40528", "full":"PRASANTH M PURUSHOTHAMAN", "short":"Prashant", "email":"ppurushothaman@tabreed.ae", "phone":"+971 50 456 7890" },
-    { "code":"40659", "full":"THOMAS GEEVARGHESE", "short":"Thomas", "email":"tgeevarghese@tabreed.ae", "phone":"+971 50 567 8901" },
-    { "code":"40663", "full":"AKBARSHA NALAKATH KALLINGAL", "short":"Akbar", "email":"akallingal@tabreed.ae", "phone":"+971 50 678 9012" },
-    { "code":"41380", "full":"MANIKANDAN SUBRAMANIAN", "short":"Manikandan", "email":"msubramanian@tabreed.ae", "phone":"+971 50 789 0123" },
-    { "code":"41383", "full":"JIBIN JOHN", "short":"Jibin", "email":"jpjohn@tabreed.ae", "phone":"+971 50 890 1234" },
-    { "code":"41600", "full":"PRAMOD DEJAPPA POOJARY", "short":"Pramod", "email":"", "phone":"+971 50 901 2345" },
-    { "code":"41764", "full":"ABDUL MAJEED ABDUL HAFEEZ ANSARI", "short":"Majeed", "email":"amansari@tabreed.ae", "phone":"+971 50 012 3456" },
-    { "code":"41806", "full":"YOOSAF MUNDODAN", "short":"Yoosaf", "email":"ymundodan@tabreed.ae", "phone":"+971 50 112 2334" },
-    { "code":"40078", "full":"BIBIN IPE ABRAHAM", "short":"Bibin", "email":"", "phone":"+971 50 223 3445", "role":"supervisor" }
+    { "code":"40311", "full":"JERLIN DELA VEGA CABRAL", "short":"Jerlin", "email":"jcabral@tabreed.ae", "phone":"0567438964", "whatsapp":"0561839559" },
+    { "code":"40334", "full":"RAJESH KUMAR SINGH", "short":"Rajesh", "email":"rksingh@tabreed.ae", "phone":"0561262435", "whatsapp":"+917779978054" },
+    { "code":"40414", "full":"EUGINERAJ KAMARAJ", "short":"Eugine", "email":"ekamaraj@tabreed.ae", "phone":"0502550870", "whatsapp":"0502550870" },
+    { "code":"40528", "full":"PRASANTH M PURUSHOTHAMAN", "short":"Prashant", "email":"ppurushothaman@tabreed.ae", "phone":"0567438784", "whatsapp":"0547279746" },
+    { "code":"40659", "full":"THOMAS GEEVARGHESE", "short":"Thomas", "email":"tgeevarghese@tabreed.ae", "phone":"0561253094", "whatsapp":"0558742331" },
+    { "code":"40663", "full":"AKBARSHA NALAKATH KALLINGAL", "short":"Akbar", "email":"akallingal@tabreed.ae", "phone":"0564001353", "whatsapp":"0567904345" },
+    { "code":"41380", "full":"MANIKANDAN SUBRAMANIAN", "short":"Manikandan", "email":"msubramanian@tabreed.ae", "phone":"0503349398", "whatsapp":"0561366492" },
+    { "code":"41383", "full":"JIBIN JOHN", "short":"Jibin", "email":"jpjohn@tabreed.ae", "phone":"0507815840", "whatsapp":"0507615840" },
+    { "code":"41600", "full":"PRAMOD DEJAPPA POOJARY", "short":"Pramod", "email":"pdpoojary@tabreed.ae", "phone":"0545492470", "whatsapp":"0547725275" },
+    { "code":"41764", "full":"ABDUL MAJEED ABDUL HAFEEZ ANSARI", "short":"Majeed", "email":"amansari@tabreed.ae", "phone":"0561254667", "whatsapp":"0565911432" },
+    { "code":"41806", "full":"YOOSAF MUNDODAN", "short":"Yoosaf", "email":"ymundodan@tabreed.ae", "phone":"0561254047", "whatsapp":"0504249896" },
+    { "code":"40078", "full":"BIBIN IPE ABRAHAM", "short":"Bibin", "email":"babraham@tabreed.ae", "phone":"0567438782", "whatsapp":"0567438782", "role":"supervisor" }
 ]
