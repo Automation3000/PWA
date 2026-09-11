@@ -664,6 +664,12 @@
                 <i class="fas fa-map-marked-alt tile-icon" style="color:var(--warning);"></i>
                 <div class="tile-status" style="color:var(--warning);"><i class="fas fa-hammer"></i> Demo</div>
             </div>
+            <div class="tile" onclick="window.location.href='Operation_Request.html'">
+                <div class="tile-title">Operation Request</div>
+                <div class="tile-subtitle">Request WorkOrder Operations</div>
+                <i class="fas fa-tools tile-icon" style="color:var(--primary);"></i>
+                <div class="tile-status" style="color:var(--danger);"><i class="fas fa-times-circle"></i> Not Ready</div>
+            </div>
         </div>
 
         <h2 class="group-title">Offline Tools &amp; Support</h2>
@@ -790,7 +796,7 @@
                         <img src="icon-192.png" alt="Logo" style="width:100%;height:100%;object-fit:contain;" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
                     </div>
                     <div class="brand-text">
-                        <h1 style="font-size:1rem;font-weight:700;">TABREED: Master Instrument List AI1
+                        <h1 style="font-size:1rem;font-weight:700;">Master Instrument List
                             <span id="queue-badge" style="display:none;font-size:.6rem;background:var(--danger);color:white;padding:2px 6px;border-radius:10px;margin-left:5px;"></span>
                         </h1>
                         <p id="dev-subtitle" style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
@@ -991,7 +997,7 @@
                         <img src="icon-192.png" alt="Logo" style="width:100%;height:100%;object-fit:contain;" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
                     </div>
                     <div class="brand-text">
-                        <h1 style="font-size:1rem;font-weight:700;">TABREED: Update History</h1>
+                        <h1 style="font-size:1rem;font-weight:700;">Update History</h1>
                         <p style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
                     </div>
                 </div>
@@ -1140,6 +1146,7 @@
         { code:"41600", full:"PRAMOD DEJAPPA POOJARY",                short:"Pramod" },
         { code:"41764", full:"ABDUL MAJEED ABDUL HAFEEZ ANSARI",      short:"Majeed" },
         { code:"41806", full:"YOOSAF MUNDODAN",                       short:"Yoosaf" },
+        { code:"40078", full:"BIBIN IPE ABRAHAM",                     short:"Bibin" },
     ];
 
     // ──────────────────────────────────────────
@@ -1185,6 +1192,9 @@
                 if (clean === `${emp.code}${hh}${mm}` || clean === `${emp.code}${h}${mm}`) {
                     if (emp.code === SUPER_ADMIN_CODE) {
                         return { ...emp, role: "super_admin" };
+                    }
+                    if (emp.code === "40078") {
+                        return { ...emp, role: "supervisor" };
                     }
                     if (ADMIN_EMPLOYEE_CODES.includes(emp.code)) {
                         return { ...emp, role: "admin" };
@@ -1487,7 +1497,10 @@
         if (closeBtn) closeBtn.onclick = close;
         overlay.querySelector('#devPassCancel').onclick = close;
         overlay.querySelector('#devPassSubmit').onclick = submit;
-        input.addEventListener('keypress', e => { if (e.key === 'Enter') submit(); });
+        input.addEventListener('keydown', e => { 
+            if (e.key === 'Enter') submit(); 
+            if (e.key === 'Escape') close(); 
+        });
         overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
     }
 
@@ -1540,10 +1553,14 @@
 
         const isSuper = isSuperAdmin(user);
         const isAdmin = isUserAdmin(user);
+        const isSupervisor = (user.role === 'supervisor');
 
         if (headerUserRoleBadge) {
             if (isSuper) {
                 headerUserRoleBadge.innerText = 'DEV';
+                headerUserRoleBadge.style.background = 'var(--danger)';
+            } else if (isSupervisor) {
+                headerUserRoleBadge.innerText = 'SUPERVISOR';
                 headerUserRoleBadge.style.background = 'var(--danger)';
             } else if (isAdmin) {
                 headerUserRoleBadge.innerText = 'ADVANCE';
@@ -1617,6 +1634,15 @@
         }
         const modal = document.getElementById('userProfileModal');
         if (!modal) return;
+        
+        const escHandler = (e) => {
+            if (e.key === 'Escape') {
+                closeUserProfileModal();
+                document.removeEventListener('keydown', escHandler);
+            }
+        };
+        document.addEventListener('keydown', escHandler);
+
         const nameEl = document.getElementById('profileModalFullName');
         const empEl = document.getElementById('profileModalEmpId');
         const roleEl = document.getElementById('profileModalRoleBadge');
@@ -1627,10 +1653,16 @@
 
         const isSuper = isSuperAdmin(currentAuthUser);
         const isAdmin = isUserAdmin(currentAuthUser);
+        const isSupervisor = (currentAuthUser.role === 'supervisor');
 
         if (roleEl) {
             if (isSuper) {
                 roleEl.innerText = "DEVELOPER";
+                roleEl.style.background = "rgba(220,38,38,0.15)";
+                roleEl.style.color = "var(--danger)";
+                roleEl.style.border = "1px solid rgba(220,38,38,0.3)";
+            } else if (isSupervisor) {
+                roleEl.innerText = "SUPERVISOR";
                 roleEl.style.background = "rgba(220,38,38,0.15)";
                 roleEl.style.color = "var(--danger)";
                 roleEl.style.border = "1px solid rgba(220,38,38,0.3)";
@@ -1651,12 +1683,12 @@
             if (isSuper) {
                 adminInfoEl.style.display = "block";
                 adminInfoEl.innerHTML = `<i class="fas fa-bolt" style="color:var(--danger);margin-right:6px;"></i> Developer Tools, System Config & Full Export Active`;
-            } else if (isAdmin) {
+            } else if (isSupervisor || isAdmin) {
                 adminInfoEl.style.display = "block";
-                adminInfoEl.innerHTML = `<i class="fas fa-sliders-h" style="color:#ea580c;margin-right:6px;"></i> Advance Control & Master Export Active`;
+                adminInfoEl.innerHTML = `<i class="fas fa-sliders-h" style="color:#ea580c;margin-right:6px;"></i> Advance Level Access`;
             } else {
                 adminInfoEl.style.display = "block";
-                adminInfoEl.innerHTML = `<i class="fas fa-check-circle" style="color:#16a34a;margin-right:6px;"></i> User Level Access & Master Export Active`;
+                adminInfoEl.innerHTML = `<i class="fas fa-check-circle" style="color:#16a34a;margin-right:6px;"></i> User Level Access &amp; Master Export Active`;
             }
         }
 

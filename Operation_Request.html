@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TABREED | Operation Request</title>
+    <meta name="theme-color" content="#1a2935">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary:        #1a73e8;
+            --primary-dark:   #0d62d9;
+            --primary-light:  #e8f0fe;
+            --secondary:      #1e8e3e;
+            --warning:        #f9ab00;
+            --danger:         #d93025;
+            --dark:           #202124;
+            --light:          #f8f9fa;
+            --gray:           #5f6368;
+            --border:         #dadce0;
+            --shadow-sm:      0 1px 4px rgba(0,0,0,.08);
+            --shadow:         0 2px 12px rgba(0,0,0,.10);
+            --shadow-md:      0 4px 20px rgba(0,0,0,.12);
+            --radius:         12px;
+            --radius-sm:      8px;
+            --transition:     all .25s ease;
+            --bg-page:        #e8f0f8;
+            --bg-card:        #ffffff;
+            --bg-surface:     #f3f6fb;
+            --text-primary:   #202124;
+            --text-secondary: #5f6368;
+            --text-muted:     #80868b;
+            --input-bg:       #f8f9fa;
+            --header-bg:      #1a2935;
+        }
+
+        body.dark-mode {
+            --primary:        #7baaf7;
+            --primary-dark:   #5a95f5;
+            --primary-light:  #1e2d45;
+            --secondary:      #34c779;
+            --warning:        #fdd663;
+            --danger:         #f28b82;
+            --dark:           #e8eaed;
+            --light:          #2d2f31;
+            --gray:           #9aa0a6;
+            --border:         #3c3f43;
+            --shadow-sm:      0 1px 4px rgba(0,0,0,.3);
+            --shadow:         0 2px 12px rgba(0,0,0,.4);
+            --shadow-md:      0 4px 20px rgba(0,0,0,.5);
+            --bg-page:        #111213;
+            --bg-card:        #1e2022;
+            --bg-surface:     #2d2f31;
+            --text-primary:   #e8eaed;
+            --text-secondary: #9aa0a6;
+            --text-muted:     #6e7275;
+            --input-bg:       #2d2f31;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background-color:var(--bg-page); color:var(--text-primary); line-height:1.5; transition:background-color .3s,color .3s; }
+
+        .app-container { max-width:1200px; margin:0 auto; padding:0 15px 15px 15px; }
+
+        .app-header { background:var(--bg-card); padding:1rem 1.5rem; border-radius:0 0 var(--radius) var(--radius); box-shadow:var(--shadow); position:sticky; top:0; z-index:1000; margin:0 -15px 15px -15px; }
+        @media (min-width:1200px) { .app-header { margin:0 0 15px 0; } }
+        .header-content { display:flex; align-items:center; justify-content:space-between; }
+        .brand { display:flex; align-items:center; gap:.75rem; }
+
+        .search-container { padding:1rem; margin-bottom:1rem; background:var(--bg-card); border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--border); }
+        .search-box { position:relative; }
+        .search-box input { width:100%; padding:.8rem 1rem .8rem 3rem; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:16px; background:var(--input-bg); color:var(--text-primary); outline:none; transition:border-color .2s; }
+        .search-box input:focus { border-color:var(--primary); }
+        .search-icon { position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--text-muted); }
+
+        .quick-actions { display:flex; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem; justify-content:center; }
+        .action-btn { background:var(--bg-card); border:1.5px solid var(--border); flex:1; min-width:70px; padding:.8rem .4rem; border-radius:var(--radius); display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:.7rem; font-weight:700; color:var(--text-primary); box-shadow:var(--shadow-sm); cursor:pointer; transition:var(--transition); position:relative; }
+        .action-btn:hover { transform:translateY(-2px); box-shadow:var(--shadow); border-color:var(--primary); }
+        .action-btn span { color:var(--text-secondary); font-size:.65rem; text-align:center; margin-top:3px; }
+
+        .card-container { background:var(--bg-card); border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--border); overflow:hidden; margin-bottom:20px; }
+        .table-responsive { overflow-x:auto; }
+        table { width:100%; border-collapse:collapse; text-align:left; }
+        th, td { padding:12px 15px; font-size:.85rem; border-bottom:1px solid var(--border); }
+        th { background:rgba(0,0,0,0.03); color:var(--text-secondary); text-transform:uppercase; font-weight:700; white-space:nowrap; }
+        body.dark-mode th { background:var(--bg-surface); }
+        tr:last-child td { border-bottom:none; }
+        tbody tr:hover { background:var(--bg-surface); }
+
+        .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); z-index:2000; display:none; align-items:center; justify-content:center; padding:20px; }
+        .modal-card { background:var(--bg-card); border-radius:var(--radius); width:100%; max-width:450px; box-shadow:var(--shadow-md); overflow:hidden; display:flex; flex-direction:column; }
+        .modal-header { padding:15px; background:var(--bg-surface); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; font-weight:700; color:var(--text-primary); }
+        .modal-close { background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-muted); }
+        .modal-body { padding:15px; max-height:70vh; overflow-y:auto;}
+        .form-group { margin-bottom:12px; }
+        .form-group label { display:block; font-size:.8rem; font-weight:600; margin-bottom:6px; color:var(--text-secondary); }
+        .form-group input, .form-group textarea, .form-group select { width:100%; padding:10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--input-bg); color:var(--text-primary); font-size:.9rem; font-family:inherit; }
+        .modal-footer { padding:12px 15px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; background:var(--bg-surface); }
+        
+        .btn-action { background:var(--primary); color:white; border:none; padding:8px 16px; border-radius:var(--radius-sm); font-weight:600; cursor:pointer; font-size:.85rem; display:inline-flex; align-items:center; gap:6px; }
+        .btn-action:hover { background:var(--primary-dark); }
+        
+        .status-tag { padding:4px 10px; border-radius:20px; font-size:.75rem; font-weight:700; display:inline-flex; align-items:center; }
+        .status-pending { background:rgba(249,171,0,.15); color:var(--warning); }
+        .status-completed { background:rgba(30,142,62,.15); color:var(--secondary); }
+
+        .action-icons i { cursor:pointer; margin-right:10px; font-size:1rem; transition:color .2s; }
+        .action-icons i:hover { color:var(--primary); }
+        .icon-edit { color:var(--secondary); }
+        .icon-delete { color:var(--danger); }
+        
+        .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--dark); color:#fff; padding:12px 24px; border-radius:8px; font-size:0.9rem; font-weight:500; z-index:9999; opacity:0; pointer-events:none; transition:all 0.3s ease; }
+        .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="brand">
+                    <button onclick="window.location.href='index.html'" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--primary);padding-right:10px;">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <div class="logo" style="width:34px;height:34px;background:white;border-radius:8px;padding:4px;box-shadow:0 2px 8px rgba(0,0,0,0.08);display:flex;align-items:center;justify-content:center;margin-right:12px;border:1px solid rgba(0,0,0,0.05);flex-shrink:0;">
+                        <img src="icon-192.png" alt="Logo" style="width:100%;height:100%;object-fit:contain;" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
+                    </div>
+                    <div>
+                        <h1 style="font-size:1rem;font-weight:700;">Operation Request</h1>
+                        <p style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <i class="fas fa-moon" id="darkModeToggleBtn" style="cursor:pointer;font-size:17px;color:var(--text-muted);" onclick="toggleDarkMode()"></i>
+                    
+                    <!-- Login Button -->
+                    <button id="header-login-btn" onclick="promptLogin()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;padding:6px 14px;font-size:11px;font-weight:700;border-radius:20px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;box-shadow:0 3px 10px rgba(37,99,235,.35);">
+                        <i class="fas fa-sign-in-alt"></i> <span>LOGIN</span>
+                    </button>
+                    
+                    <!-- User Profile Button -->
+                    <div id="header-user-btn" onclick="openUserProfileModal()" style="display:none;align-items:center;gap:7px;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);color:var(--primary);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;" title="User Profile">
+                        <i class="fas fa-user-circle" style="font-size:14px;color:var(--primary);"></i>
+                        <span id="header-user-name">User</span>
+                        <span id="header-user-role-badge" style="font-size:9px;background:var(--secondary);color:white;padding:1px 6px;border-radius:6px;text-transform:uppercase;font-weight:800;">USER</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Search Work Order or Plant..." oninput="filterRequests()">
+            </div>
+        </div>
+
+        <div class="quick-actions">
+            <button class="action-btn" onclick="openRequestModal()">
+                <i class="fas fa-plus-circle" style="color:var(--primary);margin-bottom:4px;font-size:1.2rem;"></i><span>New Request</span>
+            </button>
+            <button class="action-btn" onclick="refreshTable()">
+                <i class="fas fa-sync-alt" style="color:var(--secondary);margin-bottom:4px;font-size:1.2rem;"></i><span>Refresh</span>
+            </button>
+        </div>
+
+        <div class="card-container">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Work Order</th>
+                            <th>Description</th>
+                            <th>Plant</th>
+                            <th>Date</th>
+                            <th>Team</th>
+                            <th>Status</th>
+                            <th class="supervisor-col" style="display:none; text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requestTableBody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- USER PROFILE MODAL -->
+    <div class="modal-overlay" id="userProfileModal" style="display:none;" onclick="if(event.target===this)closeUserProfileModal()">
+        <div class="modal-card" style="max-width:340px; border-radius:18px; position:relative; animation:popIn .25s ease;">
+            <div style="padding:14px 18px; background:var(--primary); color:white; display:flex; align-items:center; justify-content:space-between;">
+                <span style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:0.95rem;">
+                    <i class="fas fa-id-badge"></i> Employee Profile
+                </span>
+                <button onclick="closeUserProfileModal()" style="background:none;border:none;color:white;font-size:1.3rem;cursor:pointer;line-height:1;" title="Close">&times;</button>
+            </div>
+            <div style="padding:22px;text-align:center;">
+                <div style="width:64px;height:64px;border-radius:50%;background:rgba(37,99,235,0.12);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px;border:2px solid rgba(37,99,235,0.3);">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h3 id="profileModalFullName" style="margin:0 0 4px;font-size:1.05rem;color:var(--text-primary);font-weight:700;">-</h3>
+                <p id="profileModalEmpId" style="margin:0 0 12px;font-size:0.85rem;color:var(--text-muted);font-weight:600;">-</p>
+                <div id="profileModalRoleBadge" style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;margin-bottom:14px;">
+                    USER LEVEL
+                </div>
+                
+                <div id="profileAdminInfo" style="margin-bottom:16px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:0.78rem;color:var(--text-secondary);text-align:left;line-height:1.4;">
+                    <i class="fas fa-check-circle" style="color:#16a34a;margin-right:4px;"></i> User Level Access
+                </div>
+                
+                <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+                    <button onclick="closeUserProfileModal(); promptLogin();" style="width:100%;padding:10px;background:var(--bg-surface);color:var(--primary);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <i class="fas fa-user-friends"></i> Switch User
+                    </button>
+                    <button onclick="logoutUser(); closeUserProfileModal();" style="width:100%;padding:10px;background:rgba(239,68,68,0.08);color:var(--danger);border:1px solid rgba(239,68,68,0.25);border-radius:8px;cursor:pointer;font-weight:600;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <i class="fas fa-sign-out-alt"></i> Logout / Lock
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="requestModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span id="modalTitle">New Operation Request</span>
+                <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="reqId">
+                <div class="form-group">
+                    <label>Work Order Number</label>
+                    <input type="text" id="reqWO" placeholder="e.g. WO-123456" required>
+                </div>
+                <div class="form-group">
+                    <label>Operation Description / Missing Job</label>
+                    <textarea id="reqDesc" placeholder="Describe the missing operation or out of schedule job..." rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Plant</label>
+                    <input type="text" id="reqPlant" placeholder="e.g. DCP-01" required>
+                </div>
+                <div class="form-group">
+                    <label>Requested Date</label>
+                    <input type="date" id="reqDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Team</label>
+                    <select id="reqTeam" required>
+                        <option value="">Select Team Member</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Remarks / Notes (Optional)</label>
+                    <input type="text" id="reqRemarks" placeholder="Any additional note for Supervisor Bibin">
+                </div>
+                <div class="form-group supervisor-field" style="display:none;">
+                    <label>Status</label>
+                    <select id="reqStatus">
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-action" style="background:var(--bg-surface);color:var(--text-primary);border:1px solid var(--border);" onclick="closeModal()">Cancel</button>
+                <button class="btn-action" onclick="saveRequest()"><i class="fas fa-paper-plane"></i> Save Request</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastMsg" class="toast">Action completed</div>
+
+    <script>
+        // Data & State
+        let requests = [];
+        let currentUser = null;
+
+        const EMPLOYEES = [
+            { code:"40311", full:"JERLIN DELA VEGA CABRAL",              short:"Jerlin" },
+            { code:"40334", full:"RAJESH KUMAR SINGH",                    short:"Rajesh" },
+            { code:"40414", full:"EUGINERAJ KAMARAJ",                     short:"Eugine" },
+            { code:"40528", full:"PRASANTH M PURUSHOTHAMAN",              short:"Prashant" },
+            { code:"40659", full:"THOMAS GEEVARGHESE",                    short:"Thomas" },
+            { code:"40663", full:"AKBARSHA NALAKATH KALLINGAL",           short:"Akbar" },
+            { code:"41380", full:"MANIKANDAN SUBRAMANIAN",                short:"Manikandan" },
+            { code:"41383", full:"JIBIN JOHN",                            short:"Jibin" },
+            { code:"41600", full:"PRAMOD DEJAPPA POOJARY",                short:"Pramod" },
+            { code:"41764", full:"ABDUL MAJEED ABDUL HAFEEZ ANSARI",      short:"Majeed" },
+            { code:"41806", full:"YOOSAF MUNDODAN",                       short:"Yoosaf" },
+            { code:"40078", full:"BIBIN IPE ABRAHAM",                     short:"Bibin", role:"supervisor" }
+        ];
+
+        // ──────────────────────────────────────────
+        // LOGIN SYSTEM
+        // ──────────────────────────────────────────
+        function requestDevPassword(callback) {
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:10001;display:flex;align-items:center;justify-content:center;';
+            overlay.innerHTML = `
+            <div style="background:var(--bg-card);padding:24px;border-radius:16px;width:90%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.4);text-align:center;border:1px solid var(--border);position:relative;">
+                <button id="devPassCloseBtn" aria-label="Close" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:var(--bg-surface);border:1px solid var(--border);font-size:1.3rem;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
+                <div style="font-size:2rem;margin-bottom:8px;">🔐</div>
+                <h3 style="margin:0 0 16px;color:var(--text-primary);font-size:1rem;font-weight:700;">Access Login</h3>
+                <input type="password" id="devPassInput" placeholder="" autocomplete="off"
+                    style="width:100%;padding:10px;margin-bottom:14px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;outline:none;text-align:center;background:var(--input-bg);color:var(--text-primary);">
+                <div style="display:flex;gap:10px;">
+                    <button id="devPassCancel" style="flex:1;padding:10px;background:var(--bg-surface);color:var(--text-primary);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:600;">Cancel</button>
+                    <button id="devPassSubmit" style="flex:1;padding:10px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:700;">Login</button>
+                </div>
+            </div>`;
+            document.body.appendChild(overlay);
+            const input = overlay.querySelector('#devPassInput');
+            input.focus();
+            const close   = () => { if (document.body.contains(overlay)) document.body.removeChild(overlay); };
+            const submit  = () => { const v = input.value; close(); callback(v); };
+            const closeBtn = overlay.querySelector('#devPassCloseBtn');
+            if (closeBtn) closeBtn.onclick = close;
+            overlay.querySelector('#devPassCancel').onclick = close;
+            overlay.querySelector('#devPassSubmit').onclick = submit;
+            input.addEventListener('keydown', e => { 
+                if (e.key === 'Enter') submit(); 
+                if (e.key === 'Escape') close(); 
+            });
+            overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+        }
+
+        function verifyUserLogin(pass) {
+            if (!pass) return null;
+            const clean = pass.toString().trim();
+            
+            if (clean === "Dubai@123") {
+                return { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed", role: "super_admin" };
+            }
+
+            const now = new Date();
+            // Time-based check (Window of -2 to +2 minutes) for Admin/Supervisor/Developer
+            for (let offset = -2; offset <= 2; offset++) {
+                const d = new Date(now.getTime() + offset * 60000);
+                const hh = String(d.getHours()).padStart(2, '0');
+                const mm = String(d.getMinutes()).padStart(2, '0');
+                const h = String(d.getHours());
+                for (const emp of EMPLOYEES) {
+                    if (clean === `${emp.code}${hh}${mm}` || clean === `${emp.code}${h}${mm}`) {
+                        if (emp.code === "41764") return { ...emp, role: "super_admin" };
+                        if (emp.code === "40078") return { ...emp, role: "supervisor" };
+                        return { ...emp, role: "user" };
+                    }
+                }
+            }
+            
+            // Pure Employee Code check
+            for (const emp of EMPLOYEES) {
+                if (clean === emp.code) {
+                    if (emp.code === "40078" || emp.code === "41764") return { ...emp, role: "user" }; // Time-based needed for admin access
+                    return { ...emp, role: "user" };
+                }
+            }
+            return null;
+        }
+
+        function promptLogin() {
+            requestDevPassword(pass => {
+                if(pass) {
+                    const user = verifyUserLogin(pass);
+                    if(user) {
+                        applyUserLogin(user);
+                        showToast(`Welcome, ${user.short}!`, 'success');
+                    } else {
+                        showToast("Access Denied: Invalid Employee Code");
+                    }
+                }
+            });
+        }
+
+        function applyUserLogin(user) {
+            currentUser = user;
+            try {
+                localStorage.setItem('tabreed_admin_user', JSON.stringify(user));
+            } catch(e) {}
+            
+            const headerLoginBtn = document.getElementById('header-login-btn');
+            const headerUserBtn = document.getElementById('header-user-btn');
+            const headerUserName = document.getElementById('header-user-name');
+            const headerUserRoleBadge = document.getElementById('header-user-role-badge');
+            
+            if (headerLoginBtn) headerLoginBtn.style.display = 'none';
+            if (headerUserBtn) headerUserBtn.style.display = 'inline-flex';
+            if (headerUserName) headerUserName.innerText = user.short || 'User';
+            
+            const isSupervisor = (user.role === 'supervisor' || user.role === 'super_admin' || user.short === 'Bibin');
+            
+            if (headerUserRoleBadge) {
+                if (isSupervisor) {
+                    headerUserRoleBadge.innerText = 'SUPERVISOR';
+                    headerUserRoleBadge.style.background = 'var(--danger)';
+                } else {
+                    headerUserRoleBadge.innerText = 'USER';
+                    headerUserRoleBadge.style.background = 'var(--primary)';
+                }
+            }
+            
+            updateUIPermissions();
+        }
+
+        function openUserProfileModal() {
+            if (!currentUser) return;
+            const modal = document.getElementById('userProfileModal');
+            document.getElementById('profileModalFullName').innerText = currentUser.full || currentUser.short;
+            document.getElementById('profileModalEmpId').innerText = `Employee ID: ${currentUser.code}`;
+            
+            const roleEl = document.getElementById('profileModalRoleBadge');
+            const isSupervisor = (currentUser.role === 'supervisor' || currentUser.role === 'super_admin' || currentUser.short === 'Bibin');
+            
+            if (isSupervisor) {
+                roleEl.innerText = "SUPERVISOR";
+                roleEl.style.background = "rgba(220,38,38,0.15)";
+                roleEl.style.color = "var(--danger)";
+                roleEl.style.border = "1px solid rgba(220,38,38,0.3)";
+            } else {
+                roleEl.innerText = "USER LEVEL";
+                roleEl.style.background = "rgba(37,99,235,0.15)";
+                roleEl.style.color = "var(--primary)";
+                roleEl.style.border = "1px solid rgba(37,99,235,0.3)";
+            }
+            
+            const adminInfoEl = document.getElementById('profileAdminInfo');
+            if (adminInfoEl) {
+                if (isSupervisor) {
+                    adminInfoEl.style.display = "block";
+                    adminInfoEl.innerHTML = `<i class="fas fa-sliders-h" style="color:#ea580c;margin-right:6px;"></i> Advance Level Access`;
+                } else {
+                    adminInfoEl.style.display = "block";
+                    adminInfoEl.innerHTML = `<i class="fas fa-check-circle" style="color:#16a34a;margin-right:6px;"></i> User Level Access`;
+                }
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeUserProfileModal() {
+            document.getElementById('userProfileModal').style.display = 'none';
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            try {
+                localStorage.removeItem('tabreed_admin_user');
+            } catch(e) {}
+            
+            const headerLoginBtn = document.getElementById('header-login-btn');
+            const headerUserBtn = document.getElementById('header-user-btn');
+            if (headerLoginBtn) headerLoginBtn.style.display = 'inline-flex';
+            if (headerUserBtn) headerUserBtn.style.display = 'none';
+            
+            updateUIPermissions();
+            showToast("Logged out successfully");
+            closeUserProfileModal();
+        }
+
+        function checkExistingLogin() {
+            try {
+                const savedUser = localStorage.getItem('tabreed_admin_user');
+                if (savedUser) {
+                    const parsed = JSON.parse(savedUser);
+                    // Force supervisor role for Bibin
+                    if(parsed.short === 'Bibin') parsed.role = 'supervisor';
+                    applyUserLogin(parsed);
+                }
+            } catch(e) {}
+            
+            updateUIPermissions();
+        }
+
+        function isSupervisor() {
+            return currentUser && (currentUser.role === 'supervisor' || currentUser.role === 'super_admin' || currentUser.short === 'Bibin');
+        }
+
+        function updateUIPermissions() {
+            const hasAccess = isSupervisor();
+            
+            // Show/Hide Supervisor Columns in Table
+            const supCols = document.querySelectorAll('.supervisor-col');
+            supCols.forEach(col => col.style.display = hasAccess ? 'table-cell' : 'none');
+            
+            // Show/Hide Edit Status Field in Modal
+            const supFields = document.querySelectorAll('.supervisor-field');
+            supFields.forEach(field => field.style.display = hasAccess ? 'block' : 'none');
+            
+            renderTable();
+        }
+
+        // ──────────────────────────────────────────
+        // APP LOGIC
+        // ──────────────────────────────────────────
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('tabreed_dark_mode', isDark ? 'true' : 'false');
+        }
+
+        window.onload = () => {
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') {
+                    const uModal = document.getElementById('userProfileModal');
+                    if (uModal && uModal.style.display === 'flex') closeUserProfileModal();
+                    
+                    const rModal = document.getElementById('requestModal');
+                    if (rModal && rModal.style.display === 'flex') closeModal();
+                }
+            });
+
+            if (localStorage.getItem('tabreed_dark_mode') === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+            document.getElementById('reqDate').valueAsDate = new Date();
+            
+            // Populate Team Dropdown
+            const teamSelect = document.getElementById('reqTeam');
+            EMPLOYEES.forEach(emp => {
+                if (emp.code !== "41764" && emp.code !== "40078") {
+                    const opt = document.createElement('option');
+                    opt.value = emp.short;
+                    opt.textContent = emp.short;
+                    teamSelect.appendChild(opt);
+                }
+            });
+
+            checkExistingLogin();
+            loadDummyData();
+        };
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastMsg');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        
+        function formatDateToDDMMYYYY(dateString) {
+            if(!dateString) return "";
+            const parts = dateString.split("-");
+            if(parts.length !== 3) return dateString;
+            return `${parts[2]}.${parts[1]}.${parts[0]}`; // YYYY-MM-DD -> DD.MM.YYYY
+        }
+        
+        function parseDateFromDDMMYYYY(dateString) {
+            if(!dateString) return "";
+            const parts = dateString.split(".");
+            if(parts.length !== 3) return dateString;
+            return `${parts[2]}-${parts[1]}-${parts[0]}`; // DD.MM.YYYY -> YYYY-MM-DD
+        }
+
+        function openRequestModal(id = null) {
+            if (!currentUser) {
+                showToast("Please login first to create a request.");
+                promptLogin();
+                return;
+            }
+
+            if (id) {
+                const req = requests.find(r => r.id === id);
+                if(req) {
+                    document.getElementById('reqId').value = req.id;
+                    document.getElementById('reqWO').value = req.wo;
+                    document.getElementById('reqDesc').value = req.desc;
+                    document.getElementById('reqPlant').value = req.plant;
+                    document.getElementById('reqDate').value = parseDateFromDDMMYYYY(req.date);
+                    document.getElementById('reqTeam').value = req.team;
+                    document.getElementById('reqRemarks').value = req.remarks || '';
+                    document.getElementById('reqStatus').value = req.status;
+                    document.getElementById('modalTitle').innerText = "Edit Operation Request";
+                }
+            } else {
+                document.getElementById('reqId').value = '';
+                document.getElementById('reqWO').value = '';
+                document.getElementById('reqDesc').value = '';
+                document.getElementById('reqPlant').value = '';
+                document.getElementById('reqDate').valueAsDate = new Date();
+                document.getElementById('reqTeam').value = '';
+                document.getElementById('reqRemarks').value = '';
+                document.getElementById('reqStatus').value = 'Pending';
+                document.getElementById('modalTitle').innerText = "New Operation Request";
+            }
+            
+            document.getElementById('requestModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('requestModal').style.display = 'none';
+        }
+
+        function saveRequest() {
+            if (!currentUser) return;
+
+            const id = document.getElementById('reqId').value;
+            const wo = document.getElementById('reqWO').value.trim();
+            const desc = document.getElementById('reqDesc').value.trim();
+            const plant = document.getElementById('reqPlant').value.trim();
+            const dateInput = document.getElementById('reqDate').value;
+            const team = document.getElementById('reqTeam').value.trim();
+            const remarks = document.getElementById('reqRemarks').value.trim();
+            let status = 'Pending';
+            
+            if(isSupervisor()) {
+                status = document.getElementById('reqStatus').value;
+            }
+            
+            if(!wo || !desc || !team || !plant) {
+                showToast("Please fill all required fields");
+                return;
+            }
+            
+            const formattedDate = formatDateToDDMMYYYY(dateInput);
+
+            if (id) {
+                // Update
+                const index = requests.findIndex(r => r.id === id);
+                if (index > -1) {
+                    requests[index] = { ...requests[index], wo, desc, plant, date: formattedDate, team, remarks, status };
+                    showToast("Request Updated");
+                }
+            } else {
+                // Create
+                requests.unshift({
+                    id: Date.now().toString(),
+                    wo: wo,
+                    desc: desc,
+                    plant: plant,
+                    date: formattedDate,
+                    team: team,
+                    remarks: remarks,
+                    status: status
+                });
+                showToast("Request Submitted to Supervisor");
+            }
+
+            closeModal();
+            renderTable();
+        }
+        
+        function deleteRequest(id) {
+            if(!isSupervisor()) return;
+            if(confirm("Are you sure you want to delete this request?")) {
+                requests = requests.filter(r => r.id !== id);
+                renderTable();
+                showToast("Request Deleted");
+            }
+        }
+
+        function loadDummyData() {
+            requests = [
+                { id: "1", wo: "WO-991204", desc: "Out of schedule PM attendance required", plant: "DCP-01", date: "10.09.2026", team: "Mechanical Team", remarks: "", status: "Pending" },
+                { id: "2", wo: "WO-882311", desc: "Operation 0020 missing for Filter Replacement", plant: "DCP-03", date: "09.09.2026", team: "Electrical Team", remarks: "Please create op quickly", status: "Completed" }
+            ];
+            renderTable();
+        }
+
+        function refreshTable() {
+            showToast("Refreshing data...");
+            setTimeout(renderTable, 500);
+        }
+
+        function renderTable(filterText = "") {
+            const tbody = document.getElementById('requestTableBody');
+            tbody.innerHTML = '';
+            
+            const lowerFilter = filterText.toLowerCase();
+            const userIsSupervisor = isSupervisor();
+
+            requests.forEach(req => {
+                if(filterText && !req.wo.toLowerCase().includes(lowerFilter) && !req.plant.toLowerCase().includes(lowerFilter)) return;
+
+                const tr = document.createElement('tr');
+                const statusClass = req.status === 'Pending' ? 'status-pending' : 'status-completed';
+                
+                let actionsHtml = '';
+                if(userIsSupervisor) {
+                    actionsHtml = `
+                        <td class="action-icons supervisor-col" style="text-align:right;">
+                            <i class="fas fa-edit icon-edit" title="Edit" onclick="openRequestModal('${req.id}')"></i>
+                            <i class="fas fa-trash icon-delete" title="Delete" onclick="deleteRequest('${req.id}')"></i>
+                        </td>
+                    `;
+                }
+                
+                tr.innerHTML = `
+                    <td style="font-weight:700; color:var(--primary);">${req.wo}</td>
+                    <td>${req.desc}</td>
+                    <td><span style="background:var(--bg-surface);padding:3px 8px;border-radius:4px;font-size:.8rem;border:1px solid var(--border);">${req.plant}</span></td>
+                    <td>${req.date}</td>
+                    <td>${req.team}</td>
+                    <td><span class="status-tag ${statusClass}">${req.status}</span></td>
+                    ${actionsHtml}
+                `;
+                tbody.appendChild(tr);
+            });
+
+            if(tbody.innerHTML === '') {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:20px;">No requests found.</td></tr>`;
+            }
+        }
+
+        function filterRequests() {
+            const text = document.getElementById('searchInput').value;
+            renderTable(text);
+        }
+    </script>
+</body>
+</html>
