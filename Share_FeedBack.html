@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Share Feedback | Automation App</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        
+
+        /* ═══════════════════════════════════════════════════
+           DARK MODE — Carefully designed for readability
+        ═══════════════════════════════════════════════════ */
+        
+
+        body.theme-ocean-blue {
+            --primary:        #0284c7;
+            --primary-dark:   #0369a1;
+            --primary-light:  #e0f2fe;
+            --header-bg:      #0c4a6e;
+            --bg-page:        #f0f9ff;
+        }
+
+        body.theme-industrial {
+            --primary:        #d97706;
+            --primary-dark:   #b45309;
+            --primary-light:  #fef3c7;
+            --header-bg:      #1f2937;
+            --bg-page:        #fffbeb;
+        }
+
+        body.theme-emerald-forest {
+            --primary:        #059669;
+            --primary-dark:   #047857;
+            --primary-light:  #d1fae5;
+            --header-bg:      #064e3b;
+            --bg-page:        #f0fdf4;
+        }
+
+        body.theme-royal-purple {
+            --primary:        #7c3aed;
+            --primary-dark:   #6d28d9;
+            --primary-light:  #ede9fe;
+            --header-bg:      #4c1d95;
+            --bg-page:        #faf5ff;
+        }
+
+        body.theme-crimson-red {
+            --primary:        #dc2626;
+            --primary-dark:   #b91c1c;
+            --primary-light:  #fee2e2;
+            --header-bg:      #7f1d1d;
+            --bg-page:        #fef2f2;
+        }
+
+        body.theme-nordic-teal {
+            --primary:        #0d9488;
+            --primary-dark:   #0f766e;
+            --primary-light:  #ccfbf1;
+            --header-bg:      #134e4a;
+            --bg-page:        #f0fdfa;
+        }
+
+        body.theme-slate-minimal {
+            --primary:        #475569;
+            --primary-dark:   #334155;
+            --primary-light:  #f1f5f9;
+            --header-bg:      #0f172a;
+            --bg-page:        #f8fafc;
+        }
+
+        body.theme-cyber-dark {
+            --primary:        #22d3ee;
+            --primary-dark:   #0891b2;
+            --primary-light:  #164e63;
+            --secondary:      #34d399;
+            --warning:        #facc15;
+            --danger:         #f87171;
+            --dark:           #f3f4f6;
+            --light:          #1f2937;
+            --gray:           #9ca3af;
+            --border:         #374151;
+            --bg-page:        #0f172a;
+            --bg-card:        #1e293b;
+            --bg-surface:     #334155;
+            --text-primary:   #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted:     #94a3b8;
+            --input-bg:       #334155;
+            --header-bg:      #0284c7;
+            --header-text:    #ffffff;
+            --table-header:   #334155;
+        }
+
+        
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg-page); color: var(--text-primary); }
+
+        /* Header */
+        .app-header {
+            background: var(--bg-card); border-bottom: 1px solid var(--border);
+            padding: 12px 16px; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-sm);
+        }
+        .header-content { display: flex; align-items: center; justify-content: space-between; max-width: 800px; margin: 0 auto; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        
+        /* Form */
+        .form-card { background: var(--bg-card); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border); margin-bottom: 30px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;
+            background: var(--bg-surface); color: var(--text-primary); font-size: 0.95rem; font-family: inherit; transition: border-color 0.2s;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--secondary); outline: none; }
+        
+        .btn-primary { background: var(--secondary); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
+        .btn-primary:active { transform: scale(0.98); }
+
+        /* Feedback List */
+        .feedback-item { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; position: relative; }
+        .feedback-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .feedback-author { font-weight: 700; color: var(--text-primary); font-size: 0.95rem; display: flex; align-items: center; gap: 6px; }
+        .feedback-date { font-size: 0.75rem; color: var(--text-muted); }
+        .feedback-text { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5; white-space: pre-wrap; }
+        
+        .status-badge { font-size: 0.75rem; padding: 3px 10px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+        .status-pending { background: rgba(234,179,8,0.15); color: #ca8a04; }
+        .status-completed { background: rgba(16,185,129,0.15); color: #10b981; }
+        .status-implemented { background: rgba(37,99,235,0.15); color: #2563eb; }
+        .status-custom { background: rgba(139,92,246,0.15); color: #8b5cf6; }
+
+        .dev-controls { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); display: none; }
+        body.is-dev .dev-controls { display: flex; gap: 8px; align-items: center; }
+        .dev-select { padding: 6px; font-size: 0.8rem; border-radius: 6px; background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border); }
+        .dev-btn { padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; border: none; background: var(--bg-surface); color: var(--text-primary); cursor: pointer; font-weight: 600; }
+        .dev-btn:hover { background: #e2e8f0; color: #0f172a; }
+
+        /* Toast */
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .toast { background: var(--bg-card); padding: 10px 18px; border-radius: 50px; box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 9px; animation: slideDown 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275); font-weight: 600; border: 1px solid var(--border); color: var(--text-primary); font-size: 0.82rem; }
+        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+    <link rel="stylesheet" href="themes.css">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-content">
+            <div class="brand">
+                <button onclick="window.history.back()" style="border:none;background:none;cursor:pointer;padding-right:10px;color:var(--secondary);font-size:1.1rem;"><i class="fas fa-arrow-left"></i></button>
+                <div class="brand-text">
+                    <h1 style="font-size:1rem;font-weight:700;">Share Feedback</h1>
+                    <p style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
+                </div>
+            </div>
+            <button id="header-login-btn" onclick="promptLogin()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;padding:6px 14px;font-size:11px;font-weight:700;border-radius:20px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;box-shadow:0 3px 10px rgba(37,99,235,.35);">
+                <i class="fas fa-user-circle"></i> Login
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-card">
+            <div style="display:flex;gap:15px;margin-bottom:15px;">
+                <div class="form-group" style="flex:1;margin:0;">
+                    <label>Employee ID</label>
+                    <input type="text" inputmode="numeric" id="fbEmpId" placeholder="e.g. 41764">
+                </div>
+                <div class="form-group" style="flex:2;margin:0;">
+                    <label>Name</label>
+                    <input type="text" id="fbName" placeholder="Your Name">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Feedback / Suggestion</label>
+                <textarea id="fbText" placeholder="Write your feedback..." rows="4"></textarea>
+            </div>
+            
+            <button class="btn-primary" onclick="submitFeedback()"><i class="fas fa-paper-plane"></i> Submit Feedback</button>
+        </div>
+
+        <h2 style="font-size:1.1rem; margin-bottom:15px; color:var(--text-primary);"><i class="fas fa-comments" style="color:var(--secondary);"></i> Recent Feedbacks</h2>
+        <div id="feedbackList"></div>
+    </div>
+
+    
+
+    <script>
+
+        const THEME_KEY = 'tabreed_selected_theme';
+        const LS_DARK = 'tabreed_dark_mode';
+
+        function applyUserSettings(settings) {
+            document.body.classList.remove('toast-minimal', 'toast-glassy', 'toast-outlined', 'toast-neon', 'toast-soft-shadow', 'toast-solid');
+            if (settings && settings.toastStyle && settings.toastStyle !== 'default') {
+                document.body.classList.add('toast-' + settings.toastStyle);
+            }
+            const container = document.getElementById('toastContainer');
+            if (container) {
+                container.className = 'toast-container ' + (settings && settings.toastPosition ? settings.toastPosition : 'pos-top');
+            }
+        }
+        
+        function loadCurrentUserAndSettings() {
+            try {
+                const curUserStr = localStorage.getItem('tabreed_currentUser');
+                if (curUserStr) {
+                    const curUser = JSON.parse(curUserStr);
+                    const code = curUser.code || curUser.empId;
+                    if (code) {
+                        const settingsStr = localStorage.getItem('tabreed_settings_' + code);
+                        if (settingsStr) {
+                            applyUserSettings(JSON.parse(settingsStr));
+                        }
+                        const btn = document.getElementById('header-login-btn');
+                        if (btn) btn.style.display = 'none';
+                    }
+                }
+            } catch(e){}
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadCurrentUserAndSettings);
+
+        
+        function promptLogin() {
+            const code = prompt("Enter Employee Code:");
+            if (!code) return;
+            const emps = getEmployees();
+            const match = emps.find(emp => String(emp.code) === code);
+            if (match) {
+                localStorage.setItem('tabreed_currentUser', JSON.stringify({
+                    code: match.code,
+                    name: match.name,
+                    short: match.short,
+                    role: (match.code === '41764' || match.short === 'Majeed') ? 'developer' : 'user'
+                }));
+                showToast('Logged in as ' + match.short, 'success');
+                document.getElementById('fbEmpId').value = match.code;
+                document.getElementById('fbName').value = match.name;
+                document.getElementById('header-login-btn').style.display = 'none';
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast('Invalid Employee Code', 'error');
+            }
+        }
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if(!container) return;
+            const t = document.createElement('div');
+            t.className = 'toast';
+            const colors = { success:'var(--secondary)', error:'var(--danger)', warning:'var(--warning)', info:'var(--primary)' };
+            const icons  = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+            const safeMsg = msg ? String(msg).replace(/[<>"'&]/g, c => ({ '<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;' }[c])) : '';
+            t.innerHTML  = `<i class="fas ${icons[type]||icons.info}" style="color:${colors[type]||colors.info};font-size:1.1rem;flex-shrink:0;"></i><span>${safeMsg}</span>`;
+            container.appendChild(t);
+            setTimeout(() => { t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),320); }, 2600);
+        }
+    
+        const ALL_THEME_CLASSES = [
+            'dark-mode', 'theme-ocean-blue', 'theme-industrial',
+            'theme-emerald-forest', 'theme-royal-purple', 'theme-crimson-red',
+            'theme-nordic-teal', 'theme-slate-minimal', 'theme-cyber-dark'
+        ];
+
+        function applyTheme() {
+            const themeId = localStorage.getItem(THEME_KEY) || (localStorage.getItem(LS_DARK) === '1' ? 'dark-mode' : 'default');
+            document.body.classList.remove(...ALL_THEME_CLASSES);
+            if (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark') {
+                document.body.classList.add('dark-mode');
+            }
+            if (themeId && themeId !== 'default') {
+                if (themeId !== 'dark-mode') {
+                    const finalTheme = themeId.startsWith('theme-') ? themeId : `theme-${themeId}`;
+                    document.body.classList.add(finalTheme);
+                }
+            }
+            const isDark = (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark');
+            const icon = document.getElementById('darkModeToggleBtn');
+            if (icon) {
+                icon.className  = isDark ? 'fas fa-sun' : 'fas fa-moon';
+                icon.style.color = isDark ? '#fdd663' : '#94a3b8';
+            }
+        }
+
+        applyTheme();
+        function toggleDarkMode() {
+            const isCurrentlyDark = document.body.classList.contains('dark-mode');
+            const newTheme = isCurrentlyDark ? 'default' : 'dark-mode';
+            localStorage.setItem(LS_DARK, isCurrentlyDark ? '0' : '1');
+            localStorage.setItem(THEME_KEY, newTheme);
+            applyTheme();
+        }
+
+        const THEME_KEY = 'tabreed_selected_theme';
+        let feedbacks = JSON.parse(localStorage.getItem('tabreed_feedbacks')) || [];
+        
+        function getEmployees() {
+            try { return JSON.parse(localStorage.getItem('tabreed_employees')) || []; }
+            catch(e) { return []; }
+        }
+        
+        function isDeveloper() {
+            try {
+                const user = JSON.parse(localStorage.getItem('tabreed_currentUser'));
+                return user && (user.role === 'developer' || user.role === 'super_admin' || user.code === '41764' || (user.name && user.name.toLowerCase().includes('majeed')));
+            } catch(e) { return false; }
+        }
+
+         else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+        
+        function formatDateDDMMYYYY(timestamp) {
+            const d = new Date(timestamp);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            
+            let hours = d.getHours();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            const mins = String(d.getMinutes()).padStart(2, '0');
+            
+            return `${day}.${month}.${year} ${hours}:${mins} ${ampm}`;
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            let icon = '<i class="fas fa-info-circle" style="color:var(--primary);"></i>';
+            if (type === 'success') icon = '<i class="fas fa-check-circle" style="color:var(--success);"></i>';
+            if (type === 'error') icon = '<i class="fas fa-exclamation-circle" style="color:var(--danger);"></i>';
+            if (type === 'warning') icon = '<i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i>';
+            
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        function renderFeedbacks() {
+            const listEl = document.getElementById('feedbackList');
+            if (feedbacks.length === 0) {
+                listEl.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text-muted);background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);">No feedback shared yet. Be the first!</div>';
+                return;
+            }
+            
+            const isDev = isDeveloper();
+            if(isDev) document.body.classList.add('is-dev');
+            
+            listEl.innerHTML = feedbacks.sort((a,b) => b.time - a.time).map(f => {
+                const statusStr = f.status || 'Pending';
+                let sClass = 'status-pending';
+                if(statusStr.toLowerCase() === 'completed') sClass = 'status-completed';
+                if(statusStr.toLowerCase() === 'implemented') sClass = 'status-implemented';
+                if(statusStr.toLowerCase() !== 'pending' && statusStr.toLowerCase() !== 'completed' && statusStr.toLowerCase() !== 'implemented') sClass = 'status-custom';
+
+                return `
+                <div class="feedback-item">
+                    <div class="feedback-header">
+                        <div class="feedback-author">
+                            <i class="fas fa-user-circle" style="color:var(--secondary);font-size:1.1rem;"></i> 
+                            ${f.name || 'Anonymous'} <span style="font-size:0.75rem;font-weight:600;color:var(--text-muted);">(${f.empId || 'N/A'})</span>
+                        </div>
+                        <div class="status-badge ${sClass}">${statusStr}</div>
+                    </div>
+                    <div class="feedback-text">${f.text}</div>
+                    
+                    <div class="feedback-date" style="margin-top:8px;">${formatDateDDMMYYYY(f.time)}</div>
+                    
+                    <div class="dev-controls">
+                        <select class="dev-select" id="status-select-${f.id}">
+                            <option value="Pending" ${statusStr==='Pending'?'selected':''}>Pending</option>
+                            <option value="Completed" ${statusStr==='Completed'?'selected':''}>Completed</option>
+                            <option value="Implemented" ${statusStr==='Implemented'?'selected':''}>Implemented</option>
+                        </select>
+                        <input type="text" class="dev-select" id="custom-status-${f.id}" placeholder="Custom Status..." style="flex:1;">
+                        <button class="dev-btn" onclick="updateStatus('${f.id}')">Update</button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+        
+        function updateStatus(id) {
+            const selectVal = document.getElementById(`status-select-${id}`).value;
+            const customVal = document.getElementById(`custom-status-${id}`).value.trim();
+            const newStatus = customVal || selectVal;
+            
+            feedbacks = feedbacks.map(f => {
+                if(f.id === id) f.status = newStatus;
+                return f;
+            });
+            localStorage.setItem('tabreed_feedbacks', JSON.stringify(feedbacks));
+            renderFeedbacks();
+            showToast('Status Updated', 'success');
+        }
+
+        function submitFeedback() {
+            const empId = document.getElementById('fbEmpId').value.trim();
+            const name = document.getElementById('fbName').value.trim();
+            const text = document.getElementById('fbText').value.trim();
+            
+            if(!text) {
+                showToast('Please enter your feedback', 'error');
+                return;
+            }
+            
+            const newFb = {
+                id: 'fb_' + Date.now(),
+                empId: empId,
+                name: name,
+                text: text,
+                time: Date.now(),
+                status: 'Pending'
+            };
+            
+            feedbacks.push(newFb);
+            localStorage.setItem('tabreed_feedbacks', JSON.stringify(feedbacks));
+            showToast('Feedback submitted successfully!', 'success');
+            
+            document.getElementById('fbText').value = '';
+            renderFeedbacks();
+        }
+
+        // Auto fill logic
+        document.getElementById('fbEmpId').addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            if (val.length >= 4) {
+                const emps = getEmployees();
+                const match = emps.find(emp => String(emp.code) === val);
+                if (match) document.getElementById('fbName').value = match.name;
+            }
+        });
+        document.getElementById('fbName').addEventListener('input', (e) => {
+            const val = e.target.value.trim().toLowerCase();
+            if (val.length >= 3) {
+                const emps = getEmployees();
+                const match = emps.find(emp => emp.name.toLowerCase().includes(val));
+                if (match) document.getElementById('fbEmpId').value = match.code;
+            }
+        });
+
+        window.onload = () => {
+            applyTheme();
+            const user = JSON.parse(localStorage.getItem('tabreed_currentUser'));
+            if(user) {
+                document.getElementById('fbEmpId').value = user.code || '';
+                document.getElementById('fbName').value = user.name || '';
+                
+                const loginBtn = document.getElementById('header-login-btn');
+                if (loginBtn) {
+                    loginBtn.innerHTML = `<i class="fas fa-user"></i> ${user.name.split(' ')[0]}`;
+                    loginBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                }
+            }
+            renderFeedbacks();
+        };
+    </script>
+<div class="toast-container" id="toastContainer"></div>
+</body>
+</html>

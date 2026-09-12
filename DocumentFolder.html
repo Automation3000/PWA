@@ -8,13 +8,94 @@
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
     <style>
-        :root {
-            --primary: #1a73e8; --primary-dark: #0d62d9; --primary-light: #e8f0fe; --secondary: #1e8e3e; --warning: #f9ab00; --danger: #d93025; --dark: #202124; --light: #f8f9fa; --gray: #5f6368; --border: #dadce0; --shadow-sm: 0 1px 4px rgba(0,0,0,.08); --shadow: 0 2px 12px rgba(0,0,0,.10); --radius: 12px; --radius-sm: 8px; --bg-page: #e8f0f8; --bg-card: #ffffff; --bg-surface: #f3f6fb; --text-primary: #202124; --text-secondary: #5f6368; --text-muted: #80868b;
+        
+
+        /* ═══════════════════════════════════════════════════
+           DARK MODE — Carefully designed for readability
+        ═══════════════════════════════════════════════════ */
+        
+
+        body.theme-ocean-blue {
+            --primary:        #0284c7;
+            --primary-dark:   #0369a1;
+            --primary-light:  #e0f2fe;
+            --header-bg:      #0c4a6e;
+            --bg-page:        #f0f9ff;
         }
-        body.dark-mode {
-            --primary: #7baaf7; --primary-light: #1e2d45; --secondary: #34c779; --warning: #fdd663; --danger: #f28b82; --dark: #e8eaed; --light: #2d2f31; --gray: #9aa0a6; --border: #3c3f43; --bg-page: #111213; --bg-card: #1e2022; --bg-surface: #2d2f31; --text-primary: #e8eaed; --text-secondary: #9aa0a6; --text-muted: #6e7275;
+
+        body.theme-industrial {
+            --primary:        #d97706;
+            --primary-dark:   #b45309;
+            --primary-light:  #fef3c7;
+            --header-bg:      #1f2937;
+            --bg-page:        #fffbeb;
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body.theme-emerald-forest {
+            --primary:        #059669;
+            --primary-dark:   #047857;
+            --primary-light:  #d1fae5;
+            --header-bg:      #064e3b;
+            --bg-page:        #f0fdf4;
+        }
+
+        body.theme-royal-purple {
+            --primary:        #7c3aed;
+            --primary-dark:   #6d28d9;
+            --primary-light:  #ede9fe;
+            --header-bg:      #4c1d95;
+            --bg-page:        #faf5ff;
+        }
+
+        body.theme-crimson-red {
+            --primary:        #dc2626;
+            --primary-dark:   #b91c1c;
+            --primary-light:  #fee2e2;
+            --header-bg:      #7f1d1d;
+            --bg-page:        #fef2f2;
+        }
+
+        body.theme-nordic-teal {
+            --primary:        #0d9488;
+            --primary-dark:   #0f766e;
+            --primary-light:  #ccfbf1;
+            --header-bg:      #134e4a;
+            --bg-page:        #f0fdfa;
+        }
+
+        body.theme-slate-minimal {
+            --primary:        #475569;
+            --primary-dark:   #334155;
+            --primary-light:  #f1f5f9;
+            --header-bg:      #0f172a;
+            --bg-page:        #f8fafc;
+        }
+
+        body.theme-cyber-dark {
+            --primary:        #22d3ee;
+            --primary-dark:   #0891b2;
+            --primary-light:  #164e63;
+            --secondary:      #34d399;
+            --warning:        #facc15;
+            --danger:         #f87171;
+            --dark:           #f3f4f6;
+            --light:          #1f2937;
+            --gray:           #9ca3af;
+            --border:         #374151;
+            --bg-page:        #0f172a;
+            --bg-card:        #1e293b;
+            --bg-surface:     #334155;
+            --text-primary:   #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted:     #94a3b8;
+            --input-bg:       #334155;
+            --header-bg:      #0284c7;
+            --header-text:    #ffffff;
+            --table-header:   #334155;
+        }
+
+        
+* { margin:0; padding:0; box-sizing:border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-page); color: var(--text-primary); line-height: 1.5; }
         .app-container { max-width:1200px; margin:0 auto; padding: 1rem; }
         .app-header { background: var(--bg-card); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
@@ -135,6 +216,7 @@
         body.dark-mode .btn-secondary { background: var(--bg-surface); color: var(--text-primary); border-color: var(--border); }
         body.dark-mode #fileUploadInput { background: var(--bg-surface); border-color: var(--border); color: var(--text-primary); }
     </style>
+    <link rel="stylesheet" href="themes.css">
 </head>
 <body>
 
@@ -243,18 +325,93 @@
     </div>
 
     <script>
+
+        const THEME_KEY = 'tabreed_selected_theme';
+        const LS_DARK = 'tabreed_dark_mode';
+
+        function applyUserSettings(settings) {
+            document.body.classList.remove('toast-minimal', 'toast-glassy', 'toast-outlined', 'toast-neon', 'toast-soft-shadow', 'toast-solid');
+            if (settings && settings.toastStyle && settings.toastStyle !== 'default') {
+                document.body.classList.add('toast-' + settings.toastStyle);
+            }
+            const container = document.getElementById('toastContainer');
+            if (container) {
+                container.className = 'toast-container ' + (settings && settings.toastPosition ? settings.toastPosition : 'pos-top');
+            }
+        }
+        
+        function loadCurrentUserAndSettings() {
+            try {
+                const curUserStr = localStorage.getItem('tabreed_currentUser');
+                if (curUserStr) {
+                    const curUser = JSON.parse(curUserStr);
+                    const code = curUser.code || curUser.empId;
+                    if (code) {
+                        const settingsStr = localStorage.getItem('tabreed_settings_' + code);
+                        if (settingsStr) {
+                            applyUserSettings(JSON.parse(settingsStr));
+                        }
+                    }
+                }
+            } catch(e){}
+        }
+        
+        document.addEventListener('DOMContentLoaded', loadCurrentUserAndSettings);
+
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if(!container) return;
+            const t = document.createElement('div');
+            t.className = 'toast';
+            const colors = { success:'var(--secondary)', error:'var(--danger)', warning:'var(--warning)', info:'var(--primary)' };
+            const icons  = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+            const safeMsg = msg ? String(msg).replace(/[<>"'&]/g, c => ({ '<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;' }[c])) : '';
+            t.innerHTML  = `<i class="fas ${icons[type]||icons.info}" style="color:${colors[type]||colors.info};font-size:1.1rem;flex-shrink:0;"></i><span>${safeMsg}</span>`;
+            container.appendChild(t);
+            setTimeout(() => { t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),320); }, 2600);
+        }
+    
+        const ALL_THEME_CLASSES = [
+            'dark-mode', 'theme-ocean-blue', 'theme-industrial',
+            'theme-emerald-forest', 'theme-royal-purple', 'theme-crimson-red',
+            'theme-nordic-teal', 'theme-slate-minimal', 'theme-cyber-dark'
+        ];
+
+        function applyTheme() {
+            const themeId = localStorage.getItem(THEME_KEY) || (localStorage.getItem(LS_DARK) === '1' ? 'dark-mode' : 'default');
+            document.body.classList.remove(...ALL_THEME_CLASSES);
+            if (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark') {
+                document.body.classList.add('dark-mode');
+            }
+            if (themeId && themeId !== 'default') {
+                if (themeId !== 'dark-mode') {
+                    const finalTheme = themeId.startsWith('theme-') ? themeId : `theme-${themeId}`;
+                    document.body.classList.add(finalTheme);
+                }
+            }
+            const isDark = (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark');
+            const icon = document.getElementById('darkModeToggleBtn');
+            if (icon) {
+                icon.className  = isDark ? 'fas fa-sun' : 'fas fa-moon';
+                icon.style.color = isDark ? '#fdd663' : '#94a3b8';
+            }
+        }
+
+        applyTheme();
+        function toggleDarkMode() {
+            const isCurrentlyDark = document.body.classList.contains('dark-mode');
+            const newTheme = isCurrentlyDark ? 'default' : 'dark-mode';
+            localStorage.setItem(LS_DARK, isCurrentlyDark ? '0' : '1');
+            localStorage.setItem(THEME_KEY, newTheme);
+            applyTheme();
+        }
+
         // IMPORTANT: Replace this URL with the one you got after deploying the Google Apps Script.
         // IMPORTANT: Paste the NEW URL you get after re-deploying the script with the correct permissions.
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyuU8Ex0xKje6OmnaGKYFIJIp6U16ZoOhQPiVhL5URULn060tydvJL_koJDa7psrJc-6Q/exec";
 
         // Simple dark mode toggle to maintain theme consistency
-        function toggleDarkMode() {
-            const isDark = document.body.classList.toggle('dark-mode');
-            localStorage.setItem('tabreed_dark_mode', isDark ? '1' : '0');
-            const icon = document.getElementById('darkModeToggleBtn');
-            icon.className  = isDark ? 'fas fa-sun' : 'fas fa-moon';
-            icon.style.color = isDark ? '#fdd663' : '#9aa0a6';
-        }
+        
 
         // --- UPLOAD FUNCTIONALITY ---
         function openUploadModal() {
@@ -347,5 +504,6 @@
         });
     </script>
 
+<div class="toast-container" id="toastContainer"></div>
 </body>
 </html>

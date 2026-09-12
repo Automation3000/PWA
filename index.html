@@ -400,16 +400,51 @@
         /* ═══════════════════════════════════════════════════
            TOAST
         ═══════════════════════════════════════════════════ */
-        .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:10000; pointer-events:none; display:flex; flex-direction:column; align-items:center; gap:8px; }
+        .toast-container { position:fixed; z-index:10000; pointer-events:none; display:flex; flex-direction:column; gap:8px; transition: all 0.3s ease; }
+        .toast-container.pos-top { top:20px; left:50%; transform:translateX(-50%); align-items:center; }
+        .toast-container.pos-bottom { bottom:20px; left:50%; transform:translateX(-50%); align-items:center; }
+        .toast-container.pos-top-right { top:20px; right:20px; align-items:flex-end; }
+        .toast-container.pos-bottom-right { bottom:20px; right:20px; align-items:flex-end; }
+        .toast-container.pos-top-left { top:20px; left:20px; align-items:flex-start; }
+        .toast-container.pos-bottom-left { bottom:20px; left:20px; align-items:flex-start; }
+
         .toast {
             background:var(--bg-card); backdrop-filter:blur(8px);
             padding:10px 18px; border-radius:50px; box-shadow:var(--shadow-md);
             display:flex; align-items:center; gap:9px;
-            animation:slideDown .35s cubic-bezier(.175,.885,.32,1.275);
+            animation:toastFadeIn .35s cubic-bezier(.175,.885,.32,1.275);
             font-weight:600; border:1px solid var(--border);
             color:var(--text-primary); font-size:.82rem; max-width:320px;
         }
-        @keyframes slideDown { from{transform:translateY(-20px);opacity:0} to{transform:translateY(0);opacity:1} }
+        @keyframes toastFadeIn { from{transform:translateY(10px);opacity:0} to{transform:translateY(0);opacity:1} }
+        
+        body.toast-minimal .toast {
+            border-radius: 6px; padding: 8px 12px; font-size: 0.78rem; box-shadow: none;
+            border-bottom: 2px solid var(--primary); border-left: none; border-right: none; border-top: none;
+        }
+        body.toast-glassy .toast {
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            color: var(--text-primary);
+        }
+        body.dark-mode.toast-glassy .toast {
+            background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
+        }
+        body.toast-outlined .toast {
+            background: transparent; border: 2px solid var(--primary); border-radius: 8px; box-shadow:none;
+        }
+        body.toast-neon .toast {
+            background: var(--bg-card); border: 1px solid var(--primary); box-shadow: 0 0 10px var(--primary), 0 0 20px rgba(37,99,235,0.4);
+        }
+        body.toast-soft-shadow .toast {
+            border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border: none;
+        }
+        body.dark-mode.toast-soft-shadow .toast {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        body.toast-solid .toast {
+            background: var(--text-primary); color: var(--bg-page); border: none; border-radius: 4px;
+        }
 
         /* ═══════════════════════════════════════════════════
            SKELETON
@@ -498,7 +533,7 @@
         .history-card  { background:var(--bg-card); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; margin:15px; border:1px solid var(--border); }
         .history-table { width:100%; border-collapse:collapse; min-width:600px; }
         .history-table th { background:var(--table-header); padding:12px 16px; text-align:left; font-size:.8rem; color:var(--text-secondary); border-bottom:2px solid var(--border); text-transform:uppercase; letter-spacing:.3px; }
-        .history-table td { padding:12px 16px; border-bottom:1px solid var(--border); font-size:.88rem; color:var(--text-primary); }
+        .history-table td { padding:12px 16px; border-bottom:1px solid var(--border); font-size:.88rem; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:180px; }
         .history-table tr:hover { background:var(--bg-surface); }
 
         /* Dark mode icon */
@@ -640,37 +675,37 @@
     <div id="launchpad-view">
         <h2 class="group-title">Automation &amp; Control</h2>
         <div class="tile-grid">
-            <div class="tile" onclick="openApp('NATIVE_INSTRUMENT')">
+            <div class="tile" onclick="handleTileClick(event, 'NATIVE_INSTRUMENT', this)">
                 <div class="tile-title">Master Instrument List</div>
                 <div class="tile-subtitle">AI1 Database</div>
                 <i class="fas fa-clipboard-list tile-icon"></i>
                 <div class="tile-status"><i class="fas fa-bolt"></i> Fast Offline</div>
             </div>
-            <div class="tile" onclick="window.location.href='DocumentFolder.html'">
+            <div class="tile" onclick="handleTileClick(event, 'DocumentFolder.html', this)">
                 <div class="tile-title">Document Library</div>
                 <div class="tile-subtitle">View Important Files &amp; Media</div>
                 <i class="fas fa-folder-open tile-icon" style="color:var(--primary);"></i>
                 <div class="tile-status" style="color:var(--secondary);"><i class="fas fa-check-circle"></i> Ready</div>
             </div>
-            <div class="tile" onclick="window.location.href='PM_Checklist_Generator.html'">
+            <div class="tile" onclick="handleTileClick(event, 'PM_Checklist_Generator.html', this)">
                 <div class="tile-title">PM Checklist Generator</div>
                 <div class="tile-subtitle">Create &amp; Download Checklist • Try &amp; Share Feedback</div>
                 <i class="fas fa-tasks tile-icon" style="color:var(--primary);"></i>
                 <div class="tile-status" style="color:var(--secondary);"><i class="fas fa-check-circle"></i> Ready</div>
             </div>
-            <div class="tile" onclick="window.location.href='ETS_Locator.html'">
+            <div class="tile" onclick="handleTileClick(event, 'ETS_Locator.html', this)">
                 <div class="tile-title">ETS Locator</div>
                 <div class="tile-subtitle">Find &amp; Navigate to ETS Locations</div>
                 <i class="fas fa-map-marked-alt tile-icon" style="color:var(--warning);"></i>
                 <div class="tile-status" style="color:var(--warning);"><i class="fas fa-hammer"></i> Demo</div>
             </div>
-            <div class="tile" onclick="window.location.href='Operation_Request.html'">
+            <div class="tile" onclick="handleTileClick(event, 'Operation_Request.html', this)">
                 <div class="tile-title">Operation Request</div>
                 <div class="tile-subtitle">Request WorkOrder Operations</div>
                 <i class="fas fa-tools tile-icon" style="color:var(--primary);"></i>
                 <div class="tile-status" style="color:var(--danger);"><i class="fas fa-times-circle"></i> Not Ready</div>
             </div>
-            <div class="tile" onclick="window.location.href='Team_Contacts.html'">
+            <div class="tile" onclick="handleTileClick(event, 'Team_Contacts.html', this)">
                 <div class="tile-title">Team Contacts</div>
                 <div class="tile-subtitle">Directory & Contact Information</div>
                 <i class="fas fa-address-book tile-icon" style="color:var(--primary);"></i>
@@ -680,18 +715,32 @@
 
         <h2 class="group-title">Offline Tools &amp; Support</h2>
         <div class="tile-grid">
-            <div class="tile" onclick="viewPendingSyncs()">
+            <div class="tile" onclick="handleTileClick(event, 'PENDING_SYNCS', this)">
                 <div class="tile-title">Pending Syncs</div>
                 <div class="tile-subtitle">Data waiting for network</div>
                 <i class="fas fa-sync tile-icon" style="color:var(--text-muted);"></i>
                 <div class="tile-status" style="color:var(--danger);" id="pending-sync-tile">0 Pending</div>
             </div>
-            <div class="tile" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#93c5fd;" onclick="showReleaseNotes()">
+            <div class="tile" onclick="handleTileClick(event, 'SETTINGS', this)" style="border-color:rgba(107,114,128,0.25);">
+                <div class="tile-title" style="color:var(--text-primary);">Settings</div>
+                <div class="tile-subtitle">App preferences &amp; Sync</div>
+                <i class="fas fa-cog tile-icon" style="color:var(--text-secondary);"></i>
+            </div>
+            <div class="tile" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#93c5fd;" onclick="handleTileClick(event, 'RELEASE_NOTES', this)">
                 <div class="tile-title" style="color:#1d4ed8;">Release Notes</div>
                 <div class="tile-subtitle">Credits &amp; New Features</div>
                 <i class="fas fa-award tile-icon" style="color:#2563eb;"></i>
             </div>
-            <div class="tile tile-feedback" onclick="openFeedbackModal()">
+            <div class="tile tile-beta" onclick="switchToBetaTheme()">
+                <span class="beta-tag">BETA</span>
+                <div class="tile-title">Beta Theme</div>
+                <div class="tile-subtitle">Try the new UI design</div>
+                <i class="fas fa-flask tile-icon"></i>
+                <div class="tile-status" style="color:#8b5cf6;background:rgba(124,58,237,.1);padding:3px 8px;border-radius:20px;font-size:10px;">
+                    <i class="fas fa-wand-magic-sparkles" style="font-size:9px;"></i> New
+                </div>
+            </div>
+            <div class="tile tile-feedback" onclick="window.location.href='Share_FeedBack.html'">
                 <div class="tile-title" style="color:#ea580c;">Share Feedback</div>
                 <div class="tile-subtitle">Report bugs or ideas</div>
                 <i class="fas fa-comment-dots tile-icon" style="color:#f97316;"></i>
@@ -760,15 +809,6 @@
                     <i class="fas fa-bell tile-icon" style="color:#ea580c;"></i>
                     <div class="tile-status" style="color:#ea580c;background:rgba(234,88,12,.1);padding:3px 8px;border-radius:20px;font-size:10px;">
                         <i class="fas fa-paper-plane" style="font-size:9px;"></i> Broadcast
-                    </div>
-                </div>
-                <div class="tile tile-beta" onclick="switchToBetaTheme()">
-                    <span class="beta-tag">BETA</span>
-                    <div class="tile-title">Beta Theme</div>
-                    <div class="tile-subtitle">Try the new UI design</div>
-                    <i class="fas fa-flask tile-icon"></i>
-                    <div class="tile-status" style="color:#8b5cf6;background:rgba(124,58,237,.1);padding:3px 8px;border-radius:20px;font-size:10px;">
-                        <i class="fas fa-wand-magic-sparkles" style="font-size:9px;"></i> New
                     </div>
                 </div>
             </div>
@@ -937,6 +977,7 @@
             </div>
             <div class="modal-actions">
                 <button class="btn-primary" onclick="submitUpdate()" id="submitUpdateBtn">SAVE CHANGES</button>
+                <button class="btn-secondary" onclick="deleteCurrentItem()" id="deleteInstrumentBtn" style="display:none;background:rgba(217,48,37,0.1);color:var(--danger);border-color:rgba(217,48,37,0.3);"><i class="fas fa-trash"></i> DELETE</button>
                 <button class="btn-secondary" onclick="closeModal(true)">CANCEL</button>
             </div>
         </div>
@@ -1007,8 +1048,8 @@
                         <p style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
                     </div>
                 </div>
-                <button class="action-btn" onclick="loadHistoryData()" style="min-width:44px;max-width:50px;box-shadow:none;border-color:var(--border);" title="Refresh History">
-                    <i class="fas fa-sync-alt" id="historyRefreshIcon" style="color:var(--primary);"></i>
+                <button class="history-refresh-btn" onclick="loadHistoryData()" style="position:relative;z-index:10;min-width:38px;max-width:38px;height:38px;padding:0;display:flex;align-items:center;justify-content:center;box-shadow:none;border-color:var(--border);background:var(--bg-card);border-radius:50%;cursor:pointer;border:1px solid var(--border);" title="Refresh History">
+                    <i class="fas fa-sync-alt" id="historyRefreshIcon" style="color:var(--primary);font-size:1rem;"></i>
                 </button>
             </div>
         </header>
@@ -1118,6 +1159,106 @@
     </div>
 </div>
 
+<!-- SETTINGS MODAL -->
+<style>
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+input:checked + .slider { background-color: var(--primary); }
+input:checked + .slider:before { transform: translateX(20px); }
+</style>
+<div id="settingsModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg-page);z-index:9000;overflow:hidden;flex-direction:column;">
+    <div class="app-header" style="flex-shrink:0;">
+        <div class="header-content" style="max-width:600px;margin:0 auto;width:100%;">
+            <div class="brand">
+                <button onclick="closeSettingsModal()" style="border:none;background:none;cursor:pointer;padding-right:10px;color:var(--primary);font-size:1.1rem;" title="Back"><i class="fas fa-arrow-left"></i></button>
+                <div class="brand-text">
+                    <h1 style="font-size:1rem;font-weight:700;">Settings</h1>
+                    <p style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
+                </div>
+            </div>
+            <button class="btn-primary" onclick="saveSettings()" style="font-size:0.85rem !important;padding:8px 16px !important;border-radius:6px;width:fit-content !important;align-self:center;">Save</button>
+        </div>
+    </div>
+    
+    <div style="flex:1;overflow-y:auto;padding:1.5rem 1rem;">
+        <div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 600px; margin: 0 auto;">
+            <div class="form-group" style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-card);padding:1.25rem;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);">
+                <div>
+                    <label style="margin:0;font-weight:700;display:block;color:var(--text-primary);font-size:0.95rem;">Auto Sync</label>
+                    <span style="font-size:0.75rem;color:var(--text-muted);">Automatically sync offline changes</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="settingAutoSync" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+
+            <div style="background:var(--bg-card);padding:1.25rem;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);">
+                <div class="form-group" style="margin-bottom:1.25rem;">
+                    <label style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);">Toast Notification Style</label>
+                    <div style="display:flex;gap:10px;margin-top:5px;">
+                        <select id="settingToastStyle" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text-primary);font-family:inherit;">
+                            <option value="default">Default</option>
+                            <option value="minimal">Minimal</option>
+                            <option value="glassy">Glassy</option>
+                            <option value="outlined">Outlined</option>
+                            <option value="neon">Neon</option>
+                            <option value="soft-shadow">Soft Shadow</option>
+                            <option value="solid">Solid</option>
+                        </select>
+                        <button onclick="testToastStyle()" class="btn-secondary" style="padding:8px 12px;"><i class="fas fa-play"></i> Test</button>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:1.25rem;">
+                    <label style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);">Toast Position</label>
+                    <div style="display:flex;gap:10px;margin-top:5px;">
+                        <select id="settingToastPosition" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text-primary);font-family:inherit;">
+                            <option value="pos-top">Top Center</option>
+                            <option value="pos-bottom">Bottom Center</option>
+                            <option value="pos-top-right">Top Right</option>
+                            <option value="pos-bottom-right">Bottom Right</option>
+                            <option value="pos-top-left">Top Left</option>
+                            <option value="pos-bottom-left">Bottom Left</option>
+                        </select>
+                        <button onclick="testToastStyle()" class="btn-secondary" style="padding:8px 12px;"><i class="fas fa-play"></i> Test</button>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom:1.25rem;">
+                    <label style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);">Default Theme</label>
+                    <select id="settingDefaultTheme" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text-primary);margin-top:5px;font-family:inherit;">
+                        <option value="default">Standard Light</option>
+                        <option value="dark-mode">Standard Dark</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom:1.25rem;">
+                    <label style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);">Light Mode Active Theme</label>
+                    <div style="display:flex;gap:10px;margin-top:5px;">
+                        <select id="settingLightToggleTheme" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text-primary);font-family:inherit;"></select>
+                        <button onclick="testTheme('settingLightToggleTheme')" class="btn-secondary" style="padding:8px 12px;"><i class="fas fa-play"></i> Test</button>
+                    </div>
+                    <p style="font-size:0.7rem;color:var(--text-muted);margin-top:5px;">Theme applied when Light mode is toggled.</p>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);">Dark Mode Active Theme</label>
+                    <div style="display:flex;gap:10px;margin-top:5px;">
+                        <select id="settingDarkToggleTheme" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text-primary);font-family:inherit;"></select>
+                        <button onclick="testTheme('settingDarkToggleTheme')" class="btn-secondary" style="padding:8px 12px;"><i class="fas fa-play"></i> Test</button>
+                    </div>
+                    <p style="font-size:0.7rem;color:var(--text-muted);margin-top:5px;">Theme applied when Dark mode is toggled.</p>
+                </div>
+            </div>
+            
+            <button onclick="restoreDefaultSettings()" style="background:none;border:none;color:var(--danger);font-weight:600;font-size:0.9rem;padding:10px;cursor:pointer;text-decoration:underline;">Restore My Default Settings</button>
+            <div id="devSettingsControls" style="display:none;background:var(--bg-card);padding:1.25rem;border-radius:var(--radius);border:1px dashed var(--danger);box-shadow:var(--shadow-sm);margin-top:10px;">
+                <h4 style="color:var(--danger);margin-bottom:10px;"><i class="fas fa-exclamation-triangle"></i> Developer Controls</h4>
+                <button onclick="factoryResetAllEmployees()" class="btn-primary" style="background:var(--danger);width:100%;">Factory Reset ALL Employees Settings</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- ═══════════════════════════════════════
@@ -1129,7 +1270,7 @@
     /* ──────────────────────────────────────
        CONSTANTS & CONFIG
     ────────────────────────────────────── */
-    const APP_VERSION   = "v2.5";
+    const APP_VERSION   = "v2.1.1";
     const GAS_API_URL   = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
     const LS_INVENTORY  = "localTabreedInventory";
     const LS_HISTORY    = "localTabreedHistory";
@@ -1305,19 +1446,24 @@
         'theme-nordic-teal', 'theme-slate-minimal', 'theme-cyber-dark'
     ];
 
-    function applyTheme(themeId) {
+    function applyTheme(themeId, noSave = false) {
         document.body.classList.remove(...ALL_THEME_CLASSES);
-        if (themeId === 'dark-mode' || themeId === 'cyber-dark') {
+        if (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark') {
             document.body.classList.add('dark-mode');
         }
         if (themeId && themeId !== 'default') {
             if (themeId !== 'dark-mode') {
-                document.body.classList.add(`theme-${themeId}`);
+                const finalTheme = themeId.startsWith('theme-') ? themeId : `theme-${themeId}`;
+                document.body.classList.add(finalTheme);
             }
         }
-        const isDark = (themeId === 'dark-mode' || themeId === 'cyber-dark');
-        localStorage.setItem(LS_DARK, isDark ? '1' : '0');
-        localStorage.setItem('tabreed_selected_theme', themeId);
+        const isDark = (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark');
+        
+        if (!noSave) {
+            localStorage.setItem(LS_DARK, isDark ? '1' : '0');
+            localStorage.setItem('tabreed_selected_theme', themeId);
+        }
+        
         const icon = document.getElementById('darkModeToggleBtn');
         if (icon) {
             icon.className  = isDark ? 'fas fa-sun' : 'fas fa-moon';
@@ -1326,10 +1472,18 @@
     }
 
     function toggleDarkMode() {
-        const current = localStorage.getItem('tabreed_selected_theme');
-        const next = current === 'dark-mode' ? 'default' : 'dark-mode';
-        applyTheme(next);
-        showToast(next === 'dark-mode' ? 'Dark Mode Enabled' : 'Light Mode Enabled', 'info');
+        const isCurrentlyDark = document.body.classList.contains('dark-mode');
+        const nextIsDark = !isCurrentlyDark;
+        
+        let nextTheme = nextIsDark ? 'dark-mode' : 'default';
+        if (currentAuthUser) {
+            const settings = JSON.parse(localStorage.getItem(`tabreed_settings_${currentAuthUser.code}`)) || {};
+            if (nextIsDark && settings.darkToggle) nextTheme = settings.darkToggle;
+            if (!nextIsDark && settings.lightToggle) nextTheme = settings.lightToggle;
+        }
+
+        applyTheme(nextTheme);
+        showToast(nextIsDark ? 'Dark Mode Enabled' : 'Light Mode Enabled', 'info');
     }
 
     function switchToBetaTheme() {
@@ -1470,6 +1624,172 @@
     }
 
     /* ──────────────────────────────────────
+       SETTINGS MODAL
+    ────────────────────────────────────── */
+    
+    function isDeveloper() {
+        return currentAuthUser && (currentAuthUser.role === 'developer' || currentAuthUser.role === 'super_admin' || currentAuthUser.code === '41764' || (currentAuthUser.name && currentAuthUser.name.toLowerCase().includes('majeed')));
+    }
+
+    function openSettingsModal() {
+        const lightSelect = document.getElementById('settingLightToggleTheme');
+        const darkSelect = document.getElementById('settingDarkToggleTheme');
+        
+        let lightHtml = `<option value="default">Standard Light</option>`;
+        let darkHtml = `<option value="dark-mode">Standard Dark</option>`;
+        
+        THEMES.forEach(t => {
+            if (t.id === 'default' || t.id === 'dark-mode') return;
+            const opt = `<option value="${t.id}">${t.name}</option>`;
+            if (t.id.includes('dark')) darkHtml += opt;
+            else lightHtml += opt;
+        });
+        
+        lightSelect.innerHTML = lightHtml;
+        darkSelect.innerHTML = darkHtml;
+        
+        const settings = currentAuthUser ? (JSON.parse(localStorage.getItem(`tabreed_settings_${currentAuthUser.code}`)) || {}) : {};
+        
+        document.getElementById('settingAutoSync').checked = settings.autoSync !== false;
+        document.getElementById('settingToastStyle').value = settings.toastStyle || 'default';
+        document.getElementById('settingToastPosition').value = settings.toastPosition || 'pos-top';
+        document.getElementById('settingDefaultTheme').value = settings.defaultTheme || 'default';
+        document.getElementById('settingLightToggleTheme').value = settings.lightToggle || 'default';
+        document.getElementById('settingDarkToggleTheme').value = settings.darkToggle || 'dark-mode';
+        
+        const devSettings = document.getElementById('devSettingsControls');
+        if (devSettings) {
+            devSettings.style.display = isDeveloper() ? 'block' : 'none';
+        }
+        
+        document.body.style.overflow = 'hidden';
+        document.getElementById('settingsModal').style.display = 'flex';
+    }
+
+    function factoryResetAllEmployees() {
+        if (!confirm('WARNING: This will delete ALL custom settings for ALL employees! Are you sure?')) return;
+        
+        // Remove all localStorage keys starting with tabreed_settings_
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('tabreed_settings_')) {
+                keysToRemove.push(key);
+            }
+        }
+        keysToRemove.forEach(k => localStorage.removeItem(k));
+        
+        showToast(`Reset ${keysToRemove.length} employee settings.`, 'success');
+        applyUserSettings({}); // Revert to defaults
+        closeSettingsModal();
+    }
+
+    function closeSettingsModal() {
+        document.body.style.overflow = '';
+        document.getElementById('settingsModal').style.display = 'none';
+        
+        // Re-apply original settings to clear tests
+        if (currentAuthUser) {
+            loadUserSettings(currentAuthUser.code);
+        } else {
+            applyUserSettings({}); // Revert to defaults
+        }
+        
+        // Revert theme if changed during test
+        const savedTheme = localStorage.getItem('tabreed_selected_theme');
+        if (savedTheme) {
+            applyTheme(savedTheme, true); // noSave = true since it's already saved
+        } else {
+            applyTheme('default', true);
+        }
+    }
+
+    function saveSettings() {
+        if (!currentAuthUser) {
+            closeSettingsModal();
+            promptLogin();
+            return;
+        }
+        
+        const settings = {
+            autoSync: document.getElementById('settingAutoSync').checked,
+            toastStyle: document.getElementById('settingToastStyle').value,
+            toastPosition: document.getElementById('settingToastPosition').value,
+            defaultTheme: document.getElementById('settingDefaultTheme').value,
+            lightToggle: document.getElementById('settingLightToggleTheme').value,
+            darkToggle: document.getElementById('settingDarkToggleTheme').value
+        };
+        
+        localStorage.setItem(`tabreed_settings_${currentAuthUser.code}`, JSON.stringify(settings));
+        closeSettingsModal();
+        showToast('Settings Saved Successfully', 'success');
+        
+        applyUserSettings(settings);
+    }
+    
+    function restoreDefaultSettings() {
+        if (!confirm('Are you sure you want to restore default settings?')) return;
+        
+        if (currentAuthUser) {
+            localStorage.removeItem(`tabreed_settings_${currentAuthUser.code}`);
+        }
+        localStorage.removeItem('tabreed_selected_theme');
+        
+        document.getElementById('settingAutoSync').checked = true;
+        document.getElementById('settingToastStyle').value = 'default';
+        document.getElementById('settingToastPosition').value = 'pos-top';
+        document.getElementById('settingDefaultTheme').value = 'default';
+        document.getElementById('settingLightToggleTheme').value = 'default';
+        document.getElementById('settingDarkToggleTheme').value = 'dark-mode';
+        
+        showToast('Restored Default Settings', 'info');
+        applyUserSettings({});
+        applyTheme('default');
+    }
+
+    function testToastStyle() {
+        const style = document.getElementById('settingToastStyle').value;
+        const pos = document.getElementById('settingToastPosition').value;
+        
+        document.body.classList.remove('toast-minimal', 'toast-glassy', 'toast-outlined', 'toast-neon', 'toast-soft-shadow', 'toast-solid');
+        if (style !== 'default') document.body.classList.add('toast-' + style);
+        
+        const container = document.getElementById('toastContainer');
+        if (container) {
+            container.className = 'toast-container ' + pos;
+        }
+        
+        showToast('This is a test notification', 'info');
+    }
+    
+    function testTheme(selectId) {
+        const theme = document.getElementById(selectId).value;
+        applyTheme(theme, true);
+        showToast('Previewing: ' + theme, 'info');
+    }
+
+    function loadUserSettings(code) {
+        const settings = JSON.parse(localStorage.getItem(`tabreed_settings_${code}`)) || {};
+        applyUserSettings(settings);
+    }
+    
+    function applyUserSettings(settings) {
+        document.body.classList.remove('toast-minimal', 'toast-glassy', 'toast-outlined', 'toast-neon', 'toast-soft-shadow', 'toast-solid');
+        if (settings.toastStyle && settings.toastStyle !== 'default') {
+            document.body.classList.add('toast-' + settings.toastStyle);
+        }
+        
+        const container = document.getElementById('toastContainer');
+        if (container) {
+            container.className = 'toast-container ' + (settings.toastPosition || 'pos-top');
+        }
+        
+        if (settings.defaultTheme && !localStorage.getItem('tabreed_selected_theme')) {
+            applyTheme(settings.defaultTheme);
+        }
+    }
+
+    /* ──────────────────────────────────────
        USER AUTH & DEVELOPER TOOLS
     ────────────────────────────────────── */
     let currentAuthUser = null;
@@ -1541,6 +1861,8 @@
             localStorage.setItem('tabreed_admin_unlocked', 'true');
             localStorage.setItem('tabreed_admin_user', JSON.stringify(user));
         } catch(e) {}
+        
+        loadUserSettings(user.code);
 
         // Update Top Right Header Display with User Short Name
         const headerLoginBtn = document.getElementById('header-login-btn');
@@ -2215,6 +2537,9 @@ window.startSmartInstall = async function() {
         document.getElementById('commentCheckbox').checked  = false;
         document.getElementById('commentGroup').style.display = 'none';
         document.getElementById('modalComment').value       = '';
+        if (document.getElementById('deleteInstrumentBtn')) {
+            document.getElementById('deleteInstrumentBtn').style.display = 'none';
+        }
         resetSlider();
         document.getElementById('updateModal').classList.add('active');
     }
@@ -2224,8 +2549,18 @@ window.startSmartInstall = async function() {
         currentItem = name;
         document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Update Details';
         document.getElementById('modalItemName').value     = name;
-        document.getElementById('modalItemName').readOnly  = true;
-        document.getElementById('modalItemName').style.cssText = 'background:var(--bg-surface);cursor:not-allowed;';
+        
+        const canEditLocked = (currentAuthUser && (currentAuthUser.role === 'super_admin' || currentAuthUser.role === 'supervisor'));
+        if (canEditLocked) {
+            document.getElementById('modalItemName').readOnly  = false;
+            document.getElementById('modalItemName').style.cssText = 'background:var(--input-bg);cursor:text;';
+            if (document.getElementById('deleteInstrumentBtn')) document.getElementById('deleteInstrumentBtn').style.display = 'inline-block';
+        } else {
+            document.getElementById('modalItemName').readOnly  = true;
+            document.getElementById('modalItemName').style.cssText = 'background:var(--bg-surface);cursor:not-allowed;';
+            if (document.getElementById('deleteInstrumentBtn')) document.getElementById('deleteInstrumentBtn').style.display = 'none';
+        }
+        
         document.getElementById('modalLocation').value     = loc;
         document.getElementById('modalUpdatedBy').value    = '';
         document.getElementById('commentCheckbox').checked = Boolean(remark);
@@ -2414,6 +2749,37 @@ window.startSmartInstall = async function() {
         document.getElementById('modalExpiry').disabled = true;
     }
 
+    function deleteCurrentItem() {
+        if (!currentItem) return;
+        const user = document.getElementById('modalUpdatedBy').value.trim();
+        if (!user) { showToast('Updated By field is required to delete!', 'error'); return; }
+
+        if (!confirm(`Are you sure you want to permanently delete ${currentItem}?`)) return;
+
+        const btn = document.getElementById('deleteInstrumentBtn');
+        if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
+
+        const actionParams = {
+            action: 'delete',
+            itemName: currentItem,
+            user: sanitizeInput(user),
+            updatedBy: sanitizeInput(user)
+        };
+
+        const idx = inventoryData.findIndex(i => i.name === currentItem);
+        if (idx !== -1) {
+            inventoryData.splice(idx, 1);
+            renderTable(inventoryData);
+            updateCounters();
+            saveOfflineData(inventoryData);
+        }
+        
+        submitActionToQueue(actionParams);
+        closeModal();
+        showToast(`Deleted ${currentItem}`, 'success');
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-trash"></i> DELETE'; }
+    }
+
     /* ──────────────────────────────────────
        SUBMIT UPDATE
     ────────────────────────────────────── */
@@ -2553,6 +2919,12 @@ window.startSmartInstall = async function() {
         retryCount: 0,
         maxRetries: 5,
 
+        isAutoSyncEnabled() {
+            if (!currentAuthUser) return true; // Default true if no user
+            const settings = JSON.parse(localStorage.getItem(`tabreed_settings_${currentAuthUser.code}`)) || {};
+            return settings.autoSync !== false;
+        },
+
         init() {
             // 1. Register Service Worker & Listen for SW background sync messages
             if ('serviceWorker' in navigator) {
@@ -2624,7 +2996,7 @@ window.startSmartInstall = async function() {
             if (this.heartbeatTimer) clearInterval(this.heartbeatTimer);
             this.heartbeatTimer = setInterval(() => {
                 const queue = this.getQueue();
-                if (queue.length > 0 && navigator.onLine && !this.isSyncing) {
+                if (queue.length > 0 && navigator.onLine && !this.isSyncing && this.isAutoSyncEnabled()) {
                     this.processQueue(false, 'heartbeat');
                 }
             }, 15000); // Heartbeat every 15s when items remain
@@ -2646,7 +3018,7 @@ window.startSmartInstall = async function() {
                     return reg.sync.register('tabreed-sync-queue');
                 }).catch(() => {});
             }
-            if (navigator.onLine) {
+            if (navigator.onLine && this.isAutoSyncEnabled()) {
                 this.scheduleSync(1200, 'queue_push');
             }
         },
@@ -2882,10 +3254,10 @@ window.startSmartInstall = async function() {
     ────────────────────────────────────── */
     const RELEASE_HISTORY = [
         {
-            version: "v2.5",
+            version: "v2.1.1",
             date: "September 2026",
-            badge: "Team Contacts & Service Worker Sync",
-            badgeColor: "#2563eb",
+            badge: "Team Contacts, ETS Locator & Customizations",
+            badgeColor: "#16a34a",
             sections: [
                 {
                     emoji: "📞",
@@ -2895,15 +3267,7 @@ window.startSmartInstall = async function() {
                         { text: "Centralized contacts fetched dynamically from external JSON.", credit: "Majeed" },
                         { text: "Updated latest contact numbers and fixed offline PWA cache clearing.", credit: "Majeed" }
                     ]
-                }
-            ]
-        },
-        {
-            version: "v2.1",
-            date: "September 2026",
-            badge: "ETS Locator & Minor Updates",
-            badgeColor: "#16a34a",
-            sections: [
+                },
                 {
                     emoji: "📍",
                     title: "ETS Locator",
@@ -2917,6 +3281,7 @@ window.startSmartInstall = async function() {
                     title: "Minor Updates",
                     color: "var(--secondary)",
                     items: [
+                        { text: "Added advanced layout settings and module customizations for developers.", credit: "Majeed" },
                         { text: "Minor updates, UI refinements, and stability improvements.", credit: "Majeed" }
                     ]
                 }
@@ -3531,13 +3896,20 @@ window.startSmartInstall = async function() {
 
     function renderHistoryTable(data) {
         const tbody = document.getElementById('historyTableBody');
-        if (!data || data.length === 0) {
+        
+        // Filter out testing entries
+        const validData = (data || []).filter(log => {
+            const item = (log.item || '').toLowerCase();
+            const userStr = (log.user || '').toLowerCase(); return !(item === 'test' || item === 'testing' || userStr === 'test' || userStr === 'testing');
+        });
+        
+        if (validData.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted);">No history records found.</td></tr>';
             return;
         }
 
         // Sort latest on top (by parsing date/time string or reversing)
-        const sorted = [...data].sort((a, b) => {
+        const sorted = [...validData].sort((a, b) => {
             const timeA = a.time ? new Date(a.time).getTime() : 0;
             const timeB = b.time ? new Date(b.time).getTime() : 0;
             if (timeA && timeB && !isNaN(timeA) && !isNaN(timeB)) return timeB - timeA;
@@ -3610,6 +3982,172 @@ window.startSmartInstall = async function() {
             document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
         }
     });
+
+    /* ──────────────────────────────────────
+       MODULE (TILE) CUSTOMIZATION
+    ────────────────────────────────────── */
+    function initTiles() {
+        const tiles = document.querySelectorAll('.tile');
+        const configs = JSON.parse(localStorage.getItem('tabreed_module_configs')) || {};
+        const isDev = isDeveloper();
+
+        tiles.forEach((tile) => {
+            const onclickAttr = tile.getAttribute('onclick');
+            if (!onclickAttr) return;
+            const match = onclickAttr.match(/handleTileClick\(event,\s*'([^']+)'/);
+            if (!match) return;
+            
+            const destination = match[1];
+            const tId = destination.replace('.html', '').replace('NATIVE_', '');
+            
+            const config = configs[tId];
+            if (config) {
+                if (config.hidden && !isDev) {
+                    tile.style.display = 'none';
+                    return;
+                } else {
+                    tile.style.display = 'flex';
+                }
+                
+                const titleEl = tile.querySelector('.tile-title');
+                if (config.title && titleEl) titleEl.innerHTML = config.title;
+                
+                const subtitleEl = tile.querySelector('.tile-subtitle');
+                if (config.subtitle && subtitleEl) subtitleEl.innerHTML = config.subtitle;
+                
+                const iconEl = tile.querySelector('.tile-icon');
+                if (config.icon && iconEl) {
+                    // Retain any inline styles on the icon if possible, but replace class
+                    iconEl.className = config.icon + ' tile-icon';
+                }
+                
+                const statusEl = tile.querySelector('.tile-status');
+                if (statusEl) {
+                    if (config.statusText) statusEl.innerHTML = config.statusText;
+                    if (config.statusColor) statusEl.style.color = config.statusColor;
+                }
+            } else {
+                tile.style.display = 'flex'; // Ensure visible if no config and was hidden before
+            }
+        });
+    }
+
+    function handleTileClick(e, destination, tileEl) {
+        const isDev = currentAuthUser && (currentAuthUser.role === 'developer' || currentAuthUser.role === 'super_admin' || currentAuthUser.code === '41764' || (currentAuthUser.name && currentAuthUser.name.toLowerCase().includes('majeed')));
+        
+        if (e.ctrlKey && isDev) {
+            e.preventDefault();
+            const moduleId = destination.replace('.html', '').replace('NATIVE_', '');
+            openTileEditor(moduleId, tileEl);
+            return;
+        }
+
+        if (destination === 'NATIVE_INSTRUMENT') openApp('NATIVE_INSTRUMENT');
+        else if (destination === 'PENDING_SYNCS') viewPendingSyncs();
+        else if (destination === 'SETTINGS') openSettingsModal();
+        else if (destination === 'RELEASE_NOTES') showReleaseNotes();
+        else window.location.href = destination;
+    }
+
+    function openTileEditor(id, tileEl) {
+        const configs = JSON.parse(localStorage.getItem('tabreed_module_configs')) || {};
+        const config = configs[id] || {};
+        
+        document.getElementById('editTileId').value = id;
+        
+        const titleEl = tileEl.querySelector('.tile-title');
+        const subtitleEl = tileEl.querySelector('.tile-subtitle');
+        const iconEl = tileEl.querySelector('.tile-icon');
+        const statusEl = tileEl.querySelector('.tile-status');
+        
+        document.getElementById('editTileTitle').value = config.title || (titleEl ? titleEl.innerText : '');
+        document.getElementById('editTileSubtitle').value = config.subtitle || (subtitleEl ? subtitleEl.innerText : '');
+        document.getElementById('editTileIcon').value = config.icon || (iconEl ? iconEl.className.replace('tile-icon', '').trim() : '');
+        document.getElementById('editTileStatusText').value = config.statusText || (statusEl ? statusEl.innerHTML : '');
+        document.getElementById('editTileStatusColor').value = config.statusColor || (statusEl ? statusEl.style.color : '');
+        document.getElementById('editTileDevOnly').checked = !!config.hidden;
+        
+        document.getElementById('tileEditorModal').style.display = 'flex';
+    }
+
+    function closeTileEditor() {
+        document.getElementById('tileEditorModal').style.display = 'none';
+    }
+
+    function saveTileConfig() {
+        const id = document.getElementById('editTileId').value;
+        const configs = JSON.parse(localStorage.getItem('tabreed_module_configs')) || {};
+        
+        configs[id] = {
+            title: document.getElementById('editTileTitle').value,
+            subtitle: document.getElementById('editTileSubtitle').value,
+            icon: document.getElementById('editTileIcon').value,
+            statusText: document.getElementById('editTileStatusText').value,
+            statusColor: document.getElementById('editTileStatusColor').value,
+            hidden: document.getElementById('editTileDevOnly').checked
+        };
+        
+        localStorage.setItem('tabreed_module_configs', JSON.stringify(configs));
+        closeTileEditor();
+        initTiles();
+        showToast('Module configuration saved', 'success');
+    }
+
+    // Call initTiles after DOM and auth loads
+    const originalRenderUserProfile = renderUserProfile;
+    renderUserProfile = function() {
+        if(originalRenderUserProfile) originalRenderUserProfile();
+        initTiles();
+    };
+    
+    document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(initTiles, 500); // ensure tiles are processed
+    });
 </script>
+
+<!-- TILE EDITOR MODAL (DEV ONLY) -->
+<div class="modal-overlay" id="tileEditorModal" style="display:none;z-index:9999;">
+    <div class="modal" style="max-width:350px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> Edit Module Tile</h3>
+            <button class="modal-close" onclick="closeTileEditor()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" style="padding:15px;">
+            <input type="hidden" id="editTileId">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="editTileTitle">
+            </div>
+            <div class="form-group">
+                <label>Subtitle</label>
+                <input type="text" id="editTileSubtitle">
+            </div>
+            <div class="form-group">
+                <label>Icon Classes (e.g., fas fa-bolt)</label>
+                <input type="text" id="editTileIcon">
+            </div>
+            <div class="form-group">
+                <label>Status Text (HTML allowed)</label>
+                <input type="text" id="editTileStatusText">
+            </div>
+            <div class="form-group">
+                <label>Status Color (e.g., #ef4444 or var(--danger))</label>
+                <input type="text" id="editTileStatusColor">
+            </div>
+            <div class="form-group">
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                    <input type="checkbox" id="editTileDevOnly" style="width:16px;height:16px;">
+                    <span>Developer Only (Hide from users)</span>
+                </label>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="closeTileEditor()">Cancel</button>
+            <button class="btn-action" onclick="saveTileConfig()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
+

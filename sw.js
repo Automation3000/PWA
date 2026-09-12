@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tabreed-pro-v14'; // v9: Added ETS Locator
+const CACHE_NAME = 'tabreed-pro-v15'; // v9: Added ETS Locator
 const STATIC_ASSETS = [
   '/',
   '/index.html',
