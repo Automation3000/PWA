@@ -1,0 +1,173 @@
+/* TABREED OPERATION REQUEST - GOOGLE APPS SCRIPT BACKEND
+==========================================================
+HOW TO INSTALL / UPDATE IN GOOGLE APPS SCRIPT:
+1. Open https://script.google.com and open your Operation Request project.
+2. Replace all code in Code.gs with this code.
+3. Click "Save" (Floppy icon).
+4. Click "Deploy" -> "Manage deployments".
+5. Click the Edit (Pencil) icon on the active deployment.
+6. Under "Version", select "New version".
+7. Make sure "Who has access" is set to "Anyone".
+8. Click "Deploy".
+========================================================== */
+
+function getSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  return ss.getSheets()[0]; // First sheet
+}
+
+function doGet(e) {
+  try {
+    const sheet = getSheet();
+    
+    // Check if an action was passed via GET query parameter
+    if (e && e.parameter && e.parameter.action) {
+      return handleAction(e.parameter, sheet);
+    }
+
+    const allData = sheet.getDataRange().getValues();
+    if (allData.length <= 1) {
+      return jsonResponse({ status: "success", data: [] });
+    }
+    
+    const rows = [];
+    
+    for (var i = 1; i < allData.length; i++) {
+      var row = allData[i];
+      var wo = row[0] ? String(row[0]).trim() : '';
+      var desc = row[1] ? String(row[1]).trim() : '';
+      
+      // Skip completely empty rows
+      if (!wo && !desc && !row[2]) continue;
+      
+      // Ensure column I has a stable ID if empty
+      var stableId = row[8] ? String(row[8]) : (row[7] ? String(row[7]) : ("row_" + i));
+      
+      rows.push({
+        "rowIdx": i + 1, // 1-based row index in spreadsheet
+        "Work Order": wo,
+        "Description": desc,
+        "Plant": row[2] ? String(row[2]) : '',
+        "Date": row[3] ? (row[3] instanceof Date ? Utilities.formatDate(row[3], "GMT+4", "dd.MM.yyyy") : String(row[3])) : '',
+        "Time": row[4] ? String(row[4]) : '',
+        "Team": row[5] ? String(row[5]) : '',
+        "Status": row[6] ? String(row[6]) : 'Requested',
+        "Remarks": row[7] ? String(row[7]) : '',
+        "ID": stableId
+      });
+    }
+    
+    return jsonResponse({ status: "success", data: rows });
+  } catch (err) {
+    return jsonResponse({ status: "error", message: err.toString() });
+  }
+}
+
+function doPost(e) {
+  try {
+    if (!e || !e.postData || !e.postData.contents) {
+      return jsonResponse({ status: "error", message: "No data received" });
+    }
+    
+    const data = JSON.parse(e.postData.contents);
+    const sheet = getSheet();
+    return handleAction(data, sheet);
+  } catch (err) {
+    return jsonResponse({ status: "error", message: err.toString() });
+  }
+}
+
+function handleAction(data, sheet) {
+  const action = data.action;
+  const allData = sheet.getDataRange().getValues();
+  
+  // Helper to find target row in sheet (1-based index)
+  function findRow() {
+    // 1. Explicit row index
+    if (data.rowIdx && Number(data.rowIdx) >= 2 && Number(data.rowIdx) <= allData.length) {
+      return Number(data.rowIdx);
+    }
+    
+    // 2. Parsed row_X format
+    if (data.id && String(data.id).startsWith("row_")) {
+      var parsedIdx = parseInt(String(data.id).replace("row_", ""), 10);
+      if (!isNaN(parsedIdx) && (parsedIdx + 1) <= allData.length) {
+        return parsedIdx + 1;
+      }
+    }
+    
+    // 3. Scan columns by ID or Work Order
+    for (var i = 1; i < allData.length; i++) {
+      var rowIdCol9 = String(allData[i][8] || '').trim();
+      var rowIdCol8 = String(allData[i][7] || '').trim();
+      var rowWo = String(allData[i][0] || '').trim();
+      
+      if (data.id && (rowIdCol9 === String(data.id).trim() || rowIdCol8 === String(data.id).trim() || ("row_" + i) === String(data.id).trim())) {
+        return i + 1;
+      }
+      if (data.workOrder && rowWo === String(data.workOrder).trim()) {
+        return i + 1;
+      }
+    }
+    return -1;
+  }
+  
+  // 1. DELETE ACTION
+  if (action === 'delete') {
+    var targetRow = findRow();
+    if (targetRow !== -1) {
+      sheet.deleteRow(targetRow);
+      return jsonResponse({ status: "success", message: "Deleted successfully", deletedRow: targetRow });
+    }
+    return jsonResponse({ status: "error", message: "ID not found for delete" });
+  }
+  
+  // 2. UPDATE STATUS ACTION
+  if (action === 'updateStatus') {
+    var targetRow = findRow();
+    if (targetRow !== -1) {
+      sheet.getRange(targetRow, 7).setValue(data.status); // Column G is Status (7)
+      return jsonResponse({ status: "success", message: "Status updated" });
+    }
+    return jsonResponse({ status: "error", message: "ID not found for updateStatus" });
+  }
+  
+  // 3. FULL UPDATE ACTION
+  if (action === 'update') {
+    var targetRow = findRow();
+    if (targetRow !== -1) {
+      sheet.getRange(targetRow, 1, 1, 8).setValues([[
+        data.workOrder || '',
+        data.description || '',
+        data.plant || '',
+        data.date || '',
+        data.time || '',
+        data.team || '',
+        data.status || 'Requested',
+        data.remarks || ''
+      ]]);
+      return jsonResponse({ status: "success", message: "Updated successfully" });
+    }
+    return jsonResponse({ status: "error", message: "ID not found for update" });
+  }
+  
+  // 4. CREATE ACTION
+  sheet.appendRow([
+    data.workOrder || '',
+    data.description || '',
+    data.plant || '',
+    data.date || '',
+    data.time || '',
+    data.team || '',
+    data.status || 'Requested',
+    data.remarks || ''
+  ]);
+  
+  var newId = data.id || ("row_" + (allData.length + 1));
+  return jsonResponse({ status: "success", message: "Created successfully", id: newId });
+}
+
+function jsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}

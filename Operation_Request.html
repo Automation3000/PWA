@@ -99,7 +99,7 @@
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
         body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; background-color:var(--bg-page); color:var(--text-primary); line-height:1.5; transition:background-color .3s,color .3s; }
 
-        .app-container { max-width:1200px; margin:0 auto; padding:0 15px 15px 15px; }
+        .app-container { max-width:1200px; margin:0 auto; padding:0 15px 50px 15px; }
 
         .app-header { background:var(--bg-card); padding:1rem 1.5rem; border-radius:0 0 var(--radius) var(--radius); box-shadow:var(--shadow); position:sticky; top:0; z-index:1000; margin:0 -15px 15px -15px; }
         @media (min-width:1200px) { .app-header { margin:0 0 15px 0; } }
@@ -148,9 +148,67 @@
         .icon-edit { color:var(--secondary); }
         .icon-delete { color:var(--danger); }
         
-        .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--dark); color:#fff; padding:12px 24px; border-radius:8px; font-size:0.9rem; font-weight:500; z-index:9999; opacity:0; pointer-events:none; transition:all 0.3s ease; }
-        .toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
-    </style>
+        /* Toast Notifications (Centered) */
+        .toast-container {
+            position: fixed;
+            top: 24px;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            z-index: 10000;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            width: max-content;
+            max-width: 90vw;
+        }
+        .toast-container.pos-top {
+            top: 24px;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            align-items: center;
+        }
+        .toast-container.pos-bottom {
+            top: auto;
+            bottom: 24px;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            align-items: center;
+        }
+        .toast {
+            background: var(--bg-card, #ffffff);
+            color: var(--text-primary, #1e293b);
+            padding: 10px 22px;
+            border-radius: 50px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            border: 1px solid var(--border, #e2e8f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            pointer-events: auto;
+            animation: toastCenterAnim 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+            max-width: 85vw;
+        }
+        @keyframes toastCenterAnim {
+            from { transform: translateY(-12px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    
+.skeleton { background: linear-gradient(90deg, var(--bg-surface) 25%, var(--border) 50%, var(--bg-surface) 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 4px; height: 16px; margin: 4px 0; }
+@keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.inline-select { background:transparent; border:1px solid transparent; color:inherit; font-size:inherit; font-weight:inherit; font-family:inherit; cursor:pointer; outline:none; border-radius:4px; padding:2px 4px; appearance:none; }
+.inline-select:hover { border-color:var(--border); }
+.inline-select:focus { border-color:var(--primary); background:var(--bg-surface); }
+.btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); padding: 5px 12px; border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; font-weight: 700; transition: .2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
+.btn-outline:hover { background: rgba(37,99,235,0.08); }
+.history-item { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; transition: .2s; }
+.history-item:hover { border-color: var(--primary); }
+</style>
     <link rel="stylesheet" href="themes.css">
 </head>
 <body>
@@ -165,11 +223,14 @@
                         <img src="icon-192.png" alt="Logo" style="width:100%;height:100%;object-fit:contain;" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
                     </div>
                     <div>
-                        <h1 style="font-size:1rem;font-weight:700;">Operation Request</h1>
-                        <p style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
+                        <div style="display:flex;align-items:center;gap:6px;">
+                            <h1 style="font-size:1rem;font-weight:700;margin:0;">Operation Request</h1>
+                            <i class="fas fa-vial" style="font-size:12px;color:#0284c7;" title="Testing Mode"></i>
+                        </div>
+                        <p style="font-size:.7rem;color:var(--text-muted);margin:2px 0 0 0;">Automation App</p>
                     </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:12px;">
+                <div style="display:flex;align-items:center;gap:10px;">
                     <i class="fas fa-moon" id="darkModeToggleBtn" style="cursor:pointer;font-size:17px;color:var(--text-muted);" onclick="toggleDarkMode()"></i>
                     
                     <!-- Login Button -->
@@ -181,7 +242,7 @@
                     <div id="header-user-btn" onclick="openUserProfileModal()" style="display:none;align-items:center;gap:7px;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);color:var(--primary);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;" title="User Profile">
                         <i class="fas fa-user-circle" style="font-size:14px;color:var(--primary);"></i>
                         <span id="header-user-name">User</span>
-                        <span id="header-user-role-badge" style="font-size:9px;background:var(--secondary);color:white;padding:1px 6px;border-radius:6px;text-transform:uppercase;font-weight:800;">USER</span>
+                        <span id="header-user-role-badge" style="display:none;font-size:9px;background:var(--secondary);color:white;padding:1px 6px;border-radius:6px;text-transform:uppercase;font-weight:800;">USER</span>
                     </div>
                 </div>
             </div>
@@ -194,12 +255,16 @@
             </div>
         </div>
 
-        <div class="quick-actions">
+        <div id="status-summary" style="display:flex; justify-content:center; gap:15px; margin: 0 auto 15px auto; max-width:800px; padding:0 20px;"></div><div class="quick-actions">
             <button class="action-btn" onclick="openRequestModal()">
                 <i class="fas fa-plus-circle" style="color:var(--primary);margin-bottom:4px;font-size:1.2rem;"></i><span>New Request</span>
             </button>
             <button class="action-btn" onclick="refreshTable()">
                 <i class="fas fa-sync-alt" style="color:var(--secondary);margin-bottom:4px;font-size:1.2rem;"></i><span>Refresh</span>
+            </button>
+            <button class="action-btn" id="historyBtn" onclick="openHistoryModal()" style="display:none;">
+                <i class="fas fa-history" style="color:#d97706;margin-bottom:4px;font-size:1.2rem;"></i>
+                <span>History <span id="historyBadge" style="display:none;background:var(--primary);color:white;padding:1px 6px;border-radius:10px;font-size:0.7rem;margin-left:2px;font-weight:800;">0</span></span>
             </button>
         </div>
 
@@ -241,12 +306,12 @@
                 <h3 id="profileModalFullName" style="margin:0 0 4px;font-size:1.05rem;color:var(--text-primary);font-weight:700;">-</h3>
                 <p id="profileModalEmpId" style="margin:0 0 4px;font-size:0.85rem;color:var(--text-muted);font-weight:600;">-</p>
                 <p id="profileModalEmail" style="margin:0 0 12px;font-size:0.8rem;color:var(--primary);font-weight:500;">-</p>
-                <div id="profileModalRoleBadge" style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;margin-bottom:14px;">
-                    USER LEVEL
+                <div id="profileModalRoleBadge" style="display:none;padding:4px 14px;border-radius:20px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;margin-bottom:14px;">
+                    DEVELOPER
                 </div>
                 
-                <div id="profileAdminInfo" style="margin-bottom:16px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:0.78rem;color:var(--text-secondary);text-align:left;line-height:1.4;">
-                    <i class="fas fa-check-circle" style="color:#16a34a;margin-right:4px;"></i> User Level Access
+                <div id="profileAdminInfo" style="display:none;margin-bottom:16px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:0.78rem;color:var(--text-secondary);text-align:left;line-height:1.4;">
+                    <i class="fas fa-check-circle" style="color:#16a34a;margin-right:4px;"></i> Access Active
                 </div>
                 
                 <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
@@ -270,21 +335,44 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="reqId">
-                <div class="form-group">
-                    <label>Work Order Number</label>
-                    <input type="text" id="reqWO" placeholder="e.g. WO-123456" required>
+                <div style="display:flex;gap:10px;">
+                    <div class="form-group" style="flex:1;margin-bottom:0;">
+                        <label>Work Order</label>
+                        <input type="text" id="reqWO" placeholder="1234567890" required>
+                    </div>
+                    <div class="form-group" style="flex:1;margin-bottom:0;">
+                        <label>Plant</label>
+                        <input type="text" id="reqPlant" placeholder="AD-027" required>
+                    </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="margin-top:12px;">
                     <label>Operation Description / Missing Job</label>
                     <textarea id="reqDesc" placeholder="Describe the missing operation or out of schedule job..." rows="3" required></textarea>
                 </div>
-                <div class="form-group">
-                    <label>Plant</label>
-                    <input type="text" id="reqPlant" placeholder="AD-027" required>
-                </div>
-                <div class="form-group">
-                    <label>Requested Date</label>
-                    <input type="date" id="reqDate" required>
+                
+                <div style="display:flex;gap:10px;">
+                    <div class="form-group" style="flex:1;">
+                        <label>Date</label>
+                        <input type="date" id="reqDate" required>
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label>Time (Start - End 24hr)</label>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            <div style="display:flex; align-items:center; flex:1; position:relative;">
+                                <input type="text" id="reqTimeFrom" placeholder="00:00" autocomplete="off" onblur="padTime(event); calculateTimeDifference();" onchange="padTime(event); calculateTimeDifference();" onkeyup="if(event.key==='Enter') padTime(event)" style="text-align:center; font-family:monospace; font-weight:bold; width:100%; padding:8px 24px 8px 8px; border:1.5px solid var(--border); border-radius:6px; background:var(--input-bg); color:var(--text-primary); font-size:13px;">
+                                <button type="button" onclick="openCustomTimePicker('reqTimeFrom')" style="position:absolute; right:6px; background:none; border:none; color:var(--primary); cursor:pointer; padding:2px; font-size:14px;" title="Select Start Time">
+                                    <i class="fas fa-clock"></i>
+                                </button>
+                            </div>
+                            <span style="font-weight:bold; color:var(--text-muted);">-</span>
+                            <div style="display:flex; align-items:center; flex:1; position:relative;">
+                                <input type="text" id="reqTimeTo" placeholder="00:00" autocomplete="off" onblur="padTime(event); calculateTimeDifference();" onchange="padTime(event); calculateTimeDifference();" onkeyup="if(event.key==='Enter') padTime(event)" style="text-align:center; font-family:monospace; font-weight:bold; width:100%; padding:8px 24px 8px 8px; border:1.5px solid var(--border); border-radius:6px; background:var(--input-bg); color:var(--text-primary); font-size:13px;">
+                                <button type="button" onclick="openCustomTimePicker('reqTimeTo')" style="position:absolute; right:6px; background:none; border:none; color:#dc2626; cursor:pointer; padding:2px; font-size:14px;" title="Select End Time">
+                                    <i class="fas fa-clock"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>Team</label>
@@ -298,10 +386,13 @@
                 </div>
                 <div class="form-group supervisor-field" style="display:none;">
                     <label>Status</label>
-                    <select id="reqStatus">
+                    <select id="reqStatus" onchange="if(this.value==='Custom'){ document.getElementById('reqStatusCustom').style.display='block'; } else { document.getElementById('reqStatusCustom').style.display='none'; }">
+                        <option value="Requested">Requested</option>
                         <option value="Pending">Pending</option>
                         <option value="Completed">Completed</option>
+                        <option value="Custom">Custom...</option>
                     </select>
+                    <input type="text" id="reqStatusCustom" placeholder="Enter custom status..." style="display:none; margin-top:8px;">
                 </div>
             </div>
             <div class="modal-footer">
@@ -311,7 +402,97 @@
         </div>
     </div>
 
-    <div id="toastMsg" class="toast">Action completed</div>
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div class="modal-overlay" id="deleteConfirmModal" style="display:none;" onclick="if(event.target===this)closeDeleteModal()">
+        <div class="modal-card" style="max-width:360px; border-radius:18px; text-align:center; padding:24px; animation:popIn .2s ease;">
+            <div style="width:56px;height:56px;border-radius:50%;background:rgba(239,68,68,0.12);color:var(--danger);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:24px;border:2px solid rgba(239,68,68,0.25);">
+                <i class="fas fa-trash-alt"></i>
+            </div>
+            <h3 style="margin:0 0 6px 0;font-size:1.15rem;color:var(--text-primary);font-weight:700;">Delete Operation Request</h3>
+            <p id="deleteModalText" style="margin:0 0 20px 0;font-size:0.85rem;color:var(--text-muted);line-height:1.4;">Are you sure you want to delete this operation request?</p>
+            <div style="display:flex;gap:10px;justify-content:center;">
+                <button type="button" onclick="closeDeleteModal()" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg-surface);color:var(--text-primary);font-weight:600;cursor:pointer;font-size:0.85rem;">Cancel</button>
+                <button type="button" id="confirmDeleteBtn" onclick="confirmDeleteRequest()" style="flex:1;padding:10px;border-radius:8px;border:none;background:var(--danger);color:white;font-weight:700;cursor:pointer;font-size:0.85rem;box-shadow:0 2px 8px rgba(239,68,68,0.35);">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🕒 MINIMAL USER-FRIENDLY TIME PICKER MODAL (From PM Checklist Generator) -->
+    <div class="modal-overlay" id="customTimePickerModal" style="display:none; z-index:3000;">
+      <div class="modal-card" style="max-width:360px; padding:18px; text-align:center; border-radius:var(--radius); animation:popIn .2s ease;">
+        <div class="modal-header" style="margin-bottom:12px; padding:0 0 8px 0; background:transparent; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+          <h4 style="font-size:0.95rem; font-weight:800; display:flex; align-items:center; gap:6px; margin:0;"><i class="fas fa-clock" style="color:var(--primary);"></i> <span id="timePickerTitle">Select Time (24hr)</span></h4>
+          <button type="button" class="modal-close" onclick="closeTimePickerModal()">&times;</button>
+        </div>
+
+        <!-- Time Preview Box -->
+        <div style="background:var(--bg-surface); padding:10px; border-radius:var(--radius-sm); border:1.5px solid var(--border); margin-bottom:12px; display:flex; justify-content:center; align-items:center; gap:8px;">
+          <span id="tpDisplayHour" style="font-size:1.8rem; font-weight:800; font-family:monospace; color:var(--primary); background:var(--bg-card); padding:2px 10px; border-radius:6px; border:1px solid var(--border);">08</span>
+          <span style="font-size:1.8rem; font-weight:800; color:var(--primary);">:</span>
+          <span id="tpDisplayMin" style="font-size:1.8rem; font-weight:800; font-family:monospace; color:var(--primary); background:var(--bg-card); padding:2px 10px; border-radius:6px; border:1px solid var(--border);">00</span>
+        </div>
+
+        <!-- Quick Presets -->
+        <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; text-align:left; margin-bottom:5px;">QUICK PRESETS</label>
+        <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:12px;">
+          <button type="button" class="btn-outline" style="padding:3px 7px; font-size:11px;" onclick="setTimePickerValAndConfirm('07','00')">07:00</button>
+          <button type="button" class="btn-outline" style="padding:3px 7px; font-size:11px;" onclick="setTimePickerValAndConfirm('07','30')">07:30</button>
+          <button type="button" class="btn-outline" style="padding:3px 7px; font-size:11px;" onclick="setTimePickerValAndConfirm('08','00')">08:00</button>
+          <button type="button" class="btn-outline" style="padding:3px 7px; font-size:11px;" onclick="setTimePickerValAndConfirm('08','30')">08:30</button>
+          <button type="button" class="btn-outline" style="padding:3px 7px; font-size:11px;" onclick="setTimePickerValAndConfirm('09','00')">09:00</button>
+          <button type="button" class="btn-outline" style="padding:3px 7px; font-size:11px;" onclick="setTimePickerValAndConfirm('12','00')">12:00</button>
+          <button type="button" class="btn-outline" style="padding:3px 7px; font-size:11px;" onclick="setTimePickerValAndConfirm('14','00')">14:00</button>
+          <button type="button" class="btn-outline" style="padding:3px 7px; font-size:11px;" onclick="setTimePickerValAndConfirm('16','00')">16:00</button>
+          <button type="button" class="btn-outline" style="padding:3px 7px; font-size:11px;" onclick="setTimePickerValAndConfirm('16','30')">16:30</button>
+        </div>
+
+        <!-- Hour Picker Grid (00-23) -->
+        <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; text-align:left; margin-bottom:5px;">SELECT HOUR (24hr)</label>
+        <div id="tpHourGrid" style="display:grid; grid-template-columns:repeat(6, 1fr); gap:4px; margin-bottom:12px; max-height:110px; overflow-y:auto; padding:2px;"></div>
+
+        <!-- Minute Picker Grid (00, 15, 30, 45) -->
+        <label style="font-size:11px; font-weight:700; color:var(--text-secondary); display:block; text-align:left; margin-bottom:5px;">SELECT MINUTES (15-min intervals)</label>
+        <div id="tpMinGrid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin-bottom:12px;"></div>
+
+        <div class="modal-footer" style="margin-top:8px; padding:10px 0 0 0; background:transparent; border-top:1px solid var(--border); display:flex; justify-content:space-between;">
+          <button type="button" class="btn-outline" onclick="closeTimePickerModal()" style="padding:6px 14px;">Cancel</button>
+          <button type="button" class="btn-action" onclick="confirmTimePickerSelection()" style="margin:0; padding:6px 18px; width:auto; border-radius:6px; font-weight:bold; cursor:pointer;">Confirm Time</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 📜 ACTIVITY & CHANGE HISTORY MODAL -->
+    <div class="modal-overlay" id="historyModal" style="display:none; z-index:2500;" onclick="if(event.target===this)closeHistoryModal()">
+        <div class="modal-card" style="max-width:560px; max-height:85vh; border-radius:18px; animation:popIn .2s ease;">
+            <div class="modal-header" style="padding:14px 18px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-history" style="color:#d97706; font-size:1.1rem;"></i>
+                    <span style="font-size:1rem; font-weight:700;">Activity &amp; Change History</span>
+                    <span id="historyModalCount" style="background:var(--primary); color:white; font-size:11px; font-weight:bold; padding:2px 8px; border-radius:10px;">0</span>
+                </div>
+                <button class="modal-close" onclick="closeHistoryModal()">&times;</button>
+            </div>
+            <div style="padding:10px 16px; background:var(--bg-surface); border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div style="display:flex; gap:6px; flex-wrap:wrap;" id="historyFilterTabs">
+                    <button type="button" class="btn-outline" onclick="filterHistoryTab('all')" id="hTab_all" style="padding:3px 10px; font-size:11px; background:var(--primary); color:white; border-color:var(--primary);">All</button>
+                    <button type="button" class="btn-outline" onclick="filterHistoryTab('status')" id="hTab_status" style="padding:3px 10px; font-size:11px;">Status</button>
+                    <button type="button" class="btn-outline" onclick="filterHistoryTab('create')" id="hTab_create" style="padding:3px 10px; font-size:11px;">Created</button>
+                    <button type="button" class="btn-outline" onclick="filterHistoryTab('update')" id="hTab_update" style="padding:3px 10px; font-size:11px;">Edited</button>
+                    <button type="button" class="btn-outline" onclick="filterHistoryTab('delete')" id="hTab_delete" style="padding:3px 10px; font-size:11px;">Deleted</button>
+                </div>
+                <button type="button" onclick="clearHistoryLog()" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:12px; font-weight:700; display:flex; align-items:center; gap:4px;">
+                    <i class="fas fa-trash-alt"></i> Clear Log
+                </button>
+            </div>
+            <div class="modal-body" id="historyModalBody" style="padding:14px; max-height:55vh; overflow-y:auto;">
+                <!-- Filled dynamically by renderHistoryList() -->
+            </div>
+            <div class="modal-footer" style="padding:10px 16px; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:11px; color:var(--text-muted);"><i class="fas fa-info-circle"></i> Tracks status changes, edits, and deletions</span>
+                <button type="button" class="btn-outline" onclick="closeHistoryModal()" style="padding:6px 16px; font-size:12px;">Close</button>
+            </div>
+        </div>
+    </div>
 
     <script>
 
@@ -398,8 +579,361 @@
         // Data & State
         let requests = [];
         let currentUser = null;
-
         let EMPLOYEES = [];
+
+        // =========================================================================
+        // 🛠️ DEVELOPER CONFIGURATION: STATUS OPTIONS
+        // Easily customize, add, or rename status options & styles here:
+        // =========================================================================
+        const STATUS_CONFIG = [
+            { value: "Requested", label: "Requested", bg: "rgba(26, 115, 232, 0.12)",  color: "#1a73e8", border: "#93c5fd" },
+            { value: "Pending",   label: "Pending",   bg: "rgba(239, 68, 68, 0.15)",   color: "#b91c1c", border: "#fca5a5" },
+            { value: "Completed", label: "Completed", bg: "rgba(34, 197, 94, 0.15)",  color: "#15803d", border: "#86efac" }
+        ];
+        const DEFAULT_STATUS = "Requested";
+
+        function getStatusItem(val) {
+            const normalized = String(val || '').trim();
+            const found = STATUS_CONFIG.find(s => s.value.toLowerCase() === normalized.toLowerCase() || s.label.toLowerCase() === normalized.toLowerCase());
+            if (found) return found;
+            return { value: normalized, label: normalized, bg: "rgba(100, 116, 139, 0.15)", color: "var(--text-primary)", border: "var(--border)" };
+        }
+
+        function getStatusStyle(val) {
+            const item = getStatusItem(val);
+            return `background:${item.bg}; color:${item.color}; border:1px solid ${item.border}; font-weight:700;`;
+        }
+
+        function getStatusOptionsHTML(selectedVal) {
+            const current = String(selectedVal || DEFAULT_STATUS);
+            let hasCurrent = false;
+            let html = STATUS_CONFIG.map(s => {
+                const isSel = s.value.toLowerCase() === current.toLowerCase();
+                if (isSel) hasCurrent = true;
+                return `<option value="${s.value}" ${isSel ? 'selected' : ''}>${s.label}</option>`;
+            }).join('');
+            if (!hasCurrent && current) {
+                html += `<option value="${current}" selected>${current}</option>`;
+            }
+            return html;
+        }
+
+        // =========================================================================
+        // 🕒 CUSTOM 24HR TIME PICKER LOGIC (From PM Checklist Generator)
+        // =========================================================================
+        let activeTimeInputId = null;
+        let selectedHour = "08";
+        let selectedMinute = "00";
+
+        function padTime(e) {
+            let val = (e.target.value || '').trim();
+            if (!val) return;
+            if (/^\d{1,2}$/.test(val)) {
+                let h = parseInt(val, 10);
+                if (h >= 0 && h <= 23) {
+                    e.target.value = (h < 10 ? '0' : '') + h + ':00';
+                }
+            } else if (/^\d{3,4}$/.test(val)) {
+                let h = val.length === 3 ? parseInt(val.substring(0, 1), 10) : parseInt(val.substring(0, 2), 10);
+                let m = val.length === 3 ? parseInt(val.substring(1), 10) : parseInt(val.substring(2), 10);
+                if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+                    e.target.value = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+                }
+            } else if (/^\d{1,2}:\d{1,2}$/.test(val)) {
+                let parts = val.split(':');
+                let h = parseInt(parts[0], 10);
+                let m = parseInt(parts[1], 10);
+                if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+                    e.target.value = (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
+                }
+            }
+        }
+
+        function calculateTimeDifference() {
+            // Helper for time inputs
+        }
+
+        function openCustomTimePicker(inputId) {
+            activeTimeInputId = inputId;
+            const input = document.getElementById(inputId);
+            let h = "08", m = "00";
+            if (input && input.value && input.value.includes(':')) {
+                const parts = input.value.trim().split(':');
+                if (parts[0] !== undefined) h = String(parts[0]).padStart(2, '0');
+                if (parts[1] !== undefined) m = String(parts[1]).padStart(2, '0');
+            }
+            selectedHour = h;
+            selectedMinute = m;
+
+            const isStart = inputId === 'reqTimeFrom';
+            const titleEl = document.getElementById('timePickerTitle');
+            if (titleEl) {
+                titleEl.textContent = isStart ? 'Select Start Time (24hr)' : 'Select End Time (24hr)';
+            }
+
+            updateTimePickerDisplay();
+            renderTimePickerGrid();
+            document.getElementById('customTimePickerModal').style.display = 'flex';
+        }
+
+        function closeTimePickerModal() {
+            activeTimeInputId = null;
+            document.getElementById('customTimePickerModal').style.display = 'none';
+        }
+
+        function updateTimePickerDisplay() {
+            const hEl = document.getElementById('tpDisplayHour');
+            const mEl = document.getElementById('tpDisplayMin');
+            if (hEl) hEl.textContent = selectedHour;
+            if (mEl) mEl.textContent = selectedMinute;
+        }
+
+        function renderTimePickerGrid() {
+            const hourGrid = document.getElementById('tpHourGrid');
+            const minGrid = document.getElementById('tpMinGrid');
+            if (!hourGrid || !minGrid) return;
+
+            hourGrid.innerHTML = '';
+            for (let i = 0; i < 24; i++) {
+                const val = (i < 10 ? '0' : '') + i;
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = val;
+                btn.style.cssText = `padding:6px 2px; font-size:12px; font-weight:700; border-radius:6px; cursor:pointer; border:1px solid var(--border); background:${val === selectedHour ? 'var(--primary)' : 'var(--bg-card)'}; color:${val === selectedHour ? 'white' : 'var(--text-primary)'}; font-family:monospace;`;
+                btn.onclick = () => {
+                    selectedHour = val;
+                    updateTimePickerDisplay();
+                    renderTimePickerGrid();
+                };
+                hourGrid.appendChild(btn);
+            }
+
+            minGrid.innerHTML = '';
+            ['00', '15', '30', '45'].forEach(val => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.textContent = val;
+                btn.style.cssText = `padding:8px 4px; font-size:13px; font-weight:700; border-radius:6px; cursor:pointer; border:1px solid var(--border); background:${val === selectedMinute ? 'var(--primary)' : 'var(--bg-card)'}; color:${val === selectedMinute ? 'white' : 'var(--text-primary)'}; font-family:monospace;`;
+                btn.onclick = () => {
+                    selectedMinute = val;
+                    updateTimePickerDisplay();
+                    renderTimePickerGrid();
+                };
+                minGrid.appendChild(btn);
+            });
+        }
+
+        function setTimePickerValAndConfirm(h, m) {
+            selectedHour = String(h).padStart(2, '0');
+            selectedMinute = String(m).padStart(2, '0');
+            updateTimePickerDisplay();
+            confirmTimePickerSelection();
+        }
+
+        function confirmTimePickerSelection() {
+            if (!activeTimeInputId) return;
+            const input = document.getElementById(activeTimeInputId);
+            const chosenTime = `${selectedHour}:${selectedMinute}`;
+            if (input) {
+                input.value = chosenTime;
+            }
+            const currentId = activeTimeInputId;
+            closeTimePickerModal();
+
+            // Auto-advance: if Start Time was chosen and End Time is empty, automatically open End Time picker!
+            if (currentId === 'reqTimeFrom') {
+                const toInput = document.getElementById('reqTimeTo');
+                if (toInput && !toInput.value) {
+                    setTimeout(() => openCustomTimePicker('reqTimeTo'), 150);
+                }
+            }
+        }
+
+        // =========================================================================
+        // 📜 ACTIVITY & CHANGE HISTORY SYSTEM
+        // =========================================================================
+        const LS_HISTORY = 'tabreed_operation_history';
+        let currentHistoryFilter = 'all';
+
+        function getLocalHistory() {
+            try {
+                const raw = localStorage.getItem(LS_HISTORY);
+                return raw ? JSON.parse(raw) : [];
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function saveLocalHistory(hist) {
+            try {
+                localStorage.setItem(LS_HISTORY, JSON.stringify(hist));
+            } catch(e) {}
+            updateHistoryBadge();
+        }
+
+        function updateHistoryBadge() {
+            const badge = document.getElementById('historyBadge');
+            if (typeof isDeveloper === 'function' && !isDeveloper()) {
+                if (badge) badge.style.display = 'none';
+                return;
+            }
+            const hist = getLocalHistory();
+            if (badge) {
+                if (hist.length > 0) {
+                    badge.style.display = 'inline-block';
+                    badge.textContent = hist.length > 99 ? '99+' : hist.length;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+
+        async function fetchServerHistory() {
+            try {
+                const res = await fetch('/api/operation-history?t=' + Date.now()).then(r => r.json());
+                if (res && res.status === 'success' && Array.isArray(res.data)) {
+                    saveLocalHistory(res.data);
+                    return res.data;
+                }
+            } catch(e) {
+                console.warn("Failed to fetch history from server:", e);
+            }
+            return getLocalHistory();
+        }
+
+        function logOperationActivity(action, actionLabel, description, workOrder = '', plant = '', badgeColor = '') {
+            const curUser = (typeof getCurrentUser === 'function' ? getCurrentUser() : currentUser) || {};
+            const userName = curUser.short || curUser.full || curUser.name || curUser.code || 'Technician';
+            const colors = {
+                'delete': '#dc2626',
+                'status': '#16a34a',
+                'update': '#7c3aed',
+                'create': '#1a73e8',
+                'sync': '#0284c7'
+            };
+            const item = {
+                id: 'hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                timestamp: new Date().toISOString(),
+                displayTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + new Date().toLocaleDateString([], { month: 'short', day: 'numeric' }),
+                action: action,
+                actionLabel: actionLabel,
+                workOrder: workOrder,
+                plant: plant,
+                description: description,
+                user: userName,
+                badgeColor: badgeColor || colors[action] || '#1a73e8'
+            };
+
+            const hist = getLocalHistory();
+            hist.unshift(item);
+            if (hist.length > 100) hist.length = 100;
+            saveLocalHistory(hist);
+
+            fetch('/api/operation-history', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(item)
+            }).catch(e => console.warn("Failed to log history to server:", e));
+        }
+
+        async function openHistoryModal() {
+            if (typeof isDeveloper === 'function' && !isDeveloper()) {
+                showToast("Access Restricted: History log is available for Developers only.", "warning");
+                return;
+            }
+            document.getElementById('historyModal').style.display = 'flex';
+            await fetchServerHistory();
+            renderHistoryList();
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('historyModal').style.display = 'none';
+        }
+
+        function filterHistoryTab(tab) {
+            currentHistoryFilter = tab;
+            ['all', 'status', 'create', 'update', 'delete'].forEach(t => {
+                const btn = document.getElementById('hTab_' + t);
+                if (btn) {
+                    if (t === tab) {
+                        btn.style.background = 'var(--primary)';
+                        btn.style.color = 'white';
+                        btn.style.borderColor = 'var(--primary)';
+                    } else {
+                        btn.style.background = 'transparent';
+                        btn.style.color = 'var(--primary)';
+                        btn.style.borderColor = 'var(--primary)';
+                    }
+                }
+            });
+            renderHistoryList();
+        }
+
+        function renderHistoryList() {
+            const hist = getLocalHistory();
+            const countEl = document.getElementById('historyModalCount');
+            if (countEl) countEl.textContent = hist.length;
+
+            const body = document.getElementById('historyModalBody');
+            if (!body) return;
+
+            let filtered = hist;
+            if (currentHistoryFilter !== 'all') {
+                filtered = hist.filter(item => item.action === currentHistoryFilter);
+            }
+
+            if (filtered.length === 0) {
+                body.innerHTML = `
+                    <div style="text-align:center; padding:35px 20px; color:var(--text-muted);">
+                        <i class="fas fa-clipboard-list" style="font-size:2.5rem; margin-bottom:10px; opacity:0.4;"></i>
+                        <p style="font-size:0.9rem; font-weight:600; margin:0;">No activity recorded yet</p>
+                        <p style="font-size:0.75rem; margin-top:4px;">Changes, status updates, and deletions will show up here.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const icons = {
+                'status': 'fa-exchange-alt',
+                'delete': 'fa-trash-alt',
+                'create': 'fa-plus-circle',
+                'update': 'fa-edit',
+                'sync': 'fa-cloud-download-alt'
+            };
+
+            body.innerHTML = filtered.map(item => {
+                const icon = icons[item.action] || 'fa-info-circle';
+                const color = item.badgeColor || '#1a73e8';
+                return `
+                    <div class="history-item">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="background:${color}18; color:${color}; border:1px solid ${color}40; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:800; display:inline-flex; align-items:center; gap:4px;">
+                                    <i class="fas ${icon}"></i> ${item.actionLabel || item.action}
+                                </span>
+                                ${item.workOrder ? `<span style="font-size:12px; font-weight:700; color:var(--primary);">#${item.workOrder}</span>` : ''}
+                                ${item.plant ? `<span style="font-size:11px; background:var(--bg-card); padding:1px 6px; border-radius:4px; border:1px solid var(--border);">${item.plant}</span>` : ''}
+                            </div>
+                            <span style="font-size:11px; color:var(--text-muted); font-weight:600;">${item.displayTime || ''}</span>
+                        </div>
+                        <div style="font-size:13px; color:var(--text-primary); margin:4px 0; font-weight:500;">
+                            ${item.description}
+                        </div>
+                        <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+                            <span><i class="fas fa-user" style="margin-right:4px;"></i> ${item.user || 'Supervisor'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function clearHistoryLog() {
+            if (!confirm("Are you sure you want to clear the activity history log?")) return;
+            saveLocalHistory([]);
+            renderHistoryList();
+            fetch('/api/operation-history', { method: 'DELETE' }).catch(e => console.warn(e));
+            showToast("History log cleared", "info");
+        }
 
         // ──────────────────────────────────────────
         // LOGIN SYSTEM
@@ -475,9 +1009,17 @@
                     const user = verifyUserLogin(pass);
                     if(user) {
                         applyUserLogin(user);
-                        showToast(`Welcome, ${user.short}!`, 'success');
+                        const isSuper = (user.role === 'super_admin' || user.code === '41764' || isDeveloper());
+                        const isSupervisor = (user.role === 'supervisor' || user.short === 'Bibin');
+                        if (isSuper) {
+                            showToast(`Welcome, ${user.short}! Developer Access active.`, 'success');
+                        } else if (isSupervisor) {
+                            showToast(`Welcome, ${user.short}! Supervisor Access active.`, 'success');
+                        } else {
+                            showToast(`Welcome, ${user.short}!`, 'info');
+                        }
                     } else {
-                        showToast("Access Denied: Invalid Employee Code");
+                        showToast("Access Denied: Invalid Employee Code", 'error');
                     }
                 }
             });
@@ -498,29 +1040,30 @@
             if (headerUserBtn) headerUserBtn.style.display = 'inline-flex';
             if (headerUserName) headerUserName.innerText = user.short || 'User';
             
-            const isSuper = (user.role === 'super_admin');
+            const isSuper = (user.role === 'super_admin' || user.code === '41764' || isDeveloper());
             const isSupervisor = (user.role === 'supervisor' || user.short === 'Bibin');
             
             if (headerUserRoleBadge) {
                 if (isSuper) {
                     headerUserRoleBadge.innerText = 'DEV';
                     headerUserRoleBadge.style.background = 'var(--danger)';
+                    headerUserRoleBadge.style.display = 'inline-block';
                 } else if (isSupervisor) {
                     headerUserRoleBadge.innerText = 'SUPERVISOR';
-                    headerUserRoleBadge.style.background = 'var(--danger)';
+                    headerUserRoleBadge.style.background = '#ea580c';
+                    headerUserRoleBadge.style.display = 'inline-block';
                 } else {
-                    headerUserRoleBadge.innerText = 'USER';
-                    headerUserRoleBadge.style.background = 'var(--primary)';
+                    headerUserRoleBadge.style.display = 'none';
                 }
             }
             
             const teamSelect = document.getElementById('reqTeam');
             if (teamSelect) {
                 if (!isSupervisor && !isSuper) {
-                    teamSelect.value = user.short;
-                    teamSelect.disabled = true;
-                    teamSelect.style.background = 'var(--bg-surface)';
-                    teamSelect.style.opacity = '0.8';
+                    // teamSelect.value = user.short; // It is already set when opening modal
+                    teamSelect.disabled = false;
+                    teamSelect.style.background = 'var(--input-bg)';
+                    teamSelect.style.opacity = '1';
                 } else {
                     teamSelect.disabled = false;
                     teamSelect.style.background = 'var(--input-bg)';
@@ -544,35 +1087,37 @@
             }
             
             const roleEl = document.getElementById('profileModalRoleBadge');
-            const isSuper = (currentUser.role === 'super_admin');
+            const isSuper = (currentUser.role === 'super_admin' || currentUser.code === '41764' || isDeveloper());
             const isSupervisor = (currentUser.role === 'supervisor' || currentUser.short === 'Bibin');
-            const hasAdvance = isSuper || isSupervisor;
             
-            if (isSuper) {
-                roleEl.innerText = "DEVELOPER";
-                roleEl.style.background = "rgba(220,38,38,0.15)";
-                roleEl.style.color = "var(--danger)";
-                roleEl.style.border = "1px solid rgba(220,38,38,0.3)";
-            } else if (isSupervisor) {
-                roleEl.innerText = "SUPERVISOR";
-                roleEl.style.background = "rgba(220,38,38,0.15)";
-                roleEl.style.color = "var(--danger)";
-                roleEl.style.border = "1px solid rgba(220,38,38,0.3)";
-            } else {
-                roleEl.innerText = "USER LEVEL";
-                roleEl.style.background = "rgba(37,99,235,0.15)";
-                roleEl.style.color = "var(--primary)";
-                roleEl.style.border = "1px solid rgba(37,99,235,0.3)";
+            if (roleEl) {
+                if (isSuper) {
+                    roleEl.innerText = "DEVELOPER";
+                    roleEl.style.background = "rgba(220,38,38,0.15)";
+                    roleEl.style.color = "var(--danger)";
+                    roleEl.style.border = "1px solid rgba(220,38,38,0.3)";
+                    roleEl.style.display = "inline-block";
+                } else if (isSupervisor) {
+                    roleEl.innerText = "SUPERVISOR";
+                    roleEl.style.background = "rgba(234,88,12,0.15)";
+                    roleEl.style.color = "#ea580c";
+                    roleEl.style.border = "1px solid rgba(234,88,12,0.3)";
+                    roleEl.style.display = "inline-block";
+                } else {
+                    roleEl.style.display = "none";
+                }
             }
             
             const adminInfoEl = document.getElementById('profileAdminInfo');
             if (adminInfoEl) {
-                if (hasAdvance) {
+                if (isSuper) {
                     adminInfoEl.style.display = "block";
-                    adminInfoEl.innerHTML = `<i class="fas fa-sliders-h" style="color:#ea580c;margin-right:6px;"></i> Advance Level Access`;
+                    adminInfoEl.innerHTML = `<i class="fas fa-bolt" style="color:var(--danger);margin-right:6px;"></i> Developer Tools & Full Control Active`;
+                } else if (isSupervisor) {
+                    adminInfoEl.style.display = "block";
+                    adminInfoEl.innerHTML = `<i class="fas fa-sliders-h" style="color:#ea580c;margin-right:6px;"></i> Supervisor Access Active`;
                 } else {
-                    adminInfoEl.style.display = "block";
-                    adminInfoEl.innerHTML = `<i class="fas fa-check-circle" style="color:#16a34a;margin-right:6px;"></i> User Level Access`;
+                    adminInfoEl.style.display = "none";
                 }
             }
             
@@ -621,12 +1166,23 @@
             updateUIPermissions();
         }
 
+        function isDeveloper() {
+            return !!(currentUser && (
+                currentUser.role === 'developer' || 
+                currentUser.role === 'super_admin' || 
+                currentUser.code === '41764' || 
+                (currentUser.short && currentUser.short.toLowerCase() === 'majeed') ||
+                (currentUser.full && currentUser.full.toLowerCase().includes('majeed'))
+            ));
+        }
+
         function isSupervisor() {
             return currentUser && (currentUser.role === 'supervisor' || currentUser.role === 'super_admin' || currentUser.short === 'Bibin');
         }
 
         function updateUIPermissions() {
             const hasAccess = isSupervisor();
+            const hasDevAccess = isDeveloper();
             
             // Show/Hide Supervisor Columns in Table
             const supCols = document.querySelectorAll('.supervisor-col');
@@ -635,6 +1191,13 @@
             // Show/Hide Edit Status Field in Modal
             const supFields = document.querySelectorAll('.supervisor-field');
             supFields.forEach(field => field.style.display = hasAccess ? 'block' : 'none');
+
+            // Show/Hide Developer History Button
+            const histBtn = document.getElementById('historyBtn');
+            if (histBtn) {
+                histBtn.style.display = hasDevAccess ? 'inline-flex' : 'none';
+            }
+            updateHistoryBadge();
             
             renderTable();
         }
@@ -665,19 +1228,8 @@
             if (localStorage.getItem('tabreed_dark_mode') === 'true') {
                 document.body.classList.add('dark-mode');
             }
-            document.getElementById('reqDate').valueAsDate = new Date();
             
-            // Populate Team Dropdown
-            const teamSelect = document.getElementById('reqTeam');
-            EMPLOYEES.forEach(emp => {
-                if (emp.code !== "41764" && emp.code !== "40078") {
-                    const opt = document.createElement('option');
-                    opt.value = emp.short;
-                    opt.textContent = emp.short;
-                    teamSelect.appendChild(opt);
-                }
-            });
-
+            
             checkExistingLogin();
             loadDummyData();
         };
@@ -702,18 +1254,61 @@
                 promptLogin();
                 return;
             }
+            
+            // Populate team dropdown with all employees
+            const teamSelect = document.getElementById('reqTeam');
+            teamSelect.innerHTML = '<option value="">Select Team Member</option>';
+            if (typeof EMPLOYEES !== 'undefined') {
+                EMPLOYEES.forEach(emp => {
+                    const opt = document.createElement('option');
+                    opt.value = emp.short;
+                    opt.innerText = emp.short + ' (' + emp.code + ')';
+                    teamSelect.appendChild(opt);
+                });
+            }
 
             if (id) {
                 const req = requests.find(r => r.id === id);
-                if(req) {
+                if (req) {
                     document.getElementById('reqId').value = req.id;
-                    document.getElementById('reqWO').value = req.wo;
-                    document.getElementById('reqDesc').value = req.desc;
-                    document.getElementById('reqPlant').value = req.plant;
-                    document.getElementById('reqDate').value = parseDateFromDDMMYYYY(req.date);
-                    document.getElementById('reqTeam').value = req.team;
+                    document.getElementById('reqWO').value = req.wo || '';
+                    document.getElementById('reqDesc').value = req.desc || '';
+                    document.getElementById('reqPlant').value = req.plant || '';
+                    
+                    if (req.date && req.date.includes('.')) {
+                        document.getElementById('reqDate').value = parseDateFromDDMMYYYY(req.date);
+                    } else {
+                        document.getElementById('reqDate').value = req.date || '';
+                    }
+
+                    if (req.time && req.time.includes('-')) {
+                        const parts = req.time.split('-');
+                        document.getElementById('reqTimeFrom').value = parts[0].trim();
+                        document.getElementById('reqTimeTo').value = parts[1].trim();
+                    } else {
+                        document.getElementById('reqTimeFrom').value = req.time || '';
+                        document.getElementById('reqTimeTo').value = '';
+                    }
+
+                    document.getElementById('reqTeam').value = req.team || '';
                     document.getElementById('reqRemarks').value = req.remarks || '';
-                    document.getElementById('reqStatus').value = req.status;
+
+                    const sdd = document.getElementById('reqStatus');
+                    const csd = document.getElementById('reqStatusCustom');
+                    if (sdd) {
+                        sdd.innerHTML = getStatusOptionsHTML(req.status) + '<option value="Custom">Custom...</option>';
+                        const knownValues = STATUS_CONFIG.map(s => s.value.toLowerCase());
+                        if (knownValues.includes(String(req.status || '').toLowerCase())) {
+                            sdd.value = req.status;
+                            csd.style.display = 'none';
+                            csd.value = '';
+                        } else {
+                            sdd.value = 'Custom';
+                            csd.style.display = 'block';
+                            csd.value = req.status || '';
+                        }
+                    }
+
                     document.getElementById('modalTitle').innerText = "Edit Operation Request";
                 }
             } else {
@@ -722,13 +1317,166 @@
                 document.getElementById('reqDesc').value = '';
                 document.getElementById('reqPlant').value = '';
                 document.getElementById('reqDate').valueAsDate = new Date();
-                document.getElementById('reqTeam').value = '';
+                document.getElementById('reqTimeFrom').value = '';
+                document.getElementById('reqTimeTo').value = '';
+                
+                // Select current user by default
+                let userVal = currentUser.short || currentUser.full || '';
+                if (userVal) {
+                    let found = false;
+                    for (let i = 0; i < teamSelect.options.length; i++) {
+                        if (teamSelect.options[i].value === userVal) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) teamSelect.value = userVal;
+                    else teamSelect.value = '';
+                } else {
+                    teamSelect.value = '';
+                }
+
                 document.getElementById('reqRemarks').value = '';
-                document.getElementById('reqStatus').value = 'Pending';
+                const sdd = document.getElementById('reqStatus');
+                if (sdd) {
+                    sdd.innerHTML = getStatusOptionsHTML(DEFAULT_STATUS) + '<option value="Custom">Custom...</option>';
+                    sdd.value = DEFAULT_STATUS;
+                }
+                document.getElementById('reqStatusCustom').style.display = 'none';
+                document.getElementById('reqStatusCustom').value = '';
                 document.getElementById('modalTitle').innerText = "New Operation Request";
             }
-            
+
             document.getElementById('requestModal').style.display = 'flex';
+        }
+
+        const LS_REQUESTS   = "localTabreedOperationRequests";
+        const LS_DELETED    = "localTabreedDeletedRequestIds";
+        const LS_OVERRIDES  = "localTabreedStatusOverrides";
+        const LS_QUEUE      = "tabreed_sync_queue";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_XKC1cV1VaeqKB2MbQgmRSOYmcxQI0v-5qcAAKhFczNOwU3GsindACIkuawzQZN4/exec";
+
+        function getLocalDeletedIds() {
+            try { return JSON.parse(localStorage.getItem(LS_DELETED) || '[]'); } catch { return []; }
+        }
+        function saveLocalDeletedIds(ids) {
+            try { localStorage.setItem(LS_DELETED, JSON.stringify(ids)); } catch {}
+        }
+        function getLocalStatusOverrides() {
+            try { return JSON.parse(localStorage.getItem(LS_OVERRIDES) || '{}'); } catch { return {}; }
+        }
+        function saveLocalStatusOverrides(map) {
+            try { localStorage.setItem(LS_OVERRIDES, JSON.stringify(map)); } catch {}
+        }
+
+        let deleteTargetId = null;
+
+        function updateStatusIndicator(state) {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            if (!dot || !text) return;
+
+            if (state === 'online') {
+                dot.style.background = '#16a34a';
+                text.textContent = 'Online';
+            } else if (state === 'offline') {
+                dot.style.background = '#ef4444';
+                text.textContent = 'Offline';
+            } else if (state === 'cached') {
+                dot.style.background = '#eab308';
+                text.textContent = 'Cached';
+            } else {
+                dot.style.background = '#3b82f6';
+                text.textContent = 'Syncing…';
+            }
+        }
+
+        function updateQueueBadge() {
+            let queue = [];
+            try { queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]'); } catch { queue = []; }
+            const badge = document.getElementById('queueBadge');
+            if (!badge) return;
+            if (queue.length > 0) {
+                badge.textContent = queue.length;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function pushToSyncQueue(action, payload) {
+            try {
+                const queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]');
+                queue.push({
+                    module: 'operation_request',
+                    action: action,
+                    name: `Operation Request: ${payload.workOrder || payload.wo || payload.id || 'Record'} (${action})`,
+                    updatedBy: currentUser.short || currentUser.full || 'User',
+                    payload: payload,
+                    _queued: new Date().toISOString()
+                });
+                localStorage.setItem(LS_QUEUE, JSON.stringify(queue));
+                updateQueueBadge();
+                showToast("Saved locally! Queued for cloud sync.", "warning");
+            } catch (e) {
+                console.error("Queue push error:", e);
+            }
+        }
+
+        async function processSyncQueue(manual = false) {
+            let queue = [];
+            try { queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]'); } catch { queue = []; }
+
+            if (queue.length === 0) {
+                if (manual) showToast("No pending sync items.", "info");
+                updateQueueBadge();
+                return;
+            }
+
+            if (!navigator.onLine) {
+                if (manual) showToast("Still offline. Cannot sync now.", "error");
+                return;
+            }
+
+            if (manual) showToast(`Syncing ${queue.length} pending items…`, "info");
+            updateStatusIndicator('syncing');
+
+            let remaining = [];
+            let syncedCount = 0;
+
+            for (let i = 0; i < queue.length; i++) {
+                const item = queue[i];
+                if (item.module === 'operation_request') {
+                    try {
+                        const res = await fetch('/api/operation-requests', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(item.payload || item)
+                        }).then(r => r.json());
+
+                        if (res && res.status === 'success') {
+                            syncedCount++;
+                        } else {
+                            remaining.push(item);
+                        }
+                    } catch (err) {
+                        remaining.push(item);
+                    }
+                } else {
+                    remaining.push(item);
+                }
+            }
+
+            localStorage.setItem(LS_QUEUE, JSON.stringify(remaining));
+            updateQueueBadge();
+            updateStatusIndicator(navigator.onLine ? 'online' : 'offline');
+
+            if (syncedCount > 0) {
+                showToast(`${syncedCount} item(s) synced to cloud successfully!`, "success");
+                loadDummyData(true);
+            } else if (remaining.length > 0 && manual) {
+                showToast("Some items could not sync. Will retry automatically.", "warning");
+            }
         }
 
         function closeModal() {
@@ -736,91 +1484,383 @@
         }
 
         function saveRequest() {
-            if (!currentUser) return;
-
             const id = document.getElementById('reqId').value;
             const wo = document.getElementById('reqWO').value.trim();
             const desc = document.getElementById('reqDesc').value.trim();
-            const plant = document.getElementById('reqPlant').value.trim();
-            const dateInput = document.getElementById('reqDate').value;
-            const team = document.getElementById('reqTeam').value.trim();
+            const plant = document.getElementById('reqPlant').value;
+            const dateVal = document.getElementById('reqDate').value;
+            const timeFrom = document.getElementById('reqTimeFrom').value;
+            const timeTo = document.getElementById('reqTimeTo').value;
+            const team = document.getElementById('reqTeam').value;
             const remarks = document.getElementById('reqRemarks').value.trim();
-            let status = 'Pending';
-            
-            if(isSupervisor()) {
-                status = document.getElementById('reqStatus').value;
-            }
-            
-            if(!wo || !desc || !team || !plant) {
-                showToast("Please fill all required fields");
+
+            if (!wo || !desc || !plant || !dateVal || !team) {
+                showToast("Please fill all required fields", "warning");
                 return;
             }
-            
-            const formattedDate = formatDateToDDMMYYYY(dateInput);
 
-            if (id) {
-                // Update
-                const index = requests.findIndex(r => r.id === id);
-                if (index > -1) {
-                    requests[index] = { ...requests[index], wo, desc, plant, date: formattedDate, team, remarks, status };
-                    showToast("Request Updated");
-                }
-            } else {
-                // Create
-                requests.unshift({
-                    id: Date.now().toString(),
-                    wo: wo,
-                    desc: desc,
-                    plant: plant,
-                    date: formattedDate,
-                    team: team,
-                    remarks: remarks,
-                    status: status
-                });
-                showToast("Request Submitted to Supervisor");
+            const formattedDate = formatDateToDDMMYYYY(dateVal);
+            let formattedTime = "";
+            if (timeFrom && timeTo) {
+                formattedTime = `${timeFrom} - ${timeTo}`;
+            } else if (timeFrom) {
+                formattedTime = timeFrom;
             }
 
+            let status = 'Requested';
+            if (isSupervisor()) {
+                const sVal = document.getElementById('reqStatus').value;
+                if (sVal === 'Custom') {
+                    status = document.getElementById('reqStatusCustom').value.trim() || 'Requested';
+                } else {
+                    status = sVal;
+                }
+            }
+
+            const newReq = {
+                id: id || ("row_" + Date.now()),
+                wo: wo,
+                desc: desc,
+                plant: plant,
+                date: formattedDate,
+                time: formattedTime,
+                team: team,
+                remarks: remarks,
+                status: status
+            };
+
+            if (id) {
+                const index = requests.findIndex(r => r.id === id);
+                if (index > -1) {
+                    requests[index] = newReq;
+                    showToast("Request Updated");
+                }
+                const overrides = getLocalStatusOverrides();
+                overrides[String(id)] = status;
+                saveLocalStatusOverrides(overrides);
+            } else {
+                requests.unshift(newReq);
+                showToast("Request Submitted!");
+            }
+
+            // Activity History Logging
+            logOperationActivity(
+                id ? 'update' : 'create',
+                id ? 'Updated Request' : 'New Request',
+                id ? `Updated details for Work Order #${wo} (${plant})` : `Created operation request for ${plant} (WO #${wo})`,
+                wo,
+                plant
+            );
+
+            // 1. Immediately write to local storage cache so it NEVER reverts on refresh
+            localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
             closeModal();
-            renderTable();
+            renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
+
+            // 2. Sync to backend / Cloud or offline queue
+            const payload = {
+                action: id ? 'update' : 'create',
+                id: newReq.id,
+                workOrder: wo,
+                description: desc,
+                plant: plant,
+                date: formattedDate,
+                time: formattedTime,
+                team: team,
+                status: status,
+                remarks: remarks
+            };
+
+            if (!navigator.onLine) {
+                pushToSyncQueue(id ? 'update' : 'create', payload);
+                return;
+            }
+
+            fetch('/api/operation-requests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(() => {
+                pushToSyncQueue(id ? 'update' : 'create', payload);
+            });
         }
         
         function deleteRequest(id) {
-            if(!isSupervisor()) return;
-            if(confirm("Are you sure you want to delete this request?")) {
-                requests = requests.filter(r => r.id !== id);
-                renderTable();
-                showToast("Request Deleted");
+            if (!isSupervisor()) return showToast("Only Supervisors can delete requests", "error");
+            deleteTargetId = id;
+            const req = requests.find(r => r.id === id);
+            const woText = req && req.wo ? req.wo : 'this entry';
+            const modalText = document.getElementById('deleteModalText');
+            if (modalText) {
+                modalText.innerHTML = `Are you sure you want to delete Work Order <b>${woText}</b>?<br><span style="font-size:0.75rem;color:var(--text-muted);">This action will remove the record completely.</span>`;
+            }
+            document.getElementById('deleteConfirmModal').style.display = 'flex';
+        }
+
+        function closeDeleteModal() {
+            deleteTargetId = null;
+            const modal = document.getElementById('deleteConfirmModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function confirmDeleteRequest() {
+            if (!deleteTargetId || !isSupervisor()) return;
+            const id = String(deleteTargetId);
+            const targetReq = requests.find(r => String(r.id) === id);
+            const targetWo = targetReq ? targetReq.wo : '';
+
+            // 1. Record ID in persistent local deleted IDs list
+            const deletedList = getLocalDeletedIds();
+            if (!deletedList.includes(id)) {
+                deletedList.push(id);
+                saveLocalDeletedIds(deletedList);
+            }
+
+            // Remove override if present
+            const overrides = getLocalStatusOverrides();
+            if (overrides[id]) {
+                delete overrides[id];
+                saveLocalStatusOverrides(overrides);
+            }
+
+            // Log activity
+            logOperationActivity(
+                'delete',
+                'Deleted Request',
+                `Deleted Work Order #${targetWo || id}`,
+                targetWo,
+                targetReq ? targetReq.plant : ''
+            );
+
+            // 2. Remove from in-memory array
+            requests = requests.filter(r => String(r.id) !== id);
+
+            // 3. Immediately update local storage cache so it NEVER returns on refresh
+            localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
+
+            // 4. Close modal and re-render table
+            closeDeleteModal();
+            renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
+            showToast("Request Deleted successfully!", "success");
+
+            // 5. Send to server / Cloud or push to offline queue
+            const payload = { action: 'delete', id: id, workOrder: targetWo };
+
+            if (!navigator.onLine) {
+                pushToSyncQueue('delete', payload);
+                return;
+            }
+
+            try {
+                await fetch('/api/operation-requests', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) {
+                console.warn("Delete failed, queueing offline:", err);
+                pushToSyncQueue('delete', payload);
             }
         }
 
-        function loadDummyData() {
-            requests = [
-                { id: "1", wo: "WO-991204", desc: "Out of schedule PM attendance required", plant: "AD-027", date: "10.09.2026", team: "Jerlin", remarks: "Urgent", status: "Pending" },
-                { id: "2", wo: "WO-882311", desc: "Operation 0020 missing for Filter Replacement", plant: "AD-027", date: "09.09.2026", team: "Rajesh", remarks: "Please create op quickly", status: "Completed" },
-                { id: "3", wo: "WO-771233", desc: "Require PR creation for new sensor", plant: "AD-027", date: "08.09.2026", team: "Prashant", remarks: "", status: "Pending" },
-                { id: "4", wo: "WO-665123", desc: "Missing operation for Chiller maintenance", plant: "AD-027", date: "11.09.2026", team: "Manikandan", remarks: "Needed for tomorrow", status: "Pending" },
-                { id: "5", wo: "WO-551122", desc: "Update hours in PM work order", plant: "AD-027", date: "12.09.2026", team: "Akbar", remarks: "", status: "Completed" }
-            ];
-            renderTable();
+        async function loadDummyData(forceRefresh = false) {
+            let deletedSet = new Set(getLocalDeletedIds().map(String));
+            let overrides = getLocalStatusOverrides();
+
+            // When force refresh is triggered, clear overrides so direct Cloud updates are visible!
+            if (forceRefresh) {
+                overrides = {};
+                saveLocalStatusOverrides({});
+            }
+
+            // 1. Instant cache load from local storage
+            const cached = localStorage.getItem(LS_REQUESTS);
+            if (cached && !forceRefresh) {
+                try {
+                    let parsed = JSON.parse(cached);
+                    if (Array.isArray(parsed)) {
+                        requests = parsed
+                            .filter(r => !deletedSet.has(String(r.id)))
+                            .map(r => {
+                                const idStr = String(r.id);
+                                if (overrides[idStr]) r.status = overrides[idStr];
+                                return r;
+                            });
+                        renderTable();
+                        updateStatusIndicator('cached');
+                    }
+                } catch (e) {
+                    console.warn("Corrupt cache:", e);
+                }
+            }
+
+            updateQueueBadge();
+            updateHistoryBadge();
+
+            if (!navigator.onLine) {
+                updateStatusIndicator('offline');
+                return;
+            }
+
+            // 2. Fetch fresh data from backend proxy / Cloud
+            try {
+                if (!cached || forceRefresh) {
+                    const tbody = document.getElementById('requestTableBody');
+                    if (tbody && !cached) {
+                        tbody.innerHTML = '';
+                        for (let i = 0; i < 3; i++) {
+                            tbody.innerHTML += '<tr><td><div class="skeleton" style="width:60%"></div></td><td><div class="skeleton" style="width:90%"></div></td><td><div class="skeleton" style="width:40%"></div></td><td><div class="skeleton" style="width:70%"></div></td><td><div class="skeleton" style="width:50%"></div></td><td><div class="skeleton" style="width:60%"></div></td><td></td></tr>';
+                        }
+                    }
+                }
+
+                const url = forceRefresh ? '/api/operation-requests?refresh=true&t=' + Date.now() : '/api/operation-requests?t=' + Date.now();
+                const res = await fetch(url).then(r => r.json());
+
+                if (res && res.status === "success" && Array.isArray(res.data)) {
+                    requests = res.data
+                        .filter(row => {
+                            const idStr = String(row['ID'] || row['id'] || '');
+                            // If force refresh, we still respect deleted set unless row was manually recreated in Cloud
+                            return !deletedSet.has(idStr);
+                        })
+                        .map((row, index) => {
+                            const idStr = String(row['ID'] || row['id'] || ('row_' + (index + 1)));
+                            const baseStatus = String(row['Status'] || row['status'] || DEFAULT_STATUS);
+                            return {
+                                id: idStr,
+                                wo: String(row['Work Order'] || row['Work order'] || row['work order'] || row['WORK ORDER'] || row.wo || ''),
+                                desc: String(row['Description'] || row['description'] || row.desc || ''),
+                                plant: String(row['Plant'] || row['plant'] || ''),
+                                date: String(row['Date'] || row['date'] || ''),
+                                time: String(row['Time'] || row['time'] || ''),
+                                team: String(row['Team'] || row['team'] || ''),
+                                remarks: String(row['Remarks'] || row['remarks'] || ''),
+                                status: overrides[idStr] || baseStatus
+                            };
+                        });
+
+                    localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
+                    renderTable();
+                    updateStatusIndicator('online');
+                    if (forceRefresh) {
+                        showToast(`Synced ${requests.length} records from Cloud!`, "success");
+                        logOperationActivity('sync', 'Cloud Synced', `Fetched ${requests.length} live records directly from Cloud`, '', '', '#0284c7');
+                    }
+                }
+            } catch (error) {
+                console.error("Fetch failed:", error);
+                updateStatusIndicator(cached ? 'cached' : 'offline');
+                if (!cached) {
+                    showToast("Failed to load from cloud. Please check connection.", "error");
+                }
+            }
         }
 
         function refreshTable() {
-            showToast("Refreshing data...");
-            setTimeout(renderTable, 500);
+            showToast("Fetching latest data directly from Cloud...", "info");
+            loadDummyData(true);
+        }
+
+        function onInlineStatusChange(id, selectEl) {
+            const original = selectEl.getAttribute('data-original');
+            const newVal = selectEl.value;
+            // Dynamically update colors to match custom status config
+            selectEl.setAttribute('style', getStatusStyle(newVal));
+
+            const saveBtn = document.getElementById('save-status-btn-' + id);
+            if (!saveBtn) return;
+
+            if (newVal !== original) {
+                saveBtn.style.display = 'inline-flex';
+            } else {
+                saveBtn.style.display = 'none';
+            }
+        }
+
+        async function saveInlineStatus(id) {
+            if (!isSupervisor()) return showToast("Unauthorized to change status", "error");
+
+            const selectEl = document.getElementById('inline-status-' + id);
+            const saveBtn = document.getElementById('save-status-btn-' + id);
+            if (!selectEl) return;
+
+            const newStatus = selectEl.value;
+            const idStr = String(id);
+            const req = requests.find(r => String(r.id) === idStr);
+            if (!req) return;
+
+            const oldStatus = req.status;
+            req.status = newStatus;
+            selectEl.setAttribute('data-original', newStatus);
+            if (saveBtn) saveBtn.style.display = 'none';
+
+            // 1. Record in persistent status overrides
+            const overrides = getLocalStatusOverrides();
+            overrides[idStr] = newStatus;
+            saveLocalStatusOverrides(overrides);
+
+            // Log activity
+            logOperationActivity(
+                'status',
+                'Status Changed',
+                `Status changed from "${oldStatus}" to "${newStatus}" for WO #${req.wo || id}`,
+                req.wo,
+                req.plant
+            );
+
+            // 2. Immediately update local storage cache so it NEVER reverts on reload
+            localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
+
+            // 3. Re-render table counts & styling
+            renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
+            showToast(`Status saved: ${newStatus}`, "success");
+
+            // 4. Sync to backend or push to offline queue
+            const payload = {
+                action: 'updateStatus',
+                id: idStr,
+                workOrder: req.wo,
+                status: newStatus
+            };
+
+            if (!navigator.onLine) {
+                pushToSyncQueue('updateStatus', payload);
+                return;
+            }
+
+            try {
+                await fetch('/api/operation-requests', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (err) {
+                console.warn("Direct post failed, queued offline:", err);
+                pushToSyncQueue('updateStatus', payload);
+            }
         }
 
         function renderTable(filterText = "") {
             const tbody = document.getElementById('requestTableBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             
-            const lowerFilter = filterText.toLowerCase();
+            const lowerFilter = (filterText || "").toLowerCase().trim();
             const userIsSupervisor = isSupervisor();
+            
+            let counts = {};
 
             requests.forEach(req => {
-                if(filterText && !req.wo.toLowerCase().includes(lowerFilter) && !req.plant.toLowerCase().includes(lowerFilter)) return;
+                const s = req.status || DEFAULT_STATUS;
+                counts[s] = (counts[s] || 0) + 1;
+                
+                const woStr = String(req.wo || '').toLowerCase();
+                const plantStr = String(req.plant || '').toLowerCase();
+                if(lowerFilter && !woStr.includes(lowerFilter) && !plantStr.includes(lowerFilter)) return;
 
                 const tr = document.createElement('tr');
-                const statusClass = req.status === 'Pending' ? 'status-pending' : 'status-completed';
+                const statusStyle = getStatusStyle(req.status);
                 
                 let actionsHtml = '';
                 if(userIsSupervisor) {
@@ -832,28 +1872,75 @@
                     `;
                 }
                 
+                let statusHtml = `<span class="status-tag" style="${statusStyle}">${req.status}</span>`;
+                if (userIsSupervisor) {
+                    statusHtml = `
+                    <div style="display:inline-flex;align-items:center;gap:6px;">
+                        <select class="status-tag inline-select" 
+                                style="${statusStyle}"
+                                id="inline-status-${req.id}" 
+                                data-original="${req.status}" 
+                                onchange="onInlineStatusChange('${req.id}', this)">
+                            ${getStatusOptionsHTML(req.status)}
+                        </select>
+                        <button id="save-status-btn-${req.id}" 
+                                onclick="saveInlineStatus('${req.id}')" 
+                                title="Click to Save Status" 
+                                style="display:none;background:#16a34a;color:white;border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:0.85rem;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(22,163,74,0.35);">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </div>`;
+                }
+                
                 tr.innerHTML = `
-                    <td style="font-weight:700; color:var(--primary);">${req.wo}</td>
+                    <td style="font-weight:700; color:var(--primary); cursor:pointer;" onclick="navigator.clipboard.writeText('${req.wo}'); showToast('Copied: ${req.wo}')" title="Click to copy">${req.wo}</td>
                     <td>${req.desc}</td>
                     <td><span style="background:var(--bg-surface);padding:3px 8px;border-radius:4px;font-size:.8rem;border:1px solid var(--border);">${req.plant}</span></td>
-                    <td>${req.date}</td>
+                    <td>${req.date}<br><span style="font-size:0.75rem;color:var(--text-muted);">${req.time || ''}</span></td>
                     <td>${req.team}</td>
-                    <td><span class="status-tag ${statusClass}">${req.status}</span></td>
+                    <td>${statusHtml}</td>
                     ${actionsHtml}
                 `;
                 tbody.appendChild(tr);
             });
+            
+            // Update Summary
+            const sumDiv = document.getElementById('status-summary');
+            if(sumDiv) {
+                sumDiv.innerHTML = Object.entries(counts).map(([k,v]) => {
+                    const st = getStatusItem(k);
+                    return `<div style="background:${st.bg}; border:1px solid ${st.border}; color:${st.color}; padding:5px 12px; border-radius:20px; font-size:0.85rem; font-weight:700;"><span style="opacity:0.85;">${k}:</span> <span style="font-weight:900;">${v}</span></div>`;
+                }).join('');
+            }
 
             if(tbody.innerHTML === '') {
                 tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:20px;">No requests found.</td></tr>`;
             }
+
+            // Keep supervisor action columns in sync with current access level
+            const supCols = document.querySelectorAll('.supervisor-col');
+            supCols.forEach(col => col.style.display = userIsSupervisor ? 'table-cell' : 'none');
         }
 
         function filterRequests() {
             const text = document.getElementById('searchInput').value;
             renderTable(text);
         }
+
+        window.addEventListener('online', () => {
+            updateStatusIndicator('online');
+            processSyncQueue(false);
+        });
+
+        window.addEventListener('offline', () => {
+            updateStatusIndicator('offline');
+        });
     </script>
-<div class="toast-container" id="toastContainer"></div>
+    <!-- Online / Offline Connection Status Indicator (Bottom Center) -->
+    <div class="connection-status" id="connectionStatus" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:900;display:inline-flex;align-items:center;gap:6px;background:var(--bg-card);padding:5px 14px;border-radius:20px;border:1px solid var(--border);box-shadow:0 4px 12px rgba(0,0,0,0.12);font-size:0.75rem;user-select:none;cursor:default;">
+        <span class="status-dot online" id="statusDot" style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;"></span>
+        <span class="status-text" id="statusText" style="font-weight:600;font-size:0.75rem;color:var(--text-secondary);">Online</span>
+    </div>
+    <div class="toast-container" id="toastContainer"></div>
 </body>
 </html>

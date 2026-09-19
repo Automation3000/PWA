@@ -689,9 +689,9 @@
             </div>
             <div class="tile" onclick="handleTileClick(event, 'PM_Checklist_Generator.html', this)">
                 <div class="tile-title">PM Checklist Generator</div>
-                <div class="tile-subtitle">Create &amp; Download Checklist • Try &amp; Share Feedback</div>
-                <i class="fas fa-tasks tile-icon" style="color:var(--primary);"></i>
-                <div class="tile-status" style="color:var(--secondary);"><i class="fas fa-check-circle"></i> Ready</div>
+                <div class="tile-subtitle">Create &amp; Download Checklist • In Active Development</div>
+                <i class="fas fa-tasks tile-icon" style="color:#d97706;"></i>
+                <div class="tile-status" style="color:#d97706; font-weight:700;"><i class="fas fa-tools"></i> Under Development</div>
             </div>
             <div class="tile" onclick="handleTileClick(event, 'ETS_Locator.html', this)">
                 <div class="tile-title">ETS Locator</div>
@@ -701,9 +701,9 @@
             </div>
             <div class="tile" onclick="handleTileClick(event, 'Operation_Request.html', this)">
                 <div class="tile-title">Operation Request</div>
-                <div class="tile-subtitle">Request WorkOrder Operations</div>
+                <div class="tile-subtitle">Request WorkOrder Operations • Testing Active</div>
                 <i class="fas fa-tools tile-icon" style="color:var(--primary);"></i>
-                <div class="tile-status" style="color:var(--danger);"><i class="fas fa-times-circle"></i> Not Ready</div>
+                <div class="tile-status" style="color:#0284c7; font-weight:700;"><i class="fas fa-vial"></i> Testing Only</div>
             </div>
             <div class="tile" onclick="handleTileClick(event, 'Team_Contacts.html', this)">
                 <div class="tile-title">Team Contacts</div>
@@ -1094,12 +1094,12 @@
             <h3 id="profileModalFullName" style="margin:0 0 4px;font-size:1.05rem;color:var(--text-primary);font-weight:700;">-</h3>
             <p id="profileModalEmpId" style="margin:0 0 4px;font-size:0.85rem;color:var(--text-muted);font-weight:600;">-</p>
             <p id="profileModalEmail" style="margin:0 0 12px;font-size:0.8rem;color:var(--primary);font-weight:500;">-</p>
-            <div id="profileModalRoleBadge" style="display:inline-block;padding:4px 14px;border-radius:20px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;margin-bottom:14px;">
-                USER LEVEL
+            <div id="profileModalRoleBadge" style="display:none;padding:4px 14px;border-radius:20px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;margin-bottom:14px;">
+                DEVELOPER
             </div>
             
-            <div id="profileAdminInfo" style="margin-bottom:16px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:0.78rem;color:var(--text-secondary);text-align:left;line-height:1.4;">
-                <i class="fas fa-check-circle" style="color:#16a34a;margin-right:4px;"></i> Standard Access &amp; Master Export Active
+            <div id="profileAdminInfo" style="display:none;margin-bottom:16px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:0.78rem;color:var(--text-secondary);text-align:left;line-height:1.4;">
+                <i class="fas fa-check-circle" style="color:#16a34a;margin-right:4px;"></i> Access Active
             </div>
 
             <div style="display:flex;flex-direction:column;gap:8px;">
@@ -1270,7 +1270,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     /* ──────────────────────────────────────
        CONSTANTS & CONFIG
     ────────────────────────────────────── */
-    const APP_VERSION   = "v2.1.1";
+    const APP_VERSION   = "v2.1.2";
     const GAS_API_URL   = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
     const LS_INVENTORY  = "localTabreedInventory";
     const LS_HISTORY    = "localTabreedHistory";
@@ -1882,15 +1882,13 @@ input:checked + .slider:before { transform: translateX(20px); }
             if (isSuper) {
                 headerUserRoleBadge.innerText = 'DEV';
                 headerUserRoleBadge.style.background = 'var(--danger)';
-            } else if (isSupervisor) {
+                headerUserRoleBadge.style.display = 'inline-block';
+            } else if (isSupervisor || isAdmin) {
                 headerUserRoleBadge.innerText = 'SUPERVISOR';
-                headerUserRoleBadge.style.background = 'var(--danger)';
-            } else if (isAdmin) {
-                headerUserRoleBadge.innerText = 'ADVANCE';
                 headerUserRoleBadge.style.background = '#ea580c';
+                headerUserRoleBadge.style.display = 'inline-block';
             } else {
-                headerUserRoleBadge.innerText = 'USER';
-                headerUserRoleBadge.style.background = 'var(--primary)';
+                headerUserRoleBadge.style.display = 'none';
             }
         }
 
@@ -1911,10 +1909,10 @@ input:checked + .slider:before { transform: translateX(20px); }
             isDevModeActive = false;
             if (devGroup) devGroup.style.display = 'none';
             if (showPopup) {
-                if (isAdmin) {
-                    showToast(`Welcome, ${user.short}! Advance Control active.`, 'success');
+                if (isSupervisor || isAdmin) {
+                    showToast(`Welcome, ${user.short}! Supervisor Access active.`, 'success');
                 } else {
-                    showToast(`Welcome, ${user.short}! Logged in as User Level.`, 'info');
+                    showToast(`Welcome, ${user.short}!`, 'info');
                 }
             }
         }
@@ -1989,21 +1987,15 @@ input:checked + .slider:before { transform: translateX(20px); }
                 roleEl.style.background = "rgba(220,38,38,0.15)";
                 roleEl.style.color = "var(--danger)";
                 roleEl.style.border = "1px solid rgba(220,38,38,0.3)";
-            } else if (isSupervisor) {
+                roleEl.style.display = "inline-block";
+            } else if (isSupervisor || isAdmin) {
                 roleEl.innerText = "SUPERVISOR";
-                roleEl.style.background = "rgba(220,38,38,0.15)";
-                roleEl.style.color = "var(--danger)";
-                roleEl.style.border = "1px solid rgba(220,38,38,0.3)";
-            } else if (isAdmin) {
-                roleEl.innerText = "ADVANCE CONTROL";
                 roleEl.style.background = "rgba(234,88,12,0.15)";
                 roleEl.style.color = "#ea580c";
                 roleEl.style.border = "1px solid rgba(234,88,12,0.3)";
+                roleEl.style.display = "inline-block";
             } else {
-                roleEl.innerText = "USER LEVEL";
-                roleEl.style.background = "rgba(37,99,235,0.15)";
-                roleEl.style.color = "var(--primary)";
-                roleEl.style.border = "1px solid rgba(37,99,235,0.3)";
+                roleEl.style.display = "none";
             }
         }
 
@@ -2013,10 +2005,9 @@ input:checked + .slider:before { transform: translateX(20px); }
                 adminInfoEl.innerHTML = `<i class="fas fa-bolt" style="color:var(--danger);margin-right:6px;"></i> Developer Tools, System Config & Full Export Active`;
             } else if (isSupervisor || isAdmin) {
                 adminInfoEl.style.display = "block";
-                adminInfoEl.innerHTML = `<i class="fas fa-sliders-h" style="color:#ea580c;margin-right:6px;"></i> Advance Level Access`;
+                adminInfoEl.innerHTML = `<i class="fas fa-sliders-h" style="color:#ea580c;margin-right:6px;"></i> Supervisor Level Access`;
             } else {
-                adminInfoEl.style.display = "block";
-                adminInfoEl.innerHTML = `<i class="fas fa-check-circle" style="color:#16a34a;margin-right:6px;"></i> User Level Access &amp; Master Export Active`;
+                adminInfoEl.style.display = "none";
             }
         }
 
@@ -3067,11 +3058,21 @@ window.startSmartInstall = async function() {
             while (queue.length > 0) {
                 const task = queue[0];
                 const { _queued, ...params } = task;
-                const query = Object.entries(params).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
 
                 try {
-                    const res = await fetchWithTimeout(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json());
-                    if (res && res.success) {
+                    let res = null;
+                    if (task.module === 'operation_request') {
+                        res = await fetch('/api/operation-requests', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(task.payload || params)
+                        }).then(r => r.json());
+                    } else {
+                        const query = Object.entries(params).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+                        res = await fetchWithTimeout(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json());
+                    }
+
+                    if (res && (res.success || res.status === 'success')) {
                         successes++;
                         recordSyncedItem(params);
                         addLog('INFO', `Background auto-synced: ${params.name || params.itemName || 'Record'}`);
@@ -3253,6 +3254,42 @@ window.startSmartInstall = async function() {
        RELEASE NOTES — full working module
     ────────────────────────────────────── */
     const RELEASE_HISTORY = [
+        {
+            version: "v2.1.2",
+            date: "September 2026",
+            badge: "Operation Request Beta & PM Notice",
+            badgeColor: "#0284c7",
+            sections: [
+                {
+                    emoji: "🚀",
+                    title: "Operation Request (Testing Only)",
+                    color: "var(--primary)",
+                    items: [
+                        { text: "Opened the Operation Request module for active user testing.", credit: "Majeed" },
+                        { text: "Direct 2-way Cloud synchronization with instant live refresh.", credit: "Majeed" },
+                        { text: "Offline sync queue and resilient local persistence safeguards.", credit: "Majeed" },
+                    ]
+                },
+                {
+                    emoji: "⚠️",
+                    title: "PM Checklist Generator — Under Development",
+                    color: "#d97706",
+                    items: [
+                        { text: "PM Checklist Generator currently has identified bugs and remains Under Development. It is advised to avoid using it for production workflows until final fixes are deployed.", credit: "Majeed" }
+                    ]
+                },
+                {
+                    emoji: "🛠️",
+                    title: "Code Improvements & Bug Fixes",
+                    color: "var(--secondary)",
+                    items: [
+                        { text: "Cleaned up obsolete repository scripts and optimized codebase structure.", credit: "Majeed" },
+                        { text: "Resolved status saving and record deletion persistence across page reloads.", credit: "Majeed" },
+                        { text: "Improved offline and online connectivity handling across modules.", credit: "Majeed" }
+                    ]
+                }
+            ]
+        },
         {
             version: "v2.1.1",
             date: "September 2026",
@@ -3449,18 +3486,6 @@ window.startSmartInstall = async function() {
                         { text: "PWA: Smart Install for iOS, Android &amp; Desktop",               credit: "Majeed" },
                         { text: "In-app feedback tied to Automation Team",                          credit: "Majeed" },
                     ]
-                },
-                {
-                    emoji: "🛠️",
-                    title: "Admin / Dev Tools",
-                    color: "#7c3aed",
-                    items: [
-                        { text: "Password-protected Developer Mode",                                credit: "Majeed" },
-                        { text: "Demo Mode (Ctrl+Shift+D) — safe testing without DB writes",       credit: "Majeed" },
-                        { text: "System Logs viewer with cloud sync",                               credit: "Majeed" },
-                        { text: "Auto version management &amp; cache clearing",                     credit: "Majeed" },
-                        { text: "Drawing Hub (P&amp;ID / Schematics) integration",                  credit: "Majeed" },
-                    ]
                 }
             ]
         }
@@ -3484,7 +3509,7 @@ window.startSmartInstall = async function() {
                 </div>`;
 
             rel.sections.forEach(sec => {
-                if ((sec.title.includes("Admin") || sec.title.includes("Dev Tools")) && !isDevModeActive) {
+                if (sec.title.includes("Admin") || sec.title.includes("Dev Tools") || sec.title.toLowerCase().includes("admin") || sec.title.toLowerCase().includes("dev tool")) {
                     return;
                 }
                 html += `
@@ -4094,11 +4119,24 @@ window.startSmartInstall = async function() {
     }
 
     // Call initTiles after DOM and auth loads
-    const originalRenderUserProfile = renderUserProfile;
-    renderUserProfile = function() {
-        if(originalRenderUserProfile) originalRenderUserProfile();
-        initTiles();
+    window.renderUserProfile = function() {
+        if (typeof initTiles === 'function') initTiles();
     };
+
+    if (typeof applyUserLogin === 'function') {
+        const _origApply = applyUserLogin;
+        applyUserLogin = function(user, showPopup) {
+            _origApply(user, showPopup);
+            if (typeof initTiles === 'function') initTiles();
+        };
+    }
+    if (typeof logoutUser === 'function') {
+        const _origLogout = logoutUser;
+        logoutUser = function() {
+            _origLogout();
+            if (typeof initTiles === 'function') initTiles();
+        };
+    }
     
     document.addEventListener("DOMContentLoaded", () => {
         setTimeout(initTiles, 500); // ensure tiles are processed
