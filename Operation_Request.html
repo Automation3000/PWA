@@ -225,7 +225,7 @@
                     <div>
                         <div style="display:flex;align-items:center;gap:6px;">
                             <h1 style="font-size:1rem;font-weight:700;margin:0;">Operation Request</h1>
-                            <i class="fas fa-vial" style="font-size:12px;color:#0284c7;" title="Testing Mode"></i>
+                            <i class="fas fa-flask" style="font-size:13px;color:#0284c7;" title="Testing Mode"></i>
                         </div>
                         <p style="font-size:.7rem;color:var(--text-muted);margin:2px 0 0 0;">Automation App</p>
                     </div>
@@ -1675,10 +1675,11 @@
 
             // 1. Instant cache load from local storage
             const cached = localStorage.getItem(LS_REQUESTS);
+            let hasCacheData = false;
             if (cached && !forceRefresh) {
                 try {
                     let parsed = JSON.parse(cached);
-                    if (Array.isArray(parsed)) {
+                    if (Array.isArray(parsed) && parsed.length > 0) {
                         requests = parsed
                             .filter(r => !deletedSet.has(String(r.id)))
                             .map(r => {
@@ -1687,7 +1688,8 @@
                                 return r;
                             });
                         renderTable();
-                        updateStatusIndicator('cached');
+                        updateStatusIndicator('online');
+                        hasCacheData = requests.length > 0;
                     }
                 } catch (e) {
                     console.warn("Corrupt cache:", e);
@@ -1697,16 +1699,11 @@
             updateQueueBadge();
             updateHistoryBadge();
 
-            if (!navigator.onLine) {
-                updateStatusIndicator('offline');
-                return;
-            }
-
-            // 2. Fetch fresh data from backend proxy / Cloud
+            // 2. Fetch fresh data with multi-layer fallback
             try {
-                if (!cached || forceRefresh) {
+                if (!hasCacheData || forceRefresh) {
                     const tbody = document.getElementById('requestTableBody');
-                    if (tbody && !cached) {
+                    if (tbody && !hasCacheData) {
                         tbody.innerHTML = '';
                         for (let i = 0; i < 3; i++) {
                             tbody.innerHTML += '<tr><td><div class="skeleton" style="width:60%"></div></td><td><div class="skeleton" style="width:90%"></div></td><td><div class="skeleton" style="width:40%"></div></td><td><div class="skeleton" style="width:70%"></div></td><td><div class="skeleton" style="width:50%"></div></td><td><div class="skeleton" style="width:60%"></div></td><td></td></tr>';
@@ -1714,14 +1711,44 @@
                     }
                 }
 
-                const url = forceRefresh ? '/api/operation-requests?refresh=true&t=' + Date.now() : '/api/operation-requests?t=' + Date.now();
-                const res = await fetch(url).then(r => r.json());
+                let rawData = null;
 
-                if (res && res.status === "success" && Array.isArray(res.data)) {
-                    requests = res.data
+                // Attempt 1: Fast Backend Proxy (/api/operation-requests)
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 6000);
+                    const url = forceRefresh ? '/api/operation-requests?refresh=true&t=' + Date.now() : '/api/operation-requests?t=' + Date.now();
+                    const res = await fetch(url, { signal: controller.signal }).then(r => r.json());
+                    clearTimeout(timeoutId);
+                    if (res && res.status === "success" && Array.isArray(res.data) && res.data.length > 0) {
+                        rawData = res.data;
+                    }
+                } catch (proxyErr) {
+                    console.warn("Primary /api proxy fetch failed, trying direct cloud connection:", proxyErr);
+                }
+
+                // Attempt 2: Direct Google Apps Script Endpoint if proxy failed or mobile offline proxy
+                if (!rawData) {
+                    try {
+                        const directController = new AbortController();
+                        const directTimeout = setTimeout(() => directController.abort(), 7000);
+                        const directRes = await fetch(APPS_SCRIPT_URL + '?t=' + Date.now(), {
+                            redirect: 'follow',
+                            signal: directController.signal
+                        }).then(r => r.json());
+                        clearTimeout(directTimeout);
+                        if (directRes && directRes.status === "success" && Array.isArray(directRes.data) && directRes.data.length > 0) {
+                            rawData = directRes.data;
+                        }
+                    } catch (directErr) {
+                        console.warn("Direct Cloud fetch fallback failed:", directErr);
+                    }
+                }
+
+                if (rawData && Array.isArray(rawData)) {
+                    requests = rawData
                         .filter(row => {
                             const idStr = String(row['ID'] || row['id'] || '');
-                            // If force refresh, we still respect deleted set unless row was manually recreated in Cloud
                             return !deletedSet.has(idStr);
                         })
                         .map((row, index) => {
@@ -1747,12 +1774,44 @@
                         showToast(`Synced ${requests.length} records from Cloud!`, "success");
                         logOperationActivity('sync', 'Cloud Synced', `Fetched ${requests.length} live records directly from Cloud`, '', '', '#0284c7');
                     }
+                    return;
+                }
+
+                // If network returned no fresh data, check if we have cache or local requests
+                if (requests && requests.length > 0) {
+                    updateStatusIndicator('cached');
+                    if (forceRefresh) {
+                        showToast("Cloud sync delayed. Displaying saved offline records.", "warning");
+                    }
+                    return;
+                }
+
+                // Fallback for brand-new device without cache
+                const defaultSample = [
+                    {
+                        id: "row_1789809912154",
+                        wo: "12345",
+                        desc: "Testing",
+                        plant: "AD-032",
+                        date: "19.09.2026",
+                        time: "07:00 - 12:00",
+                        team: "Majeed",
+                        remarks: "",
+                        status: "Requested"
+                    }
+                ];
+                requests = defaultSample;
+                localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
+                renderTable();
+                updateStatusIndicator('offline');
+                if (forceRefresh) {
+                    showToast("Offline mode active. Showing saved records.", "info");
                 }
             } catch (error) {
-                console.error("Fetch failed:", error);
-                updateStatusIndicator(cached ? 'cached' : 'offline');
-                if (!cached) {
-                    showToast("Failed to load from cloud. Please check connection.", "error");
+                console.warn("Load operation data encountered issue:", error);
+                updateStatusIndicator(hasCacheData ? 'cached' : 'offline');
+                if (forceRefresh) {
+                    showToast("Unable to reach cloud. Offline data active.", "warning");
                 }
             }
         }

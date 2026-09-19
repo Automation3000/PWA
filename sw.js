@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tabreed-pro-v15'; // v9: Added ETS Locator
+const CACHE_NAME = 'tabreed-pro-v16'; // v16: Optimized mobile API routing & cloud sync
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -61,6 +61,11 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   // Ignore non-GET requests
   if (event.request.method !== 'GET') return;
+
+  // Do NOT intercept /api/ routes or external Google Apps Script - let browser handle network natively
+  if (event.request.url.includes('/api/') || event.request.url.includes('script.google.com')) {
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
