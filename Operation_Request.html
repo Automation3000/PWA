@@ -1371,6 +1371,79 @@
 
         let deleteTargetId = null;
 
+        // Universal Cloud Sync Router (Supports Node Server, Static GitHub Pages, and Direct Apps Script)
+        async function sendToCloudBackend(payload) {
+            // 1. Try local server proxy first (/api/operation-requests)
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 4000);
+                const res = await fetch('/api/operation-requests', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.status === 'success') {
+                        return { success: true, data };
+                    }
+                }
+            } catch (proxyErr) {
+                // Expected when hosted on GitHub Pages or static host where /api is not present
+            }
+
+            // 2. Direct Cloud Apps Script POST (Works on GitHub Pages & Static Hosts)
+            try {
+                const directController = new AbortController();
+                const directTimeout = setTimeout(() => directController.abort(), 7000);
+                const directRes = await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload),
+                    redirect: 'follow',
+                    signal: directController.signal
+                });
+                clearTimeout(directTimeout);
+                if (directRes.ok) {
+                    const directData = await directRes.json();
+                    if (directData && directData.status === 'success') {
+                        return { success: true, data: directData };
+                    }
+                }
+            } catch (directPostErr) {
+                console.warn("Direct POST to Apps Script failed, trying GET fallback:", directPostErr);
+            }
+
+            // 3. Direct Cloud Apps Script GET fallback (Universal cross-origin compatibility)
+            try {
+                const params = new URLSearchParams();
+                Object.keys(payload).forEach(k => {
+                    if (payload[k] !== undefined && payload[k] !== null) {
+                        params.append(k, String(payload[k]));
+                    }
+                });
+                params.append('t', Date.now());
+                const getUrl = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + params.toString();
+                const getRes = await fetch(getUrl, {
+                    method: 'GET',
+                    redirect: 'follow',
+                    signal: AbortSignal.timeout(7000)
+                });
+                if (getRes.ok) {
+                    const getData = await getRes.json();
+                    if (getData && getData.status === 'success') {
+                        return { success: true, data: getData };
+                    }
+                }
+            } catch (getFallbackErr) {
+                console.warn("Direct GET fallback to Apps Script failed:", getFallbackErr);
+            }
+
+            return { success: false };
+        }
+
         function updateStatusIndicator(state) {
             const dot = document.getElementById('statusDot');
             const text = document.getElementById('statusText');
@@ -1448,13 +1521,8 @@
                 const item = queue[i];
                 if (item.module === 'operation_request') {
                     try {
-                        const res = await fetch('/api/operation-requests', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(item.payload || item)
-                        }).then(r => r.json());
-
-                        if (res && res.status === 'success') {
+                        const res = await sendToCloudBackend(item.payload || item);
+                        if (res.success) {
                             syncedCount++;
                         } else {
                             remaining.push(item);
@@ -1558,9 +1626,11 @@
             renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
 
             // 2. Sync to backend / Cloud or offline queue
+            const targetReq = id ? requests.find(r => r.id === id) : null;
             const payload = {
                 action: id ? 'update' : 'create',
                 id: newReq.id,
+                rowIdx: targetReq ? targetReq.rowIdx : null,
                 workOrder: wo,
                 description: desc,
                 plant: plant,
@@ -1576,12 +1646,10 @@
                 return;
             }
 
-            fetch('/api/operation-requests', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            }).catch(() => {
-                pushToSyncQueue(id ? 'update' : 'create', payload);
+            sendToCloudBackend(payload).then(res => {
+                if (!res.success) {
+                    pushToSyncQueue(id ? 'update' : 'create', payload);
+                }
             });
         }
         
@@ -1608,6 +1676,7 @@
             const id = String(deleteTargetId);
             const targetReq = requests.find(r => String(r.id) === id);
             const targetWo = targetReq ? targetReq.wo : '';
+            const targetRowIdx = targetReq ? targetReq.rowIdx : null;
 
             // 1. Record ID in persistent local deleted IDs list
             const deletedList = getLocalDeletedIds();
@@ -1641,25 +1710,29 @@
             // 4. Close modal and re-render table
             closeDeleteModal();
             renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
-            showToast("Request Deleted successfully!", "success");
+            showToast("Deleting from Cloud Sheet...", "info");
 
             // 5. Send to server / Cloud or push to offline queue
-            const payload = { action: 'delete', id: id, workOrder: targetWo };
+            const payload = {
+                action: 'delete',
+                id: id,
+                workOrder: targetWo,
+                rowIdx: targetRowIdx
+            };
 
             if (!navigator.onLine) {
                 pushToSyncQueue('delete', payload);
+                showToast("Saved offline. Will delete from Sheet when online.", "warning");
                 return;
             }
 
-            try {
-                await fetch('/api/operation-requests', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-            } catch (err) {
-                console.warn("Delete failed, queueing offline:", err);
+            const result = await sendToCloudBackend(payload);
+            if (result.success) {
+                showToast("Deleted from Google Sheet successfully!", "success");
+            } else {
+                console.warn("Delete failed, queueing offline:", payload);
                 pushToSyncQueue('delete', payload);
+                showToast("Could not reach Sheet right now. Queued to sync.", "warning");
             }
         }
 
@@ -1712,6 +1785,7 @@
                 }
 
                 let rawData = null;
+                let cloudFetched = false;
 
                 // Attempt 1: Fast Backend Proxy (/api/operation-requests)
                 try {
@@ -1720,15 +1794,16 @@
                     const url = forceRefresh ? '/api/operation-requests?refresh=true&t=' + Date.now() : '/api/operation-requests?t=' + Date.now();
                     const res = await fetch(url, { signal: controller.signal }).then(r => r.json());
                     clearTimeout(timeoutId);
-                    if (res && res.status === "success" && Array.isArray(res.data) && res.data.length > 0) {
+                    if (res && res.status === "success" && Array.isArray(res.data)) {
                         rawData = res.data;
+                        cloudFetched = true;
                     }
                 } catch (proxyErr) {
                     console.warn("Primary /api proxy fetch failed, trying direct cloud connection:", proxyErr);
                 }
 
                 // Attempt 2: Direct Google Apps Script Endpoint if proxy failed or mobile offline proxy
-                if (!rawData) {
+                if (!cloudFetched) {
                     try {
                         const directController = new AbortController();
                         const directTimeout = setTimeout(() => directController.abort(), 7000);
@@ -1737,15 +1812,16 @@
                             signal: directController.signal
                         }).then(r => r.json());
                         clearTimeout(directTimeout);
-                        if (directRes && directRes.status === "success" && Array.isArray(directRes.data) && directRes.data.length > 0) {
+                        if (directRes && directRes.status === "success" && Array.isArray(directRes.data)) {
                             rawData = directRes.data;
+                            cloudFetched = true;
                         }
                     } catch (directErr) {
                         console.warn("Direct Cloud fetch fallback failed:", directErr);
                     }
                 }
 
-                if (rawData && Array.isArray(rawData)) {
+                if (cloudFetched && Array.isArray(rawData)) {
                     requests = rawData
                         .filter(row => {
                             const idStr = String(row['ID'] || row['id'] || '');
@@ -1756,6 +1832,7 @@
                             const baseStatus = String(row['Status'] || row['status'] || DEFAULT_STATUS);
                             return {
                                 id: idStr,
+                                rowIdx: row.rowIdx || (index + 2),
                                 wo: String(row['Work Order'] || row['Work order'] || row['work order'] || row['WORK ORDER'] || row.wo || ''),
                                 desc: String(row['Description'] || row['description'] || row.desc || ''),
                                 plant: String(row['Plant'] || row['plant'] || ''),
@@ -1786,26 +1863,11 @@
                     return;
                 }
 
-                // Fallback for brand-new device without cache
-                const defaultSample = [
-                    {
-                        id: "row_1789809912154",
-                        wo: "12345",
-                        desc: "Testing",
-                        plant: "AD-032",
-                        date: "19.09.2026",
-                        time: "07:00 - 12:00",
-                        team: "Majeed",
-                        remarks: "",
-                        status: "Requested"
-                    }
-                ];
-                requests = defaultSample;
-                localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
-                renderTable();
+                // Fallback: If no cloud connection and no cache, keep table empty without injecting phantom records
                 updateStatusIndicator('offline');
+                renderTable();
                 if (forceRefresh) {
-                    showToast("Offline mode active. Showing saved records.", "info");
+                    showToast("Offline mode active. No cached records.", "info");
                 }
             } catch (error) {
                 console.warn("Load operation data encountered issue:", error);
@@ -1879,6 +1941,7 @@
             const payload = {
                 action: 'updateStatus',
                 id: idStr,
+                rowIdx: req.rowIdx || null,
                 workOrder: req.wo,
                 status: newStatus
             };
@@ -1888,14 +1951,9 @@
                 return;
             }
 
-            try {
-                await fetch('/api/operation-requests', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-            } catch (err) {
-                console.warn("Direct post failed, queued offline:", err);
+            const result = await sendToCloudBackend(payload);
+            if (!result.success) {
+                console.warn("Status update failed to sync, queued offline:", payload);
                 pushToSyncQueue('updateStatus', payload);
             }
         }

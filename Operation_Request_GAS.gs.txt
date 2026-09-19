@@ -88,24 +88,30 @@ function handleAction(data, sheet) {
       return Number(data.rowIdx);
     }
     
-    // 2. Parsed row_X format
+    // 2. Parsed row_X format (only for small row indices like row_1, row_2)
     if (data.id && String(data.id).startsWith("row_")) {
-      var parsedIdx = parseInt(String(data.id).replace("row_", ""), 10);
-      if (!isNaN(parsedIdx) && (parsedIdx + 1) <= allData.length) {
-        return parsedIdx + 1;
+      var rawNum = String(data.id).replace("row_", "");
+      if (rawNum.length <= 4) {
+        var parsedIdx = parseInt(rawNum, 10);
+        if (!isNaN(parsedIdx) && (parsedIdx + 1) <= allData.length) {
+          return parsedIdx + 1;
+        }
       }
     }
     
-    // 3. Scan columns by ID or Work Order
+    // 3. Scan columns by ID or Work Order (trimmed & case-insensitive)
+    var targetId = data.id ? String(data.id).trim() : '';
+    var targetWo = data.workOrder ? String(data.workOrder).trim().toLowerCase() : '';
+
     for (var i = 1; i < allData.length; i++) {
       var rowIdCol9 = String(allData[i][8] || '').trim();
       var rowIdCol8 = String(allData[i][7] || '').trim();
-      var rowWo = String(allData[i][0] || '').trim();
+      var rowWo = String(allData[i][0] || '').trim().toLowerCase();
       
-      if (data.id && (rowIdCol9 === String(data.id).trim() || rowIdCol8 === String(data.id).trim() || ("row_" + i) === String(data.id).trim())) {
+      if (targetId && (rowIdCol9 === targetId || rowIdCol8 === targetId || ("row_" + i) === targetId)) {
         return i + 1;
       }
-      if (data.workOrder && rowWo === String(data.workOrder).trim()) {
+      if (targetWo && rowWo === targetWo) {
         return i + 1;
       }
     }
@@ -119,7 +125,7 @@ function handleAction(data, sheet) {
       sheet.deleteRow(targetRow);
       return jsonResponse({ status: "success", message: "Deleted successfully", deletedRow: targetRow });
     }
-    return jsonResponse({ status: "error", message: "ID not found for delete" });
+    return jsonResponse({ status: "error", message: "ID or Work Order not found for delete" });
   }
   
   // 2. UPDATE STATUS ACTION
@@ -127,9 +133,9 @@ function handleAction(data, sheet) {
     var targetRow = findRow();
     if (targetRow !== -1) {
       sheet.getRange(targetRow, 7).setValue(data.status); // Column G is Status (7)
-      return jsonResponse({ status: "success", message: "Status updated" });
+      return jsonResponse({ status: "success", message: "Status updated", updatedRow: targetRow });
     }
-    return jsonResponse({ status: "error", message: "ID not found for updateStatus" });
+    return jsonResponse({ status: "error", message: "ID or Work Order not found for updateStatus" });
   }
   
   // 3. FULL UPDATE ACTION
@@ -146,12 +152,13 @@ function handleAction(data, sheet) {
         data.status || 'Requested',
         data.remarks || ''
       ]]);
-      return jsonResponse({ status: "success", message: "Updated successfully" });
+      return jsonResponse({ status: "success", message: "Updated successfully", updatedRow: targetRow });
     }
-    return jsonResponse({ status: "error", message: "ID not found for update" });
+    return jsonResponse({ status: "error", message: "ID or Work Order not found for update" });
   }
   
   // 4. CREATE ACTION
+  var newId = data.id || ("row_" + new Date().getTime());
   sheet.appendRow([
     data.workOrder || '',
     data.description || '',
@@ -160,10 +167,10 @@ function handleAction(data, sheet) {
     data.time || '',
     data.team || '',
     data.status || 'Requested',
-    data.remarks || ''
+    data.remarks || '',
+    newId // Column I (9) for reliable identification
   ]);
   
-  var newId = data.id || ("row_" + (allData.length + 1));
   return jsonResponse({ status: "success", message: "Created successfully", id: newId });
 }
 
