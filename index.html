@@ -13,7 +13,52 @@
     <link rel="apple-touch-icon" sizes="152x152" href="icon-144.png" />
     <link rel="apple-touch-icon" sizes="120x120" href="icon-128.png" />
     <link rel="apple-touch-icon" href="https://tabreed.automation3000.com/icon-192.png" />
-    <title>TABREED - Automation App</title>
+    <title>TABREED Automation App</title>
+    <meta name="description" content="Industrial Automation, Instrumentation tools, and SAP Launchpad Dashboard.">
+    <meta property="og:title" content="TABREED Automation App">
+    <meta property="og:description" content="Industrial Automation, Instrumentation tools, and SAP Launchpad Dashboard.">
+    <script>
+        (function() {
+            // Compatibility shim for environments/extensions attempting to set window.fetch
+            try {
+                var _fetch = typeof window.fetch === 'function' ? window.fetch.bind(window) : window.fetch;
+                var defineFetchProp = function(target) {
+                    if (!target) return;
+                    try {
+                        Object.defineProperty(target, 'fetch', {
+                            get: function() { return _fetch; },
+                            set: function(val) { _fetch = val; },
+                            configurable: true,
+                            enumerable: true
+                        });
+                    } catch (_) {}
+                };
+                defineFetchProp(window);
+                if (typeof Window !== 'undefined' && Window.prototype) {
+                    defineFetchProp(Window.prototype);
+                }
+            } catch (e) {}
+
+            // Suppress uncaught extension errors attempting to overwrite getter-only window properties
+            try {
+                window.addEventListener('error', function(event) {
+                    if (
+                        (event.filename && event.filename.indexOf('chrome-extension://') !== -1) ||
+                        (event.message && (
+                            event.message.indexOf('Cannot set property fetch') !== -1 ||
+                            event.message.indexOf('fetch of #<Window>') !== -1
+                        ))
+                    ) {
+                        event.preventDefault();
+                        if (typeof event.stopImmediatePropagation === 'function') {
+                            event.stopImmediatePropagation();
+                        }
+                        return true;
+                    }
+                }, true);
+            } catch (e) {}
+        })();
+    </script>
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">

@@ -1,6 +1,45 @@
 <!DOCTYPE html>
 <html>
-<head><title>Offline</title></head>
+<head>
+  <title>Offline</title>
+  <script>
+    (function() {
+      try {
+        var _fetch = typeof window.fetch === 'function' ? window.fetch.bind(window) : window.fetch;
+        var defineFetchProp = function(target) {
+          if (!target) return;
+          try {
+            Object.defineProperty(target, 'fetch', {
+              get: function() { return _fetch; },
+              set: function(val) { _fetch = val; },
+              configurable: true,
+              enumerable: true
+            });
+          } catch (_) {}
+        };
+        defineFetchProp(window);
+        if (typeof Window !== 'undefined' && Window.prototype) {
+          defineFetchProp(Window.prototype);
+        }
+      } catch (e) {}
+      try {
+        window.addEventListener('error', function(event) {
+          if (
+            (event.filename && event.filename.indexOf('chrome-extension://') !== -1) ||
+            (event.message && (
+              event.message.indexOf('Cannot set property fetch') !== -1 ||
+              event.message.indexOf('fetch of #<Window>') !== -1
+            ))
+          ) {
+            event.preventDefault();
+            if (typeof event.stopImmediatePropagation === 'function') event.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+      } catch (e) {}
+    })();
+  </script>
+</head>
 <body style="text-align:center; padding:50px; font-family:sans-serif;">
   <h2>You are Offline 📡</h2>
   <p>Please check your internet connection and try again.</p>
