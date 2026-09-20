@@ -1,27 +1,278 @@
 /* TABREED OPERATION REQUEST - GOOGLE APPS SCRIPT BACKEND
 ==========================================================
 HOW TO INSTALL / UPDATE IN GOOGLE APPS SCRIPT:
-1. Open https://script.google.com and open your Operation Request project.
-2. Replace all code in Code.gs with this code.
-3. Click "Save" (Floppy icon).
+1. Open https://script.google.com and open your "Operation Request" project.
+2. Replace all code in Code.gs with this entire updated script.
+3. Click "Save" (Floppy icon / Ctrl+S).
 4. Click "Deploy" -> "Manage deployments".
 5. Click the Edit (Pencil) icon on the active deployment.
-6. Under "Version", select "New version".
+6. Under "Version", select "New version" (IMPORTANT: Do not skip this step!).
 7. Make sure "Who has access" is set to "Anyone".
 8. Click "Deploy".
+9. (Optional) Run the function "setupInitialSheets" once from the Script Editor
+   or run it from the new "Tabreed Automation" menu inside your Google Sheet!
 ========================================================== */
+
+function onOpen() {
+  try {
+    SpreadsheetApp.getUi()
+      .createMenu('Tabreed Automation')
+      .addItem('🧹 Clean Empty / Ghost Rows', 'cleanInvalidRows')
+      .addItem('👥 Populate Team Contacts Sheet', 'populateTeamContactsSheet')
+      .addItem('📜 Setup History Sheet', 'setupHistorySheet')
+      .addItem('🔄 Run Full System Setup', 'setupInitialSheets')
+      .addToUi();
+  } catch(e) {
+    Logger.log("onOpen UI error: " + e.toString());
+  }
+}
 
 function getSheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  return ss.getSheets()[0]; // First sheet
+  var s = ss.getSheetByName("Operation Request");
+  if (s) return s;
+  s = ss.getSheetByName("Sheet1");
+  if (s) return s;
+  return ss.getSheets()[0];
+}
+
+function getTeamContactsSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Team Contacts");
+  if (!sheet) {
+    sheet = ss.insertSheet("Team Contacts");
+  }
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Code", "Short Name", "Full Name", "Role", "Tabreed Phone", "WhatsApp", "Email", "Last Updated"]);
+    sheet.setFrozenRows(1);
+    sheet.getRange(1, 1, 1, 8).setFontWeight("bold").setBackground("#f3f4f6");
+    populateTeamContactsFromList(sheet);
+  }
+  return sheet;
+}
+
+function getHistorySheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("History");
+  if (!sheet) {
+    sheet = ss.insertSheet("History");
+  }
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["Timestamp", "Display Time", "Action", "Work Order", "Plant", "Description", "User", "Details"]);
+    sheet.setFrozenRows(1);
+    sheet.getRange(1, 1, 1, 8).setFontWeight("bold").setBackground("#f3f4f6");
+    
+    var now = new Date();
+    sheet.appendRow([
+      Utilities.formatDate(now, "GMT+4", "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+      Utilities.formatDate(now, "GMT+4", "dd.MM.yyyy HH:mm"),
+      "system",
+      "",
+      "",
+      "History tracking initialized",
+      "System",
+      "Ready to track all status changes, edits, and team updates"
+    ]);
+  }
+  return sheet;
+}
+
+function getDefaultTeamContacts() {
+  return [
+    { "code":"40311", "full":"JERLIN DELA VEGA CABRAL", "short":"Jerlin", "role":"Technician", "email":"jcabral@tabreed.ae", "phone":"+971 567438964", "whatsapp":"+971 561839559" },
+    { "code":"40334", "full":"RAJESH KUMAR SINGH", "short":"Rajesh", "role":"Technician", "email":"rksingh@tabreed.ae", "phone":"+971 561262435", "whatsapp":"+917779978054" },
+    { "code":"40414", "full":"EUGINERAJ KAMARAJ", "short":"Eugine", "role":"Technician", "email":"ekamaraj@tabreed.ae", "phone":"+971 502550870", "whatsapp":"+971 502550870" },
+    { "code":"40528", "full":"PRASANTH M PURUSHOTHAMAN", "short":"Prashant", "role":"Technician", "email":"ppurushothaman@tabreed.ae", "phone":"+971 567438784", "whatsapp":"+971 547279746" },
+    { "code":"40659", "full":"THOMAS GEEVARGHESE", "short":"Thomas", "role":"Technician", "email":"tgeevarghese@tabreed.ae", "phone":"+971 561253094", "whatsapp":"+971 558742331" },
+    { "code":"40663", "full":"AKBARSHA NALAKATH KALLINGAL", "short":"Akbar", "role":"Technician", "email":"akallingal@tabreed.ae", "phone":"+971 564001353", "whatsapp":"+971 567904345" },
+    { "code":"41380", "full":"MANIKANDAN SUBRAMANIAN", "short":"Manikandan", "role":"Technician", "email":"msubramanian@tabreed.ae", "phone":"+971 503349398", "whatsapp":"+971 561366492" },
+    { "code":"41383", "full":"JIBIN JOHN", "short":"Jibin", "role":"Technician", "email":"jpjohn@tabreed.ae", "phone":"+971 507815840", "whatsapp":"+971 507615840" },
+    { "code":"41600", "full":"PRAMOD DEJAPPA POOJARY", "short":"Pramod", "role":"Technician", "email":"pdpoojary@tabreed.ae", "phone":"+971 545492470", "whatsapp":"+971 547725275" },
+    { "code":"41764", "full":"ABDUL MAJEED ABDUL HAFEEZ ANSARI", "short":"Majeed", "role":"Technician", "email":"amansari@tabreed.ae", "phone":"+971 561254667", "whatsapp":"+971 565911432" },
+    { "code":"41806", "full":"YOOSAF MUNDODAN", "short":"Yoosaf", "role":"Technician", "email":"ymundodan@tabreed.ae", "phone":"+971 561254047", "whatsapp":"+971 504249896" },
+    { "code":"40078", "full":"BIBIN IPE ABRAHAM", "short":"Bibin", "role":"Supervisor", "email":"babraham@tabreed.ae", "phone":"+971 567438782", "whatsapp":"+971 567438782" }
+  ];
+}
+
+function populateTeamContactsFromList(sheet, customList) {
+  var list = customList || getDefaultTeamContacts();
+  var nowStr = Utilities.formatDate(new Date(), "GMT+4", "dd.MM.yyyy HH:mm");
+  for (var i = 0; i < list.length; i++) {
+    var c = list[i];
+    sheet.appendRow([
+      c.code || '',
+      c.short || '',
+      c.full || '',
+      c.role || '',
+      c.phone || '',
+      c.whatsapp || '',
+      c.email || '',
+      nowStr
+    ]);
+  }
+}
+
+function populateTeamContactsSheet() {
+  var sheet = getTeamContactsSheet();
+  sheet.clear();
+  sheet.appendRow(["Code", "Short Name", "Full Name", "Role", "Tabreed Phone", "WhatsApp", "Email", "Last Updated"]);
+  sheet.setFrozenRows(1);
+  sheet.getRange(1, 1, 1, 8).setFontWeight("bold").setBackground("#f3f4f6");
+  populateTeamContactsFromList(sheet);
+}
+
+function setupHistorySheet() {
+  var sheet = getHistorySheet();
+  if (sheet.getLastRow() <= 1) {
+    sheet.clear();
+    sheet.appendRow(["Timestamp", "Display Time", "Action", "Work Order", "Plant", "Description", "User", "Details"]);
+    sheet.setFrozenRows(1);
+    sheet.getRange(1, 1, 1, 8).setFontWeight("bold").setBackground("#f3f4f6");
+    var now = new Date();
+    sheet.appendRow([
+      Utilities.formatDate(now, "GMT+4", "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+      Utilities.formatDate(now, "GMT+4", "dd.MM.yyyy HH:mm"),
+      "system",
+      "",
+      "",
+      "History sheet initialized and connected",
+      "System",
+      "Operation Request & Team Contacts tracking active"
+    ]);
+  }
+}
+
+/* 🧹 Clean all empty or ghost rows from the Operation Request sheet & fix corrupted IDs */
+function cleanInvalidRows() {
+  var sheet = getSheet();
+  var allData = sheet.getDataRange().getValues();
+  var deletedCount = 0;
+  
+  // 1. First pass: delete ghost/empty rows backwards so row indices don't shift
+  for (var i = allData.length - 1; i >= 1; i--) {
+    var row = allData[i];
+    var wo = String(row[0] || '').trim();
+    var desc = String(row[1] || '').trim();
+    var plant = String(row[2] || '').trim();
+    
+    // If Work Order, Description, and Plant are all empty, delete this ghost row
+    if (!wo && !desc && !plant) {
+      sheet.deleteRow(i + 1);
+      deletedCount++;
+    }
+  }
+
+  // 2. Second pass: Ensure Column I header is 'ID' and repair any corrupted 'Urgent' ID values
+  sheet.getRange(1, 9).setValue("ID").setFontWeight("bold");
+  var refreshedData = sheet.getDataRange().getValues();
+  for (var j = 1; j < refreshedData.length; j++) {
+    var curRow = refreshedData[j];
+    var curId = String(curRow[8] || '').trim();
+    var curWo = String(curRow[0] || '').trim();
+    if (!curId || curId.toLowerCase() === 'urgent') {
+      var fixedId = "row_" + (j + 1) + "_" + (curWo ? curWo.replace(/[^a-zA-Z0-9]/g, '') : new Date().getTime());
+      sheet.getRange(j + 1, 9).setValue(fixedId);
+    }
+  }
+
+  return deletedCount;
+}
+
+/* 🔄 Complete initial setup: cleans ghost rows and ensures History + Team Contacts are active */
+function setupInitialSheets() {
+  var cleaned = cleanInvalidRows();
+  populateTeamContactsSheet();
+  setupHistorySheet();
+  return { status: "success", message: "Setup completed! Cleaned " + cleaned + " empty rows. Team Contacts and History sheets ready.", cleanedRows: cleaned };
+}
+
+function logToHistorySheet(action, wo, plant, desc, user, details) {
+  try {
+    var hSheet = getHistorySheet();
+    var now = new Date();
+    var timestamp = Utilities.formatDate(now, "GMT+4", "yyyy-MM-dd'T'HH:mm:ss'Z'");
+    var displayTime = Utilities.formatDate(now, "GMT+4", "dd.MM.yyyy HH:mm");
+    hSheet.appendRow([
+      timestamp,
+      displayTime,
+      action || '',
+      wo || '',
+      plant || '',
+      desc || '',
+      user || 'Technician',
+      details || ''
+    ]);
+  } catch(e) {
+    Logger.log("Failed to write to History sheet: " + e.toString());
+  }
 }
 
 function doGet(e) {
   try {
+    var paramAction = (e && e.parameter && e.parameter.action) ? String(e.parameter.action) : '';
+
+    // 1. Clean Ghost / Invalid Rows via GET
+    if (paramAction === 'cleanEmptyRows' || paramAction === 'cleanKachra') {
+      var cleaned = cleanInvalidRows();
+      return jsonResponse({ status: "success", message: "Cleaned " + cleaned + " ghost rows", cleanedCount: cleaned });
+    }
+
+    // 2. Full Setup via GET
+    if (paramAction === 'setupAll' || paramAction === 'setupInitialSheets') {
+      var res = setupInitialSheets();
+      return jsonResponse(res);
+    }
+
+    // 3. Fetch History via GET
+    if (paramAction === 'getHistory') {
+      var hSheet = getHistorySheet();
+      var hData = hSheet.getDataRange().getValues();
+      var histList = [];
+      for (var hi = 1; hi < hData.length; hi++) {
+        var hRow = hData[hi];
+        if (!hRow[0] && !hRow[2] && !hRow[5]) continue;
+        histList.unshift({
+          id: 'cloud_hist_' + hi,
+          timestamp: hRow[0] instanceof Date ? hRow[0].toISOString() : String(hRow[0]),
+          displayTime: hRow[1] instanceof Date ? Utilities.formatDate(hRow[1], "GMT+4", "dd.MM.yyyy HH:mm") : String(hRow[1]),
+          action: String(hRow[2] || 'info'),
+          workOrder: String(hRow[3] || ''),
+          plant: String(hRow[4] || ''),
+          description: String(hRow[5] || ''),
+          user: String(hRow[6] || 'Technician'),
+          details: String(hRow[7] || '')
+        });
+      }
+      return jsonResponse({ status: "success", data: histList });
+    }
+
+    // 4. Fetch Team Contacts via GET
+    if (paramAction === 'getTeamContacts') {
+      var tcSheet = getTeamContactsSheet();
+      var tcData = tcSheet.getDataRange().getValues();
+      var contactsList = [];
+      for (var ci = 1; ci < tcData.length; ci++) {
+        var row = tcData[ci];
+        var code = row[0] ? String(row[0]).trim() : '';
+        if (!code) continue;
+        contactsList.push({
+          code: code,
+          short: row[1] ? String(row[1]).trim() : '',
+          full: row[2] ? String(row[2]).trim() : '',
+          role: row[3] ? String(row[3]).trim() : '',
+          phone: row[4] ? String(row[4]).trim() : '',
+          whatsapp: row[5] ? String(row[5]).trim() : '',
+          email: row[6] ? String(row[6]).trim() : '',
+          lastUpdated: row[7] ? String(row[7]).trim() : ''
+        });
+      }
+      return jsonResponse({ status: "success", data: contactsList });
+    }
+
     const sheet = getSheet();
     
-    // Check if an action was passed via GET query parameter
-    if (e && e.parameter && e.parameter.action) {
+    // Check if another action was passed via GET query parameter
+    if (paramAction) {
       return handleAction(e.parameter, sheet);
     }
 
@@ -33,26 +284,29 @@ function doGet(e) {
     const rows = [];
     
     for (var i = 1; i < allData.length; i++) {
-      var row = allData[i];
-      var wo = row[0] ? String(row[0]).trim() : '';
-      var desc = row[1] ? String(row[1]).trim() : '';
+      var r = allData[i];
+      var wo = r[0] ? String(r[0]).trim() : '';
+      var desc = r[1] ? String(r[1]).trim() : '';
+      var plant = r[2] ? String(r[2]).trim() : '';
       
-      // Skip completely empty rows
-      if (!wo && !desc && !row[2]) continue;
+      // CRITICAL: Skip empty ghost rows so they are never returned to the app
+      if (!wo && !desc && !plant) continue;
       
-      // Ensure column I has a stable ID if empty
-      var stableId = row[8] ? String(row[8]) : (row[7] ? String(row[7]) : ("row_" + i));
+      // CRITICAL FIX: Only Column I (index 8) is the ID. NEVER use r[7] (Remarks) as an ID!
+      var stableId = (r[8] && String(r[8]).trim() && String(r[8]).trim().toLowerCase() !== 'urgent') 
+        ? String(r[8]).trim() 
+        : ("row_" + (i + 1) + "_" + (r[0] ? String(r[0]).trim() : Date.now()));
       
       rows.push({
-        "rowIdx": i + 1, // 1-based row index in spreadsheet
+        "rowIdx": i + 1,
         "Work Order": wo,
         "Description": desc,
-        "Plant": row[2] ? String(row[2]) : '',
-        "Date": row[3] ? (row[3] instanceof Date ? Utilities.formatDate(row[3], "GMT+4", "dd.MM.yyyy") : String(row[3])) : '',
-        "Time": row[4] ? String(row[4]) : '',
-        "Team": row[5] ? String(row[5]) : '',
-        "Status": row[6] ? String(row[6]) : 'Requested',
-        "Remarks": row[7] ? String(row[7]) : '',
+        "Plant": plant,
+        "Date": r[3] ? (r[3] instanceof Date ? Utilities.formatDate(r[3], "GMT+4", "dd.MM.yyyy") : String(r[3])) : '',
+        "Time": r[4] ? String(r[4]) : '',
+        "Team": r[5] ? String(r[5]) : '',
+        "Status": r[6] ? String(r[6]) : 'Requested',
+        "Remarks": r[7] ? String(r[7]) : '',
         "ID": stableId
       });
     }
@@ -79,27 +333,38 @@ function doPost(e) {
 
 function handleAction(data, sheet) {
   const action = data.action;
+  if (!action) {
+    return jsonResponse({ status: "error", message: "No action specified" });
+  }
+
+  // 0. CLEAN GHOST / EMPTY ROWS
+  if (action === 'cleanEmptyRows' || action === 'cleanKachra') {
+    var count = cleanInvalidRows();
+    return jsonResponse({ status: "success", message: "Cleaned " + count + " invalid ghost rows", count: count });
+  }
+
+  // 0B. FULL SETUP ACTION
+  if (action === 'setupAll' || action === 'setupInitialSheets') {
+    return jsonResponse(setupInitialSheets());
+  }
+
   const allData = sheet.getDataRange().getValues();
   
   // Helper to find target row in sheet (1-based index)
   function findRow() {
-    // 1. Explicit row index
-    if (data.rowIdx && Number(data.rowIdx) >= 2 && Number(data.rowIdx) <= allData.length) {
-      return Number(data.rowIdx);
-    }
-    
-    // 2. Parsed row_X format (only for small row indices like row_1, row_2)
-    if (data.id && String(data.id).startsWith("row_")) {
-      var rawNum = String(data.id).replace("row_", "");
-      if (rawNum.length <= 4) {
-        var parsedIdx = parseInt(rawNum, 10);
-        if (!isNaN(parsedIdx) && (parsedIdx + 1) <= allData.length) {
-          return parsedIdx + 1;
+    if (data.rowIdx) {
+      var rIdx = parseInt(data.rowIdx, 10);
+      if (rIdx >= 2 && rIdx <= allData.length) {
+        var rVal = allData[rIdx - 1];
+        if (data.workOrder && String(rVal[0] || '').trim().toLowerCase() === String(data.workOrder).trim().toLowerCase()) {
+          return rIdx;
+        }
+        if (data.id && (String(rVal[8] || '').trim() === String(data.id).trim() || String(rVal[7] || '').trim() === String(data.id).trim())) {
+          return rIdx;
         }
       }
     }
     
-    // 3. Scan columns by ID or Work Order (trimmed & case-insensitive)
     var targetId = data.id ? String(data.id).trim() : '';
     var targetWo = data.workOrder ? String(data.workOrder).trim().toLowerCase() : '';
 
@@ -122,7 +387,11 @@ function handleAction(data, sheet) {
   if (action === 'delete') {
     var targetRow = findRow();
     if (targetRow !== -1) {
+      var rowValues = sheet.getRange(targetRow, 1, 1, 8).getValues()[0];
+      var targetWo = rowValues[0] || data.workOrder || '';
+      var targetPlant = rowValues[2] || data.plant || '';
       sheet.deleteRow(targetRow);
+      logToHistorySheet('delete', targetWo, targetPlant, 'Deleted Work Order #' + (targetWo || targetRow), data.user || 'Supervisor', data.details || '');
       return jsonResponse({ status: "success", message: "Deleted successfully", deletedRow: targetRow });
     }
     return jsonResponse({ status: "error", message: "ID or Work Order not found for delete" });
@@ -132,7 +401,12 @@ function handleAction(data, sheet) {
   if (action === 'updateStatus') {
     var targetRow = findRow();
     if (targetRow !== -1) {
-      sheet.getRange(targetRow, 7).setValue(data.status); // Column G is Status (7)
+      var rowValues = sheet.getRange(targetRow, 1, 1, 8).getValues()[0];
+      var targetWo = rowValues[0] || data.workOrder || '';
+      var targetPlant = rowValues[2] || data.plant || '';
+      var oldStatus = rowValues[6] || '';
+      sheet.getRange(targetRow, 7).setValue(data.status);
+      logToHistorySheet('status', targetWo, targetPlant, 'Status changed from ' + oldStatus + ' to ' + data.status, data.user || 'Supervisor', data.details || '');
       return jsonResponse({ status: "success", message: "Status updated", updatedRow: targetRow });
     }
     return jsonResponse({ status: "error", message: "ID or Work Order not found for updateStatus" });
@@ -152,26 +426,116 @@ function handleAction(data, sheet) {
         data.status || 'Requested',
         data.remarks || ''
       ]]);
+      logToHistorySheet('update', data.workOrder, data.plant, data.description, data.user || 'Technician', data.details || data.remarks || '');
       return jsonResponse({ status: "success", message: "Updated successfully", updatedRow: targetRow });
     }
     return jsonResponse({ status: "error", message: "ID or Work Order not found for update" });
   }
   
-  // 4. CREATE ACTION
-  var newId = data.id || ("row_" + new Date().getTime());
-  sheet.appendRow([
-    data.workOrder || '',
-    data.description || '',
-    data.plant || '',
-    data.date || '',
-    data.time || '',
-    data.team || '',
-    data.status || 'Requested',
-    data.remarks || '',
-    newId // Column I (9) for reliable identification
-  ]);
-  
-  return jsonResponse({ status: "success", message: "Created successfully", id: newId });
+  // 4. DIRECT LOG HISTORY ACTION
+  if (action === 'logHistory') {
+    var h = data.historyItem || data;
+    logToHistorySheet(h.action, h.workOrder, h.plant, h.description, h.user, h.details);
+    return jsonResponse({ status: "success", message: "History logged to Sheet: History" });
+  }
+
+  // 5. SAVE SINGLE TEAM CONTACT
+  if (action === 'saveTeamContact') {
+    var tcSheet = getTeamContactsSheet();
+    var targetCode = String(data.code || '').trim();
+    var tcData = tcSheet.getDataRange().getValues();
+    var foundRow = -1;
+    
+    for (var ti = 1; ti < tcData.length; ti++) {
+      if (String(tcData[ti][0]).trim().toLowerCase() === targetCode.toLowerCase()) {
+        foundRow = ti + 1;
+        break;
+      }
+    }
+    
+    var nowStr = Utilities.formatDate(new Date(), "GMT+4", "dd.MM.yyyy HH:mm");
+    if (foundRow !== -1) {
+      if (data.short) tcSheet.getRange(foundRow, 2).setValue(data.short);
+      if (data.full) tcSheet.getRange(foundRow, 3).setValue(data.full);
+      if (data.role) tcSheet.getRange(foundRow, 4).setValue(data.role);
+      if (data.phone !== undefined) tcSheet.getRange(foundRow, 5).setValue(data.phone);
+      if (data.whatsapp !== undefined) tcSheet.getRange(foundRow, 6).setValue(data.whatsapp);
+      if (data.email !== undefined) tcSheet.getRange(foundRow, 7).setValue(data.email);
+      tcSheet.getRange(foundRow, 8).setValue(nowStr);
+    } else {
+      tcSheet.appendRow([
+        targetCode,
+        data.short || '',
+        data.full || '',
+        data.role || '',
+        data.phone || '',
+        data.whatsapp || '',
+        data.email || '',
+        nowStr
+      ]);
+    }
+    
+    logToHistorySheet('contact_update', '', '', 'Updated Team Contact #' + targetCode + ' (' + (data.short || data.full || '') + ')', data.user || 'User', 'Phone: ' + (data.phone || 'N/A') + ', WA: ' + (data.whatsapp || 'N/A') + ', Email: ' + (data.email || 'N/A'));
+    return jsonResponse({ status: "success", message: "Team Contact saved to Google Sheet", code: targetCode });
+  }
+
+  // 6. BULK SYNC TEAM CONTACTS (Initial Population or Full Sync)
+  if (action === 'bulkSaveTeamContacts' || action === 'syncAllTeamContacts') {
+    var tcSheet = getTeamContactsSheet();
+    var list = data.contacts || getDefaultTeamContacts();
+    var nowStr = Utilities.formatDate(new Date(), "GMT+4", "dd.MM.yyyy HH:mm");
+    
+    tcSheet.clear();
+    tcSheet.appendRow(["Code", "Short Name", "Full Name", "Role", "Tabreed Phone", "WhatsApp", "Email", "Last Updated"]);
+    tcSheet.setFrozenRows(1);
+    tcSheet.getRange(1, 1, 1, 8).setFontWeight("bold").setBackground("#f3f4f6");
+    
+    for (var bi = 0; bi < list.length; bi++) {
+      var c = list[bi];
+      tcSheet.appendRow([
+        c.code || '',
+        c.short || '',
+        c.full || '',
+        c.role || '',
+        c.phone || '',
+        c.whatsapp || '',
+        c.email || '',
+        nowStr
+      ]);
+    }
+    return jsonResponse({ status: "success", message: "All " + list.length + " team contacts synced to sheet" });
+  }
+
+  // 7. CREATE ACTION (STRICT VALIDATION)
+  if (action === 'create') {
+    var woVal = String(data.workOrder || '').trim();
+    var descVal = String(data.description || '').trim();
+    var plantVal = String(data.plant || '').trim();
+
+    // STRICT CHECK: Never append empty rows!
+    if (!woVal && !descVal && !plantVal) {
+      return jsonResponse({ status: "error", message: "Cannot create empty request: Work Order, Description or Plant required" });
+    }
+
+    var newId = data.id || ("row_" + new Date().getTime());
+    sheet.appendRow([
+      woVal,
+      descVal,
+      plantVal,
+      data.date || '',
+      data.time || '',
+      data.team || '',
+      data.status || 'Requested',
+      data.remarks || '',
+      newId
+    ]);
+    logToHistorySheet('create', woVal, plantVal, descVal, data.user || 'Technician', data.remarks || '');
+    
+    return jsonResponse({ status: "success", message: "Created successfully", id: newId });
+  }
+
+  // SAFE FALLBACK: If action is unrecognized, reject with error — NEVER append garbage!
+  return jsonResponse({ status: "error", message: "Unknown action: " + action });
 }
 
 function jsonResponse(obj) {

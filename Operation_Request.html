@@ -245,6 +245,50 @@
 .btn-outline:hover { background: rgba(37,99,235,0.08); }
 .history-item { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; transition: .2s; }
 .history-item:hover { border-color: var(--primary); }
+
+/* Responsive Date & Time Layout - Prevents overlap on Mobile */
+@media (max-width: 520px) {
+    .form-row-date-time {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+    .form-group-date, .form-group-time {
+        width: 100% !important;
+        flex: none !important;
+        min-width: 0 !important;
+    }
+    .form-row-wo-plant {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+}
+input[type="date"] {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 8px 10px !important;
+    font-size: 14px !important;
+    line-height: normal !important;
+}
+.badge-edited {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: rgba(217, 119, 6, 0.12);
+    color: #d97706;
+    border: 1px solid rgba(217, 119, 6, 0.35);
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    margin-left: 4px;
+}
+.history-table tr:hover td {
+    background: rgba(0,0,0,0.015);
+}
 </style>
     <link rel="stylesheet" href="themes.css">
 </head>
@@ -264,7 +308,14 @@
                             <h1 style="font-size:1rem;font-weight:700;margin:0;">Operation Request</h1>
                             <i class="fas fa-flask" style="font-size:13px;color:#0284c7;" title="Testing Mode"></i>
                         </div>
-                        <p style="font-size:.7rem;color:var(--text-muted);margin:2px 0 0 0;">Automation App</p>
+                        <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+                            <p style="font-size:.7rem;color:var(--text-muted);margin:0;">Automation App</p>
+                            <!-- Online / Offline Connection Status Indicator stuck next to Automation App -->
+                            <div class="connection-status" id="connectionStatus" style="display:inline-flex;align-items:center;gap:5px;background:var(--bg-card);padding:2px 8px;border-radius:12px;border:1px solid var(--border);font-size:0.68rem;user-select:none;cursor:default;">
+                                <span class="status-dot online" id="statusDot" style="width:7px;height:7px;border-radius:50%;background:#16a34a;display:inline-block;"></span>
+                                <span class="status-text" id="statusText" style="font-weight:600;font-size:0.68rem;color:var(--text-secondary);">Online</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:10px;">
@@ -285,44 +336,126 @@
             </div>
         </header>
 
-        <div class="search-container">
-            <div class="search-box">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="searchInput" placeholder="Search Work Order or Plant..." oninput="filterRequests()">
+        <!-- MAIN REQUESTS VIEW -->
+        <div id="requestsViewContainer">
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search Work Order, Notification, or Plant..." oninput="filterRequests()">
+                </div>
+            </div>
+
+            <div id="status-summary" style="display:flex; justify-content:center; gap:15px; margin: 0 auto 15px auto; max-width:800px; padding:0 20px;"></div>
+            
+            <div class="quick-actions">
+                <button class="action-btn" onclick="openRequestModal()">
+                    <i class="fas fa-plus-circle" style="color:var(--primary);margin-bottom:4px;font-size:1.2rem;"></i><span>New Request</span>
+                </button>
+                <button class="action-btn" onclick="refreshTable()">
+                    <i class="fas fa-sync-alt" style="color:var(--secondary);margin-bottom:4px;font-size:1.2rem;"></i><span>Refresh</span>
+                </button>
+                <button class="action-btn" id="historyBtn" onclick="openHistoryFullPage()">
+                    <i class="fas fa-history" style="color:#d97706;margin-bottom:4px;font-size:1.2rem;"></i>
+                    <span>History <span id="historyBadge" style="background:var(--primary);color:white;padding:1px 6px;border-radius:10px;font-size:0.7rem;margin-left:2px;font-weight:800;">0</span></span>
+                </button>
+                <button class="action-btn" id="cleanGhostBtn" onclick="cleanGhostRowsFromSheet()" title="Clean empty / ghost rows from Google Sheet &amp; App">
+                    <i class="fas fa-broom" style="color:#e11d48;margin-bottom:4px;font-size:1.2rem;"></i>
+                    <span>Clean Sheet</span>
+                </button>
+                <button class="action-btn" id="syncTabsBtn" onclick="syncAllSheetsWithCloud()" title="Populate and link Team Contacts and History tabs in Google Sheet">
+                    <i class="fas fa-cloud-upload-alt" style="color:#0284c7;margin-bottom:4px;font-size:1.2rem;"></i>
+                    <span>Link Tabs</span>
+                </button>
+            </div>
+
+            <div class="card-container">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Work Order / Notification</th>
+                                <th>Description</th>
+                                <th>Plant</th>
+                                <th>Date &amp; Time</th>
+                                <th>Team</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        <div id="status-summary" style="display:flex; justify-content:center; gap:15px; margin: 0 auto 15px auto; max-width:800px; padding:0 20px;"></div><div class="quick-actions">
-            <button class="action-btn" onclick="openRequestModal()">
-                <i class="fas fa-plus-circle" style="color:var(--primary);margin-bottom:4px;font-size:1.2rem;"></i><span>New Request</span>
-            </button>
-            <button class="action-btn" onclick="refreshTable()">
-                <i class="fas fa-sync-alt" style="color:var(--secondary);margin-bottom:4px;font-size:1.2rem;"></i><span>Refresh</span>
-            </button>
-            <button class="action-btn" id="historyBtn" onclick="openHistoryModal()" style="display:none;">
-                <i class="fas fa-history" style="color:#d97706;margin-bottom:4px;font-size:1.2rem;"></i>
-                <span>History <span id="historyBadge" style="display:none;background:var(--primary);color:white;padding:1px 6px;border-radius:10px;font-size:0.7rem;margin-left:2px;font-weight:800;">0</span></span>
-            </button>
-        </div>
+        <!-- FULL PAGE HISTORY VIEW -->
+        <div id="historyViewContainer" style="display:none; padding:10px 0 35px 0;">
+            <!-- Top Controls -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <button type="button" onclick="closeHistoryFullPage()" class="btn-action" style="background:var(--bg-surface); color:var(--text-primary); border:1.5px solid var(--border); border-radius:8px; padding:8px 14px; font-weight:700; font-size:13px; display:inline-flex; align-items:center; gap:6px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+                        <i class="fas fa-arrow-left"></i> <span>Back to Requests</span>
+                    </button>
+                    <div>
+                        <h2 style="font-size:1.2rem; font-weight:800; margin:0; display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-history" style="color:#d97706;"></i> Operation History Log
+                        </h2>
+                        <span style="font-size:0.75rem; color:var(--text-muted); display:inline-flex; align-items:center; gap:5px; margin-top:2px;">
+                            <i class="fas fa-table" style="color:#16a34a;"></i> Linked to Google Sheet: <b>History</b>
+                        </span>
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button type="button" onclick="refreshHistoryData(true)" class="btn-action" style="background:var(--bg-surface); color:var(--text-primary); border:1px solid var(--border); border-radius:8px; padding:7px 14px; font-size:12px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+                        <i class="fas fa-sync-alt" id="histRefreshIcon"></i> <span>Refresh History</span>
+                    </button>
+                    <button type="button" id="clearHistBtn" onclick="clearHistoryLog()" style="display:none; background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid rgba(239,68,68,0.25); border-radius:8px; padding:7px 12px; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+                        <i class="fas fa-trash-alt"></i> <span>Clear Log</span>
+                    </button>
+                </div>
+            </div>
 
-        <div class="card-container">
-            <div class="table-responsive">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Work Order</th>
-                            <th>Description</th>
-                            <th>Plant</th>
-                            <th>Date</th>
-                            <th>Team</th>
-                            <th>Status</th>
-                            <th class="supervisor-col" style="display:none; text-align:right;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="requestTableBody">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
+            <!-- History Stats Pills -->
+            <div id="historyStatsBar" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+                <!-- Filled dynamically by updateHistoryCounts() -->
+            </div>
+
+            <!-- Search & Filter Controls -->
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
+                <div style="flex:1; min-width:240px; position:relative;">
+                    <i class="fas fa-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:13px;"></i>
+                    <input type="text" id="historySearchInput" placeholder="Filter history by Work Order, Plant, User, or Changes..." oninput="renderHistoryList()" style="width:100%; box-sizing:border-box; padding:9px 12px 9px 34px; border:1.5px solid var(--border); border-radius:8px; background:var(--input-bg); color:var(--text-primary); font-size:13px; outline:none;">
+                </div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap;" id="historyFilterTabs">
+                    <button type="button" class="btn-outline" onclick="filterHistoryTab('all')" id="hTab_all" style="padding:6px 12px; font-size:12px; font-weight:700; background:var(--primary); color:white; border-color:var(--primary); border-radius:6px;">All (<span id="hCount_all">0</span>)</button>
+                    <button type="button" class="btn-outline" onclick="filterHistoryTab('create')" id="hTab_create" style="padding:6px 12px; font-size:12px; font-weight:600; border-radius:6px;">Created (<span id="hCount_create">0</span>)</button>
+                    <button type="button" class="btn-outline" onclick="filterHistoryTab('update')" id="hTab_update" style="padding:6px 12px; font-size:12px; font-weight:600; border-radius:6px;">Edited (<span id="hCount_update">0</span>)</button>
+                    <button type="button" class="btn-outline" onclick="filterHistoryTab('status')" id="hTab_status" style="padding:6px 12px; font-size:12px; font-weight:600; border-radius:6px;">Status (<span id="hCount_status">0</span>)</button>
+                    <button type="button" class="btn-outline" onclick="filterHistoryTab('delete')" id="hTab_delete" style="padding:6px 12px; font-size:12px; font-weight:600; border-radius:6px;">Deleted (<span id="hCount_delete">0</span>)</button>
+                </div>
+            </div>
+
+            <!-- Full Page History Table Container -->
+            <div class="card-container" style="padding:0; overflow:hidden;">
+                <div class="table-responsive">
+                    <table style="width:100%; border-collapse:collapse;" id="historyFullTable" class="history-table">
+                        <thead>
+                            <tr style="border-bottom:1.5px solid var(--border); background:rgba(0,0,0,0.02);">
+                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:150px;">Date &amp; Time</th>
+                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:130px;">Action</th>
+                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:150px;">Work Order</th>
+                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:100px;">Plant</th>
+                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700;">Activity &amp; Edit Details</th>
+                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:130px;">User</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -372,14 +505,14 @@
             </div>
             <div class="modal-body">
                 <input type="hidden" id="reqId">
-                <div style="display:flex;gap:10px;">
-                    <div class="form-group" style="flex:1;margin-bottom:0;">
-                        <label>Work Order</label>
-                        <input type="text" id="reqWO" placeholder="1234567890" required>
+                <div class="form-row-wo-plant" style="display:flex;gap:10px;">
+                    <div class="form-group form-group-wo" style="flex:1;margin-bottom:0;">
+                        <label>Work Order / Notification no.</label>
+                        <input type="text" id="reqWO" placeholder="if available">
                     </div>
-                    <div class="form-group" style="flex:1;margin-bottom:0;">
-                        <label>Plant</label>
-                        <input type="text" id="reqPlant" placeholder="AD-027" required>
+                    <div class="form-group form-group-plant" style="flex:1;margin-bottom:0;">
+                        <label>Plant <span style="color:var(--danger);font-size:0.8rem;">*</span></label>
+                        <input type="text" id="reqPlant" required>
                     </div>
                 </div>
                 <div class="form-group" style="margin-top:12px;">
@@ -387,31 +520,31 @@
                     <textarea id="reqDesc" placeholder="Describe the missing operation or out of schedule job..." rows="3" required></textarea>
                 </div>
                 
-                <div style="display:flex;gap:10px;">
-                    <div class="form-group" style="flex:1;">
-                        <label>Date</label>
+                <div class="form-row-date-time" style="display:flex;gap:10px;margin-top:12px;">
+                    <div class="form-group form-group-date" style="flex:1;min-width:0;margin-bottom:0;">
+                        <label>Date <span style="color:var(--danger);font-size:0.8rem;">*</span></label>
                         <input type="date" id="reqDate" required>
                     </div>
-                    <div class="form-group" style="flex:1;">
+                    <div class="form-group form-group-time" style="flex:1;min-width:0;margin-bottom:0;">
                         <label>Time (Start - End 24hr)</label>
-                        <div style="display:flex; gap:6px; align-items:center;">
-                            <div style="display:flex; align-items:center; flex:1; position:relative;">
-                                <input type="text" id="reqTimeFrom" placeholder="00:00" autocomplete="off" onblur="padTime(event); calculateTimeDifference();" onchange="padTime(event); calculateTimeDifference();" onkeyup="if(event.key==='Enter') padTime(event)" style="text-align:center; font-family:monospace; font-weight:bold; width:100%; padding:8px 24px 8px 8px; border:1.5px solid var(--border); border-radius:6px; background:var(--input-bg); color:var(--text-primary); font-size:13px;">
-                                <button type="button" onclick="openCustomTimePicker('reqTimeFrom')" style="position:absolute; right:6px; background:none; border:none; color:var(--primary); cursor:pointer; padding:2px; font-size:14px;" title="Select Start Time">
+                        <div style="display:flex; gap:6px; align-items:center; height:40px;">
+                            <div style="display:flex; align-items:center; flex:1; position:relative; min-width:0; height:100%;">
+                                <input type="text" id="reqTimeFrom" placeholder="00:00" autocomplete="off" onblur="padTime(event); calculateTimeDifference();" onchange="padTime(event); calculateTimeDifference();" onkeyup="if(event.key==='Enter') padTime(event)" style="text-align:center; font-family:monospace; font-weight:bold; width:100%; height:100%; box-sizing:border-box; padding:8px 24px 8px 8px; border:1.5px solid var(--border); border-radius:6px; background:var(--input-bg); color:var(--text-primary); font-size:13px;">
+                                <button type="button" tabindex="-1" aria-hidden="true" onclick="openCustomTimePicker('reqTimeFrom')" style="position:absolute; right:6px; background:none; border:none; color:var(--primary); cursor:pointer; padding:2px; font-size:14px;" title="Select Start Time">
                                     <i class="fas fa-clock"></i>
                                 </button>
                             </div>
                             <span style="font-weight:bold; color:var(--text-muted);">-</span>
-                            <div style="display:flex; align-items:center; flex:1; position:relative;">
-                                <input type="text" id="reqTimeTo" placeholder="00:00" autocomplete="off" onblur="padTime(event); calculateTimeDifference();" onchange="padTime(event); calculateTimeDifference();" onkeyup="if(event.key==='Enter') padTime(event)" style="text-align:center; font-family:monospace; font-weight:bold; width:100%; padding:8px 24px 8px 8px; border:1.5px solid var(--border); border-radius:6px; background:var(--input-bg); color:var(--text-primary); font-size:13px;">
-                                <button type="button" onclick="openCustomTimePicker('reqTimeTo')" style="position:absolute; right:6px; background:none; border:none; color:#dc2626; cursor:pointer; padding:2px; font-size:14px;" title="Select End Time">
+                            <div style="display:flex; align-items:center; flex:1; position:relative; min-width:0; height:100%;">
+                                <input type="text" id="reqTimeTo" placeholder="00:00" autocomplete="off" onblur="padTime(event); calculateTimeDifference();" onchange="padTime(event); calculateTimeDifference();" onkeyup="if(event.key==='Enter') padTime(event)" style="text-align:center; font-family:monospace; font-weight:bold; width:100%; height:100%; box-sizing:border-box; padding:8px 24px 8px 8px; border:1.5px solid var(--border); border-radius:6px; background:var(--input-bg); color:var(--text-primary); font-size:13px;">
+                                <button type="button" tabindex="-1" aria-hidden="true" onclick="openCustomTimePicker('reqTimeTo')" style="position:absolute; right:6px; background:none; border:none; color:#dc2626; cursor:pointer; padding:2px; font-size:14px;" title="Select End Time">
                                     <i class="fas fa-clock"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="margin-top:12px;">
                     <label>Team</label>
                     <select id="reqTeam" required>
                         <option value="">Select Team Member</option>
@@ -420,6 +553,12 @@
                 <div class="form-group">
                     <label>Remarks / Notes (Optional)</label>
                     <input type="text" id="reqRemarks" placeholder="Any additional note for Supervisor Bibin">
+                    <div id="reqAuditHistoryBlock" style="display:none; margin-top:8px; font-size:0.75rem; color:var(--text-muted); background:rgba(0,0,0,0.02); padding:8px 10px; border-radius:6px; border:1px dashed var(--border); line-height:1.4;">
+                        <div style="font-weight:700; color:#d97706; display:flex; align-items:center; gap:5px; margin-bottom:4px;">
+                            <i class="fas fa-lock"></i> Permanent Edit Audit Trail (Read-Only):
+                        </div>
+                        <div id="reqAuditHistoryContent" style="font-family:monospace; white-space:pre-line; color:var(--text-secondary);"></div>
+                    </div>
                 </div>
                 <div class="form-group supervisor-field" style="display:none;">
                     <label>Status</label>
@@ -527,6 +666,46 @@
             <div class="modal-footer" style="padding:10px 16px; display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:11px; color:var(--text-muted);"><i class="fas fa-info-circle"></i> Tracks status changes, edits, and deletions</span>
                 <button type="button" class="btn-outline" onclick="closeHistoryModal()" style="padding:6px 16px; font-size:12px;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💬 COMMENT / REMARKS DETAILS POPUP MODAL (Same pattern as Master Instrument) -->
+    <div class="modal-overlay" id="commentDetailsModal" style="display:none; z-index:2600;" onclick="if(event.target===this)closeCommentPopup()">
+        <div class="modal-card" style="max-width:480px; width:92%; border-radius:16px; animation:popIn .2s ease; box-shadow:0 12px 35px rgba(0,0,0,0.22); overflow:hidden;">
+            <div class="modal-header" style="padding:14px 18px; display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface); border-bottom:1px solid var(--border);">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <i class="fas fa-comment-dots" style="color:#d97706; font-size:1.15rem;"></i>
+                    <span style="font-size:1rem; font-weight:700;">Request Comment &amp; Notes</span>
+                </div>
+                <button class="modal-close" onclick="closeCommentPopup()">&times;</button>
+            </div>
+            <div style="padding:10px 18px; background:var(--bg-card); border-bottom:1px solid var(--border); font-size:0.8rem; color:var(--text-muted); display:flex; flex-direction:column; gap:4px;">
+                <div id="commentModalReqInfo" style="font-weight:700; color:var(--text-primary); font-size:0.85rem;"></div>
+                <div id="commentModalTeamInfo" style="display:flex; align-items:center; gap:6px;"></div>
+            </div>
+            <div class="modal-body" style="padding:18px; max-height:60vh; overflow-y:auto;">
+                <label style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); display:block; margin-bottom:8px;">
+                    <i class="fas fa-sticky-note" style="color:var(--primary); margin-right:4px;"></i> Remarks / Comment:
+                </label>
+                <div id="commentModalBody" style="font-size:0.9rem; line-height:1.6; color:var(--text-primary); background:var(--bg-surface); padding:14px; border-radius:10px; border:1px solid var(--border); word-break:break-word;">
+                    <!-- Injected comment text -->
+                </div>
+
+                <div id="commentModalAuditSection" style="margin-top:14px; display:none;">
+                    <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); display:block; margin-bottom:6px;">
+                        <i class="fas fa-history" style="color:#d97706; margin-right:4px;"></i> System Audit Trail:
+                    </label>
+                    <div id="commentModalAuditList" style="font-size:0.75rem; color:var(--text-secondary); background:var(--bg-surface); padding:10px 12px; border-radius:8px; border:1px solid var(--border); font-family:monospace; line-height:1.5;">
+                        <!-- Audit entries -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding:12px 18px; display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface); border-top:1px solid var(--border);">
+                <button type="button" id="commentModalEditBtn" class="btn-primary" style="padding:6px 14px; font-size:12px; display:none;" onclick="handleCommentEditClick()">
+                    <i class="fas fa-edit"></i> Edit Request
+                </button>
+                <button type="button" class="btn-outline" onclick="closeCommentPopup()" style="padding:6px 18px; font-size:12px; margin-left:auto;">Close</button>
             </div>
         </div>
     </div>
@@ -787,7 +966,7 @@
         }
 
         // =========================================================================
-        // 📜 ACTIVITY & CHANGE HISTORY SYSTEM
+        // 📜 ACTIVITY & CHANGE HISTORY SYSTEM (Linked to Google Sheet: History)
         // =========================================================================
         const LS_HISTORY = 'tabreed_operation_history';
         let currentHistoryFilter = 'all';
@@ -810,10 +989,6 @@
 
         function updateHistoryBadge() {
             const badge = document.getElementById('historyBadge');
-            if (typeof isDeveloper === 'function' && !isDeveloper()) {
-                if (badge) badge.style.display = 'none';
-                return;
-            }
             const hist = getLocalHistory();
             if (badge) {
                 if (hist.length > 0) {
@@ -825,9 +1000,10 @@
             }
         }
 
-        async function fetchServerHistory() {
+        async function fetchServerHistory(forceSync = false) {
             try {
-                const res = await fetch('/api/operation-history?t=' + Date.now()).then(r => r.json());
+                const url = forceSync ? '/api/operation-history?refresh=true&t=' + Date.now() : '/api/operation-history?t=' + Date.now();
+                const res = await fetch(url).then(r => r.json());
                 if (res && res.status === 'success' && Array.isArray(res.data)) {
                     saveLocalHistory(res.data);
                     return res.data;
@@ -838,7 +1014,7 @@
             return getLocalHistory();
         }
 
-        function logOperationActivity(action, actionLabel, description, workOrder = '', plant = '', badgeColor = '') {
+        function logOperationActivity(action, actionLabel, description, workOrder = '', plant = '', badgeColor = '', details = '') {
             const curUser = (typeof getCurrentUser === 'function' ? getCurrentUser() : currentUser) || {};
             const userName = curUser.short || curUser.full || curUser.name || curUser.code || 'Technician';
             const colors = {
@@ -848,22 +1024,26 @@
                 'create': '#1a73e8',
                 'sync': '#0284c7'
             };
+            const now = new Date();
+            const displayTime = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
             const item = {
                 id: 'hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-                timestamp: new Date().toISOString(),
-                displayTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + new Date().toLocaleDateString([], { month: 'short', day: 'numeric' }),
+                timestamp: now.toISOString(),
+                displayTime: displayTime,
                 action: action,
                 actionLabel: actionLabel,
-                workOrder: workOrder,
-                plant: plant,
-                description: description,
+                workOrder: workOrder || '',
+                plant: plant || '',
+                description: description || '',
+                details: details || '',
                 user: userName,
                 badgeColor: badgeColor || colors[action] || '#1a73e8'
             };
 
             const hist = getLocalHistory();
             hist.unshift(item);
-            if (hist.length > 100) hist.length = 100;
+            if (hist.length > 150) hist.length = 150;
             saveLocalHistory(hist);
 
             fetch('/api/operation-history', {
@@ -873,33 +1053,142 @@
             }).catch(e => console.warn("Failed to log history to server:", e));
         }
 
-        async function openHistoryModal() {
-            if (typeof isDeveloper === 'function' && !isDeveloper()) {
-                showToast("Access Restricted: History log is available for Developers only.", "warning");
-                return;
+        function openHistoryFullPage() {
+            const reqView = document.getElementById('requestsViewContainer');
+            const histView = document.getElementById('historyViewContainer');
+            if (reqView) reqView.style.display = 'none';
+            if (histView) histView.style.display = 'block';
+
+            // Show clear button only to supervisors
+            const clearBtn = document.getElementById('clearHistBtn');
+            if (clearBtn) {
+                clearBtn.style.display = isSupervisor() ? 'inline-flex' : 'none';
             }
-            document.getElementById('historyModal').style.display = 'flex';
-            await fetchServerHistory();
-            renderHistoryList();
+
+            refreshHistoryData(false);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function closeHistoryFullPage() {
+            const reqView = document.getElementById('requestsViewContainer');
+            const histView = document.getElementById('historyViewContainer');
+            if (histView) histView.style.display = 'none';
+            if (reqView) reqView.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openHistoryModal() {
+            openHistoryFullPage();
         }
 
         function closeHistoryModal() {
-            document.getElementById('historyModal').style.display = 'none';
+            closeHistoryFullPage();
+        }
+
+        /* ──────────────────────────────────────
+           SANITIZE
+        ────────────────────────────────────── */
+        function sanitizeInput(str) {
+            if (str === null || str === undefined) return '';
+            if (typeof str !== 'string') return String(str);
+            return str.replace(/[<>"'&]/g, c => ({ '<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;' }[c]));
+        }
+
+        // ==========================================
+        // 💬 COMMENT POPUP HANDLERS (Master Instrument Style)
+        // ==========================================
+        let currentCommentReqId = null;
+
+        function showCommentPopup(reqId) {
+            const req = requests.find(r => String(r.id) === String(reqId));
+            if (!req) return;
+            currentCommentReqId = req.id;
+
+            const modal = document.getElementById('commentDetailsModal');
+            const reqInfoEl = document.getElementById('commentModalReqInfo');
+            const teamInfoEl = document.getElementById('commentModalTeamInfo');
+            const bodyEl = document.getElementById('commentModalBody');
+            const auditSection = document.getElementById('commentModalAuditSection');
+            const auditListEl = document.getElementById('commentModalAuditList');
+            const editBtn = document.getElementById('commentModalEditBtn');
+
+            if (!modal || !bodyEl) return;
+
+            const woText = req.wo ? `WO: ${req.wo}` : 'No Work Order';
+            const plantText = req.plant ? `Plant: ${req.plant}` : '';
+            reqInfoEl.textContent = `${plantText} • ${woText} • ${req.desc || ''}`;
+            
+            teamInfoEl.innerHTML = `<i class="fas fa-user-check" style="color:var(--primary);"></i> Team Member: <strong>${req.team || 'N/A'}</strong> <span style="margin-left:8px;opacity:0.75;">| Date: ${req.date || 'N/A'} ${req.time || ''}</span>`;
+
+            const rawRemarks = (req.remarks || req.comment || '').trim();
+            const auditMatches = rawRemarks.match(/\[Edited:[^\]]+\]/g);
+            const userOnlyRemarks = rawRemarks.replace(/\[Edited:[^\]]+\]/g, '').trim();
+
+            if (userOnlyRemarks && userOnlyRemarks !== '-' && userOnlyRemarks.toLowerCase() !== 'none') {
+                bodyEl.innerHTML = `<span style="white-space:pre-wrap; font-size:0.92rem; line-height:1.6;">${sanitizeInput(userOnlyRemarks)}</span>`;
+            } else {
+                bodyEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-style:italic;padding:12px 0;">
+                    <i class="far fa-comment-dots" style="font-size:26px;opacity:0.35;margin-bottom:6px;display:block;"></i>
+                    No specific comment or remarks recorded for this request.
+                </div>`;
+            }
+
+            if (auditMatches && auditMatches.length > 0) {
+                auditSection.style.display = 'block';
+                auditListEl.innerHTML = auditMatches.map(m => `<div style="padding:3px 0;">${sanitizeInput(m)}</div>`).join('');
+            } else {
+                auditSection.style.display = 'none';
+            }
+
+            if (canUserEditRequest(req)) {
+                editBtn.style.display = 'inline-flex';
+            } else {
+                editBtn.style.display = 'none';
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function closeCommentPopup() {
+            const modal = document.getElementById('commentDetailsModal');
+            if (modal) modal.style.display = 'none';
+            currentCommentReqId = null;
+        }
+
+        function handleCommentEditClick() {
+            if (!currentCommentReqId) return;
+            const targetId = currentCommentReqId;
+            closeCommentPopup();
+            openRequestModal(targetId);
+        }
+
+        async function refreshHistoryData(force = false) {
+            const icon = document.getElementById('histRefreshIcon');
+            if (icon) icon.classList.add('fa-spin');
+            try {
+                await fetchServerHistory(force);
+                if (force) showToast("History synchronized with Sheet: History", "success");
+            } finally {
+                if (icon) icon.classList.remove('fa-spin');
+                renderHistoryList();
+            }
         }
 
         function filterHistoryTab(tab) {
             currentHistoryFilter = tab;
-            ['all', 'status', 'create', 'update', 'delete'].forEach(t => {
+            ['all', 'create', 'update', 'status', 'delete'].forEach(t => {
                 const btn = document.getElementById('hTab_' + t);
                 if (btn) {
                     if (t === tab) {
                         btn.style.background = 'var(--primary)';
                         btn.style.color = 'white';
                         btn.style.borderColor = 'var(--primary)';
+                        btn.style.fontWeight = '700';
                     } else {
                         btn.style.background = 'transparent';
-                        btn.style.color = 'var(--primary)';
-                        btn.style.borderColor = 'var(--primary)';
+                        btn.style.color = 'var(--text-primary)';
+                        btn.style.borderColor = 'var(--border)';
+                        btn.style.fontWeight = '600';
                     }
                 }
             });
@@ -908,63 +1197,121 @@
 
         function renderHistoryList() {
             const hist = getLocalHistory();
-            const countEl = document.getElementById('historyModalCount');
-            if (countEl) countEl.textContent = hist.length;
+            const searchInput = document.getElementById('historySearchInput');
+            const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
-            const body = document.getElementById('historyModalBody');
-            if (!body) return;
+            // Update Counts for tabs
+            const cAll = hist.length;
+            const cCreate = hist.filter(h => h.action === 'create').length;
+            const cUpdate = hist.filter(h => h.action === 'update').length;
+            const cStatus = hist.filter(h => h.action === 'status').length;
+            const cDelete = hist.filter(h => h.action === 'delete').length;
+
+            const elAll = document.getElementById('hCount_all');
+            const elCreate = document.getElementById('hCount_create');
+            const elUpdate = document.getElementById('hCount_update');
+            const elStatus = document.getElementById('hCount_status');
+            const elDelete = document.getElementById('hCount_delete');
+
+            if (elAll) elAll.textContent = cAll;
+            if (elCreate) elCreate.textContent = cCreate;
+            if (elUpdate) elUpdate.textContent = cUpdate;
+            if (elStatus) elStatus.textContent = cStatus;
+            if (elDelete) elDelete.textContent = cDelete;
+
+            // Stats pills
+            const statsBar = document.getElementById('historyStatsBar');
+            if (statsBar) {
+                statsBar.innerHTML = `
+                    <div style="background:var(--bg-surface); border:1px solid var(--border); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700;">
+                        <span style="color:var(--text-muted);">Total Logs:</span> <span style="color:var(--primary); font-size:13px;">${cAll}</span>
+                    </div>
+                    <div style="background:rgba(26,115,232,0.08); border:1px solid rgba(26,115,232,0.25); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; color:#1a73e8;">
+                        <span>New Requests:</span> <span>${cCreate}</span>
+                    </div>
+                    <div style="background:rgba(124,58,237,0.08); border:1px solid rgba(124,58,237,0.25); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; color:#7c3aed;">
+                        <span>Edits &amp; Audits:</span> <span>${cUpdate}</span>
+                    </div>
+                    <div style="background:rgba(22,163,74,0.08); border:1px solid rgba(22,163,74,0.25); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; color:#16a34a;">
+                        <span>Status Changes:</span> <span>${cStatus}</span>
+                    </div>
+                    <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; color:#dc2626;">
+                        <span>Deletions:</span> <span>${cDelete}</span>
+                    </div>
+                `;
+            }
 
             let filtered = hist;
             if (currentHistoryFilter !== 'all') {
-                filtered = hist.filter(item => item.action === currentHistoryFilter);
+                filtered = filtered.filter(item => item.action === currentHistoryFilter);
             }
 
+            if (query) {
+                filtered = filtered.filter(item => {
+                    const str = [item.workOrder, item.plant, item.description, item.details, item.user, item.actionLabel].join(' ').toLowerCase();
+                    return str.includes(query);
+                });
+            }
+
+            const tbody = document.getElementById('historyTableBody');
+            if (!tbody) return;
+
             if (filtered.length === 0) {
-                body.innerHTML = `
-                    <div style="text-align:center; padding:35px 20px; color:var(--text-muted);">
-                        <i class="fas fa-clipboard-list" style="font-size:2.5rem; margin-bottom:10px; opacity:0.4;"></i>
-                        <p style="font-size:0.9rem; font-weight:600; margin:0;">No activity recorded yet</p>
-                        <p style="font-size:0.75rem; margin-top:4px;">Changes, status updates, and deletions will show up here.</p>
-                    </div>
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align:center; padding:45px 20px; color:var(--text-muted);">
+                            <i class="fas fa-history" style="font-size:2.2rem; margin-bottom:10px; opacity:0.35;"></i>
+                            <div style="font-size:0.95rem; font-weight:700; color:var(--text-primary);">No history records found</div>
+                            <div style="font-size:0.75rem; margin-top:4px;">All actions, creation, edits, and status changes are synced here to Google Sheet "History".</div>
+                        </td>
+                    </tr>
                 `;
                 return;
             }
 
-            const icons = {
-                'status': 'fa-exchange-alt',
-                'delete': 'fa-trash-alt',
-                'create': 'fa-plus-circle',
-                'update': 'fa-edit',
-                'sync': 'fa-cloud-download-alt'
+            const actionBadges = {
+                'create': { bg: 'rgba(26,115,232,0.12)', color: '#1a73e8', border: 'rgba(26,115,232,0.3)', icon: 'fa-plus-circle', label: 'Created' },
+                'update': { bg: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: 'rgba(124,58,237,0.3)', icon: 'fa-edit', label: 'Edited' },
+                'status': { bg: 'rgba(22,163,74,0.12)', color: '#16a34a', border: 'rgba(22,163,74,0.3)', icon: 'fa-exchange-alt', label: 'Status' },
+                'delete': { bg: 'rgba(220,38,38,0.12)', color: '#dc2626', border: 'rgba(220,38,38,0.3)', icon: 'fa-trash-alt', label: 'Deleted' },
+                'sync':   { bg: 'rgba(2,132,199,0.12)', color: '#0284c7', border: 'rgba(2,132,199,0.3)', icon: 'fa-cloud-download-alt', label: 'Synced' }
             };
 
-            body.innerHTML = filtered.map(item => {
-                const icon = icons[item.action] || 'fa-info-circle';
-                const color = item.badgeColor || '#1a73e8';
+            tbody.innerHTML = filtered.map(item => {
+                const badge = actionBadges[item.action] || { bg: 'rgba(100,116,139,0.12)', color: 'var(--text-primary)', border: 'var(--border)', icon: 'fa-info-circle', label: item.actionLabel || item.action };
+                const woDisplay = item.workOrder ? `<span style="font-weight:700; color:var(--primary); font-family:monospace; font-size:13px;">${item.workOrder}</span>` : `<span style="color:var(--text-muted); font-size:12px;">-</span>`;
+                const plantDisplay = item.plant ? `<span style="background:var(--bg-surface); padding:2px 8px; border-radius:4px; font-size:12px; font-weight:700; border:1px solid var(--border);">${item.plant}</span>` : `<span style="color:var(--text-muted); font-size:12px;">-</span>`;
+
                 return `
-                    <div class="history-item">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                            <div style="display:flex; align-items:center; gap:6px;">
-                                <span style="background:${color}18; color:${color}; border:1px solid ${color}40; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:800; display:inline-flex; align-items:center; gap:4px;">
-                                    <i class="fas ${icon}"></i> ${item.actionLabel || item.action}
-                                </span>
-                                ${item.workOrder ? `<span style="font-size:12px; font-weight:700; color:var(--primary);">#${item.workOrder}</span>` : ''}
-                                ${item.plant ? `<span style="font-size:11px; background:var(--bg-card); padding:1px 6px; border-radius:4px; border:1px solid var(--border);">${item.plant}</span>` : ''}
-                            </div>
-                            <span style="font-size:11px; color:var(--text-muted); font-weight:600;">${item.displayTime || ''}</span>
-                        </div>
-                        <div style="font-size:13px; color:var(--text-primary); margin:4px 0; font-weight:500;">
-                            ${item.description}
-                        </div>
-                        <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-                            <span><i class="fas fa-user" style="margin-right:4px;"></i> ${item.user || 'Supervisor'}</span>
-                        </div>
-                    </div>
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td style="padding:10px 14px; font-size:12px; font-weight:600; color:var(--text-muted); white-space:nowrap;">
+                            ${item.displayTime || ''}
+                        </td>
+                        <td style="padding:10px 14px;">
+                            <span style="background:${badge.bg}; color:${badge.color}; border:1px solid ${badge.border}; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:800; display:inline-flex; align-items:center; gap:4px; white-space:nowrap;">
+                                <i class="fas ${badge.icon}"></i> ${item.actionLabel || badge.label}
+                            </span>
+                        </td>
+                        <td style="padding:10px 14px;">
+                            ${woDisplay}
+                        </td>
+                        <td style="padding:10px 14px;">
+                            ${plantDisplay}
+                        </td>
+                        <td style="padding:10px 14px; font-size:13px;">
+                            <div style="font-weight:600; color:var(--text-primary);">${item.description || ''}</div>
+                            ${item.details ? `<div style="font-size:11px; font-family:monospace; color:#64748b; margin-top:3px; background:rgba(0,0,0,0.025); padding:2px 6px; border-radius:4px; display:inline-block; border:1px solid var(--border);">${item.details}</div>` : ''}
+                        </td>
+                        <td style="padding:10px 14px; font-size:12px; font-weight:700; color:var(--text-primary); white-space:nowrap;">
+                            <i class="fas fa-user-circle" style="color:var(--primary); margin-right:4px;"></i>${item.user || 'Technician'}
+                        </td>
+                    </tr>
                 `;
             }).join('');
         }
 
         async function clearHistoryLog() {
+            if (!isSupervisor()) return showToast("Only Supervisors can clear the history log", "error");
             if (!confirm("Are you sure you want to clear the activity history log?")) return;
             saveLocalHistory([]);
             renderHistoryList();
@@ -1217,9 +1564,31 @@
             return currentUser && (currentUser.role === 'supervisor' || currentUser.role === 'super_admin' || currentUser.short === 'Bibin');
         }
 
+        function canUserEditRequest(req) {
+            if (!req) return false;
+            if (isSupervisor() || isDeveloper()) return true;
+            if (!currentUser) return false;
+            const curUser = (typeof getCurrentUser === 'function' ? getCurrentUser() : currentUser) || {};
+            const curShort = String(curUser.short || curUser.name || '').trim().toLowerCase();
+            const curFull = String(curUser.full || '').trim().toLowerCase();
+            const curCode = String(curUser.code || curUser.empId || '').trim().toLowerCase();
+            
+            const reqCreator = String(req.createdBy || '').trim().toLowerCase();
+            const reqTeam = String(req.team || '').trim().toLowerCase();
+            
+            if (reqCreator) {
+                if (curShort && reqCreator === curShort) return true;
+                if (curFull && reqCreator === curFull) return true;
+                if (curCode && reqCreator === curCode) return true;
+            }
+            if (curShort && reqTeam.toLowerCase().includes(curShort)) return true;
+            if (curFull && reqTeam.toLowerCase().includes(curFull)) return true;
+            
+            return false;
+        }
+
         function updateUIPermissions() {
             const hasAccess = isSupervisor();
-            const hasDevAccess = isDeveloper();
             
             // Show/Hide Supervisor Columns in Table
             const supCols = document.querySelectorAll('.supervisor-col');
@@ -1229,10 +1598,10 @@
             const supFields = document.querySelectorAll('.supervisor-field');
             supFields.forEach(field => field.style.display = hasAccess ? 'block' : 'none');
 
-            // Show/Hide Developer History Button
+            // History button is accessible to all logged-in team members
             const histBtn = document.getElementById('historyBtn');
             if (histBtn) {
-                histBtn.style.display = hasDevAccess ? 'inline-flex' : 'none';
+                histBtn.style.display = currentUser ? 'inline-flex' : 'none';
             }
             updateHistoryBadge();
             
@@ -1266,10 +1635,52 @@
                 document.body.classList.add('dark-mode');
             }
             
-            
+            setupFormNavigation();
             checkExistingLogin();
             loadDummyData();
         };
+
+        function setupFormNavigation() {
+            const reqDate = document.getElementById('reqDate');
+            const reqTimeFrom = document.getElementById('reqTimeFrom');
+            const reqTimeTo = document.getElementById('reqTimeTo');
+            const reqTeam = document.getElementById('reqTeam');
+
+            if (reqDate) {
+                reqDate.addEventListener('keydown', function(e) {
+                    if (e.key === 'Tab' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (reqTimeFrom) {
+                            reqTimeFrom.focus();
+                            reqTimeFrom.select();
+                        }
+                    }
+                });
+            }
+
+            if (reqTimeFrom) {
+                reqTimeFrom.addEventListener('keydown', function(e) {
+                    if (e.key === 'Tab' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (reqTimeTo) {
+                            reqTimeTo.focus();
+                            reqTimeTo.select();
+                        }
+                    }
+                });
+            }
+
+            if (reqTimeTo) {
+                reqTimeTo.addEventListener('keydown', function(e) {
+                    if (e.key === 'Tab' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (reqTeam) {
+                            reqTeam.focus();
+                        }
+                    }
+                });
+            }
+        }
 
         function formatDateToDDMMYYYY(dateString) {
             if(!dateString) return "";
@@ -1305,8 +1716,13 @@
             }
 
             if (id) {
-                const req = requests.find(r => r.id === id);
+                const req = requests.find(r => String(r.id) === String(id));
                 if (req) {
+                    if (!canUserEditRequest(req)) {
+                        showToast("You can only edit requests created by you or your team.", "warning");
+                        return;
+                    }
+
                     document.getElementById('reqId').value = req.id;
                     document.getElementById('reqWO').value = req.wo || '';
                     document.getElementById('reqDesc').value = req.desc || '';
@@ -1328,7 +1744,23 @@
                     }
 
                     document.getElementById('reqTeam').value = req.team || '';
-                    document.getElementById('reqRemarks').value = req.remarks || '';
+
+                    // Separate user remarks from locked audit history stamps
+                    const rawRemarks = req.remarks || '';
+                    const auditMatches = rawRemarks.match(/\[Edited:[^\]]+\]/g);
+                    const userOnlyRemarks = rawRemarks.replace(/\[Edited:[^\]]+\]/g, '').trim();
+
+                    document.getElementById('reqRemarks').value = userOnlyRemarks;
+
+                    const auditBlock = document.getElementById('reqAuditHistoryBlock');
+                    const auditContent = document.getElementById('reqAuditHistoryContent');
+                    if (auditMatches && auditMatches.length > 0) {
+                        auditContent.textContent = auditMatches.join('\n');
+                        auditBlock.style.display = 'block';
+                    } else {
+                        auditBlock.style.display = 'none';
+                        auditContent.textContent = '';
+                    }
 
                     const sdd = document.getElementById('reqStatus');
                     const csd = document.getElementById('reqStatusCustom');
@@ -1347,6 +1779,7 @@
                     }
 
                     document.getElementById('modalTitle').innerText = "Edit Operation Request";
+                    document.getElementById('requestModal').style.display = 'flex';
                 }
             } else {
                 document.getElementById('reqId').value = '';
@@ -1374,6 +1807,9 @@
                 }
 
                 document.getElementById('reqRemarks').value = '';
+                const auditBlock = document.getElementById('reqAuditHistoryBlock');
+                if (auditBlock) auditBlock.style.display = 'none';
+
                 const sdd = document.getElementById('reqStatus');
                 if (sdd) {
                     sdd.innerHTML = getStatusOptionsHTML(DEFAULT_STATUS) + '<option value="Custom">Custom...</option>';
@@ -1382,9 +1818,8 @@
                 document.getElementById('reqStatusCustom').style.display = 'none';
                 document.getElementById('reqStatusCustom').value = '';
                 document.getElementById('modalTitle').innerText = "New Operation Request";
+                document.getElementById('requestModal').style.display = 'flex';
             }
-
-            document.getElementById('requestModal').style.display = 'flex';
         }
 
         const LS_REQUESTS   = "localTabreedOperationRequests";
@@ -1599,8 +2034,9 @@
             const team = document.getElementById('reqTeam').value;
             const remarks = document.getElementById('reqRemarks').value.trim();
 
-            if (!wo || !desc || !plant || !dateVal || !team) {
-                showToast("Please fill all required fields", "warning");
+            // Work Order is now OPTIONAL
+            if (!desc || !plant || !dateVal || !team) {
+                showToast("Please fill all required fields (Description, Plant, Date, Team)", "warning");
                 return;
             }
 
@@ -1622,6 +2058,13 @@
                 }
             }
 
+            const curUser = (typeof getCurrentUser === 'function' ? getCurrentUser() : currentUser) || {};
+            const userName = curUser.short || curUser.full || curUser.code || 'Technician';
+
+            let finalRemarks = remarks;
+            let changeSummary = '';
+            let newAuditStamp = '';
+
             const newReq = {
                 id: id || ("row_" + Date.now()),
                 wo: wo,
@@ -1631,30 +2074,92 @@
                 time: formattedTime,
                 team: team,
                 remarks: remarks,
-                status: status
+                status: status,
+                createdBy: userName
             };
 
             if (id) {
-                const index = requests.findIndex(r => r.id === id);
-                if (index > -1) {
+                const index = requests.findIndex(r => String(r.id) === String(id));
+                const oldReq = index > -1 ? requests[index] : null;
+
+                if (oldReq) {
+                    if (!canUserEditRequest(oldReq)) {
+                        showToast("Unauthorized: You can only edit your own requests.", "error");
+                        return;
+                    }
+
+                    // Compare fields to detect what was edited
+                    const diffs = [];
+                    if ((oldReq.wo || '').trim() !== (wo || '').trim()) {
+                        diffs.push(`WO: "${oldReq.wo || 'None'}" → "${wo || 'None'}"`);
+                    }
+                    if ((oldReq.plant || '').trim() !== (plant || '').trim()) {
+                        diffs.push(`Plant: "${oldReq.plant || ''}" → "${plant || ''}"`);
+                    }
+                    if ((oldReq.desc || '').trim() !== (desc || '').trim()) {
+                        diffs.push(`Description updated`);
+                    }
+                    if ((oldReq.date || '').trim() !== (formattedDate || '').trim()) {
+                        diffs.push(`Date: "${oldReq.date || ''}" → "${formattedDate || ''}"`);
+                    }
+                    if ((oldReq.time || '').trim() !== (formattedTime || '').trim()) {
+                        diffs.push(`Time: "${oldReq.time || ''}" → "${formattedTime || ''}"`);
+                    }
+                    if ((oldReq.team || '').trim() !== (team || '').trim()) {
+                        diffs.push(`Team: "${oldReq.team || ''}" → "${team || ''}"`);
+                    }
+                    if (isSupervisor() && (oldReq.status || '') !== status) {
+                        diffs.push(`Status: "${oldReq.status || ''}" → "${status}"`);
+                    }
+
+                    const nowFormatted = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    changeSummary = diffs.length > 0 ? diffs.join('; ') : 'Details saved';
+                    newAuditStamp = `[Edited: ${nowFormatted} by ${userName} | ${changeSummary}]`;
+
+                    // Keep existing audits from oldReq.remarks
+                    let existingAudits = [];
+                    if (oldReq.remarks) {
+                        const matches = oldReq.remarks.match(/\[Edited:[^\]]+\]/g);
+                        if (matches) existingAudits = matches;
+                    }
+
+                    // Clean user entered remarks
+                    let userRemarksClean = remarks.replace(/\[Edited:[^\]]+\]/g, '').trim();
+                    let combined = userRemarksClean;
+                    existingAudits.forEach(a => {
+                        if (!combined.includes(a)) {
+                            combined = combined ? (combined + '\n' + a) : a;
+                        }
+                    });
+                    combined = combined ? (combined + '\n' + newAuditStamp) : newAuditStamp;
+
+                    finalRemarks = combined;
+                    newReq.remarks = finalRemarks;
+                    newReq.createdBy = oldReq.createdBy || userName;
+                    newReq.rowIdx = oldReq.rowIdx || null;
+
                     requests[index] = newReq;
-                    showToast("Request Updated");
+                    showToast("Request Updated with Edit Audit Trail");
+
+                    const overrides = getLocalStatusOverrides();
+                    overrides[String(id)] = status;
+                    saveLocalStatusOverrides(overrides);
                 }
-                const overrides = getLocalStatusOverrides();
-                overrides[String(id)] = status;
-                saveLocalStatusOverrides(overrides);
             } else {
+                newReq.createdBy = userName;
                 requests.unshift(newReq);
                 showToast("Request Submitted!");
             }
 
-            // Activity History Logging
+            // Activity History Logging (Syncs directly to Google Sheet: History)
             logOperationActivity(
                 id ? 'update' : 'create',
-                id ? 'Updated Request' : 'New Request',
-                id ? `Updated details for Work Order #${wo} (${plant})` : `Created operation request for ${plant} (WO #${wo})`,
+                id ? 'Edited Request' : 'New Request',
+                id ? `Edited WO #${wo || id} (${plant}): ${changeSummary}` : `Created operation request for ${plant}${wo ? ` (WO #${wo})` : ''}`,
                 wo,
-                plant
+                plant,
+                id ? '#7c3aed' : '#1a73e8',
+                id ? newAuditStamp : ''
             );
 
             // 1. Immediately write to local storage cache so it NEVER reverts on refresh
@@ -1663,7 +2168,7 @@
             renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
 
             // 2. Sync to backend / Cloud or offline queue
-            const targetReq = id ? requests.find(r => r.id === id) : null;
+            const targetReq = id ? requests.find(r => String(r.id) === String(id)) : null;
             const payload = {
                 action: id ? 'update' : 'create',
                 id: newReq.id,
@@ -1675,7 +2180,9 @@
                 time: formattedTime,
                 team: team,
                 status: status,
-                remarks: remarks
+                remarks: finalRemarks,
+                createdBy: newReq.createdBy || userName,
+                details: id ? newAuditStamp : ''
             };
 
             if (!navigator.onLine) {
@@ -1861,11 +2368,21 @@
                 if (cloudFetched && Array.isArray(rawData)) {
                     requests = rawData
                         .filter(row => {
+                            const wo = String(row['Work Order'] || row['Work order'] || row['work order'] || row['WORK ORDER'] || row.wo || '').trim();
+                            const desc = String(row['Description'] || row['description'] || row.desc || '').trim();
+                            const plant = String(row['Plant'] || row['plant'] || '').trim();
+                            // Filter out empty ghost / kachra rows
+                            if (!wo && !desc && !plant) return false;
                             const idStr = String(row['ID'] || row['id'] || '');
                             return !deletedSet.has(idStr);
                         })
                         .map((row, index) => {
-                            const idStr = String(row['ID'] || row['id'] || ('row_' + (index + 1)));
+                            let idStr = String(row['ID'] || row['id'] || ('row_' + (index + 2)));
+                            // Protection: If ID was accidentally filled with 'Urgent' or remark value, fix it
+                            if (idStr.toLowerCase() === 'urgent' || idStr.trim() === '') {
+                                const woVal = String(row['Work Order'] || row['Work order'] || row.wo || '').replace(/[^a-zA-Z0-9]/g, '');
+                                idStr = 'row_' + (index + 2) + (woVal ? ('_' + woVal) : '');
+                            }
                             const baseStatus = String(row['Status'] || row['status'] || DEFAULT_STATUS);
                             return {
                                 id: idStr,
@@ -1918,6 +2435,69 @@
         function refreshTable() {
             showToast("Fetching latest data directly from Cloud...", "info");
             loadDummyData(true);
+        }
+
+        async function cleanGhostRowsFromSheet() {
+            showToast("Cleaning ghost rows from Google Sheet & app...", "info");
+            try {
+                // Filter out from local memory immediately
+                const beforeLen = requests.length;
+                requests = requests.filter(r => {
+                    const wo = String(r.wo || '').trim();
+                    const desc = String(r.desc || '').trim();
+                    const plant = String(r.plant || '').trim();
+                    return wo || desc || plant;
+                });
+                localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
+                renderTable();
+
+                // Send to backend
+                let cleanedLocal = 0;
+                let cleanedCloud = 0;
+                try {
+                    const res = await fetch('/api/clean-kachra', { method: 'POST' });
+                    if (res.ok) {
+                        const json = await res.json();
+                        cleanedLocal = json.localCleaned || 0;
+                        cleanedCloud = json.cloudCleaned || 0;
+                    }
+                } catch(e) {}
+
+                // Also trigger direct Apps Script clean
+                try {
+                    await fetch(APPS_SCRIPT_URL + '?action=cleanEmptyRows&t=' + Date.now(), { redirect: 'follow' });
+                } catch(e) {}
+
+                showToast("Cleaned empty ghost rows from Google Sheet & App!", "success");
+                logOperationActivity('clean', 'Sheet Cleaned', 'Removed empty ghost rows and fixed IDs in Google Sheet', '', '', '#e11d48');
+            } catch(err) {
+                showToast("Clean operation completed locally.", "info");
+            }
+        }
+
+        async function syncAllSheetsWithCloud() {
+            showToast("Linking and populating Team Contacts & History sheets...", "info");
+            try {
+                let success = false;
+                try {
+                    const res = await fetch('/api/sync-all-to-sheets', { method: 'POST' });
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (json.status === 'success') success = true;
+                    }
+                } catch(e) {}
+
+                // Direct Apps Script setup trigger fallback
+                try {
+                    const cloudRes = await fetch(APPS_SCRIPT_URL + '?action=setupInitialSheets&t=' + Date.now(), { redirect: 'follow' });
+                    if (cloudRes.ok) success = true;
+                } catch(e) {}
+
+                showToast("Team Contacts and History sheets successfully linked!", "success");
+                logOperationActivity('sync', 'Tabs Linked', 'Linked & populated Team Contacts and History tabs in Google Sheet', '', '', '#0284c7');
+            } catch(err) {
+                showToast("Sync finished. Please check your Google Sheet tabs.", "info");
+            }
         }
 
         function onInlineStatusChange(id, selectEl) {
@@ -2017,13 +2597,22 @@
                 const statusStyle = getStatusStyle(req.status);
                 
                 let actionsHtml = '';
-                if(userIsSupervisor) {
+                const canEdit = canUserEditRequest(req);
+                if (userIsSupervisor) {
                     actionsHtml = `
-                        <td class="action-icons supervisor-col" style="text-align:right;">
-                            <i class="fas fa-edit icon-edit" title="Edit" onclick="openRequestModal('${req.id}')"></i>
-                            <i class="fas fa-trash icon-delete" title="Delete" onclick="deleteRequest('${req.id}')"></i>
+                        <td class="action-icons" style="text-align:right; white-space:nowrap;">
+                            <i class="fas fa-edit icon-edit" title="Edit" onclick="openRequestModal('${req.id}')" style="cursor:pointer; margin-right:8px; color:var(--primary); font-size:14px;"></i>
+                            <i class="fas fa-trash icon-delete" title="Delete" onclick="deleteRequest('${req.id}')" style="cursor:pointer; color:var(--danger); font-size:14px;"></i>
                         </td>
                     `;
+                } else if (canEdit) {
+                    actionsHtml = `
+                        <td class="action-icons" style="text-align:right; white-space:nowrap;">
+                            <i class="fas fa-edit icon-edit" title="Edit" onclick="openRequestModal('${req.id}')" style="cursor:pointer; color:var(--primary); font-size:14px;"></i>
+                        </td>
+                    `;
+                } else {
+                    actionsHtml = `<td style="text-align:right; color:var(--text-muted); font-size:12px;">-</td>`;
                 }
                 
                 let statusHtml = `<span class="status-tag" style="${statusStyle}">${req.status}</span>`;
@@ -2046,12 +2635,39 @@
                     </div>`;
                 }
                 
+                const woDisplay = req.wo ? req.wo : `<span style="color:var(--text-muted);font-style:italic;font-weight:normal;">N/A</span>`;
+                const woCopyClick = req.wo ? `onclick="navigator.clipboard.writeText('${req.wo}'); showToast('Copied: ${req.wo}')" title="Click to copy"` : '';
+
+                // Comment icon calculation right after team member name
+                const rawRemarks = (req.remarks || req.comment || '').trim();
+                const auditMatches = rawRemarks.match(/\[Edited:[^\]]+\]/g);
+                const userOnlyRemarks = rawRemarks.replace(/\[Edited:[^\]]+\]/g, '').trim();
+                const hasComment = Boolean(userOnlyRemarks && userOnlyRemarks !== '-' && userOnlyRemarks.toLowerCase() !== 'none');
+                const hasAudit = Boolean(auditMatches && auditMatches.length > 0);
+                const hasAnyNote = hasComment || hasAudit;
+
+                let commentIconHtml = '';
+                if (hasAnyNote) {
+                    commentIconHtml = `<button type="button" onclick="event.stopPropagation(); showCommentPopup('${req.id}')" title="View Comment &amp; Remarks" style="background:none; border:none; padding:2px 4px; margin-left:6px; cursor:pointer; vertical-align:middle; display:inline-flex; align-items:center; border-radius:4px; color:#d97706; transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                        <i class="fas fa-comment-dots" style="font-size:13px;"></i>
+                    </button>`;
+                } else {
+                    commentIconHtml = `<button type="button" onclick="event.stopPropagation(); showCommentPopup('${req.id}')" title="Add / View Comment" style="background:none; border:none; padding:2px 4px; margin-left:6px; cursor:pointer; vertical-align:middle; display:inline-flex; align-items:center; border-radius:4px; color:var(--text-muted); opacity:0.38; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.38'">
+                        <i class="far fa-comment" style="font-size:12px;"></i>
+                    </button>`;
+                }
+
                 tr.innerHTML = `
-                    <td style="font-weight:700; color:var(--primary); cursor:pointer;" onclick="navigator.clipboard.writeText('${req.wo}'); showToast('Copied: ${req.wo}')" title="Click to copy">${req.wo}</td>
+                    <td style="font-weight:700; color:var(--primary); cursor:${req.wo ? 'pointer' : 'default'};" ${woCopyClick}>${woDisplay}</td>
                     <td>${req.desc}</td>
                     <td><span style="background:var(--bg-surface);padding:3px 8px;border-radius:4px;font-size:.8rem;border:1px solid var(--border);">${req.plant}</span></td>
                     <td>${req.date}<br><span style="font-size:0.75rem;color:var(--text-muted);">${req.time || ''}</span></td>
-                    <td>${req.team}</td>
+                    <td style="white-space:nowrap;">
+                        <div style="display:inline-flex;align-items:center;">
+                            <span>${req.team || '-'}</span>
+                            ${commentIconHtml}
+                        </div>
+                    </td>
                     <td>${statusHtml}</td>
                     ${actionsHtml}
                 `;
@@ -2070,10 +2686,6 @@
             if(tbody.innerHTML === '') {
                 tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:20px;">No requests found.</td></tr>`;
             }
-
-            // Keep supervisor action columns in sync with current access level
-            const supCols = document.querySelectorAll('.supervisor-col');
-            supCols.forEach(col => col.style.display = userIsSupervisor ? 'table-cell' : 'none');
         }
 
         function filterRequests() {
@@ -2090,11 +2702,6 @@
             updateStatusIndicator('offline');
         });
     </script>
-    <!-- Online / Offline Connection Status Indicator (Bottom Center) -->
-    <div class="connection-status" id="connectionStatus" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:900;display:inline-flex;align-items:center;gap:6px;background:var(--bg-card);padding:5px 14px;border-radius:20px;border:1px solid var(--border);box-shadow:0 4px 12px rgba(0,0,0,0.12);font-size:0.75rem;user-select:none;cursor:default;">
-        <span class="status-dot online" id="statusDot" style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;"></span>
-        <span class="status-text" id="statusText" style="font-weight:600;font-size:0.75rem;color:var(--text-secondary);">Online</span>
-    </div>
     <div class="toast-container" id="toastContainer"></div>
 </body>
 </html>

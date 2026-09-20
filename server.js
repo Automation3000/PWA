@@ -9,6 +9,8 @@ const DATA_FILE = path.join(__dirname, 'operation_requests.json');
 const DELETED_FILE = path.join(__dirname, 'deleted_requests.json');
 const OVERRIDES_FILE = path.join(__dirname, 'status_overrides.json');
 const HISTORY_FILE = path.join(__dirname, 'operation_history.json');
+const TEAM_CONTACTS_FILE = path.join(__dirname, 'team_contacts.json');
+const EMPLOYEES_FILE = path.join(__dirname, 'employees.json');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,6 +18,29 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_XKC1cV1VaeqKB2MbQgmRSOYmcxQI0v-5qcAAKhFczNOwU3GsindACIkuawzQZN4/exec";
+
+function loadTeamContacts() {
+  try {
+    if (fs.existsSync(TEAM_CONTACTS_FILE)) {
+      const data = JSON.parse(fs.readFileSync(TEAM_CONTACTS_FILE, 'utf8'));
+      if (Array.isArray(data) && data.length > 0) return data;
+    }
+  } catch (e) {}
+  try {
+    if (fs.existsSync(EMPLOYEES_FILE)) {
+      return JSON.parse(fs.readFileSync(EMPLOYEES_FILE, 'utf8'));
+    }
+  } catch (e) {}
+  return [];
+}
+
+function saveTeamContacts(data) {
+  try {
+    fs.writeFileSync(TEAM_CONTACTS_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (e) {
+    console.error("Error writing team_contacts.json:", e);
+  }
+}
 
 function loadDeletedIds() {
   try {
@@ -51,7 +76,17 @@ function loadLocalData() {
   try {
     if (fs.existsSync(DATA_FILE)) {
       const content = fs.readFileSync(DATA_FILE, 'utf8');
-      return JSON.parse(content);
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed)) {
+        // Filter out any ghost/empty rows
+        return parsed.filter(item => {
+          const wo = String(item['Work Order'] || item.wo || '').trim();
+          const desc = String(item['Description'] || item.desc || '').trim();
+          const plant = String(item['Plant'] || item.plant || '').trim();
+          return wo || desc || plant;
+        });
+      }
+      return parsed;
     }
   } catch (e) {
     console.error("Error reading local data file:", e);
@@ -155,8 +190,30 @@ app.get('/api/operation-requests', async (req, res) => {
 });
 
 // Operation History Endpoints
-app.get('/api/operation-history', (req, res) => {
-  const history = loadHistoryData();
+app.get('/api/history', (req, res) => res.redirect(307, '/api/operation-history' + (req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '')));
+app.get('/api/operation-history', async (req, res) => {
+  let history = loadHistoryData();
+  // If explicitly requested or empty, try syncing from Google Sheet "History" tab
+  if (req.query.refresh === 'true' || history.length === 0) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3500);
+      const cloudRes = await fetch(APPS_SCRIPT_URL + '?action=getHistory', { signal: controller.signal });
+      clearTimeout(timeoutId);
+      const json = await cloudRes.json();
+      if (json && json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
+        // Merge cloud history with local
+        const existingIds = new Set(history.map(h => h.id || h.timestamp));
+        const newFromCloud = json.data.filter(c => !existingIds.has(c.id || c.timestamp));
+        if (newFromCloud.length > 0) {
+          history = [...newFromCloud, ...history].slice(0, 150);
+          saveHistoryData(history);
+        }
+      }
+    } catch(e) {
+      // Quiet fail to local cache
+    }
+  }
   res.json({ status: 'success', data: history });
 });
 
@@ -169,18 +226,28 @@ app.post('/api/operation-history', (req, res) => {
   const entry = {
     id: item.id || ('hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000)),
     timestamp: item.timestamp || new Date().toISOString(),
-    displayTime: item.displayTime || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    displayTime: item.displayTime || (new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })),
     action: item.action || 'info',
     actionLabel: item.actionLabel || 'Activity',
     workOrder: item.workOrder || '',
     plant: item.plant || '',
     description: item.description || '',
+    details: item.details || '',
     user: item.user || 'Technician',
     badgeColor: item.badgeColor || 'var(--primary)'
   };
   history.unshift(entry);
-  if (history.length > 100) history.length = 100; // Keep last 100 logs
+  if (history.length > 150) history.length = 150; // Keep last 150 logs
   saveHistoryData(history);
+
+  // Also push to Google Sheet "History" tab asynchronously
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'logHistory', historyItem: entry }),
+    redirect: 'follow'
+  }).catch(err => console.error("Apps Script logHistory error:", err));
+
   res.json({ status: 'success', data: entry });
 });
 
@@ -350,6 +417,15 @@ app.post('/api/operation-requests', async (req, res) => {
   }
 
   if (action === 'create') {
+    const woVal = String(body.workOrder || '').trim();
+    const descVal = String(body.description || '').trim();
+    const plantVal = String(body.plant || '').trim();
+
+    // Safety check: Do not create ghost/empty rows
+    if (!woVal && !descVal && !plantVal) {
+      return res.status(400).json({ status: 'error', message: 'Cannot create empty request: Work Order, Description or Plant required' });
+    }
+
     const newId = body.id || ("row_" + (cached.length + 1) + "_" + Date.now());
     const newItem = {
       "Work Order": body.workOrder || '',
@@ -392,6 +468,57 @@ app.post('/api/operation-requests', async (req, res) => {
     return res.json({ status: 'success', message: 'Created successfully', data: newItem });
   }
 
+  if (action === 'saveTeamContact') {
+    const list = loadTeamContacts();
+    const targetCode = String(body.code || '').trim();
+    const idx = list.findIndex(c => String(c.code).trim().toLowerCase() === targetCode.toLowerCase());
+    if (idx !== -1) {
+      list[idx] = {
+        ...list[idx],
+        phone: body.phone !== undefined ? body.phone : list[idx].phone,
+        whatsapp: body.whatsapp !== undefined ? body.whatsapp : list[idx].whatsapp,
+        email: body.email !== undefined ? body.email : list[idx].email
+      };
+    } else {
+      list.push({
+        code: targetCode,
+        short: body.short || '',
+        full: body.full || '',
+        role: body.role || '',
+        phone: body.phone || '',
+        whatsapp: body.whatsapp || '',
+        email: body.email || ''
+      });
+    }
+    saveTeamContacts(list);
+
+    // Record in history
+    const history = loadHistoryData();
+    history.unshift({
+      id: 'hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+      timestamp: new Date().toISOString(),
+      displayTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      action: 'contact_update',
+      actionLabel: 'Team Contact',
+      workOrder: '',
+      plant: '',
+      description: `Updated Team Contact #${targetCode} (${body.short || body.full || ''})`,
+      user: body.user || 'User',
+      badgeColor: '#059669'
+    });
+    if (history.length > 100) history.length = 100;
+    saveHistoryData(history);
+
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(body),
+      redirect: 'follow'
+    }).catch(err => console.error("Apps Script saveTeamContact error:", err));
+
+    return res.json({ status: 'success', message: 'Team Contact saved to Google Sheet & cache', code: targetCode });
+  }
+
   // Fallback forward
   try {
     const response = await fetch(APPS_SCRIPT_URL, {
@@ -410,6 +537,209 @@ app.post('/api/operation-requests', async (req, res) => {
     console.error('Proxy POST error:', error);
     res.status(500).json({ status: 'error', message: error.message });
   }
+});
+
+// GET Team Contacts (from Google Sheet "Team Contacts" tab or local cache)
+app.get('/api/team-contacts', async (req, res) => {
+  const forceRefresh = req.query.refresh === 'true';
+  let cached = loadTeamContacts();
+
+  // If we already have cache and not forceRefresh, return fast
+  if (cached && Array.isArray(cached) && cached.length > 0 && !forceRefresh) {
+    return res.json({ status: 'success', data: cached, source: 'cache' });
+  }
+
+  // Fetch live from Apps Script
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6500);
+    const response = await fetch(APPS_SCRIPT_URL + '?action=getTeamContacts&t=' + Date.now(), {
+      redirect: 'follow',
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (response.ok) {
+      const result = await response.json();
+      if (result.status === 'success' && Array.isArray(result.data) && result.data.length > 0) {
+        // Merge cloud data with any local base fields
+        const merged = result.data.map(cd => {
+          const base = cached.find(c => String(c.code) === String(cd.code)) || {};
+          return {
+            code: cd.code,
+            short: cd.short || base.short || '',
+            full: cd.full || base.full || '',
+            role: cd.role || base.role || '',
+            phone: cd.phone || base.phone || '',
+            whatsapp: cd.whatsapp || base.whatsapp || '',
+            email: cd.email || base.email || ''
+          };
+        });
+        saveTeamContacts(merged);
+        return res.json({ status: 'success', data: merged, source: 'cloud' });
+      }
+    }
+  } catch (err) {
+    console.warn("Live fetch from Team Contacts sheet failed or timed out:", err.message);
+  }
+
+  // Fallback to local cache or employees.json
+  return res.json({ status: 'success', data: cached, source: 'fallback' });
+});
+
+// POST Team Contacts (Update Contact & Sync to Google Sheet "Team Contacts" tab)
+app.post('/api/team-contacts', async (req, res) => {
+  const body = req.body || {};
+  const list = loadTeamContacts();
+  const targetCode = String(body.code || '').trim();
+
+  if (!targetCode) {
+    return res.status(400).json({ status: 'error', message: 'Employee code is required' });
+  }
+
+  const idx = list.findIndex(c => String(c.code).trim().toLowerCase() === targetCode.toLowerCase());
+  if (idx !== -1) {
+    list[idx] = {
+      ...list[idx],
+      phone: body.phone !== undefined ? body.phone : list[idx].phone,
+      whatsapp: body.whatsapp !== undefined ? body.whatsapp : list[idx].whatsapp,
+      email: body.email !== undefined ? body.email : list[idx].email
+    };
+  } else {
+    list.push({
+      code: targetCode,
+      short: body.short || '',
+      full: body.full || '',
+      role: body.role || '',
+      phone: body.phone || '',
+      whatsapp: body.whatsapp || '',
+      email: body.email || ''
+    });
+  }
+  saveTeamContacts(list);
+
+  // Write to history
+  const history = loadHistoryData();
+  history.unshift({
+    id: 'hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+    timestamp: new Date().toISOString(),
+    displayTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    action: 'contact_update',
+    actionLabel: 'Team Contact',
+    workOrder: '',
+    plant: '',
+    description: `Updated Team Contact #${targetCode} (${body.short || body.full || ''})`,
+    user: body.user || 'User',
+    badgeColor: '#059669'
+  });
+  if (history.length > 100) history.length = 100;
+  saveHistoryData(history);
+
+  // Forward to Apps Script
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({
+      action: 'saveTeamContact',
+      code: targetCode,
+      short: body.short || (idx !== -1 ? list[idx].short : ''),
+      full: body.full || (idx !== -1 ? list[idx].full : ''),
+      role: body.role || (idx !== -1 ? list[idx].role : ''),
+      phone: body.phone || '',
+      whatsapp: body.whatsapp || '',
+      email: body.email || '',
+      user: body.user || 'User'
+    }),
+    redirect: 'follow'
+  }).catch(err => console.error("Apps Script Team Contact post error:", err));
+
+  return res.json({ status: 'success', message: 'Team contact saved to Google Sheet', data: list[idx !== -1 ? idx : list.length - 1] });
+});
+
+// POST Clean Ghost / Invalid Empty Rows from Sheet & Cache
+app.post('/api/clean-kachra', async (req, res) => {
+  let cached = loadLocalData() || [];
+  const beforeLen = cached.length;
+  cached = cached.filter(item => {
+    const wo = String(item['Work Order'] || item.wo || '').trim();
+    const desc = String(item['Description'] || item.desc || '').trim();
+    const plant = String(item['Plant'] || item.plant || '').trim();
+    return wo || desc || plant;
+  });
+  saveLocalData(cached);
+
+  let cloudCleaned = 0;
+  try {
+    const cloudRes = await fetch(APPS_SCRIPT_URL + '?action=cleanEmptyRows&t=' + Date.now(), {
+      redirect: 'follow',
+      signal: AbortSignal.timeout(8000)
+    });
+    if (cloudRes.ok) {
+      const json = await cloudRes.json();
+      if (json && json.status === 'success') {
+        cloudCleaned = json.cleanedCount || 0;
+      }
+    }
+  } catch (err) {
+    console.warn("Clean ghost rows on Apps Script warning:", err.message);
+  }
+
+  return res.json({
+    status: 'success',
+    message: `Ghost rows cleaned successfully (Local cleaned: ${beforeLen - cached.length}, Cloud cleaned: ${cloudCleaned})`,
+    localCleaned: beforeLen - cached.length,
+    cloudCleaned
+  });
+});
+
+// POST Bulk Sync All to Google Sheets (Populates Team Contacts & History sheets)
+app.post('/api/sync-all-to-sheets', async (req, res) => {
+  const contacts = loadTeamContacts();
+  const history = loadHistoryData();
+
+  let contactsResult = null;
+  let setupResult = null;
+
+  try {
+    // 1. Run setupInitialSheets on Apps Script
+    const setupRes = await fetch(APPS_SCRIPT_URL + '?action=setupInitialSheets&t=' + Date.now(), {
+      redirect: 'follow',
+      signal: AbortSignal.timeout(9000)
+    });
+    if (setupRes.ok) {
+      setupResult = await setupRes.json();
+    }
+  } catch (err) {
+    console.warn("setupInitialSheets error:", err.message);
+  }
+
+  try {
+    // 2. Sync all team contacts explicitly
+    const syncTcRes = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'bulkSaveTeamContacts',
+        contacts: contacts
+      }),
+      redirect: 'follow',
+      signal: AbortSignal.timeout(9000)
+    });
+    if (syncTcRes.ok) {
+      contactsResult = await syncTcRes.json();
+    }
+  } catch (err) {
+    console.warn("bulkSaveTeamContacts error:", err.message);
+  }
+
+  return res.json({
+    status: 'success',
+    message: 'Sync to Google Sheets completed',
+    setupResult,
+    contactsResult,
+    contactsCount: contacts.length,
+    historyCount: history.length
+  });
 });
 
 // Handle case-insensitive index request for PWA start_url (/Index.html)
