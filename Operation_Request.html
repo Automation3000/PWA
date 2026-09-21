@@ -44,6 +44,8 @@
     </script>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         
@@ -308,13 +310,10 @@ input[type="date"] {
                             <h1 style="font-size:1rem;font-weight:700;margin:0;">Operation Request</h1>
                             <i class="fas fa-flask" style="font-size:13px;color:#0284c7;" title="Testing Mode"></i>
                         </div>
-                        <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
                             <p style="font-size:.7rem;color:var(--text-muted);margin:0;">Automation App</p>
-                            <!-- Online / Offline Connection Status Indicator stuck next to Automation App -->
-                            <div class="connection-status" id="connectionStatus" style="display:inline-flex;align-items:center;gap:5px;background:var(--bg-card);padding:2px 8px;border-radius:12px;border:1px solid var(--border);font-size:0.68rem;user-select:none;cursor:default;">
-                                <span class="status-dot online" id="statusDot" style="width:7px;height:7px;border-radius:50%;background:#16a34a;display:inline-block;"></span>
-                                <span class="status-text" id="statusText" style="font-weight:600;font-size:0.68rem;color:var(--text-secondary);">Online</span>
-                            </div>
+                            <!-- Single status indicator icon (Green = Online, Yellow = Syncing/Cached, Red = Offline) -->
+                            <span class="status-dot online" id="statusDot" title="Connection: Online (Cloud Synced)" style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;box-shadow:0 0 0 2px rgba(22,163,74,0.25);cursor:help;"></span>
                         </div>
                     </div>
                 </div>
@@ -330,7 +329,7 @@ input[type="date"] {
                     <div id="header-user-btn" onclick="openUserProfileModal()" style="display:none;align-items:center;gap:7px;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);color:var(--primary);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;" title="User Profile">
                         <i class="fas fa-user-circle" style="font-size:14px;color:var(--primary);"></i>
                         <span id="header-user-name">User</span>
-                        <span id="header-user-role-badge" style="display:none;font-size:9px;background:var(--secondary);color:white;padding:1px 6px;border-radius:6px;text-transform:uppercase;font-weight:800;">USER</span>
+                        <span id="header-user-role-badge" style="display:none;font-size:9px;color:white;padding:1px 6px;border-radius:6px;text-transform:uppercase;font-weight:800;"></span>
                     </div>
                 </div>
             </div>
@@ -352,19 +351,27 @@ input[type="date"] {
                     <i class="fas fa-plus-circle" style="color:var(--primary);margin-bottom:4px;font-size:1.2rem;"></i><span>New Request</span>
                 </button>
                 <button class="action-btn" onclick="refreshTable()">
-                    <i class="fas fa-sync-alt" style="color:var(--secondary);margin-bottom:4px;font-size:1.2rem;"></i><span>Refresh</span>
+                    <i class="fas fa-sync-alt" id="refreshBtnIcon" style="color:var(--secondary);margin-bottom:4px;font-size:1.2rem;"></i><span>Refresh</span>
                 </button>
-                <button class="action-btn" id="historyBtn" onclick="openHistoryFullPage()">
+                <button class="action-btn" id="exportExcelBtn" onclick="exportRequestsToExcel()" title="Export to Excel / CSV (Supervisor &amp; Developer Only)" style="display: none;">
+                    <i class="fas fa-file-excel" style="color:#16a34a;margin-bottom:4px;font-size:1.2rem;"></i>
+                    <span>Export to Excel</span>
+                </button>
+                <button class="action-btn" id="exportPdfBtn" onclick="exportRequestsToPDF()" title="Export to PDF (Supervisor &amp; Developer Only)" style="display: none;">
+                    <i class="fas fa-file-pdf" style="color:#dc2626;margin-bottom:4px;font-size:1.2rem;"></i>
+                    <span>Export to PDF</span>
+                </button>
+                <button class="action-btn" id="showAllToggleBtn" onclick="toggleShowAllArchived()" title="Show completed jobs older than 15 days (Supervisor &amp; Developer Only)" style="display: none;">
+                    <i class="fas fa-archive" id="showAllArchiveIcon" style="color:#64748b;margin-bottom:4px;font-size:1.2rem;"></i>
+                    <span id="showAllToggleText">Show All</span>
+                </button>
+                <button class="action-btn" id="historyBtn" onclick="openHistoryFullPage()" style="display: none;">
                     <i class="fas fa-history" style="color:#d97706;margin-bottom:4px;font-size:1.2rem;"></i>
                     <span>History <span id="historyBadge" style="background:var(--primary);color:white;padding:1px 6px;border-radius:10px;font-size:0.7rem;margin-left:2px;font-weight:800;">0</span></span>
                 </button>
-                <button class="action-btn" id="cleanGhostBtn" onclick="cleanGhostRowsFromSheet()" title="Clean empty / ghost rows from Google Sheet &amp; App">
+                <button class="action-btn" id="cleanGhostBtn" onclick="cleanGhostRowsFromSheet()" title="Clean empty / ghost rows from Cloud &amp; App" style="display: none;">
                     <i class="fas fa-broom" style="color:#e11d48;margin-bottom:4px;font-size:1.2rem;"></i>
-                    <span>Clean Sheet</span>
-                </button>
-                <button class="action-btn" id="syncTabsBtn" onclick="syncAllSheetsWithCloud()" title="Populate and link Team Contacts and History tabs in Google Sheet">
-                    <i class="fas fa-cloud-upload-alt" style="color:#0284c7;margin-bottom:4px;font-size:1.2rem;"></i>
-                    <span>Link Tabs</span>
+                    <span>Clean Cloud</span>
                 </button>
             </div>
 
@@ -373,13 +380,13 @@ input[type="date"] {
                     <table>
                         <thead>
                             <tr>
-                                <th>Work Order / Notification</th>
+                                <th>Work Order</th>
                                 <th>Description</th>
                                 <th>Plant</th>
                                 <th>Date &amp; Time</th>
                                 <th>Team</th>
                                 <th>Status</th>
-                                <th style="text-align:right;">Actions</th>
+                                <th id="actionThHeader" style="text-align:right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="requestTableBody">
@@ -403,7 +410,7 @@ input[type="date"] {
                             <i class="fas fa-history" style="color:#d97706;"></i> Operation History Log
                         </h2>
                         <span style="font-size:0.75rem; color:var(--text-muted); display:inline-flex; align-items:center; gap:5px; margin-top:2px;">
-                            <i class="fas fa-table" style="color:#16a34a;"></i> Linked to Google Sheet: <b>History</b>
+                            <i class="fas fa-cloud" style="color:#0284c7;"></i> Linked to Cloud: <b>History</b>
                         </span>
                     </div>
                 </div>
@@ -417,12 +424,7 @@ input[type="date"] {
                 </div>
             </div>
 
-            <!-- History Stats Pills -->
-            <div id="historyStatsBar" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
-                <!-- Filled dynamically by updateHistoryCounts() -->
-            </div>
-
-            <!-- Search & Filter Controls -->
+            <!-- Simplified History View: Filter Tabs & Search -->
             <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap;">
                 <div style="flex:1; min-width:240px; position:relative;">
                     <i class="fas fa-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:13px;"></i>
@@ -437,22 +439,22 @@ input[type="date"] {
                 </div>
             </div>
 
-            <!-- Full Page History Table Container -->
+            <!-- Full Page History Table Container: Clean & Simplified -->
             <div class="card-container" style="padding:0; overflow:hidden;">
                 <div class="table-responsive">
                     <table style="width:100%; border-collapse:collapse;" id="historyFullTable" class="history-table">
                         <thead>
                             <tr style="border-bottom:1.5px solid var(--border); background:rgba(0,0,0,0.02);">
-                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:150px;">Date &amp; Time</th>
-                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:130px;">Action</th>
-                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:150px;">Work Order</th>
-                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:100px;">Plant</th>
-                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700;">Activity &amp; Edit Details</th>
-                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:130px;">User</th>
+                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:145px;">Date &amp; Time</th>
+                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:125px;">Action</th>
+                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:160px;">Work Order &amp; Plant</th>
+                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700;">Summary / Description</th>
+                                <th style="padding:11px 14px; text-align:left; font-size:12px; font-weight:700; width:120px;">By</th>
+                                <th style="padding:11px 14px; text-align:center; font-size:12px; font-weight:700; width:65px;">Details</th>
                             </tr>
                         </thead>
                         <tbody id="historyTableBody">
-                            <!-- Populated dynamically -->
+                            <!-- Populated dynamically with clickable rows -->
                         </tbody>
                     </table>
                 </div>
@@ -460,38 +462,58 @@ input[type="date"] {
         </div>
     </div>
 
-    <!-- USER PROFILE MODAL -->
+    <!-- USER PROFILE MODAL (Matching Home Page Exactly) -->
     <div class="modal-overlay" id="userProfileModal" style="display:none;" onclick="if(event.target===this)closeUserProfileModal()">
-        <div class="modal-card" style="max-width:340px; border-radius:18px; position:relative; animation:popIn .25s ease;">
-            <div style="padding:14px 18px; background:var(--primary); color:white; display:flex; align-items:center; justify-content:space-between;">
+        <div class="profile-popup-box" style="background:var(--bg-card);width:90%;max-width:340px;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 25px 60px rgba(0,0,0,0.45);overflow:hidden;position:relative;animation:popIn .25s ease;">
+            <div style="padding:14px 18px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:space-between;">
                 <span style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:0.95rem;">
                     <i class="fas fa-id-badge"></i> Employee Profile
                 </span>
                 <button onclick="closeUserProfileModal()" style="background:none;border:none;color:white;font-size:1.3rem;cursor:pointer;line-height:1;" title="Close">&times;</button>
             </div>
-            <div style="padding:22px;text-align:center;">
-                <div style="width:64px;height:64px;border-radius:50%;background:rgba(37,99,235,0.12);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px;border:2px solid rgba(37,99,235,0.3);">
-                    <i class="fas fa-user"></i>
+            <div style="padding:22px;text-align:center;background:var(--bg-card);">
+                <div style="width:64px;height:64px;border-radius:50%;background:rgba(37,99,235,0.12);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px;border:2px solid rgba(37,99,235,0.3);box-shadow:0 4px 14px rgba(37,99,235,0.18);">
+                    <i class="fas fa-user" id="profileModalAvatarIcon"></i>
                 </div>
-                <h3 id="profileModalFullName" style="margin:0 0 4px;font-size:1.05rem;color:var(--text-primary);font-weight:700;">-</h3>
+                <h3 id="profileModalFullName" style="margin:0 0 4px;font-size:1.05rem;color:var(--text-primary);font-weight:700;text-transform:capitalize;">-</h3>
                 <p id="profileModalEmpId" style="margin:0 0 4px;font-size:0.85rem;color:var(--text-muted);font-weight:600;">-</p>
                 <p id="profileModalEmail" style="margin:0 0 12px;font-size:0.8rem;color:var(--primary);font-weight:500;">-</p>
                 <div id="profileModalRoleBadge" style="display:none;padding:4px 14px;border-radius:20px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;margin-bottom:14px;">
-                    DEVELOPER
                 </div>
                 
                 <div id="profileAdminInfo" style="display:none;margin-bottom:16px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:0.78rem;color:var(--text-secondary);text-align:left;line-height:1.4;">
                     <i class="fas fa-check-circle" style="color:#16a34a;margin-right:4px;"></i> Access Active
                 </div>
-                
-                <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
-                    <button onclick="closeUserProfileModal(); promptLogin();" style="width:100%;padding:10px;background:var(--bg-surface);color:var(--primary);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:6px;">
+
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <button id="profileUpgradeBtn" onclick="closeUserProfileModal(); promptLogin();" style="width:100%;padding:10px;background:var(--bg-surface);color:var(--primary);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:6px;">
                         <i class="fas fa-user-friends"></i> Switch User
                     </button>
                     <button onclick="logoutUser(); closeUserProfileModal();" style="width:100%;padding:10px;background:rgba(239,68,68,0.08);color:var(--danger);border:1px solid rgba(239,68,68,0.25);border-radius:8px;cursor:pointer;font-weight:600;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:6px;">
                         <i class="fas fa-sign-out-alt"></i> Logout / Lock
                     </button>
                 </div>
+            </div>
+            <div style="padding:10px 16px;background:var(--bg-surface);border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+                <button class="btn-cancel" onclick="closeUserProfileModal()" style="padding:6px 16px;font-size:0.85rem;border-radius:6px;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📜 HISTORY ENTRY DETAILS MODAL -->
+    <div class="modal-overlay" id="historyDetailsModal" style="display:none; z-index:2650;" onclick="if(event.target===this)closeHistoryDetailsModal()">
+        <div class="modal-card" style="max-width:520px; width:92%; border-radius:18px; animation:popIn .2s ease; box-shadow:0 20px 50px rgba(0,0,0,0.3); overflow:hidden;">
+            <div class="modal-header" style="padding:14px 18px; display:flex; justify-content:space-between; align-items:center; background:var(--primary); color:white;">
+                <span style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:0.95rem;">
+                    <i class="fas fa-history"></i> History Record Details
+                </span>
+                <button onclick="closeHistoryDetailsModal()" style="background:none;border:none;color:white;font-size:1.3rem;cursor:pointer;line-height:1;" title="Close">&times;</button>
+            </div>
+            <div class="modal-body" style="padding:20px; line-height:1.5;" id="historyDetailsContent">
+                <!-- Dynamically populated -->
+            </div>
+            <div style="padding:10px 16px; background:var(--bg-surface); border-top:1px solid var(--border); display:flex; justify-content:flex-end;">
+                <button class="btn-cancel" onclick="closeHistoryDetailsModal()" style="padding:6px 18px; font-size:0.85rem; border-radius:6px; font-weight:700;">Close</button>
             </div>
         </div>
     </div>
@@ -507,7 +529,7 @@ input[type="date"] {
                 <input type="hidden" id="reqId">
                 <div class="form-row-wo-plant" style="display:flex;gap:10px;">
                     <div class="form-group form-group-wo" style="flex:1;margin-bottom:0;">
-                        <label>Work Order / Notification no.</label>
+                        <label>Work Order</label>
                         <input type="text" id="reqWO" placeholder="if available">
                     </div>
                     <div class="form-group form-group-plant" style="flex:1;margin-bottom:0;">
@@ -523,7 +545,15 @@ input[type="date"] {
                 <div class="form-row-date-time" style="display:flex;gap:10px;margin-top:12px;">
                     <div class="form-group form-group-date" style="flex:1;min-width:0;margin-bottom:0;">
                         <label>Date <span style="color:var(--danger);font-size:0.8rem;">*</span></label>
-                        <input type="date" id="reqDate" required>
+                        <div style="position:relative; display:flex; align-items:center; width:100%; height:40px;">
+                            <input type="text" id="reqDate" placeholder="DD.MM.YYYY" required 
+                                   onblur="formatDateInputOnBlur(this)" 
+                                   style="width:100%; height:100%; box-sizing:border-box; padding:8px 34px 8px 10px; border:1.5px solid var(--border); border-radius:6px; background:var(--input-bg); color:var(--text-primary); font-size:13.5px; font-weight:600; text-align:left;">
+                            <button type="button" tabindex="-1" aria-hidden="true" onclick="openDateNativePicker()" style="position:absolute; right:6px; background:none; border:none; color:var(--primary); cursor:pointer; padding:4px; font-size:15px; display:flex; align-items:center; justify-content:center; z-index:2;" title="Select Date from Calendar">
+                                <i class="fas fa-calendar-alt"></i>
+                            </button>
+                            <input type="date" id="reqDateNativePicker" tabindex="-1" style="position:absolute; right:4px; opacity:0; width:30px !important; height:30px !important; min-height:30px !important; max-width:30px !important; padding:0 !important; cursor:pointer; z-index:3;" onchange="onNativeDatePicked(this.value)">
+                        </div>
                     </div>
                     <div class="form-group form-group-time" style="flex:1;min-width:0;margin-bottom:0;">
                         <label>Time (Start - End 24hr)</label>
@@ -710,6 +740,68 @@ input[type="date"] {
         </div>
     </div>
 
+    <!-- 🟢 WHATSAPP ACKNOWLEDGEMENT MODAL (Supervisor & Developer Only) -->
+    <div class="modal-overlay" id="whatsAppModal" style="display:none; z-index:2700;" onclick="if(event.target===this)closeWhatsAppModal()">
+        <div class="modal-card" style="max-width:480px; width:92%; border-radius:16px; animation:popIn .2s ease; box-shadow:0 12px 35px rgba(0,0,0,0.25); overflow:hidden;">
+            <div class="modal-header" style="padding:14px 18px; display:flex; justify-content:space-between; align-items:center; background:#25D366; color:white;">
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700; font-size:1rem;">
+                    <i class="fab fa-whatsapp" style="font-size:1.25rem;"></i>
+                    <span>Send WhatsApp Acknowledgement</span>
+                </div>
+                <button class="modal-close" onclick="closeWhatsAppModal()" style="color:white; font-size:1.4rem;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding:18px;">
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">Team Member / Recipient</label>
+                    <input type="text" id="waRecipientName" style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; background:var(--input-bg); color:var(--text-primary); font-weight:600; font-size:0.9rem;">
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">WhatsApp / Phone Number</label>
+                    <input type="tel" id="waRecipientPhone" placeholder="e.g. 971501234567" style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:8px; background:var(--input-bg); color:var(--text-primary); font-family:monospace; font-size:0.95rem; font-weight:700;">
+                    <span style="font-size:0.75rem; color:var(--text-muted); margin-top:3px; display:block;">Loaded from Team Contacts. Edit if needed before sending.</span>
+                </div>
+                <div style="margin-bottom:6px;">
+                    <label style="font-size:0.8rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">Pre-Typed Message (Editable)</label>
+                    <textarea id="waMessageText" rows="5" placeholder="Type or edit message here..." style="width:100%; padding:10px 12px; border:1.5px solid var(--border); border-radius:8px; background:var(--input-bg); color:var(--text-primary); font-family:inherit; font-size:0.9rem; line-height:1.5; resize:vertical;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding:12px 18px; display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface); border-top:1px solid var(--border);">
+                <button type="button" class="btn-outline" onclick="closeWhatsAppModal()" style="padding:8px 18px; font-size:0.85rem; border-radius:8px;">Cancel</button>
+                <button type="button" onclick="sendWhatsAppMessage()" style="padding:8px 18px; font-size:0.85rem; border-radius:8px; background:#25D366; color:white; border:none; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(37,211,102,0.35);">
+                    <i class="fab fa-whatsapp"></i> Send WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🗑️ CONFIRM CLEAR HISTORY MODAL (Developer Only) -->
+    <div class="modal-overlay" id="confirmClearHistoryModal" style="display:none; z-index:2800;" onclick="if(event.target===this)closeConfirmClearModal()">
+        <div class="modal-card" style="max-width:380px; width:90%; border-radius:16px; animation:popIn .2s ease; box-shadow:0 15px 40px rgba(0,0,0,0.3); overflow:hidden;">
+            <div class="modal-header" style="padding:14px 18px; display:flex; justify-content:space-between; align-items:center; background:var(--danger); color:white;">
+                <div style="display:flex; align-items:center; gap:8px; font-weight:700; font-size:0.95rem;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Confirm Clear Log</span>
+                </div>
+                <button class="modal-close" onclick="closeConfirmClearModal()" style="color:white; font-size:1.4rem;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding:20px; text-align:center;">
+                <div style="width:50px; height:50px; border-radius:50%; background:rgba(239,68,68,0.12); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 14px; font-size:24px;">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+                <h4 style="margin:0 0 8px; color:var(--text-primary); font-size:1rem; font-weight:700;">Clear All Activity History?</h4>
+                <p style="margin:0; font-size:0.83rem; color:var(--text-muted); line-height:1.5;">
+                    This will permanently clear all activity logs from both the local database and the Cloud history log. This action cannot be undone.
+                </p>
+            </div>
+            <div class="modal-footer" style="padding:12px 18px; display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface); border-top:1px solid var(--border);">
+                <button type="button" class="btn-outline" onclick="closeConfirmClearModal()" style="padding:7px 16px; font-size:0.85rem; border-radius:8px;">Cancel</button>
+                <button type="button" onclick="executeClearHistoryLog()" style="padding:7px 16px; font-size:0.85rem; border-radius:8px; background:var(--danger); color:white; border:none; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
+                    <i class="fas fa-trash-alt"></i> Delete All Log
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
 
         const THEME_KEY = 'tabreed_selected_theme';
@@ -793,9 +885,19 @@ input[type="date"] {
         }
 
         // Data & State
+        const LS_REQUESTS = "localTabreedOperationRequests";
         let requests = [];
         let currentUser = null;
         let EMPLOYEES = [];
+
+        function saveRequests() {
+            try {
+                localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
+            } catch(e) {
+                console.error("Error saving requests:", e);
+            }
+        }
+        window.saveRequests = saveRequests;
 
         // =========================================================================
         // 🛠️ DEVELOPER CONFIGURATION: STATUS OPTIONS
@@ -971,10 +1073,29 @@ input[type="date"] {
         const LS_HISTORY = 'tabreed_operation_history';
         let currentHistoryFilter = 'all';
 
+        function deduplicateHistory(hist) {
+            if (!Array.isArray(hist)) return [];
+            const seen = new Set();
+            const result = [];
+            for (const h of hist) {
+                if (!h) continue;
+                const timeKey = (h.timestamp || h.displayTime || '').slice(0, 16);
+                const key = h.id && !String(h.id).startsWith('cloud_hist_') ? 
+                    String(h.id) : 
+                    `${h.action || ''}_${h.workOrder || ''}_${h.plant || ''}_${h.description || ''}_${timeKey}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    result.push(h);
+                }
+            }
+            return result;
+        }
+
         function getLocalHistory() {
             try {
                 const raw = localStorage.getItem(LS_HISTORY);
-                return raw ? JSON.parse(raw) : [];
+                const list = raw ? JSON.parse(raw) : [];
+                return deduplicateHistory(list);
             } catch(e) {
                 return [];
             }
@@ -982,7 +1103,8 @@ input[type="date"] {
 
         function saveLocalHistory(hist) {
             try {
-                localStorage.setItem(LS_HISTORY, JSON.stringify(hist));
+                const clean = deduplicateHistory(hist || []);
+                localStorage.setItem(LS_HISTORY, JSON.stringify(clean));
             } catch(e) {}
             updateHistoryBadge();
         }
@@ -1002,7 +1124,7 @@ input[type="date"] {
 
         async function fetchServerHistory(forceSync = false) {
             try {
-                const url = forceSync ? '/api/operation-history?refresh=true&t=' + Date.now() : '/api/operation-history?t=' + Date.now();
+                const url = '/api/operation-history?refresh=true&t=' + Date.now();
                 const res = await fetch(url).then(r => r.json());
                 if (res && res.status === 'success' && Array.isArray(res.data)) {
                     saveLocalHistory(res.data);
@@ -1011,6 +1133,14 @@ input[type="date"] {
             } catch(e) {
                 console.warn("Failed to fetch history from server:", e);
             }
+            // Direct Apps Script fallback to Google Sheet "History" tab
+            try {
+                const cloudRes = await fetch(APPS_SCRIPT_URL + '?action=getHistory&t=' + Date.now(), { redirect: 'follow' }).then(r => r.json());
+                if (cloudRes && cloudRes.status === 'success' && Array.isArray(cloudRes.data)) {
+                    saveLocalHistory(cloudRes.data);
+                    return cloudRes.data;
+                }
+            } catch(e) {}
             return getLocalHistory();
         }
 
@@ -1027,6 +1157,15 @@ input[type="date"] {
             const now = new Date();
             const displayTime = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+            const hist = getLocalHistory();
+
+            // Prevent rapid duplicate logging (within 15 seconds)
+            const isDup = hist.some(h => {
+                const diff = Math.abs(now.getTime() - new Date(h.timestamp || 0).getTime()) / 1000;
+                return diff < 15 && h.action === action && h.description === description;
+            });
+            if (isDup) return;
+
             const item = {
                 id: 'hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
                 timestamp: now.toISOString(),
@@ -1041,31 +1180,46 @@ input[type="date"] {
                 badgeColor: badgeColor || colors[action] || '#1a73e8'
             };
 
-            const hist = getLocalHistory();
             hist.unshift(item);
             if (hist.length > 150) hist.length = 150;
             saveLocalHistory(hist);
+            updateHistoryBadge();
 
+            // Post only to backend proxy, which persists and syncs cleanly with Cloud
             fetch('/api/operation-history', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(item)
-            }).catch(e => console.warn("Failed to log history to server:", e));
+            }).catch(e => {
+                // If backend unreachable, direct fallback to Apps Script
+                try {
+                    fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'logHistory', historyItem: item }),
+                        redirect: 'follow'
+                    }).catch(err => console.warn("Direct Apps Script history error:", err));
+                } catch(err) {}
+            });
         }
 
         function openHistoryFullPage() {
+            if (!isSupervisor() && !isDeveloper()) {
+                showToast("History log is reserved for Supervisors and Developers.", "warning");
+                return;
+            }
             const reqView = document.getElementById('requestsViewContainer');
             const histView = document.getElementById('historyViewContainer');
             if (reqView) reqView.style.display = 'none';
             if (histView) histView.style.display = 'block';
 
-            // Show clear button only to supervisors
+            // Show clear button only to developers
             const clearBtn = document.getElementById('clearHistBtn');
             if (clearBtn) {
-                clearBtn.style.display = isSupervisor() ? 'inline-flex' : 'none';
+                clearBtn.style.display = isDeveloper() ? 'inline-flex' : 'none';
             }
 
-            refreshHistoryData(false);
+            refreshHistoryData(true);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
@@ -1167,7 +1321,7 @@ input[type="date"] {
             if (icon) icon.classList.add('fa-spin');
             try {
                 await fetchServerHistory(force);
-                if (force) showToast("History synchronized with Sheet: History", "success");
+                if (force) showToast("History synchronized with Cloud: History", "success");
             } finally {
                 if (icon) icon.classList.remove('fa-spin');
                 renderHistoryList();
@@ -1219,28 +1373,6 @@ input[type="date"] {
             if (elStatus) elStatus.textContent = cStatus;
             if (elDelete) elDelete.textContent = cDelete;
 
-            // Stats pills
-            const statsBar = document.getElementById('historyStatsBar');
-            if (statsBar) {
-                statsBar.innerHTML = `
-                    <div style="background:var(--bg-surface); border:1px solid var(--border); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700;">
-                        <span style="color:var(--text-muted);">Total Logs:</span> <span style="color:var(--primary); font-size:13px;">${cAll}</span>
-                    </div>
-                    <div style="background:rgba(26,115,232,0.08); border:1px solid rgba(26,115,232,0.25); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; color:#1a73e8;">
-                        <span>New Requests:</span> <span>${cCreate}</span>
-                    </div>
-                    <div style="background:rgba(124,58,237,0.08); border:1px solid rgba(124,58,237,0.25); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; color:#7c3aed;">
-                        <span>Edits &amp; Audits:</span> <span>${cUpdate}</span>
-                    </div>
-                    <div style="background:rgba(22,163,74,0.08); border:1px solid rgba(22,163,74,0.25); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; color:#16a34a;">
-                        <span>Status Changes:</span> <span>${cStatus}</span>
-                    </div>
-                    <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); padding:6px 12px; border-radius:8px; font-size:12px; font-weight:700; color:#dc2626;">
-                        <span>Deletions:</span> <span>${cDelete}</span>
-                    </div>
-                `;
-            }
-
             let filtered = hist;
             if (currentHistoryFilter !== 'all') {
                 filtered = filtered.filter(item => item.action === currentHistoryFilter);
@@ -1253,6 +1385,8 @@ input[type="date"] {
                 });
             }
 
+            currentFilteredHistory = filtered;
+
             const tbody = document.getElementById('historyTableBody');
             if (!tbody) return;
 
@@ -1262,7 +1396,7 @@ input[type="date"] {
                         <td colspan="6" style="text-align:center; padding:45px 20px; color:var(--text-muted);">
                             <i class="fas fa-history" style="font-size:2.2rem; margin-bottom:10px; opacity:0.35;"></i>
                             <div style="font-size:0.95rem; font-weight:700; color:var(--text-primary);">No history records found</div>
-                            <div style="font-size:0.75rem; margin-top:4px;">All actions, creation, edits, and status changes are synced here to Google Sheet "History".</div>
+                            <div style="font-size:0.75rem; margin-top:4px;">All actions, creation, edits, and status changes are synced here to Cloud "History".</div>
                         </td>
                     </tr>
                 `;
@@ -1277,46 +1411,163 @@ input[type="date"] {
                 'sync':   { bg: 'rgba(2,132,199,0.12)', color: '#0284c7', border: 'rgba(2,132,199,0.3)', icon: 'fa-cloud-download-alt', label: 'Synced' }
             };
 
-            tbody.innerHTML = filtered.map(item => {
+            tbody.innerHTML = filtered.map((item, idx) => {
                 const badge = actionBadges[item.action] || { bg: 'rgba(100,116,139,0.12)', color: 'var(--text-primary)', border: 'var(--border)', icon: 'fa-info-circle', label: item.actionLabel || item.action };
-                const woDisplay = item.workOrder ? `<span style="font-weight:700; color:var(--primary); font-family:monospace; font-size:13px;">${item.workOrder}</span>` : `<span style="color:var(--text-muted); font-size:12px;">-</span>`;
-                const plantDisplay = item.plant ? `<span style="background:var(--bg-surface); padding:2px 8px; border-radius:4px; font-size:12px; font-weight:700; border:1px solid var(--border);">${item.plant}</span>` : `<span style="color:var(--text-muted); font-size:12px;">-</span>`;
+                const woText = item.workOrder ? `#${item.workOrder}` : '';
+                const woAndPlant = [
+                    woText ? `<span style="font-weight:700; color:var(--primary); font-family:monospace;">${woText}</span>` : '',
+                    item.plant ? `<span style="background:var(--bg-surface); padding:2px 7px; border-radius:4px; font-size:11px; font-weight:700; border:1px solid var(--border);">${item.plant}</span>` : ''
+                ].filter(Boolean).join(' • ') || '<span style="color:var(--text-muted);">-</span>';
+
+                let summary = item.description || item.details || 'Activity record';
+                if (item.action === 'status' && item.details) {
+                    summary = item.details;
+                }
 
                 return `
-                    <tr style="border-bottom:1px solid var(--border);">
-                        <td style="padding:10px 14px; font-size:12px; font-weight:600; color:var(--text-muted); white-space:nowrap;">
+                    <tr style="border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.15s ease;"
+                        onclick="openHistoryDetailsModal(${idx})"
+                        title="Click to view full entry details"
+                        onmouseover="this.style.background='var(--bg-surface)'"
+                        onmouseout="this.style.background='transparent'">
+                        <td style="padding:11px 14px; font-size:12px; font-weight:600; color:var(--text-muted); white-space:nowrap;">
                             ${item.displayTime || ''}
                         </td>
-                        <td style="padding:10px 14px;">
-                            <span style="background:${badge.bg}; color:${badge.color}; border:1px solid ${badge.border}; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:800; display:inline-flex; align-items:center; gap:4px; white-space:nowrap;">
+                        <td style="padding:11px 14px; white-space:nowrap;">
+                            <span style="background:${badge.bg}; color:${badge.color}; border:1px solid ${badge.border}; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:800; display:inline-flex; align-items:center; gap:4px;">
                                 <i class="fas ${badge.icon}"></i> ${item.actionLabel || badge.label}
                             </span>
                         </td>
-                        <td style="padding:10px 14px;">
-                            ${woDisplay}
+                        <td style="padding:11px 14px; white-space:nowrap;">
+                            ${woAndPlant}
                         </td>
-                        <td style="padding:10px 14px;">
-                            ${plantDisplay}
+                        <td style="padding:11px 14px; font-size:12px; color:var(--text-primary); max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                            ${summary}
                         </td>
-                        <td style="padding:10px 14px; font-size:13px;">
-                            <div style="font-weight:600; color:var(--text-primary);">${item.description || ''}</div>
-                            ${item.details ? `<div style="font-size:11px; font-family:monospace; color:#64748b; margin-top:3px; background:rgba(0,0,0,0.025); padding:2px 6px; border-radius:4px; display:inline-block; border:1px solid var(--border);">${item.details}</div>` : ''}
-                        </td>
-                        <td style="padding:10px 14px; font-size:12px; font-weight:700; color:var(--text-primary); white-space:nowrap;">
+                        <td style="padding:11px 14px; font-size:12px; font-weight:700; color:var(--text-primary); white-space:nowrap;">
                             <i class="fas fa-user-circle" style="color:var(--primary); margin-right:4px;"></i>${item.user || 'Technician'}
+                        </td>
+                        <td style="padding:11px 14px; text-align:center; white-space:nowrap;">
+                            <span style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:rgba(37,99,235,0.08); color:var(--primary); font-size:11px;">
+                                <i class="fas fa-chevron-right"></i>
+                            </span>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
-        async function clearHistoryLog() {
-            if (!isSupervisor()) return showToast("Only Supervisors can clear the history log", "error");
-            if (!confirm("Are you sure you want to clear the activity history log?")) return;
+        let currentFilteredHistory = [];
+
+        function openHistoryDetailsModal(idx) {
+            const item = currentFilteredHistory[idx];
+            if (!item) return;
+
+            const modal = document.getElementById('historyDetailsModal');
+            const content = document.getElementById('historyDetailsContent');
+            if (!modal || !content) return;
+
+            const actionBadges = {
+                'create': { bg: 'rgba(26,115,232,0.12)', color: '#1a73e8', border: 'rgba(26,115,232,0.3)', icon: 'fa-plus-circle', label: 'Created' },
+                'update': { bg: 'rgba(124,58,237,0.12)', color: '#7c3aed', border: 'rgba(124,58,237,0.3)', icon: 'fa-edit', label: 'Edited' },
+                'status': { bg: 'rgba(22,163,74,0.12)', color: '#16a34a', border: 'rgba(22,163,74,0.3)', icon: 'fa-exchange-alt', label: 'Status Changed' },
+                'delete': { bg: 'rgba(220,38,38,0.12)', color: '#dc2626', border: 'rgba(220,38,38,0.3)', icon: 'fa-trash-alt', label: 'Deleted' },
+                'sync':   { bg: 'rgba(2,132,199,0.12)', color: '#0284c7', border: 'rgba(2,132,199,0.3)', icon: 'fa-cloud-download-alt', label: 'Synced' }
+            };
+            const badge = actionBadges[item.action] || { bg: 'rgba(100,116,139,0.12)', color: 'var(--text-primary)', border: 'var(--border)', icon: 'fa-info-circle', label: item.actionLabel || item.action };
+
+            content.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border);">
+                    <div>
+                        <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Work Order</div>
+                        <div style="font-size:1.25rem; font-weight:800; color:var(--primary); font-family:monospace;">
+                            ${item.workOrder ? '#' + item.workOrder : 'General Record'}
+                        </div>
+                    </div>
+                    <span style="background:${badge.bg}; color:${badge.color}; border:1px solid ${badge.border}; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:800; display:inline-flex; align-items:center; gap:6px;">
+                        <i class="fas ${badge.icon}"></i> ${item.actionLabel || badge.label}
+                    </span>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+                    <div style="background:var(--bg-surface); padding:10px 12px; border-radius:10px; border:1px solid var(--border);">
+                        <div style="font-size:11px; color:var(--text-muted); font-weight:700;"><i class="fas fa-building" style="margin-right:4px;"></i> Plant</div>
+                        <div style="font-size:13px; font-weight:700; color:var(--text-primary); margin-top:3px;">${item.plant || 'Not Specified'}</div>
+                    </div>
+                    <div style="background:var(--bg-surface); padding:10px 12px; border-radius:10px; border:1px solid var(--border);">
+                        <div style="font-size:11px; color:var(--text-muted); font-weight:700;"><i class="fas fa-user-circle" style="margin-right:4px;"></i> Logged By</div>
+                        <div style="font-size:13px; font-weight:700; color:var(--text-primary); margin-top:3px;">${item.user || 'Technician'}</div>
+                    </div>
+                </div>
+
+                <div style="background:var(--bg-surface); padding:10px 12px; border-radius:10px; border:1px solid var(--border); margin-bottom:14px;">
+                    <div style="font-size:11px; color:var(--text-muted); font-weight:700;"><i class="fas fa-clock" style="margin-right:4px;"></i> Date &amp; Time</div>
+                    <div style="font-size:13px; font-weight:600; color:var(--text-primary); margin-top:3px;">${item.displayTime || item.timestamp || '-'}</div>
+                </div>
+
+                <div style="margin-bottom:14px;">
+                    <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:5px;">Description / Activity:</div>
+                    <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--text-primary); line-height:1.4;">
+                        ${item.description || '<span style="color:var(--text-muted); font-style:italic;">No description provided</span>'}
+                    </div>
+                </div>
+
+                ${item.details ? `
+                <div>
+                    <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:5px;">Change Details &amp; Notes:</div>
+                    <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:12px; color:var(--text-primary); font-family:monospace; word-break:break-word; line-height:1.5;">
+                        ${item.details}
+                    </div>
+                </div>` : ''}
+            `;
+
+            modal.style.display = 'flex';
+        }
+
+        function closeHistoryDetailsModal() {
+            const modal = document.getElementById('historyDetailsModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function clearHistoryLog() {
+            if (!isDeveloper()) {
+                showToast("Only Developers can clear the history log", "error");
+                return;
+            }
+            const modal = document.getElementById('confirmClearHistoryModal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeConfirmClearModal() {
+            const modal = document.getElementById('confirmClearHistoryModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function executeClearHistoryLog() {
+            closeConfirmClearModal();
+            if (!isDeveloper()) {
+                showToast("Only Developers can clear the history log", "error");
+                return;
+            }
             saveLocalHistory([]);
             renderHistoryList();
-            fetch('/api/operation-history', { method: 'DELETE' }).catch(e => console.warn(e));
-            showToast("History log cleared", "info");
+            try {
+                await fetch('/api/operation-history', { method: 'DELETE' });
+            } catch(e) {}
+            try {
+                await fetch(APPS_SCRIPT_URL + '?action=clearHistory&t=' + Date.now(), { redirect: 'follow', mode: 'no-cors' });
+            } catch(e) {}
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'clearHistory' }),
+                    redirect: 'follow',
+                    mode: 'no-cors'
+                });
+            } catch(e) {}
+            updateHistoryBadge();
+            showToast("History log successfully deleted from App & Cloud", "success");
         }
 
         // ──────────────────────────────────────────
@@ -1353,34 +1604,75 @@ input[type="date"] {
             overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
         }
 
+        function toTitleCase(str) {
+            if (!str) return '';
+            return String(str).toLowerCase().replace(/\b([a-z])/g, c => c.toUpperCase());
+        }
+
+        function isTimebaseCode(clean, prefixCode) {
+            if (!clean || !clean.startsWith(prefixCode) || clean.length <= prefixCode.length) return false;
+            const timePart = clean.substring(prefixCode.length);
+            const now = new Date();
+
+            // Broad -10 to +10 window
+            for (let offset = -10; offset <= 10; offset++) {
+                const targetMs = now.getTime() + offset * 60000;
+                const dLocal = new Date(targetMs);
+                
+                // UAE Time (UTC+4) calculation
+                const uaeMs = targetMs + (dLocal.getTimezoneOffset() * 60000) + (4 * 3600000);
+                const dUae = new Date(uaeMs);
+
+                for (const d of [dLocal, dUae]) {
+                    const h24 = d.getHours();
+                    const m = d.getMinutes();
+                    const h12 = h24 % 12 || 12;
+
+                    const mm = String(m).padStart(2, '0');
+                    const hh24 = String(h24).padStart(2, '0');
+                    const h24Str = String(h24);
+                    const hh12 = String(h12).padStart(2, '0');
+                    const h12Str = String(h12);
+
+                    const validPatterns = [
+                        `${hh24}${mm}`,
+                        `${h24Str}${mm}`,
+                        `${hh12}${mm}`,
+                        `${h12Str}${mm}`
+                    ];
+
+                    if (validPatterns.includes(timePart)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         function verifyUserLogin(pass) {
             if (!pass) return null;
             const clean = pass.toString().trim();
             
-            if (clean === "Dubai@123") {
+            // Developer Password strictly 'lkku' across all modules and home page
+            if (clean === "lkku") {
                 return { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed", role: "super_admin" };
             }
 
-            const now = new Date();
-            // Time-based check (Window of -2 to +2 minutes) for Admin/Supervisor/Developer
-            for (let offset = -2; offset <= 2; offset++) {
-                const d = new Date(now.getTime() + offset * 60000);
-                const hh = String(d.getHours()).padStart(2, '0');
-                const mm = String(d.getMinutes()).padStart(2, '0');
-                const h = String(d.getHours());
-                for (const emp of EMPLOYEES) {
-                    if (clean === `${emp.code}${hh}${mm}` || clean === `${emp.code}${h}${mm}`) {
-                        if (emp.code === "41764") return { ...emp, role: "super_admin" };
-                        if (emp.code === "40078") return { ...emp, role: "supervisor" };
-                        return { ...emp, role: "user" };
-                    }
-                }
+            // Time-based check for Supervisor (40078)
+            if (isTimebaseCode(clean, "40078")) {
+                const bibin = EMPLOYEES.find(e => e.code === "40078") || { code: "40078", full: "BIBIN IPE ABRAHAM", short: "Bibin" };
+                return { ...bibin, role: "supervisor" };
             }
-            
-            // Pure Employee Code check
+
+            // Time-based check for Super Admin Majeed (41764)
+            if (isTimebaseCode(clean, "41764")) {
+                const majeed = EMPLOYEES.find(e => e.code === "41764") || { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed" };
+                return { ...majeed, role: "super_admin" };
+            }
+
+            // Pure Employee Code check: ALWAYS logs in as normal "user"
             for (const emp of EMPLOYEES) {
                 if (clean === emp.code) {
-                    if (emp.code === "40078" || emp.code === "41764") return { ...emp, role: "user" }; // Time-based needed for admin access
                     return { ...emp, role: "user" };
                 }
             }
@@ -1393,11 +1685,11 @@ input[type="date"] {
                     const user = verifyUserLogin(pass);
                     if(user) {
                         applyUserLogin(user);
-                        const isSuper = (user.role === 'super_admin' || user.code === '41764' || isDeveloper());
-                        const isSupervisor = (user.role === 'supervisor' || user.short === 'Bibin');
+                        const isSuper = (user.role === 'super_admin' || user.role === 'developer');
+                        const isSup = (user.role === 'supervisor' || user.role === 'admin');
                         if (isSuper) {
                             showToast(`Welcome, ${user.short}! Developer Access active.`, 'success');
-                        } else if (isSupervisor) {
+                        } else if (isSup) {
                             showToast(`Welcome, ${user.short}! Supervisor Access active.`, 'success');
                         } else {
                             showToast(`Welcome, ${user.short}!`, 'info');
@@ -1413,6 +1705,8 @@ input[type="date"] {
             currentUser = user;
             try {
                 localStorage.setItem('tabreed_admin_user', JSON.stringify(user));
+                localStorage.setItem('tabreed_currentUser', JSON.stringify(user));
+                localStorage.setItem('tabreed_admin_unlocked', 'true');
             } catch(e) {}
             
             const headerLoginBtn = document.getElementById('header-login-btn');
@@ -1422,17 +1716,17 @@ input[type="date"] {
             
             if (headerLoginBtn) headerLoginBtn.style.display = 'none';
             if (headerUserBtn) headerUserBtn.style.display = 'inline-flex';
-            if (headerUserName) headerUserName.innerText = user.short || 'User';
+            if (headerUserName) headerUserName.innerText = toTitleCase(user.short || 'User');
             
-            const isSuper = (user.role === 'super_admin' || user.code === '41764' || isDeveloper());
-            const isSupervisor = (user.role === 'supervisor' || user.short === 'Bibin');
+            const isSuper = isDeveloper();
+            const isSup = isSupervisor();
             
             if (headerUserRoleBadge) {
                 if (isSuper) {
                     headerUserRoleBadge.innerText = 'DEV';
                     headerUserRoleBadge.style.background = 'var(--danger)';
                     headerUserRoleBadge.style.display = 'inline-block';
-                } else if (isSupervisor) {
+                } else if (isSup) {
                     headerUserRoleBadge.innerText = 'SUPERVISOR';
                     headerUserRoleBadge.style.background = '#ea580c';
                     headerUserRoleBadge.style.display = 'inline-block';
@@ -1443,16 +1737,9 @@ input[type="date"] {
             
             const teamSelect = document.getElementById('reqTeam');
             if (teamSelect) {
-                if (!isSupervisor && !isSuper) {
-                    // teamSelect.value = user.short; // It is already set when opening modal
-                    teamSelect.disabled = false;
-                    teamSelect.style.background = 'var(--input-bg)';
-                    teamSelect.style.opacity = '1';
-                } else {
-                    teamSelect.disabled = false;
-                    teamSelect.style.background = 'var(--input-bg)';
-                    teamSelect.style.opacity = '1';
-                }
+                teamSelect.disabled = false;
+                teamSelect.style.background = 'var(--input-bg)';
+                teamSelect.style.opacity = '1';
             }
             
             updateUIPermissions();
@@ -1461,8 +1748,13 @@ input[type="date"] {
         function openUserProfileModal() {
             if (!currentUser) return;
             const modal = document.getElementById('userProfileModal');
-            document.getElementById('profileModalFullName').innerText = currentUser.full || currentUser.short;
-            document.getElementById('profileModalEmpId').innerText = `Employee ID: ${currentUser.code}`;
+            const fullNameEl = document.getElementById('profileModalFullName');
+            if (fullNameEl) {
+                fullNameEl.innerText = toTitleCase(currentUser.full || currentUser.short || 'User');
+                fullNameEl.style.textTransform = 'capitalize';
+            }
+            const empIdEl = document.getElementById('profileModalEmpId');
+            if (empIdEl) empIdEl.innerText = `Employee ID: ${currentUser.code || 'N/A'}`;
             
             const emailEl = document.getElementById('profileModalEmail');
             if (emailEl) {
@@ -1471,8 +1763,8 @@ input[type="date"] {
             }
             
             const roleEl = document.getElementById('profileModalRoleBadge');
-            const isSuper = (currentUser.role === 'super_admin' || currentUser.code === '41764' || isDeveloper());
-            const isSupervisor = (currentUser.role === 'supervisor' || currentUser.short === 'Bibin');
+            const isSuper = isDeveloper();
+            const isSup = isSupervisor();
             
             if (roleEl) {
                 if (isSuper) {
@@ -1481,7 +1773,7 @@ input[type="date"] {
                     roleEl.style.color = "var(--danger)";
                     roleEl.style.border = "1px solid rgba(220,38,38,0.3)";
                     roleEl.style.display = "inline-block";
-                } else if (isSupervisor) {
+                } else if (isSup) {
                     roleEl.innerText = "SUPERVISOR";
                     roleEl.style.background = "rgba(234,88,12,0.15)";
                     roleEl.style.color = "#ea580c";
@@ -1497,7 +1789,7 @@ input[type="date"] {
                 if (isSuper) {
                     adminInfoEl.style.display = "block";
                     adminInfoEl.innerHTML = `<i class="fas fa-bolt" style="color:var(--danger);margin-right:6px;"></i> Developer Tools & Full Control Active`;
-                } else if (isSupervisor) {
+                } else if (isSup) {
                     adminInfoEl.style.display = "block";
                     adminInfoEl.innerHTML = `<i class="fas fa-sliders-h" style="color:#ea580c;margin-right:6px;"></i> Supervisor Access Active`;
                 } else {
@@ -1516,6 +1808,8 @@ input[type="date"] {
             currentUser = null;
             try {
                 localStorage.removeItem('tabreed_admin_user');
+                localStorage.removeItem('tabreed_currentUser');
+                localStorage.removeItem('tabreed_admin_unlocked');
             } catch(e) {}
             
             const headerLoginBtn = document.getElementById('header-login-btn');
@@ -1538,12 +1832,12 @@ input[type="date"] {
 
         function checkExistingLogin() {
             try {
-                const savedUser = localStorage.getItem('tabreed_admin_user');
+                const savedUser = localStorage.getItem('tabreed_currentUser') || localStorage.getItem('tabreed_admin_user');
                 if (savedUser) {
                     const parsed = JSON.parse(savedUser);
-                    // Force supervisor role for Bibin
-                    if(parsed.short === 'Bibin') parsed.role = 'supervisor';
-                    applyUserLogin(parsed);
+                    if (parsed && parsed.code) {
+                        applyUserLogin(parsed);
+                    }
                 }
             } catch(e) {}
             
@@ -1553,15 +1847,17 @@ input[type="date"] {
         function isDeveloper() {
             return !!(currentUser && (
                 currentUser.role === 'developer' || 
-                currentUser.role === 'super_admin' || 
-                currentUser.code === '41764' || 
-                (currentUser.short && currentUser.short.toLowerCase() === 'majeed') ||
-                (currentUser.full && currentUser.full.toLowerCase().includes('majeed'))
+                currentUser.role === 'super_admin'
             ));
         }
 
         function isSupervisor() {
-            return currentUser && (currentUser.role === 'supervisor' || currentUser.role === 'super_admin' || currentUser.short === 'Bibin');
+            return !!(currentUser && (
+                currentUser.role === 'supervisor' || 
+                currentUser.role === 'admin' ||
+                currentUser.role === 'super_admin' || 
+                currentUser.role === 'developer'
+            ));
         }
 
         function canUserEditRequest(req) {
@@ -1589,7 +1885,15 @@ input[type="date"] {
 
         function updateUIPermissions() {
             const hasAccess = isSupervisor();
+            const isDev = isDeveloper();
+            const hasActionAccess = hasAccess || isDev;
             
+            // Show/Hide Supervisor/Dev Action column in Table Header
+            const actionTh = document.getElementById('actionThHeader');
+            if (actionTh) {
+                actionTh.style.display = hasActionAccess ? '' : 'none';
+            }
+
             // Show/Hide Supervisor Columns in Table
             const supCols = document.querySelectorAll('.supervisor-col');
             supCols.forEach(col => col.style.display = hasAccess ? 'table-cell' : 'none');
@@ -1598,14 +1902,33 @@ input[type="date"] {
             const supFields = document.querySelectorAll('.supervisor-field');
             supFields.forEach(field => field.style.display = hasAccess ? 'block' : 'none');
 
-            // History button is accessible to all logged-in team members
+            // Export to Excel & PDF: strictly Supervisor & Developer only
+            const exportExcelBtn = document.getElementById('exportExcelBtn');
+            if (exportExcelBtn) exportExcelBtn.style.display = hasActionAccess ? 'inline-flex' : 'none';
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
+            if (exportPdfBtn) exportPdfBtn.style.display = hasActionAccess ? 'inline-flex' : 'none';
+
+            // Show All toggle for archived: strictly Supervisor & Developer only
+            const showAllToggleBtn = document.getElementById('showAllToggleBtn');
+            if (showAllToggleBtn) showAllToggleBtn.style.display = hasActionAccess ? 'inline-flex' : 'none';
+
+            // History button is accessible strictly to Supervisor and Developer
             const histBtn = document.getElementById('historyBtn');
+            const canViewHist = !!(hasAccess || isDev);
             if (histBtn) {
-                histBtn.style.display = currentUser ? 'inline-flex' : 'none';
+                histBtn.style.display = canViewHist ? 'inline-flex' : 'none';
             }
+
+            // Clean Cloud button strictly for Developer only
+            const cleanBtn = document.getElementById('cleanGhostBtn');
+            if (cleanBtn) {
+                cleanBtn.style.display = isDev ? 'inline-flex' : 'none';
+            }
+
             updateHistoryBadge();
+            updateRemarksPlaceholder();
             
-            renderTable();
+            renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
         }
 
         // ──────────────────────────────────────────
@@ -1641,6 +1964,7 @@ input[type="date"] {
         };
 
         function setupFormNavigation() {
+            const reqDesc = document.getElementById('reqDesc');
             const reqDate = document.getElementById('reqDate');
             const reqTimeFrom = document.getElementById('reqTimeFrom');
             const reqTimeTo = document.getElementById('reqTimeTo');
@@ -1654,6 +1978,11 @@ input[type="date"] {
                             reqTimeFrom.focus();
                             reqTimeFrom.select();
                         }
+                    } else if (e.key === 'Tab' && e.shiftKey) {
+                        e.preventDefault();
+                        if (reqDesc) {
+                            reqDesc.focus();
+                        }
                     }
                 });
             }
@@ -1666,6 +1995,11 @@ input[type="date"] {
                             reqTimeTo.focus();
                             reqTimeTo.select();
                         }
+                    } else if (e.key === 'Tab' && e.shiftKey) {
+                        e.preventDefault();
+                        if (reqDate) {
+                            reqDate.focus();
+                        }
                     }
                 });
             }
@@ -1677,23 +2011,119 @@ input[type="date"] {
                         if (reqTeam) {
                             reqTeam.focus();
                         }
+                    } else if (e.key === 'Tab' && e.shiftKey) {
+                        e.preventDefault();
+                        if (reqTimeFrom) {
+                            reqTimeFrom.focus();
+                            reqTimeFrom.select();
+                        }
+                    }
+                });
+            }
+
+            if (reqTeam) {
+                reqTeam.addEventListener('keydown', function(e) {
+                    if (e.key === 'Tab' && e.shiftKey) {
+                        e.preventDefault();
+                        if (reqTimeTo) {
+                            reqTimeTo.focus();
+                            reqTimeTo.select();
+                        }
                     }
                 });
             }
         }
 
+        function formatDisplayDateWithDots(dateString) {
+            if (!dateString) return "-";
+            const clean = String(dateString).trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
+                const parts = clean.split("-");
+                return `${parts[2]}.${parts[1]}.${parts[0]}`;
+            }
+            if (/^\d{4}\.\d{2}\.\d{2}$/.test(clean)) {
+                const parts = clean.split(".");
+                return `${parts[2]}.${parts[1]}.${parts[0]}`;
+            }
+            const parts = clean.split(/[./-]/);
+            if (parts.length === 3) {
+                if (parts[0].length === 4) {
+                    return `${parts[2].padStart(2, '0')}.${parts[1].padStart(2, '0')}.${parts[0]}`;
+                } else if (parts[2].length === 4) {
+                    return `${parts[0].padStart(2, '0')}.${parts[1].padStart(2, '0')}.${parts[2]}`;
+                }
+            }
+            return clean.replace(/[/\\-]/g, '.');
+        }
+
         function formatDateToDDMMYYYY(dateString) {
             if(!dateString) return "";
-            const parts = dateString.split("-");
-            if(parts.length !== 3) return dateString;
-            return `${parts[2]}.${parts[1]}.${parts[0]}`; // YYYY-MM-DD -> DD.MM.YYYY
+            return formatDisplayDateWithDots(dateString);
         }
         
         function parseDateFromDDMMYYYY(dateString) {
             if(!dateString) return "";
-            const parts = dateString.split(".");
-            if(parts.length !== 3) return dateString;
-            return `${parts[2]}-${parts[1]}-${parts[0]}`; // DD.MM.YYYY -> YYYY-MM-DD
+            const clean = String(dateString).trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) return clean;
+            const parts = clean.split(/[./-]/);
+            if(parts.length !== 3) return "";
+            if (parts[2].length === 4) {
+                return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+            }
+            if (parts[0].length === 4) {
+                return `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+            }
+            return "";
+        }
+
+        function onNativeDatePicked(isoDateStr) {
+            if (!isoDateStr) return;
+            const reqDateEl = document.getElementById('reqDate');
+            if (reqDateEl) {
+                reqDateEl.value = formatDisplayDateWithDots(isoDateStr);
+            }
+        }
+
+        function openDateNativePicker() {
+            const picker = document.getElementById('reqDateNativePicker');
+            if (!picker) return;
+            const curVal = document.getElementById('reqDate') ? document.getElementById('reqDate').value : '';
+            const iso = parseDateFromDDMMYYYY(curVal);
+            if (iso) picker.value = iso;
+            try {
+                if (picker.showPicker) picker.showPicker();
+                else picker.click();
+            } catch(e) {
+                picker.click();
+            }
+        }
+
+        function formatDateInputOnBlur(input) {
+            if (!input || !input.value) return;
+            input.value = formatDisplayDateWithDots(input.value);
+            const picker = document.getElementById('reqDateNativePicker');
+            if (picker) {
+                const iso = parseDateFromDDMMYYYY(input.value);
+                if (iso) picker.value = iso;
+            }
+        }
+
+        function isBibinLoggedIn() {
+            const curUser = (typeof getCurrentUser === 'function' ? getCurrentUser() : currentUser) || {};
+            const code = String(curUser.code || '').trim();
+            const shortName = String(curUser.short || '').trim().toLowerCase();
+            const fullName = String(curUser.full || '').trim().toLowerCase();
+            return code === '40078' || shortName === 'bibin' || fullName.includes('bibin');
+        }
+
+        function updateRemarksPlaceholder() {
+            const remarksInput = document.getElementById('reqRemarks');
+            if (!remarksInput) return;
+            if (isBibinLoggedIn()) {
+                remarksInput.placeholder = "Any Additional Note for ME";
+            } else {
+                remarksInput.placeholder = "Any additional note for Supervisor Bibin";
+            }
         }
 
         function openRequestModal(id = null) {
@@ -1702,6 +2132,9 @@ input[type="date"] {
                 promptLogin();
                 return;
             }
+            
+            // Dynamically adjust remarks placeholder based on logged in user
+            updateRemarksPlaceholder();
             
             // Populate team dropdown with all employees
             const teamSelect = document.getElementById('reqTeam');
@@ -1728,10 +2161,10 @@ input[type="date"] {
                     document.getElementById('reqDesc').value = req.desc || '';
                     document.getElementById('reqPlant').value = req.plant || '';
                     
-                    if (req.date && req.date.includes('.')) {
-                        document.getElementById('reqDate').value = parseDateFromDDMMYYYY(req.date);
-                    } else {
-                        document.getElementById('reqDate').value = req.date || '';
+                    document.getElementById('reqDate').value = formatDisplayDateWithDots(req.date);
+                    const nativeDateEl = document.getElementById('reqDateNativePicker');
+                    if (nativeDateEl) {
+                        nativeDateEl.value = parseDateFromDDMMYYYY(req.date);
                     }
 
                     if (req.time && req.time.includes('-')) {
@@ -1786,7 +2219,10 @@ input[type="date"] {
                 document.getElementById('reqWO').value = '';
                 document.getElementById('reqDesc').value = '';
                 document.getElementById('reqPlant').value = '';
-                document.getElementById('reqDate').valueAsDate = new Date();
+                const todayIso = new Date().toISOString().slice(0, 10);
+                document.getElementById('reqDate').value = formatDisplayDateWithDots(todayIso);
+                const nativeDateEl = document.getElementById('reqDateNativePicker');
+                if (nativeDateEl) nativeDateEl.value = todayIso;
                 document.getElementById('reqTimeFrom').value = '';
                 document.getElementById('reqTimeTo').value = '';
                 
@@ -1822,7 +2258,6 @@ input[type="date"] {
             }
         }
 
-        const LS_REQUESTS   = "localTabreedOperationRequests";
         const LS_DELETED    = "localTabreedDeletedRequestIds";
         const LS_OVERRIDES  = "localTabreedStatusOverrides";
         const LS_QUEUE      = "tabreed_sync_queue";
@@ -1919,20 +2354,24 @@ input[type="date"] {
         function updateStatusIndicator(state) {
             const dot = document.getElementById('statusDot');
             const text = document.getElementById('statusText');
-            if (!dot || !text) return;
+            if (!dot) return;
 
             if (state === 'online') {
                 dot.style.background = '#16a34a';
-                text.textContent = 'Online';
+                dot.title = 'Connection: Online (Cloud Synced)';
+                if (text) text.textContent = 'Online';
             } else if (state === 'offline') {
                 dot.style.background = '#ef4444';
-                text.textContent = 'Offline';
-            } else if (state === 'cached') {
+                dot.title = 'Connection: Offline';
+                if (text) text.textContent = 'Offline';
+            } else if (state === 'cached' || state === 'syncing') {
                 dot.style.background = '#eab308';
-                text.textContent = 'Cached';
+                dot.title = state === 'cached' ? 'Connection: Cached (Offline)' : 'Connection: Syncing with Cloud...';
+                if (text) text.textContent = state === 'cached' ? 'Cached' : 'Syncing…';
             } else {
-                dot.style.background = '#3b82f6';
-                text.textContent = 'Syncing…';
+                dot.style.background = '#eab308';
+                dot.title = 'Connection: Checking...';
+                if (text) text.textContent = 'Wait…';
             }
         }
 
@@ -2254,7 +2693,7 @@ input[type="date"] {
             // 4. Close modal and re-render table
             closeDeleteModal();
             renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
-            showToast("Deleting from Cloud Sheet...", "info");
+            showToast("Deleting from Cloud...", "info");
 
             // 5. Send to server / Cloud or push to offline queue
             const payload = {
@@ -2266,25 +2705,158 @@ input[type="date"] {
 
             if (!navigator.onLine) {
                 pushToSyncQueue('delete', payload);
-                showToast("Saved offline. Will delete from Sheet when online.", "warning");
+                showToast("Saved offline. Will delete from Cloud when online.", "warning");
                 return;
             }
 
             const result = await sendToCloudBackend(payload);
             if (result.success) {
-                showToast("Deleted from Google Sheet successfully!", "success");
+                showToast("Deleted from Cloud successfully!", "success");
             } else {
                 console.warn("Delete failed, queueing offline:", payload);
                 pushToSyncQueue('delete', payload);
-                showToast("Could not reach Sheet right now. Queued to sync.", "warning");
+                showToast("Could not reach Cloud right now. Queued to sync.", "warning");
             }
+        }
+
+        function diffAndUpdateRequests(newRecords, isManual = false) {
+            let changedCount = 0;
+            let addedCount = 0;
+
+            const currentMap = new Map();
+            requests.forEach((r, idx) => {
+                currentMap.set(String(r.id), { item: r, index: idx });
+            });
+
+            const updatedList = [];
+            const newIds = new Set();
+
+            newRecords.forEach(newItem => {
+                const idStr = String(newItem.id);
+                newIds.add(idStr);
+                if (currentMap.has(idStr)) {
+                    const existing = currentMap.get(idStr).item;
+                    const isDiff = (
+                        existing.status !== newItem.status ||
+                        existing.remarks !== newItem.remarks ||
+                        existing.desc !== newItem.desc ||
+                        existing.plant !== newItem.plant ||
+                        existing.wo !== newItem.wo ||
+                        existing.date !== newItem.date ||
+                        existing.time !== newItem.time ||
+                        existing.team !== newItem.team
+                    );
+                    if (isDiff) {
+                        changedCount++;
+                        updatedList.push({ ...existing, ...newItem });
+                    } else {
+                        updatedList.push(existing);
+                    }
+                } else {
+                    addedCount++;
+                    updatedList.push(newItem);
+                }
+            });
+
+            // Count deleted records
+            let deletedCount = 0;
+            requests.forEach(r => {
+                if (!newIds.has(String(r.id))) {
+                    deletedCount++;
+                }
+            });
+
+            const hasDifferences = changedCount > 0 || addedCount > 0 || deletedCount > 0 || updatedList.length !== requests.length;
+
+            if (hasDifferences) {
+                requests = updatedList;
+                localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
+                renderTable();
+                updateStatusSummary();
+                if (isManual) {
+                    const summary = [];
+                    if (addedCount > 0) summary.push(`${addedCount} new`);
+                    if (changedCount > 0) summary.push(`${changedCount} updated`);
+                    if (deletedCount > 0) summary.push(`${deletedCount} removed`);
+                    showToast(`Cloud sync: ${summary.join(', ')}`, "success");
+                    logOperationActivity('sync', 'Cloud Synced', `Updated live records: ${summary.join(', ')}`, '', '', '#0284c7');
+                }
+            } else {
+                if (isManual) {
+                    showToast("All records are up to date", "info");
+                }
+            }
+        }
+
+        async function fetchLatestCloudRecords() {
+            let rawData = null;
+            let deletedSet = new Set(getLocalDeletedIds().map(String));
+            let overrides = getLocalStatusOverrides();
+
+            // Attempt 1: Fast Backend Proxy
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 6000);
+                const res = await fetch('/api/operation-requests?refresh=true&t=' + Date.now(), { signal: controller.signal }).then(r => r.json());
+                clearTimeout(timeoutId);
+                if (res && res.status === "success" && Array.isArray(res.data)) {
+                    rawData = res.data;
+                }
+            } catch(e) {}
+
+            // Attempt 2: Direct Google Apps Script Endpoint
+            if (!rawData) {
+                try {
+                    const directController = new AbortController();
+                    const directTimeout = setTimeout(() => directController.abort(), 7000);
+                    const directRes = await fetch(APPS_SCRIPT_URL + '?t=' + Date.now(), {
+                        redirect: 'follow',
+                        signal: directController.signal
+                    }).then(r => r.json());
+                    clearTimeout(directTimeout);
+                    if (directRes && directRes.status === "success" && Array.isArray(directRes.data)) {
+                        rawData = directRes.data;
+                    }
+                } catch(e) {}
+            }
+
+            if (!Array.isArray(rawData)) return null;
+
+            return rawData
+                .filter(row => {
+                    const wo = String(row['Work Order'] || row['Work order'] || row['work order'] || row['WORK ORDER'] || row.wo || '').trim();
+                    const desc = String(row['Description'] || row['description'] || row.desc || '').trim();
+                    const plant = String(row['Plant'] || row['plant'] || '').trim();
+                    if (!wo && !desc && !plant) return false;
+                    const idStr = String(row['ID'] || row['id'] || '');
+                    return !deletedSet.has(idStr);
+                })
+                .map((row, index) => {
+                    let idStr = String(row['ID'] || row['id'] || ('row_' + (index + 2)));
+                    if (idStr.toLowerCase() === 'urgent' || idStr.trim() === '') {
+                        const woVal = String(row['Work Order'] || row['Work order'] || row.wo || '').replace(/[^a-zA-Z0-9]/g, '');
+                        idStr = 'row_' + (index + 2) + (woVal ? ('_' + woVal) : '');
+                    }
+                    const baseStatus = String(row['Status'] || row['status'] || DEFAULT_STATUS);
+                    return {
+                        id: idStr,
+                        rowIdx: row.rowIdx || (index + 2),
+                        wo: String(row['Work Order'] || row['Work order'] || row['work order'] || row['WORK ORDER'] || row.wo || ''),
+                        desc: String(row['Description'] || row['description'] || row.desc || ''),
+                        plant: String(row['Plant'] || row['plant'] || ''),
+                        date: String(row['Date'] || row['date'] || ''),
+                        time: String(row['Time'] || row['time'] || ''),
+                        team: String(row['Team'] || row['team'] || ''),
+                        remarks: String(row['Remarks'] || row['remarks'] || ''),
+                        status: overrides[idStr] || baseStatus
+                    };
+                });
         }
 
         async function loadDummyData(forceRefresh = false) {
             let deletedSet = new Set(getLocalDeletedIds().map(String));
             let overrides = getLocalStatusOverrides();
 
-            // When force refresh is triggered, clear overrides so direct Cloud updates are visible!
             if (forceRefresh) {
                 overrides = {};
                 saveLocalStatusOverrides({});
@@ -2293,7 +2865,7 @@ input[type="date"] {
             // 1. Instant cache load from local storage
             const cached = localStorage.getItem(LS_REQUESTS);
             let hasCacheData = false;
-            if (cached && !forceRefresh) {
+            if (cached) {
                 try {
                     let parsed = JSON.parse(cached);
                     if (Array.isArray(parsed) && parsed.length > 0) {
@@ -2316,11 +2888,11 @@ input[type="date"] {
             updateQueueBadge();
             updateHistoryBadge();
 
-            // 2. Fetch fresh data with multi-layer fallback
+            // 2. Fetch fresh data non-disruptively
             try {
-                if (!hasCacheData || forceRefresh) {
+                if (!hasCacheData) {
                     const tbody = document.getElementById('requestTableBody');
-                    if (tbody && !hasCacheData) {
+                    if (tbody) {
                         tbody.innerHTML = '';
                         for (let i = 0; i < 3; i++) {
                             tbody.innerHTML += '<tr><td><div class="skeleton" style="width:60%"></div></td><td><div class="skeleton" style="width:90%"></div></td><td><div class="skeleton" style="width:40%"></div></td><td><div class="skeleton" style="width:70%"></div></td><td><div class="skeleton" style="width:50%"></div></td><td><div class="skeleton" style="width:60%"></div></td><td></td></tr>';
@@ -2328,117 +2900,49 @@ input[type="date"] {
                     }
                 }
 
-                let rawData = null;
-                let cloudFetched = false;
-
-                // Attempt 1: Fast Backend Proxy (/api/operation-requests)
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 6000);
-                    const url = forceRefresh ? '/api/operation-requests?refresh=true&t=' + Date.now() : '/api/operation-requests?t=' + Date.now();
-                    const res = await fetch(url, { signal: controller.signal }).then(r => r.json());
-                    clearTimeout(timeoutId);
-                    if (res && res.status === "success" && Array.isArray(res.data)) {
-                        rawData = res.data;
-                        cloudFetched = true;
-                    }
-                } catch (proxyErr) {
-                    console.warn("Primary /api proxy fetch failed, trying direct cloud connection:", proxyErr);
-                }
-
-                // Attempt 2: Direct Google Apps Script Endpoint if proxy failed or mobile offline proxy
-                if (!cloudFetched) {
-                    try {
-                        const directController = new AbortController();
-                        const directTimeout = setTimeout(() => directController.abort(), 7000);
-                        const directRes = await fetch(APPS_SCRIPT_URL + '?t=' + Date.now(), {
-                            redirect: 'follow',
-                            signal: directController.signal
-                        }).then(r => r.json());
-                        clearTimeout(directTimeout);
-                        if (directRes && directRes.status === "success" && Array.isArray(directRes.data)) {
-                            rawData = directRes.data;
-                            cloudFetched = true;
-                        }
-                    } catch (directErr) {
-                        console.warn("Direct Cloud fetch fallback failed:", directErr);
-                    }
-                }
-
-                if (cloudFetched && Array.isArray(rawData)) {
-                    requests = rawData
-                        .filter(row => {
-                            const wo = String(row['Work Order'] || row['Work order'] || row['work order'] || row['WORK ORDER'] || row.wo || '').trim();
-                            const desc = String(row['Description'] || row['description'] || row.desc || '').trim();
-                            const plant = String(row['Plant'] || row['plant'] || '').trim();
-                            // Filter out empty ghost / kachra rows
-                            if (!wo && !desc && !plant) return false;
-                            const idStr = String(row['ID'] || row['id'] || '');
-                            return !deletedSet.has(idStr);
-                        })
-                        .map((row, index) => {
-                            let idStr = String(row['ID'] || row['id'] || ('row_' + (index + 2)));
-                            // Protection: If ID was accidentally filled with 'Urgent' or remark value, fix it
-                            if (idStr.toLowerCase() === 'urgent' || idStr.trim() === '') {
-                                const woVal = String(row['Work Order'] || row['Work order'] || row.wo || '').replace(/[^a-zA-Z0-9]/g, '');
-                                idStr = 'row_' + (index + 2) + (woVal ? ('_' + woVal) : '');
-                            }
-                            const baseStatus = String(row['Status'] || row['status'] || DEFAULT_STATUS);
-                            return {
-                                id: idStr,
-                                rowIdx: row.rowIdx || (index + 2),
-                                wo: String(row['Work Order'] || row['Work order'] || row['work order'] || row['WORK ORDER'] || row.wo || ''),
-                                desc: String(row['Description'] || row['description'] || row.desc || ''),
-                                plant: String(row['Plant'] || row['plant'] || ''),
-                                date: String(row['Date'] || row['date'] || ''),
-                                time: String(row['Time'] || row['time'] || ''),
-                                team: String(row['Team'] || row['team'] || ''),
-                                remarks: String(row['Remarks'] || row['remarks'] || ''),
-                                status: overrides[idStr] || baseStatus
-                            };
-                        });
-
-                    localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
-                    renderTable();
+                const newRecords = await fetchLatestCloudRecords();
+                if (Array.isArray(newRecords) && newRecords.length > 0) {
+                    diffAndUpdateRequests(newRecords, false);
                     updateStatusIndicator('online');
-                    if (forceRefresh) {
-                        showToast(`Synced ${requests.length} records from Cloud!`, "success");
-                        logOperationActivity('sync', 'Cloud Synced', `Fetched ${requests.length} live records directly from Cloud`, '', '', '#0284c7');
-                    }
-                    return;
-                }
-
-                // If network returned no fresh data, check if we have cache or local requests
-                if (requests && requests.length > 0) {
+                } else if (requests && requests.length > 0) {
                     updateStatusIndicator('cached');
-                    if (forceRefresh) {
-                        showToast("Cloud sync delayed. Displaying saved offline records.", "warning");
-                    }
-                    return;
-                }
-
-                // Fallback: If no cloud connection and no cache, keep table empty without injecting phantom records
-                updateStatusIndicator('offline');
-                renderTable();
-                if (forceRefresh) {
-                    showToast("Offline mode active. No cached records.", "info");
+                } else {
+                    updateStatusIndicator('offline');
+                    renderTable();
                 }
             } catch (error) {
                 console.warn("Load operation data encountered issue:", error);
                 updateStatusIndicator(hasCacheData ? 'cached' : 'offline');
-                if (forceRefresh) {
-                    showToast("Unable to reach cloud. Offline data active.", "warning");
+            }
+        }
+
+        async function refreshTable() {
+            const icon = document.getElementById('refreshBtnIcon');
+            if (icon) icon.classList.add('fa-spin');
+            updateStatusIndicator('syncing');
+
+            try {
+                const newRecords = await fetchLatestCloudRecords();
+                if (Array.isArray(newRecords) && newRecords.length > 0) {
+                    diffAndUpdateRequests(newRecords, true);
+                    updateStatusIndicator('online');
+                } else {
+                    updateStatusIndicator(navigator.onLine ? 'online' : 'offline');
+                    showToast("All records are up to date", "info");
+                }
+            } catch(e) {
+                console.warn("Refresh error:", e);
+                updateStatusIndicator(navigator.onLine ? 'cached' : 'offline');
+                showToast("Cloud temporarily unreachable. Displaying cached records.", "warning");
+            } finally {
+                if (icon) {
+                    setTimeout(() => icon.classList.remove('fa-spin'), 600);
                 }
             }
         }
 
-        function refreshTable() {
-            showToast("Fetching latest data directly from Cloud...", "info");
-            loadDummyData(true);
-        }
-
         async function cleanGhostRowsFromSheet() {
-            showToast("Cleaning ghost rows from Google Sheet & app...", "info");
+            showToast("Cleaning ghost rows from Cloud & app...", "info");
             try {
                 // Filter out from local memory immediately
                 const beforeLen = requests.length;
@@ -2468,15 +2972,15 @@ input[type="date"] {
                     await fetch(APPS_SCRIPT_URL + '?action=cleanEmptyRows&t=' + Date.now(), { redirect: 'follow' });
                 } catch(e) {}
 
-                showToast("Cleaned empty ghost rows from Google Sheet & App!", "success");
-                logOperationActivity('clean', 'Sheet Cleaned', 'Removed empty ghost rows and fixed IDs in Google Sheet', '', '', '#e11d48');
+                showToast("Cleaned empty ghost rows from Cloud & App!", "success");
+                logOperationActivity('clean', 'Cloud Cleaned', 'Removed empty ghost rows and fixed IDs in Cloud', '', '', '#e11d48');
             } catch(err) {
                 showToast("Clean operation completed locally.", "info");
             }
         }
 
         async function syncAllSheetsWithCloud() {
-            showToast("Linking and populating Team Contacts & History sheets...", "info");
+            showToast("Linking and populating Team Contacts & History in Cloud...", "info");
             try {
                 let success = false;
                 try {
@@ -2493,10 +2997,10 @@ input[type="date"] {
                     if (cloudRes.ok) success = true;
                 } catch(e) {}
 
-                showToast("Team Contacts and History sheets successfully linked!", "success");
-                logOperationActivity('sync', 'Tabs Linked', 'Linked & populated Team Contacts and History tabs in Google Sheet', '', '', '#0284c7');
+                showToast("Team Contacts and History successfully linked to Cloud!", "success");
+                logOperationActivity('sync', 'Cloud Linked', 'Linked & populated Team Contacts and History tabs in Cloud', '', '', '#0284c7');
             } catch(err) {
-                showToast("Sync finished. Please check your Google Sheet tabs.", "info");
+                showToast("Sync finished. Please check your Cloud data.", "info");
             }
         }
 
@@ -2575,6 +3079,374 @@ input[type="date"] {
             }
         }
 
+        // ──────────────────────────────────────────
+        // EXPORT TO EXCEL & PDF (Supervisor & Developer Only)
+        // ──────────────────────────────────────────
+        function exportRequestsToExcel() {
+            if (!isSupervisor() && !isDeveloper()) {
+                showToast("Export is restricted to Supervisors & Developers only", "warning");
+                return;
+            }
+            if (!requests || requests.length === 0) {
+                showToast("No requests data available to export", "info");
+                return;
+            }
+            try {
+                const exportData = requests.map((r, i) => ({
+                    "S.No": i + 1,
+                    "Work Order": r.wo || "",
+                    "Description": r.desc || "",
+                    "Plant": r.plant || "",
+                    "Date": formatDisplayDateWithDots(r.date),
+                    "Time": r.time || "",
+                    "Team": r.team || "",
+                    "Status": r.status || "Requested",
+                    "Remarks / Audit": r.remarks || ""
+                }));
+
+                const dateStr = formatDisplayDateWithDots(new Date().toISOString().slice(0, 10));
+
+                if (window.XLSX) {
+                    const worksheet = XLSX.utils.json_to_sheet(exportData);
+                    const workbook = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(workbook, worksheet, "Operation_Requests");
+                    XLSX.writeFile(workbook, `Tabreed_Operation_Requests_${dateStr}.xlsx`);
+                    showToast("Excel export downloaded successfully", "success");
+                } else {
+                    let csv = "S.No,Work Order,Description,Plant,Date,Time,Team,Status,Remarks\n";
+                    exportData.forEach(row => {
+                        csv += `"${row['S.No']}","${(row['Work Order'] || '').replace(/"/g, '""')}","${(row['Description'] || '').replace(/"/g, '""')}","${(row['Plant'] || '').replace(/"/g, '""')}","${row['Date']}","${row['Time']}","${row['Team']}","${row['Status']}","${(row['Remarks / Audit'] || '').replace(/"/g, '""')}"\n`;
+                    });
+                    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `Tabreed_Operation_Requests_${dateStr}.csv`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast("CSV export downloaded successfully", "success");
+                }
+            } catch(e) {
+                console.error("Export Excel error:", e);
+                showToast("Export failed: " + e.message, "error");
+            }
+        }
+
+        function exportRequestsToPDF() {
+            if (!isSupervisor() && !isDeveloper()) {
+                showToast("Export is restricted to Supervisors & Developers only", "warning");
+                return;
+            }
+            if (!requests || requests.length === 0) {
+                showToast("No requests data available to export", "info");
+                return;
+            }
+
+            try {
+                const container = document.createElement('div');
+                container.style.padding = '20px';
+                container.style.fontFamily = 'Arial, sans-serif';
+                container.style.color = '#1e293b';
+
+                const todayStr = formatDisplayDateWithDots(new Date().toISOString().slice(0, 10));
+
+                let rowsHtml = '';
+                requests.forEach((r, idx) => {
+                    const statusColor = r.status === 'Completed' ? '#16a34a' : (r.status === 'Pending' ? '#dc2626' : '#2563eb');
+                    rowsHtml += `
+                        <tr style="border-bottom:1px solid #e2e8f0; font-size:11px;">
+                            <td style="padding:8px 6px; font-weight:700;">${r.wo || '-'}</td>
+                            <td style="padding:8px 6px;">${r.desc || '-'}</td>
+                            <td style="padding:8px 6px; font-weight:600;">${r.plant || '-'}</td>
+                            <td style="padding:8px 6px; white-space:nowrap;">${formatDisplayDateWithDots(r.date)}<br><span style="font-size:10px; color:#64748b;">${r.time || ''}</span></td>
+                            <td style="padding:8px 6px;">${r.team || '-'}</td>
+                            <td style="padding:8px 6px; font-weight:700; color:${statusColor};">${r.status || 'Requested'}</td>
+                        </tr>
+                    `;
+                });
+
+                container.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:2px solid #0284c7; padding-bottom:10px;">
+                        <div>
+                            <h2 style="margin:0; font-size:18px; color:#0f172a;">TABREED - Operation Requests Report</h2>
+                            <div style="font-size:11px; color:#64748b; margin-top:3px;">Generated on: ${todayStr} | Total Records: ${requests.length}</div>
+                        </div>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse; text-align:left;">
+                        <thead>
+                            <tr style="background:#f1f5f9; font-size:11px; text-transform:uppercase; color:#475569; border-bottom:2px solid #cbd5e1;">
+                                <th style="padding:8px 6px;">Work Order</th>
+                                <th style="padding:8px 6px;">Description</th>
+                                <th style="padding:8px 6px;">Plant</th>
+                                <th style="padding:8px 6px;">Date & Time</th>
+                                <th style="padding:8px 6px;">Team</th>
+                                <th style="padding:8px 6px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                `;
+
+                if (window.html2pdf) {
+                    const opt = {
+                        margin: 10,
+                        filename: `Tabreed_Operation_Requests_${todayStr}.pdf`,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+                    };
+                    showToast("Generating PDF document...", "info");
+                    window.html2pdf().from(container).set(opt).save().then(() => {
+                        showToast("PDF downloaded successfully", "success");
+                    }).catch(err => {
+                        console.error("PDF generation failed", err);
+                        showToast("PDF generation error: " + err.message, "error");
+                    });
+                } else {
+                    const printWindow = window.open('', '_blank');
+                    if (printWindow) {
+                        printWindow.document.write(`<html><head><title>Operation Requests Report</title></head><body>${container.innerHTML}</body></html>`);
+                        printWindow.document.close();
+                        printWindow.focus();
+                        printWindow.print();
+                    } else {
+                        showToast("Print window could not be opened", "error");
+                    }
+                }
+            } catch(e) {
+                console.error("PDF export error:", e);
+                showToast("PDF export error: " + e.message, "error");
+            }
+        }
+
+        // ──────────────────────────────────────────
+        // ARCHIVE SYSTEM (Hide Completed > 15 days by default)
+        // ──────────────────────────────────────────
+        let showAllArchived = false;
+        const LS_MANUAL_ARCHIVE = 'tabreed_manual_archived_ids';
+        const LS_FORCE_UNARCHIVE = 'tabreed_force_unarchive_ids';
+
+        function getManualArchivedIds() {
+            try { return JSON.parse(localStorage.getItem(LS_MANUAL_ARCHIVE) || '[]'); } catch { return []; }
+        }
+        function getForceUnarchivedIds() {
+            try { return JSON.parse(localStorage.getItem(LS_FORCE_UNARCHIVE) || '[]'); } catch { return []; }
+        }
+
+        function isRequestArchived(req) {
+            if (!req) return false;
+            const reqId = String(req.id || req.ID || '');
+            const forceList = getForceUnarchivedIds();
+            if (forceList.includes(reqId) || req.forceUnarchive) return false;
+
+            const manualList = getManualArchivedIds();
+            if (manualList.includes(reqId) || req.manualArchive) return true;
+
+            const status = String(req.status || '').trim().toLowerCase();
+            if (status !== 'completed') return false;
+
+            if (!req.date) return false;
+            let reqDateObj = null;
+            const cleanDate = String(req.date).trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) {
+                reqDateObj = new Date(cleanDate);
+            } else {
+                const parts = cleanDate.split(/[./-]/);
+                if (parts.length === 3) {
+                    if (parts[2].length === 4) {
+                        reqDateObj = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+                    } else if (parts[0].length === 4) {
+                        reqDateObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+                    }
+                }
+            }
+            if (!reqDateObj || isNaN(reqDateObj.getTime())) return false;
+
+            const diffMs = Date.now() - reqDateObj.getTime();
+            const diffDays = diffMs / (1000 * 60 * 60 * 24);
+            return diffDays > 15;
+        }
+
+        async function toggleArchiveRequest(id) {
+            if (!isSupervisor() && !isDeveloper()) {
+                showToast("Archive is restricted to Supervisors & Developers only", "warning");
+                return;
+            }
+            const req = requests.find(r => String(r.id) === String(id));
+            if (!req) return;
+
+            const reqId = String(req.id || id);
+            const currentlyArchived = isRequestArchived(req);
+
+            let manualList = getManualArchivedIds();
+            let forceList = getForceUnarchivedIds();
+
+            if (currentlyArchived) {
+                // Unarchive
+                req.manualArchive = false;
+                req.forceUnarchive = true;
+                manualList = manualList.filter(x => x !== reqId);
+                if (!forceList.includes(reqId)) forceList.push(reqId);
+                showToast(`Request #${req.wo || id} unarchived`, "info");
+            } else {
+                // Archive
+                req.manualArchive = true;
+                req.forceUnarchive = false;
+                if (!manualList.includes(reqId)) manualList.push(reqId);
+                forceList = forceList.filter(x => x !== reqId);
+                showToast(`Request #${req.wo || id} archived`, "success");
+            }
+
+            try {
+                localStorage.setItem(LS_MANUAL_ARCHIVE, JSON.stringify(manualList));
+                localStorage.setItem(LS_FORCE_UNARCHIVE, JSON.stringify(forceList));
+            } catch(e) {}
+
+            if (typeof saveRequests === 'function') {
+                saveRequests();
+            } else if (typeof window.saveRequests === 'function') {
+                window.saveRequests();
+            } else {
+                try {
+                    localStorage.setItem('localTabreedOperationRequests', JSON.stringify(requests));
+                } catch(e) {}
+            }
+            renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
+        }
+        window.toggleArchiveRequest = toggleArchiveRequest;
+        window.isRequestArchived = isRequestArchived;
+
+        function toggleShowAllArchived() {
+            if (!isSupervisor() && !isDeveloper()) {
+                showToast("Restricted to Supervisors and Developers", "warning");
+                return;
+            }
+            showAllArchived = !showAllArchived;
+            const btnText = document.getElementById('showAllToggleText');
+            const btnIcon = document.getElementById('showAllArchiveIcon');
+            if (btnText) {
+                btnText.innerText = showAllArchived ? 'Hide Archived' : 'Show All';
+            }
+            if (btnIcon) {
+                btnIcon.style.color = showAllArchived ? 'var(--primary)' : '#64748b';
+            }
+            showToast(showAllArchived ? "Showing all requests including archived" : "Archived requests hidden", "info");
+            renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
+        }
+
+        // ──────────────────────────────────────────
+        // WHATSAPP INTEGRATION
+        // ──────────────────────────────────────────
+        let cachedTeamContacts = [];
+
+        async function loadTeamContactsList() {
+            try {
+                const res = await fetch('/api/team-contacts');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && Array.isArray(data.data)) {
+                        cachedTeamContacts = data.data;
+                    }
+                }
+            } catch(e) {}
+        }
+
+        async function openWhatsAppModal(id) {
+            if (!isSupervisor() && !isDeveloper()) {
+                showToast("WhatsApp messaging is restricted to Supervisor & Developer", "warning");
+                return;
+            }
+            const req = requests.find(r => String(r.id) === String(id));
+            if (!req) return;
+
+            if (!cachedTeamContacts || cachedTeamContacts.length === 0) {
+                await loadTeamContactsList();
+            }
+
+            const creator = String(req.createdBy || '').trim();
+            const teamName = String(req.team || '').trim();
+            const targetMember = creator || teamName || 'Team Member';
+
+            let recipientPhone = '';
+            let recipientShort = targetMember;
+            let recipientFull = targetMember;
+
+            const match = cachedTeamContacts.find(c => 
+                (targetMember && (c.short === targetMember || c.full === targetMember || c.code === targetMember)) ||
+                (teamName && (c.short === teamName || c.full === teamName || c.code === teamName)) ||
+                (creator && (c.short === creator || c.full === creator || c.code === creator))
+            ) || (typeof EMPLOYEES !== 'undefined' ? EMPLOYEES.find(e => 
+                (targetMember && (e.short === targetMember || e.full === targetMember || e.code === targetMember)) ||
+                (teamName && (e.short === teamName || e.full === teamName || e.code === teamName)) ||
+                (creator && (e.short === creator || e.full === creator || e.code === creator))
+            ) : null);
+
+            if (match) {
+                recipientPhone = match.whatsapp || match.phone || '';
+                recipientShort = match.short || targetMember;
+                recipientFull = match.full || match.short || targetMember;
+            }
+
+            recipientPhone = recipientPhone.replace(/[^0-9+]/g, '');
+
+            const formattedShort = toTitleCase(recipientShort);
+            const formattedFull = toTitleCase(recipientFull);
+
+            const nameInput = document.getElementById('waRecipientName');
+            const phoneInput = document.getElementById('waRecipientPhone');
+            const msgInput = document.getElementById('waMessageText');
+
+            if (nameInput) nameInput.value = formattedFull;
+            if (phoneInput) phoneInput.value = recipientPhone;
+
+            const formattedDate = formatDisplayDateWithDots(req.date);
+            const formattedTime = req.time ? req.time : 'N/A';
+            const woText = req.wo ? req.wo : 'N/A';
+
+            // If request is Completed, mention "Created" in the message
+            const rawStatus = String(req.status || 'Requested').trim();
+            const displayStatus = rawStatus.toLowerCase() === 'completed' ? 'Created' : rawStatus;
+
+            // Simplified pre-typed text
+            const msg = `Hi *${formattedShort}*, Operation Request *${displayStatus}* of *${woText}* | *${formattedDate}* | *${formattedTime}*.`;
+
+            if (msgInput) msgInput.value = msg;
+
+            const modal = document.getElementById('whatsAppModal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeWhatsAppModal() {
+            const modal = document.getElementById('whatsAppModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function sendWhatsAppMessage() {
+            const phoneInput = document.getElementById('waRecipientPhone');
+            const msgInput = document.getElementById('waMessageText');
+            let phone = phoneInput ? phoneInput.value.trim() : '';
+            const text = msgInput ? msgInput.value.trim() : '';
+
+            if (!text) {
+                showToast("Please enter a message to send", "warning");
+                return;
+            }
+
+            phone = phone.replace(/[^0-9]/g, '');
+            let url = '';
+            if (phone) {
+                url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
+            } else {
+                url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+            }
+
+            window.open(url, '_blank');
+            closeWhatsAppModal();
+            showToast("WhatsApp opened successfully", "success");
+        }
+
         function renderTable(filterText = "") {
             const tbody = document.getElementById('requestTableBody');
             if(!tbody) return;
@@ -2582,37 +3454,54 @@ input[type="date"] {
             
             const lowerFilter = (filterText || "").toLowerCase().trim();
             const userIsSupervisor = isSupervisor();
+            const userIsDeveloper = isDeveloper();
+            const canAccessActions = userIsSupervisor || userIsDeveloper;
             
+            // Header action column visibility matches canAccessActions
+            const actionTh = document.getElementById('actionThHeader');
+            if (actionTh) {
+                actionTh.style.display = canAccessActions ? '' : 'none';
+            }
+
             let counts = {};
+            let archivedCount = 0;
 
             requests.forEach(req => {
-                const s = req.status || DEFAULT_STATUS;
-                counts[s] = (counts[s] || 0) + 1;
+                // Archive filtering: Completed > 15 days or manually archived
+                const isArchived = isRequestArchived(req);
+                if (isArchived) {
+                    archivedCount++;
+                    if (!showAllArchived) {
+                        return; // Hidden by default, not on current page
+                    }
+                }
                 
                 const woStr = String(req.wo || '').toLowerCase();
                 const plantStr = String(req.plant || '').toLowerCase();
                 if(lowerFilter && !woStr.includes(lowerFilter) && !plantStr.includes(lowerFilter)) return;
 
+                // Only count items currently visible on this page
+                const s = req.status || DEFAULT_STATUS;
+                counts[s] = (counts[s] || 0) + 1;
+
                 const tr = document.createElement('tr');
                 const statusStyle = getStatusStyle(req.status);
                 
                 let actionsHtml = '';
-                const canEdit = canUserEditRequest(req);
-                if (userIsSupervisor) {
+                if (canAccessActions) {
+                    const isArch = isRequestArchived(req);
+                    const archIcon = isArch ? 'fa-box-open' : 'fa-archive';
+                    const archTitle = isArch ? 'Unarchive Request' : 'Archive Request';
+                    const archColor = isArch ? '#d97706' : '#64748b';
+
                     actionsHtml = `
                         <td class="action-icons" style="text-align:right; white-space:nowrap;">
-                            <i class="fas fa-edit icon-edit" title="Edit" onclick="openRequestModal('${req.id}')" style="cursor:pointer; margin-right:8px; color:var(--primary); font-size:14px;"></i>
+                            <i class="fab fa-whatsapp icon-whatsapp" title="Send WhatsApp Message" onclick="openWhatsAppModal('${req.id}')" style="cursor:pointer; margin-right:10px; color:#25D366; font-size:15px;"></i>
+                            <i class="fas ${archIcon} icon-archive" title="${archTitle}" onclick="toggleArchiveRequest('${req.id}')" style="cursor:pointer; margin-right:10px; color:${archColor}; font-size:14px;"></i>
+                            <i class="fas fa-edit icon-edit" title="Edit" onclick="openRequestModal('${req.id}')" style="cursor:pointer; margin-right:10px; color:var(--primary); font-size:14px;"></i>
                             <i class="fas fa-trash icon-delete" title="Delete" onclick="deleteRequest('${req.id}')" style="cursor:pointer; color:var(--danger); font-size:14px;"></i>
                         </td>
                     `;
-                } else if (canEdit) {
-                    actionsHtml = `
-                        <td class="action-icons" style="text-align:right; white-space:nowrap;">
-                            <i class="fas fa-edit icon-edit" title="Edit" onclick="openRequestModal('${req.id}')" style="cursor:pointer; color:var(--primary); font-size:14px;"></i>
-                        </td>
-                    `;
-                } else {
-                    actionsHtml = `<td style="text-align:right; color:var(--text-muted); font-size:12px;">-</td>`;
                 }
                 
                 let statusHtml = `<span class="status-tag" style="${statusStyle}">${req.status}</span>`;
@@ -2661,7 +3550,7 @@ input[type="date"] {
                     <td style="font-weight:700; color:var(--primary); cursor:${req.wo ? 'pointer' : 'default'};" ${woCopyClick}>${woDisplay}</td>
                     <td>${req.desc}</td>
                     <td><span style="background:var(--bg-surface);padding:3px 8px;border-radius:4px;font-size:.8rem;border:1px solid var(--border);">${req.plant}</span></td>
-                    <td>${req.date}<br><span style="font-size:0.75rem;color:var(--text-muted);">${req.time || ''}</span></td>
+                    <td>${formatDisplayDateWithDots(req.date)}<br><span style="font-size:0.75rem;color:var(--text-muted);">${req.time || ''}</span></td>
                     <td style="white-space:nowrap;">
                         <div style="display:inline-flex;align-items:center;">
                             <span>${req.team || '-'}</span>
@@ -2674,18 +3563,44 @@ input[type="date"] {
                 tbody.appendChild(tr);
             });
             
-            // Update Summary
+            // Update Show All Toggle Button text with archived count
+            const btnText = document.getElementById('showAllToggleText');
+            if (btnText) {
+                if (archivedCount > 0) {
+                    btnText.innerText = showAllArchived ? 'Hide Archived' : `Show All (${archivedCount})`;
+                } else {
+                    btnText.innerText = showAllArchived ? 'Hide Archived' : 'Show All';
+                }
+            }
+
+            // Update Summary (Count strictly of entries visible on the current page; hide if 0)
             const sumDiv = document.getElementById('status-summary');
             if(sumDiv) {
-                sumDiv.innerHTML = Object.entries(counts).map(([k,v]) => {
-                    const st = getStatusItem(k);
-                    return `<div style="background:${st.bg}; border:1px solid ${st.border}; color:${st.color}; padding:5px 12px; border-radius:20px; font-size:0.85rem; font-weight:700;"><span style="opacity:0.85;">${k}:</span> <span style="font-weight:900;">${v}</span></div>`;
-                }).join('');
+                const defaultStatuses = STATUS_CONFIG.map(sc => sc.value);
+                const allKeys = [...defaultStatuses];
+                Object.keys(counts).forEach(k => {
+                    if (!allKeys.includes(k)) allKeys.push(k);
+                });
+                const visibleKeys = allKeys.filter(k => (counts[k] || 0) > 0);
+                if (visibleKeys.length === 0) {
+                    sumDiv.innerHTML = '';
+                } else {
+                    sumDiv.innerHTML = visibleKeys.map(k => {
+                        const v = counts[k];
+                        const st = getStatusItem(k);
+                        return `<div style="background:${st.bg}; border:1px solid ${st.border}; color:${st.color}; padding:5px 12px; border-radius:20px; font-size:0.85rem; font-weight:700;"><span style="opacity:0.85;">${k}:</span> <span style="font-weight:900;">${v}</span></div>`;
+                    }).join('');
+                }
             }
 
             if(tbody.innerHTML === '') {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:20px;">No requests found.</td></tr>`;
+                const colSpan = canAccessActions ? 7 : 6;
+                tbody.innerHTML = `<tr><td colspan="${colSpan}" style="text-align:center;color:var(--text-muted);padding:20px;">No requests found.</td></tr>`;
             }
+        }
+
+        function updateStatusSummary() {
+            renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
         }
 
         function filterRequests() {

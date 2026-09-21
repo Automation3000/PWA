@@ -102,10 +102,29 @@ function saveLocalData(data) {
   }
 }
 
+function deduplicateHistoryList(list) {
+  if (!Array.isArray(list)) return [];
+  const seen = new Set();
+  const clean = [];
+  for (const item of list) {
+    if (!item) continue;
+    const timeKey = (item.timestamp || item.displayTime || '').slice(0, 16);
+    const key = item.id && !String(item.id).startsWith('cloud_hist_') ? 
+      String(item.id) : 
+      `${item.action || ''}_${item.workOrder || ''}_${item.plant || ''}_${item.description || ''}_${timeKey}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      clean.push(item);
+    }
+  }
+  return clean;
+}
+
 function loadHistoryData() {
   try {
     if (fs.existsSync(HISTORY_FILE)) {
-      return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+      const parsed = JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+      return deduplicateHistoryList(parsed);
     }
   } catch (e) {}
   return [];
@@ -113,7 +132,8 @@ function loadHistoryData() {
 
 function saveHistoryData(data) {
   try {
-    fs.writeFileSync(HISTORY_FILE, JSON.stringify(data, null, 2), 'utf8');
+    const clean = deduplicateHistoryList(data || []);
+    fs.writeFileSync(HISTORY_FILE, JSON.stringify(clean, null, 2), 'utf8');
   } catch (e) {}
 }
 
@@ -193,26 +213,54 @@ app.get('/api/operation-requests', async (req, res) => {
 app.get('/api/history', (req, res) => res.redirect(307, '/api/operation-history' + (req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : '')));
 app.get('/api/operation-history', async (req, res) => {
   let history = loadHistoryData();
-  // If explicitly requested or empty, try syncing from Google Sheet "History" tab
-  if (req.query.refresh === 'true' || history.length === 0) {
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3500);
-      const cloudRes = await fetch(APPS_SCRIPT_URL + '?action=getHistory', { signal: controller.signal });
-      clearTimeout(timeoutId);
+  // Always try to fetch live from Google Sheet "History" tab
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const cloudRes = await fetch(APPS_SCRIPT_URL + '?action=getHistory&t=' + Date.now(), {
+      signal: controller.signal,
+      redirect: 'follow'
+    });
+    clearTimeout(timeoutId);
+    if (cloudRes.ok) {
       const json = await cloudRes.json();
-      if (json && json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
-        // Merge cloud history with local
-        const existingIds = new Set(history.map(h => h.id || h.timestamp));
-        const newFromCloud = json.data.filter(c => !existingIds.has(c.id || c.timestamp));
-        if (newFromCloud.length > 0) {
-          history = [...newFromCloud, ...history].slice(0, 150);
+      if (json && json.status === 'success' && Array.isArray(json.data)) {
+        if (json.data.length === 0) {
+          history = [];
+          saveHistoryData([]);
+        } else {
+          // Merge cloud history with local with strict deduplication
+          const newFromCloud = [];
+          for (const ch of json.data) {
+            const chTime = ch.timestamp ? new Date(ch.timestamp).getTime() : 0;
+            const isDup = history.some(h => {
+              if (h.id && ch.id && h.id === ch.id) return true;
+              const hTime = h.timestamp ? new Date(h.timestamp).getTime() : 0;
+              const timeDiff = Math.abs(chTime - hTime);
+              // Match same action & same description & same workOrder
+              const sameEvent = h.action === ch.action &&
+                                (h.workOrder || '') === (ch.workOrder || '') &&
+                                (h.description || '') === (ch.description || '');
+              if (sameEvent && (timeDiff < 180000 || !chTime || !hTime)) return true;
+              return false;
+            });
+            if (!isDup) {
+              newFromCloud.push(ch);
+            }
+          }
+          if (newFromCloud.length > 0) {
+            history = [...newFromCloud, ...history];
+          } else if (json.data.length >= history.length) {
+            history = json.data;
+          }
+          history.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+          if (history.length > 200) history.length = 200;
           saveHistoryData(history);
         }
       }
-    } catch(e) {
-      // Quiet fail to local cache
     }
+  } catch(e) {
+    // Quiet fail to local cache
   }
   res.json({ status: 'success', data: history });
 });
@@ -223,6 +271,24 @@ app.post('/api/operation-history', (req, res) => {
     return res.status(400).json({ status: 'error', message: 'Invalid history item' });
   }
   const history = loadHistoryData();
+
+  // Strict deduplication check: avoid logging same event within 20 seconds
+  const itemTime = item.timestamp ? new Date(item.timestamp).getTime() : Date.now();
+  const isDuplicate = history.some(h => {
+    if (h.id && item.id && h.id === item.id) return true;
+    const hTime = h.timestamp ? new Date(h.timestamp).getTime() : 0;
+    const diffSec = Math.abs(itemTime - hTime) / 1000;
+    return (
+      diffSec < 20 &&
+      h.action === item.action &&
+      h.description === item.description
+    );
+  });
+
+  if (isDuplicate) {
+    return res.json({ status: 'success', data: item, duplicate: true });
+  }
+
   const entry = {
     id: item.id || ('hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000)),
     timestamp: item.timestamp || new Date().toISOString(),
@@ -240,7 +306,7 @@ app.post('/api/operation-history', (req, res) => {
   if (history.length > 150) history.length = 150; // Keep last 150 logs
   saveHistoryData(history);
 
-  // Also push to Google Sheet "History" tab asynchronously
+  // Push to Google Sheet "History" tab asynchronously
   fetch(APPS_SCRIPT_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -251,9 +317,22 @@ app.post('/api/operation-history', (req, res) => {
   res.json({ status: 'success', data: entry });
 });
 
-app.delete('/api/operation-history', (req, res) => {
+app.delete('/api/operation-history', async (req, res) => {
   saveHistoryData([]);
-  res.json({ status: 'success', message: 'History cleared' });
+  // Forward clear command to Google Apps Script via both GET & POST to guarantee execution
+  try {
+    const p1 = fetch(APPS_SCRIPT_URL + '?action=clearHistory&t=' + Date.now(), { redirect: 'follow' });
+    const p2 = fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'clearHistory' }),
+      redirect: 'follow'
+    });
+    await Promise.race([Promise.allSettled([p1, p2]), new Promise(r => setTimeout(r, 4000))]);
+  } catch(err) {
+    console.error("Apps Script clearHistory error:", err);
+  }
+  res.json({ status: 'success', message: 'History cleared from cache and cloud' });
 });
 
 app.post('/api/operation-requests', async (req, res) => {
@@ -282,23 +361,6 @@ app.post('/api/operation-requests', async (req, res) => {
       return itemId !== idToDelete;
     });
     saveLocalData(cached);
-
-    // Record history
-    const history = loadHistoryData();
-    history.unshift({
-      id: 'hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-      timestamp: new Date().toISOString(),
-      displayTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      action: 'delete',
-      actionLabel: 'Deleted',
-      workOrder: wo,
-      plant: body.plant || '',
-      description: `Deleted Work Order #${wo || idToDelete}`,
-      user: body.user || 'Supervisor',
-      badgeColor: '#dc2626'
-    });
-    if (history.length > 100) history.length = 100;
-    saveHistoryData(history);
 
     // Forward to Apps Script asynchronously
     fetch(APPS_SCRIPT_URL, {
@@ -331,23 +393,6 @@ app.post('/api/operation-requests', async (req, res) => {
     });
     saveLocalData(cached);
 
-    // Record history
-    const history = loadHistoryData();
-    history.unshift({
-      id: 'hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-      timestamp: new Date().toISOString(),
-      displayTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      action: 'status',
-      actionLabel: 'Status Changed',
-      workOrder: wo,
-      plant: body.plant || '',
-      description: `Status changed to "${newStatus}" for WO #${wo || idToUpdate}`,
-      user: body.user || 'Supervisor',
-      badgeColor: '#16a34a'
-    });
-    if (history.length > 100) history.length = 100;
-    saveHistoryData(history);
-
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -365,53 +410,44 @@ app.post('/api/operation-requests', async (req, res) => {
       saveStatusOverrides(statusOverrides);
     }
 
+    let updatedTarget = null;
     cached = cached.map(item => {
       const itemId = String(item.ID || item.id || '');
       if (itemId === idToUpdate) {
-        item['Work Order'] = body.workOrder;
-        item['Description'] = body.description;
-        item['Plant'] = body.plant;
-        item['Date'] = body.date;
-        item['Time'] = body.time;
-        item['Team'] = body.team;
-        item['Status'] = body.status;
-        item['Remarks'] = body.remarks;
-        item.wo = body.workOrder;
-        item.desc = body.description;
-        item.plant = body.plant;
-        item.date = body.date;
-        item.time = body.time;
-        item.team = body.team;
-        item.status = body.status;
-        item.remarks = body.remarks;
+        if (body.workOrder !== undefined && body.workOrder !== null) { item['Work Order'] = body.workOrder; item.wo = body.workOrder; }
+        if (body.description !== undefined && body.description !== null) { item['Description'] = body.description; item.desc = body.description; }
+        if (body.plant !== undefined && body.plant !== null) { item['Plant'] = body.plant; item.plant = body.plant; }
+        if (body.date !== undefined && body.date !== null) { item['Date'] = body.date; item.date = body.date; }
+        if (body.time !== undefined && body.time !== null) { item['Time'] = body.time; item.time = body.time; }
+        if (body.team !== undefined && body.team !== null) { item['Team'] = body.team; item.team = body.team; }
+        if (body.status !== undefined && body.status !== null) { item['Status'] = body.status; item.status = body.status; }
+        if (body.remarks !== undefined && body.remarks !== null) { item['Remarks'] = body.remarks; item.remarks = body.remarks; }
+        updatedTarget = item;
       }
       return item;
     });
     saveLocalData(cached);
 
-    // Record history
-    const history = loadHistoryData();
-    history.unshift({
-      id: 'hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-      timestamp: new Date().toISOString(),
-      displayTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      action: 'update',
-      actionLabel: 'Updated',
-      workOrder: body.workOrder || '',
-      plant: body.plant || '',
-      description: `Updated details for Work Order #${body.workOrder || idToUpdate} (${body.plant || ''})`,
-      user: body.user || 'Technician',
-      badgeColor: '#7c3aed'
-    });
-    if (history.length > 100) history.length = 100;
-    saveHistoryData(history);
+    // Only forward to Apps Script if workOrder or description or plant is present (prevent wiping sheet)
+    const appsScriptPayload = Object.assign({}, updatedTarget ? {
+      workOrder: updatedTarget['Work Order'] || updatedTarget.wo || '',
+      description: updatedTarget['Description'] || updatedTarget.desc || '',
+      plant: updatedTarget['Plant'] || updatedTarget.plant || '',
+      date: updatedTarget['Date'] || updatedTarget.date || '',
+      time: updatedTarget['Time'] || updatedTarget.time || '',
+      team: updatedTarget['Team'] || updatedTarget.team || '',
+      status: updatedTarget['Status'] || updatedTarget.status || 'Requested',
+      remarks: updatedTarget['Remarks'] || updatedTarget.remarks || ''
+    } : {}, body);
 
-    fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(body),
-      redirect: 'follow'
-    }).catch(err => console.error("Apps Script update error:", err));
+    if (appsScriptPayload.workOrder || appsScriptPayload.description || appsScriptPayload.plant) {
+      fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(appsScriptPayload),
+        redirect: 'follow'
+      }).catch(err => console.error("Apps Script update error:", err));
+    }
 
     return res.json({ status: 'success', message: 'Updated successfully' });
   }
@@ -440,23 +476,6 @@ app.post('/api/operation-requests', async (req, res) => {
     };
     cached.unshift(newItem);
     saveLocalData(cached);
-
-    // Record history
-    const history = loadHistoryData();
-    history.unshift({
-      id: 'hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-      timestamp: new Date().toISOString(),
-      displayTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      action: 'create',
-      actionLabel: 'New Request',
-      workOrder: body.workOrder || '',
-      plant: body.plant || '',
-      description: `Created request for ${body.plant || 'Plant'} (WO #${body.workOrder || ''})`,
-      user: body.user || 'Technician',
-      badgeColor: '#1a73e8'
-    });
-    if (history.length > 100) history.length = 100;
-    saveHistoryData(history);
 
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
@@ -632,10 +651,18 @@ app.post('/api/team-contacts', async (req, res) => {
     user: body.user || 'User',
     badgeColor: '#059669'
   });
-  if (history.length > 100) history.length = 100;
+  if (history.length > 150) history.length = 150;
   saveHistoryData(history);
 
-  // Forward to Apps Script
+  // Forward contact history item to Google Sheet "History" tab asynchronously
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'logHistory', historyItem: history[0] }),
+    redirect: 'follow'
+  }).catch(err => console.error("Apps Script logHistory error:", err));
+
+  // Forward to Apps Script Team Contacts tab
   fetch(APPS_SCRIPT_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },

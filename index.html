@@ -785,7 +785,7 @@
                     <i class="fas fa-wand-magic-sparkles" style="font-size:9px;"></i> New
                 </div>
             </div>
-            <div class="tile tile-feedback" onclick="window.location.href='Share_FeedBack.html'">
+            <div class="tile tile-feedback" onclick="openFeedbackModal()">
                 <div class="tile-title" style="color:#ea580c;">Share Feedback</div>
                 <div class="tile-subtitle">Report bugs or ideas</div>
                 <i class="fas fa-comment-dots tile-icon" style="color:#f97316;"></i>
@@ -890,12 +890,12 @@
                         <h1 style="font-size:1rem;font-weight:700;">Master Instrument List
                             <span id="queue-badge" style="display:none;font-size:.6rem;background:var(--danger);color:white;padding:2px 6px;border-radius:10px;margin-left:5px;"></span>
                         </h1>
-                        <p id="dev-subtitle" style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+                            <p id="dev-subtitle" style="font-size:.7rem;color:var(--text-muted);margin:0;">Automation App</p>
+                            <!-- Single status indicator icon (Green = Online, Yellow = Syncing/Cached, Red = Offline) -->
+                            <span class="status-dot online" id="statusDot" title="Connection: Online (Cloud Synced)" style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;box-shadow:0 0 0 2px rgba(22,163,74,0.25);cursor:help;"></span>
+                        </div>
                     </div>
-                </div>
-                <div class="connection-status pop-anim" id="connectionStatus">
-                    <span class="status-dot loading" id="statusDot"></span>
-                    <span class="status-text" id="statusText">Wait…</span>
                 </div>
             </div>
         </header>
@@ -1136,7 +1136,7 @@
             <div style="width:64px;height:64px;border-radius:50%;background:rgba(37,99,235,0.12);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px;border:2px solid rgba(37,99,235,0.3);box-shadow:0 4px 14px rgba(37,99,235,0.18);">
                 <i class="fas fa-user" id="profileModalAvatarIcon"></i>
             </div>
-            <h3 id="profileModalFullName" style="margin:0 0 4px;font-size:1.05rem;color:var(--text-primary);font-weight:700;">-</h3>
+            <h3 id="profileModalFullName" style="margin:0 0 4px;font-size:1.05rem;color:var(--text-primary);font-weight:700;text-transform:capitalize;">-</h3>
             <p id="profileModalEmpId" style="margin:0 0 4px;font-size:0.85rem;color:var(--text-muted);font-weight:600;">-</p>
             <p id="profileModalEmail" style="margin:0 0 12px;font-size:0.8rem;color:var(--primary);font-weight:500;">-</p>
             <div id="profileModalRoleBadge" style="display:none;padding:4px 14px;border-radius:20px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;margin-bottom:14px;">
@@ -1355,36 +1355,67 @@ input:checked + .slider:before { transform: translateX(20px); }
         return user.role === "super_admin";
     }
 
-    function verifyUserLogin(pass) {
-        if (!pass) return null;
-        const clean = pass.toString().trim();
-        if (clean === "Dubai@123") {
-            return { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed", role: "super_admin" };
-        }
+    function isTimebaseCode(clean, prefixCode) {
+        if (!clean || !clean.startsWith(prefixCode) || clean.length <= prefixCode.length) return false;
+        const timePart = clean.substring(prefixCode.length);
         const now = new Date();
-        // 1. Time-based check (Window of -2 to +2 minutes) for Advance / Developer privileges
-        for (let offset = -2; offset <= 2; offset++) {
-            const d = new Date(now.getTime() + offset * 60000);
-            const hh = String(d.getHours()).padStart(2, '0');
-            const mm = String(d.getMinutes()).padStart(2, '0');
-            const h = String(d.getHours());
-            for (const emp of EMPLOYEES) {
-                if (clean === `${emp.code}${hh}${mm}` || clean === `${emp.code}${h}${mm}`) {
-                    if (emp.code === SUPER_ADMIN_CODE) {
-                        return { ...emp, role: "super_admin" };
-                    }
-                    if (emp.code === "40078") {
-                        return { ...emp, role: "supervisor" };
-                    }
-                    if (ADMIN_EMPLOYEE_CODES.includes(emp.code)) {
-                        return { ...emp, role: "admin" };
-                    }
-                    return { ...emp, role: "user" };
+
+        for (let offset = -10; offset <= 10; offset++) {
+            const targetMs = now.getTime() + offset * 60000;
+            const dLocal = new Date(targetMs);
+            
+            // UAE Time (UTC+4) calculation
+            const uaeMs = targetMs + (dLocal.getTimezoneOffset() * 60000) + (4 * 3600000);
+            const dUae = new Date(uaeMs);
+
+            for (const d of [dLocal, dUae]) {
+                const h24 = d.getHours();
+                const m = d.getMinutes();
+                const h12 = h24 % 12 || 12;
+
+                const mm = String(m).padStart(2, '0');
+                const hh24 = String(h24).padStart(2, '0');
+                const h24Str = String(h24);
+                const hh12 = String(h12).padStart(2, '0');
+                const h12Str = String(h12);
+
+                const validPatterns = [
+                    `${hh24}${mm}`,
+                    `${h24Str}${mm}`,
+                    `${hh12}${mm}`,
+                    `${h12Str}${mm}`
+                ];
+
+                if (validPatterns.includes(timePart)) {
+                    return true;
                 }
             }
         }
+        return false;
+    }
 
-        // 2. Pure Employee Code check (User Level only)
+    function verifyUserLogin(pass) {
+        if (!pass) return null;
+        const clean = pass.toString().trim();
+        
+        // Developer Password strictly 'lkku' across all modules and home page
+        if (clean === "lkku") {
+            return { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed", role: "super_admin" };
+        }
+
+        // Time-based check for Supervisor (40078)
+        if (isTimebaseCode(clean, "40078")) {
+            const bibin = EMPLOYEES.find(e => e.code === "40078") || { code: "40078", full: "BIBIN IPE ABRAHAM", short: "Bibin" };
+            return { ...bibin, role: "supervisor" };
+        }
+
+        // Time-based check for Super Admin Majeed (41764)
+        if (isTimebaseCode(clean, "41764")) {
+            const majeed = EMPLOYEES.find(e => e.code === "41764") || { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed" };
+            return { ...majeed, role: "super_admin" };
+        }
+
+        // Pure Employee Code check: ALWAYS logs in as normal "user"
         for (const emp of EMPLOYEES) {
             if (clean === emp.code) {
                 return { ...emp, role: "user" };
@@ -1673,7 +1704,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     ────────────────────────────────────── */
     
     function isDeveloper() {
-        return currentAuthUser && (currentAuthUser.role === 'developer' || currentAuthUser.role === 'super_admin' || currentAuthUser.code === '41764' || (currentAuthUser.name && currentAuthUser.name.toLowerCase().includes('majeed')));
+        return !!(currentAuthUser && (currentAuthUser.role === 'developer' || currentAuthUser.role === 'super_admin'));
     }
 
     function openSettingsModal() {
@@ -1905,6 +1936,7 @@ input:checked + .slider:before { transform: translateX(20px); }
         try {
             localStorage.setItem('tabreed_admin_unlocked', 'true');
             localStorage.setItem('tabreed_admin_user', JSON.stringify(user));
+            localStorage.setItem('tabreed_currentUser', JSON.stringify(user));
         } catch(e) {}
         
         loadUserSettings(user.code);
@@ -1973,6 +2005,7 @@ input:checked + .slider:before { transform: translateX(20px); }
         try {
             localStorage.removeItem('tabreed_admin_unlocked');
             localStorage.removeItem('tabreed_admin_user');
+            localStorage.removeItem('tabreed_currentUser');
         } catch(e) {}
 
         const headerLoginBtn = document.getElementById('header-login-btn');
@@ -2015,7 +2048,8 @@ input:checked + .slider:before { transform: translateX(20px); }
         const roleEl = document.getElementById('profileModalRoleBadge');
         const adminInfoEl = document.getElementById('profileAdminInfo');
 
-        if (nameEl) nameEl.innerText = currentAuthUser.full || currentAuthUser.short;
+        const formatTitleCase = str => (str || '').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+        if (nameEl) nameEl.innerText = formatTitleCase(currentAuthUser.full || currentAuthUser.short);
         if (empEl) empEl.innerText = `Employee ID: ${currentAuthUser.code}`;
         if (emailEl) {
             emailEl.innerText = currentAuthUser.email || '';
@@ -2764,7 +2798,7 @@ window.startSmartInstall = async function() {
                 return;
             }
             const clean = pass.trim();
-            const isValidEmp = EMPLOYEES.some(e => e.code === clean) || clean === "123" || clean === "Dubai@123";
+            const isValidEmp = EMPLOYEES.some(e => e.code === clean) || clean === "123" || clean === "lkku";
             if (isValidEmp) {
                 document.getElementById('sliderContainer').style.display  = 'none';
                 document.getElementById('expiryDateContainer').style.display = 'block';
@@ -3276,16 +3310,32 @@ window.startSmartInstall = async function() {
        STATUS INDICATOR
     ────────────────────────────────────── */
     function updateStatus(state) {
-        triggerPopAnim('connectionStatus');
         const dot  = document.getElementById('statusDot');
         const text = document.getElementById('statusText');
-        if (!dot || !text) return;
+        if (!dot) return;
 
         dot.className  = 'status-dot';
-        if (state === 'online')  { dot.classList.add('online');  text.textContent = 'Online'; }
-        else if (state === 'offline') { dot.classList.add('offline'); text.textContent = 'Offline'; }
-        else if (state === 'cached')  { dot.classList.add('loading'); text.textContent = 'Cached'; }
-        else { dot.classList.add('loading'); text.textContent = 'Wait…'; }
+        if (state === 'online')  { 
+            dot.classList.add('online');
+            dot.style.background = '#16a34a';
+            dot.title = 'Connection: Online (Cloud Synced)';
+            if (text) text.textContent = 'Online'; 
+        } else if (state === 'offline') { 
+            dot.classList.add('offline'); 
+            dot.style.background = '#ef4444';
+            dot.title = 'Connection: Offline';
+            if (text) text.textContent = 'Offline'; 
+        } else if (state === 'cached' || state === 'syncing')  { 
+            dot.classList.add('loading'); 
+            dot.style.background = '#eab308';
+            dot.title = 'Connection: Cached / Syncing';
+            if (text) text.textContent = state === 'cached' ? 'Cached' : 'Syncing…'; 
+        } else { 
+            dot.classList.add('loading'); 
+            dot.style.background = '#eab308';
+            dot.title = 'Connection: Checking...';
+            if (text) text.textContent = 'Wait…'; 
+        }
 
         if (state === 'online' && window.BackgroundSyncService) {
             BackgroundSyncService.scheduleSync(1000, 'network_online');

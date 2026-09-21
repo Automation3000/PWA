@@ -267,7 +267,11 @@
                     </div>
                     <div class="brand-text">
                         <h1 style="font-size:1rem;font-weight:700;color:var(--text-primary);">Document Library</h1>
-                        <p style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+                            <p style="font-size:.7rem;color:var(--text-muted);margin:0;">Automation App</p>
+                            <!-- Single status indicator icon (Green = Online, Yellow = Syncing/Cached, Red = Offline) -->
+                            <span class="status-dot online" id="statusDot" title="Connection: Online (Cloud Synced)" style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;box-shadow:0 0 0 2px rgba(22,163,74,0.25);cursor:help;"></span>
+                        </div>
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:12px;">

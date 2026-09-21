@@ -162,20 +162,21 @@ function cleanInvalidRows() {
     }
   }
 
-  // 2. Second pass: Ensure Column I header is 'ID' and repair any corrupted 'Urgent' ID values
-  sheet.getRange(1, 9).setValue("ID").setFontWeight("bold");
-  var refreshedData = sheet.getDataRange().getValues();
-  for (var j = 1; j < refreshedData.length; j++) {
-    var curRow = refreshedData[j];
-    var curId = String(curRow[8] || '').trim();
-    var curWo = String(curRow[0] || '').trim();
-    if (!curId || curId.toLowerCase() === 'urgent') {
-      var fixedId = "row_" + (j + 1) + "_" + (curWo ? curWo.replace(/[^a-zA-Z0-9]/g, '') : new Date().getTime());
-      sheet.getRange(j + 1, 9).setValue(fixedId);
-    }
+  // 2. Second pass: Clear Column I and any extra columns beyond H (no unnecessary ID column in Sheet)
+  if (sheet.getMaxColumns() >= 9) {
+    sheet.getRange(1, 9, sheet.getMaxRows(), sheet.getMaxColumns() - 8).clearContent();
   }
 
   return deletedCount;
+}
+
+/* 🧹 Helper to clear Column I (ID) directly */
+function removeColumnI_ID() {
+  var sheet = getSheet();
+  if (!sheet) return;
+  if (sheet.getMaxColumns() >= 9) {
+    sheet.getRange(1, 9, sheet.getMaxRows(), sheet.getMaxColumns() - 8).clearContent();
+  }
 }
 
 /* 🔄 Complete initial setup: cleans ghost rows and ensures History + Team Contacts are active */
@@ -267,6 +268,16 @@ function doGet(e) {
         });
       }
       return jsonResponse({ status: "success", data: contactsList });
+    }
+
+    // 5. Clear History via GET
+    if (paramAction === 'clearHistory') {
+      var hSheet = getHistorySheet();
+      var lastRow = hSheet.getLastRow();
+      if (lastRow > 1) {
+        hSheet.deleteRows(2, lastRow - 1);
+      }
+      return jsonResponse({ status: "success", message: "History cleared from sheet" });
     }
 
     const sheet = getSheet();
@@ -416,17 +427,32 @@ function handleAction(data, sheet) {
   if (action === 'update') {
     var targetRow = findRow();
     if (targetRow !== -1) {
+      var currentVals = sheet.getRange(targetRow, 1, 1, 8).getValues()[0];
+      var newWO = (data.workOrder !== undefined && data.workOrder !== null && String(data.workOrder).trim() !== '') ? data.workOrder : currentVals[0];
+      var newDesc = (data.description !== undefined && data.description !== null && String(data.description).trim() !== '') ? data.description : currentVals[1];
+      var newPlant = (data.plant !== undefined && data.plant !== null && String(data.plant).trim() !== '') ? data.plant : currentVals[2];
+      var newDate = (data.date !== undefined && data.date !== null && String(data.date).trim() !== '') ? data.date : currentVals[3];
+      var newTime = (data.time !== undefined && data.time !== null && String(data.time).trim() !== '') ? data.time : currentVals[4];
+      var newTeam = (data.team !== undefined && data.team !== null && String(data.team).trim() !== '') ? data.team : currentVals[5];
+      var newStatus = (data.status !== undefined && data.status !== null && String(data.status).trim() !== '') ? data.status : (currentVals[6] || 'Requested');
+      var newRemarks = (data.remarks !== undefined && data.remarks !== null) ? data.remarks : currentVals[7];
+
+      // CRITICAL GUARD: Never write an entirely blank row to the sheet
+      if (!newWO && !newDesc && !newPlant) {
+        return jsonResponse({ status: "error", message: "Update rejected: Empty data would corrupt row" });
+      }
+
       sheet.getRange(targetRow, 1, 1, 8).setValues([[
-        data.workOrder || '',
-        data.description || '',
-        data.plant || '',
-        data.date || '',
-        data.time || '',
-        data.team || '',
-        data.status || 'Requested',
-        data.remarks || ''
+        newWO,
+        newDesc,
+        newPlant,
+        newDate,
+        newTime,
+        newTeam,
+        newStatus,
+        newRemarks
       ]]);
-      logToHistorySheet('update', data.workOrder, data.plant, data.description, data.user || 'Technician', data.details || data.remarks || '');
+      logToHistorySheet('update', newWO, newPlant, newDesc, data.user || 'Technician', data.details || newRemarks || '');
       return jsonResponse({ status: "success", message: "Updated successfully", updatedRow: targetRow });
     }
     return jsonResponse({ status: "error", message: "ID or Work Order not found for update" });
@@ -437,6 +463,16 @@ function handleAction(data, sheet) {
     var h = data.historyItem || data;
     logToHistorySheet(h.action, h.workOrder, h.plant, h.description, h.user, h.details);
     return jsonResponse({ status: "success", message: "History logged to Sheet: History" });
+  }
+
+  // 4B. CLEAR HISTORY ACTION
+  if (action === 'clearHistory') {
+    var hSheet = getHistorySheet();
+    var lastRow = hSheet.getLastRow();
+    if (lastRow > 1) {
+      hSheet.deleteRows(2, lastRow - 1);
+    }
+    return jsonResponse({ status: "success", message: "History sheet cleared in cloud" });
   }
 
   // 5. SAVE SINGLE TEAM CONTACT
@@ -526,8 +562,7 @@ function handleAction(data, sheet) {
       data.time || '',
       data.team || '',
       data.status || 'Requested',
-      data.remarks || '',
-      newId
+      data.remarks || ''
     ]);
     logToHistorySheet('create', woVal, plantVal, descVal, data.user || 'Technician', data.remarks || '');
     

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tabreed-pro-v16'; // v16: Optimized mobile API routing & cloud sync
+const CACHE_NAME = 'tabreed-pro-v17'; // v17: Network-First for HTML files, updated Operation Request actions
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -67,6 +67,29 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  const isHtml = event.request.mode === 'navigate' || 
+                 event.request.url.endsWith('.html') || 
+                 (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'));
+
+  // HTML Pages: Network-First to guarantee immediate visibility of latest changes
+  if (isHtml) {
+    event.respondWith(
+      fetch(event.request).then(networkResponse => {
+        if (networkResponse && networkResponse.status === 200) {
+          const cacheCopy = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, cacheCopy));
+        }
+        return networkResponse;
+      }).catch(() => {
+        return caches.match(event.request).then(cachedResponse => {
+          return cachedResponse || caches.match('/index.html') || caches.match('/');
+        });
+      })
+    );
+    return;
+  }
+
+  // Static Assets (icons, styles, scripts): Cache-First with Network Fallback
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
       const networkFetch = fetch(event.request).then(networkResponse => {
@@ -77,9 +100,6 @@ self.addEventListener('fetch', event => {
         return networkResponse;
       }).catch(() => {
         if (cachedResponse) return cachedResponse;
-        if (event.request.mode === 'navigate') {
-          return caches.match('/index.html') || caches.match('/');
-        }
         return Promise.reject('offline');
       });
       return cachedResponse || networkFetch;

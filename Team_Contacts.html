@@ -199,19 +199,14 @@
                     </div>
                     <div class="brand-text">
                         <h1 style="font-size:1rem;font-weight:700;">Team Contacts</h1>
-                        <p id="dev-subtitle" style="font-size:.7rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;margin-top:2px;">
-                            <span>Automation App</span>
-                            <span style="font-size:.65rem;color:var(--text-muted);opacity:0.5;">•</span>
-                            <span id="sheetSyncStatus" style="color:#059669;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
-                                <i class="fas fa-file-excel" style="color:#059669;"></i> Sheet Linked
-                            </span>
-                        </p>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+                            <p id="dev-subtitle" style="font-size:.7rem;color:var(--text-muted);margin:0;">Operations Directory</p>
+                            <!-- Single status indicator icon (Green = Online, Yellow = Syncing/Cached, Red = Offline) -->
+                            <span class="status-dot online" id="statusDot" title="Connection: Online (Cloud Synced)" style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;box-shadow:0 0 0 2px rgba(22,163,74,0.25);cursor:help;"></span>
+                        </div>
                     </div>
                 </div>
                 <div class="header-actions" style="display:flex;align-items:center;gap:8px;">
-                    <button class="action-btn" onclick="syncWithGoogleSheet(true)" style="min-width: 40px; max-width: 45px; height: 38px; background: var(--bg-surface); box-shadow: none; border-color: var(--border); border-radius: 8px; cursor: pointer;" title="Refresh / Sync with Google Sheet 'Team Contacts' tab">
-                        <i class="fas fa-sync-alt" id="syncSheetIcon" style="color:var(--primary); font-size:13px;"></i>
-                    </button>
                     <button class="action-btn" onclick="toggleDarkMode()" style="min-width: 40px; max-width: 45px; height: 38px; background: none; box-shadow: none; border-color: var(--border); border-radius: 8px;">
                         <i class="fas fa-moon" id="darkModeToggleBtn" style="color:var(--text-muted);"></i>
                     </button>
@@ -344,45 +339,56 @@
 
         let EMPLOYEES = [];
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_XKC1cV1VaeqKB2MbQgmRSOYmcxQI0v-5qcAAKhFczNOwU3GsindACIkuawzQZN4/exec";
+        const LS_CONTACTS_CACHE = 'tabreed_team_contacts_cache';
+        const LS_LAST_HIST_ID = 'tabreed_team_contacts_last_hist_id';
 
         async function initApp() {
             if (localStorage.getItem('tabreed_dark_mode') === 'true') {
                 document.body.classList.add('dark-mode');
             }
+
+            // 1. Caching system: load and render immediately from cache if available
+            try {
+                const cachedStr = localStorage.getItem(LS_CONTACTS_CACHE);
+                if (cachedStr) {
+                    const cached = JSON.parse(cachedStr);
+                    if (Array.isArray(cached) && cached.length > 0) {
+                        EMPLOYEES = cached;
+                        renderContacts(EMPLOYEES);
+                    }
+                }
+            } catch(e) {}
+
+            // 2. Fetch fresh data from Google Sheet "Team Contacts" tab in background
             await syncWithGoogleSheet(false);
         }
 
-        async function syncWithGoogleSheet(showToastNotice = false) {
-            const syncIcon = document.getElementById('syncSheetIcon');
-            const statusEl = document.getElementById('sheetSyncStatus');
-            if (syncIcon) syncIcon.classList.add('fa-spin');
-            if (statusEl) statusEl.innerHTML = '<i class="fas fa-spinner fa-spin" style="color:var(--primary);"></i> Syncing...';
+        async function syncWithGoogleSheet() {
+            if (!navigator.onLine) return;
 
-            let fetched = false;
+            let fetchedData = null;
 
             // 1. Try local server endpoint which proxies Google Sheet Team Contacts
             try {
-                const res = await fetch('/api/team-contacts' + (showToastNotice ? '?refresh=true' : ''));
+                const res = await fetch('/api/team-contacts?refresh=true&t=' + Date.now());
                 if (res.ok) {
                     const json = await res.json();
                     if (json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
-                        EMPLOYEES = json.data;
-                        fetched = true;
+                        fetchedData = json.data;
                     }
                 }
             } catch (e) {
                 console.warn("Local API team-contacts fetch failed:", e);
             }
 
-            // 2. Direct fallback to Google Apps Script if server endpoint didn't succeed
-            if (!fetched) {
+            // 2. Direct fallback to Google Apps Script
+            if (!fetchedData) {
                 try {
                     const res = await fetch(APPS_SCRIPT_URL + '?action=getTeamContacts&t=' + Date.now(), { redirect: 'follow' });
                     if (res.ok) {
                         const json = await res.json();
                         if (json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
-                            EMPLOYEES = json.data;
-                            fetched = true;
+                            fetchedData = json.data;
                         }
                     }
                 } catch (e) {
@@ -390,19 +396,23 @@
                 }
             }
 
-            // 3. Fallback to employees.json if sheet is cold
-            if (!fetched && EMPLOYEES.length === 0) {
+            // 3. Fallback to employees.json if both empty and EMPLOYEES empty
+            if (!fetchedData && EMPLOYEES.length === 0) {
                 try {
                     const res = await fetch('employees.json');
-                    EMPLOYEES = await res.json();
+                    fetchedData = await res.json();
                 } catch(e) {
                     console.error("Failed to load base employees.json", e);
                 }
             }
 
+            if (!fetchedData || !Array.isArray(fetchedData) || fetchedData.length === 0) {
+                return;
+            }
+
             // 4. Apply any locally pending overrides
             const overrides = JSON.parse(localStorage.getItem('tabreed_contacts_override')) || {};
-            EMPLOYEES.forEach(emp => {
+            fetchedData.forEach(emp => {
                 if (overrides[emp.code]) {
                     emp.phone = overrides[emp.code].phone || emp.phone;
                     emp.whatsapp = overrides[emp.code].whatsapp || emp.whatsapp;
@@ -410,13 +420,33 @@
                 }
             });
 
-            if (syncIcon) syncIcon.classList.remove('fa-spin');
-            if (statusEl) statusEl.innerHTML = '<i class="fas fa-file-excel" style="color:#059669;"></i> Sheet Synced';
+            // 5. Diff check: Only update UI and cache if differences exist
+            let hasDiff = false;
+            if (fetchedData.length !== EMPLOYEES.length) {
+                hasDiff = true;
+            } else {
+                const currentMap = new Map();
+                EMPLOYEES.forEach(e => currentMap.set(String(e.code), e));
+                for (const f of fetchedData) {
+                    const existing = currentMap.get(String(f.code));
+                    if (!existing ||
+                        existing.phone !== f.phone ||
+                        existing.whatsapp !== f.whatsapp ||
+                        existing.email !== f.email ||
+                        existing.full !== f.full ||
+                        existing.short !== f.short) {
+                        hasDiff = true;
+                        break;
+                    }
+                }
+            }
 
-            renderContacts(EMPLOYEES);
-
-            if (showToastNotice) {
-                showToast("Team contacts synced with Google Sheet 'Team Contacts' tab!", "success");
+            if (hasDiff || EMPLOYEES.length === 0) {
+                EMPLOYEES = fetchedData;
+                try {
+                    localStorage.setItem(LS_CONTACTS_CACHE, JSON.stringify(EMPLOYEES));
+                } catch(e) {}
+                renderContacts(EMPLOYEES);
             }
         }
 
@@ -446,7 +476,7 @@
             const whatsapp = document.getElementById('editWhatsapp').value.trim();
             const email = document.getElementById('editEmail').value.trim();
             
-            // Save to localStorage
+            // Save to localStorage overrides
             const overrides = JSON.parse(localStorage.getItem('tabreed_contacts_override')) || {};
             overrides[code] = { phone, whatsapp, email };
             localStorage.setItem('tabreed_contacts_override', JSON.stringify(overrides));
@@ -459,9 +489,19 @@
                 emp.email = email;
             }
             
+            // Update cache
+            try {
+                localStorage.setItem(LS_CONTACTS_CACHE, JSON.stringify(EMPLOYEES));
+            } catch(e) {}
+
             closeEditModal();
             filterContacts();
-            showToast("Saving details to Google Sheet 'Team Contacts'...", "info");
+
+            let curUserName = 'User';
+            try {
+                const curUser = JSON.parse(localStorage.getItem('tabreed_currentUser'));
+                if (curUser) curUserName = curUser.short || curUser.full || curUser.name || 'User';
+            } catch(e) {}
 
             const payload = {
                 action: 'saveTeamContact',
@@ -472,10 +512,10 @@
                 phone: phone,
                 whatsapp: whatsapp,
                 email: email,
-                user: localStorage.getItem('tabreed_currentUser') ? JSON.parse(localStorage.getItem('tabreed_currentUser')).short || 'User' : 'User'
+                user: curUserName
             };
 
-            // 1. Send to server proxy
+            // 1. Send contact update to server proxy
             let synced = false;
             try {
                 const res = await fetch('/api/team-contacts', {
@@ -491,7 +531,7 @@
                 console.warn("Failed saving via server /api/team-contacts:", e);
             }
 
-            // 2. Direct fallback to Google Apps Script if offline from node or static
+            // 2. Direct fallback to Google Apps Script
             if (!synced) {
                 try {
                     await fetch(APPS_SCRIPT_URL, {
@@ -506,12 +546,73 @@
                 }
             }
 
-            if (synced) {
-                showToast(`Contact for ${emp ? emp.short : code} saved to Google Sheet!`, "success");
-            } else {
-                showToast("Saved locally. Will sync to Google Sheet when online.", "warning");
-            }
+            // 3. Automatically record in History:
+            // "agr kiSine Update kiya to History me Dalo uSe us History k Basic pr New Data Fetch kro from Operation Request k Team Contacts Sheets se"
+            const now = new Date();
+            const histItem = {
+                id: 'hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                timestamp: now.toISOString(),
+                displayTime: now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                action: 'contact_update',
+                actionLabel: 'Contact Updated',
+                workOrder: '',
+                plant: '',
+                description: `Updated contact for ${emp ? emp.short : code} (${code})`,
+                details: `Phone: ${phone || 'N/A'}, WhatsApp: ${whatsapp || 'N/A'}, Email: ${email || 'N/A'}`,
+                user: curUserName,
+                badgeColor: '#059669'
+            };
+
+            localStorage.setItem(LS_LAST_HIST_ID, histItem.id);
+
+            // Log to server history
+            fetch('/api/operation-history', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(histItem)
+            }).catch(() => {});
+
+            // Direct push to Google Sheet "History" tab
+            try {
+                fetch(APPS_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'logHistory', historyItem: histItem }),
+                    redirect: 'follow'
+                }).catch(() => {});
+            } catch(e) {}
+
+            showToast(`Contact saved successfully!`, "success");
+
+            // 4. Fetch fresh data from Google Sheet "Team Contacts" based on this update
+            setTimeout(() => {
+                syncWithGoogleSheet(false);
+            }, 800);
         }
+
+        // Automatic detector: checks history periodically; if a contact_update event is detected, re-fetch fresh data from Google Sheet "Team Contacts"
+        setInterval(async () => {
+            try {
+                const res = await fetch('/api/operation-history?t=' + Date.now()).then(r => r.json());
+                if (res && res.status === 'success' && Array.isArray(res.data)) {
+                    const latestContactUpdate = res.data.find(h => h.action === 'contact_update');
+                    if (latestContactUpdate && latestContactUpdate.id) {
+                        const lastKnown = localStorage.getItem(LS_LAST_HIST_ID);
+                        if (lastKnown && lastKnown !== latestContactUpdate.id) {
+                            localStorage.setItem(LS_LAST_HIST_ID, latestContactUpdate.id);
+                            // New update found in history: re-fetch from Google Sheet Team Contacts
+                            syncWithGoogleSheet(false);
+                        } else if (!lastKnown) {
+                            localStorage.setItem(LS_LAST_HIST_ID, latestContactUpdate.id);
+                        }
+                    }
+                }
+            } catch(e) {}
+        }, 20000);
+
+        window.addEventListener('focus', () => {
+            syncWithGoogleSheet(false);
+        });
 
         function getInitials(name) {
             if (!name) return '';

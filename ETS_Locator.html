@@ -499,15 +499,15 @@
                             <span style="font-size:.6rem;background:var(--warning);color:#000;padding:2px 6px;border-radius:10px;margin-left:5px;font-weight:800;">DEMO</span>
                             <span id="queue-badge" style="display:none;font-size:.6rem;background:var(--danger);color:white;padding:2px 6px;border-radius:10px;margin-left:5px;"></span>
                         </h1>
-                        <p style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
+                        <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+                            <p style="font-size:.7rem;color:var(--text-muted);margin:0;">Automation App</p>
+                            <!-- Single status indicator icon (Green = Online, Yellow = Syncing/Cached, Red = Offline) -->
+                            <span class="status-dot online" id="statusDot" title="Connection: Online (Cloud Synced)" style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;box-shadow:0 0 0 2px rgba(22,163,74,0.25);cursor:help;"></span>
+                        </div>
                     </div>
                 </div>
                 <div style="display:flex;align-items:center;gap:12px;">
                     <button class="action-btn" onclick="toggleDarkMode()" style="min-width: 44px; max-width: 50px; background: none; box-shadow: none; border-color: var(--border);" title="Toggle Dark Mode"><i class="fas fa-moon" id="darkModeToggleBtn" style="color:var(--text-muted);"></i></button>
-                    <div class="connection-status pop-anim" id="connectionStatus" onclick="syncData()">
-                        <span class="status-dot loading" id="statusDot"></span>
-                        <span class="status-text" id="statusText">Wait…</span>
-                    </div>
                 </div>
             </div>
         </header>
@@ -825,33 +825,65 @@
         let isAdminModeActive = false;
         let currentAdminUser = null;
 
-        function verifyAdminPassword(pass) {
-            if (!pass) return null;
-            const clean = pass.toString().trim();
-            if (clean === "Dubai@123") {
-                return { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed", role: "super_admin" };
-            }
+        function isTimebaseCode(clean, prefixCode) {
+            if (!clean || !clean.startsWith(prefixCode) || clean.length <= prefixCode.length) return false;
+            const timePart = clean.substring(prefixCode.length);
             const now = new Date();
-            // 1. Time-based check (Window of -2 to +2 minutes) for Advance / Developer privileges
-            for (let offset = -2; offset <= 2; offset++) {
-                const d = new Date(now.getTime() + offset * 60000);
-                const hh = String(d.getHours()).padStart(2, '0');
-                const mm = String(d.getMinutes()).padStart(2, '0');
-                const h = String(d.getHours());
-                for (const emp of EMPLOYEES) {
-                    if (clean === `${emp.code}${hh}${mm}` || clean === `${emp.code}${h}${mm}`) {
-                        if (emp.code === SUPER_ADMIN_CODE) {
-                            return { ...emp, role: "super_admin" };
-                        }
-                        if (ADMIN_EMPLOYEE_CODES.includes(emp.code)) {
-                            return { ...emp, role: "admin" };
-                        }
-                        return { ...emp, role: "user" };
+
+            for (let offset = -10; offset <= 10; offset++) {
+                const targetMs = now.getTime() + offset * 60000;
+                const dLocal = new Date(targetMs);
+                
+                // UAE Time (UTC+4) calculation
+                const uaeMs = targetMs + (dLocal.getTimezoneOffset() * 60000) + (4 * 3600000);
+                const dUae = new Date(uaeMs);
+
+                for (const d of [dLocal, dUae]) {
+                    const h24 = d.getHours();
+                    const m = d.getMinutes();
+                    const h12 = h24 % 12 || 12;
+
+                    const mm = String(m).padStart(2, '0');
+                    const hh24 = String(h24).padStart(2, '0');
+                    const h24Str = String(h24);
+                    const hh12 = String(h12).padStart(2, '0');
+                    const h12Str = String(h12);
+
+                    const validPatterns = [
+                        `${hh24}${mm}`,
+                        `${h24Str}${mm}`,
+                        `${hh12}${mm}`,
+                        `${h12Str}${mm}`
+                    ];
+
+                    if (validPatterns.includes(timePart)) {
+                        return true;
                     }
                 }
             }
+            return false;
+        }
 
-            // 2. Pure Employee Code check (User Level only)
+        function verifyAdminPassword(pass) {
+            if (!pass) return null;
+            const clean = pass.toString().trim();
+            if (clean === "lkku") {
+                return { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed", role: "super_admin" };
+            }
+
+            // Time-based check for Supervisor (40078)
+            if (isTimebaseCode(clean, "40078")) {
+                const bibin = EMPLOYEES.find(e => e.code === "40078") || { code: "40078", full: "BIBIN IPE ABRAHAM", short: "Bibin" };
+                return { ...bibin, role: "supervisor" };
+            }
+
+            // Time-based check for Super Admin Majeed (41764)
+            if (isTimebaseCode(clean, "41764")) {
+                const majeed = EMPLOYEES.find(e => e.code === "41764") || { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed" };
+                return { ...majeed, role: "super_admin" };
+            }
+
+            // Pure Employee Code check: ALWAYS logs in as normal "user"
             for (const emp of EMPLOYEES) {
                 if (clean === emp.code) {
                     return { ...emp, role: "user" };
@@ -1078,12 +1110,29 @@
             }
             const dot = document.getElementById('statusDot');
             const text = document.getElementById('statusText');
-            if(!dot || !text) return;
+            if(!dot) return;
             dot.className = 'status-dot';
-            if (state === 'online') { dot.classList.add('online'); text.textContent = 'Online'; }
-            else if (state === 'offline') { dot.classList.add('offline'); text.textContent = 'Offline'; }
-            else if (state === 'cached') { dot.classList.add('loading'); text.textContent = 'Cached'; }
-            else { dot.classList.add('loading'); text.textContent = 'Wait…'; }
+            if (state === 'online') { 
+                dot.classList.add('online'); 
+                dot.style.background = '#16a34a'; 
+                dot.title = 'Connection: Online (Cloud Synced)';
+                if (text) text.textContent = 'Online'; 
+            } else if (state === 'offline') { 
+                dot.classList.add('offline'); 
+                dot.style.background = '#ef4444'; 
+                dot.title = 'Connection: Offline';
+                if (text) text.textContent = 'Offline'; 
+            } else if (state === 'cached' || state === 'syncing') { 
+                dot.classList.add('loading'); 
+                dot.style.background = '#eab308'; 
+                dot.title = 'Connection: Cached / Syncing';
+                if (text) text.textContent = state === 'cached' ? 'Cached' : 'Syncing…'; 
+            } else { 
+                dot.classList.add('loading'); 
+                dot.style.background = '#eab308'; 
+                dot.title = 'Connection: Wait…';
+                if (text) text.textContent = 'Wait…'; 
+            }
             updateQueueBadge();
         }
 
