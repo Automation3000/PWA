@@ -402,7 +402,9 @@ function handleAction(data, sheet) {
       var targetWo = rowValues[0] || data.workOrder || '';
       var targetPlant = rowValues[2] || data.plant || '';
       sheet.deleteRow(targetRow);
-      logToHistorySheet('delete', targetWo, targetPlant, 'Deleted Work Order #' + (targetWo || targetRow), data.user || 'Supervisor', data.details || '');
+      if (!data.skipAutoHistory && !data.skipHistoryLog) {
+        logToHistorySheet('delete', targetWo, targetPlant, 'Deleted Work Order #' + (targetWo || targetRow), data.user || 'Supervisor', data.details || '');
+      }
       return jsonResponse({ status: "success", message: "Deleted successfully", deletedRow: targetRow });
     }
     return jsonResponse({ status: "error", message: "ID or Work Order not found for delete" });
@@ -417,7 +419,9 @@ function handleAction(data, sheet) {
       var targetPlant = rowValues[2] || data.plant || '';
       var oldStatus = rowValues[6] || '';
       sheet.getRange(targetRow, 7).setValue(data.status);
-      logToHistorySheet('status', targetWo, targetPlant, 'Status changed from ' + oldStatus + ' to ' + data.status, data.user || 'Supervisor', data.details || '');
+      if (!data.skipAutoHistory && !data.skipHistoryLog) {
+        logToHistorySheet('status', targetWo, targetPlant, 'Status changed from ' + oldStatus + ' to ' + data.status, data.user || 'Supervisor', data.details || '');
+      }
       return jsonResponse({ status: "success", message: "Status updated", updatedRow: targetRow });
     }
     return jsonResponse({ status: "error", message: "ID or Work Order not found for updateStatus" });
@@ -452,7 +456,9 @@ function handleAction(data, sheet) {
         newStatus,
         newRemarks
       ]]);
-      logToHistorySheet('update', newWO, newPlant, newDesc, data.user || 'Technician', data.details || newRemarks || '');
+      if (!data.skipAutoHistory && !data.skipHistoryLog) {
+        logToHistorySheet('update', newWO, newPlant, newDesc, data.user || 'Technician', data.details || newRemarks || '');
+      }
       return jsonResponse({ status: "success", message: "Updated successfully", updatedRow: targetRow });
     }
     return jsonResponse({ status: "error", message: "ID or Work Order not found for update" });
@@ -564,7 +570,9 @@ function handleAction(data, sheet) {
       data.status || 'Requested',
       data.remarks || ''
     ]);
-    logToHistorySheet('create', woVal, plantVal, descVal, data.user || 'Technician', data.remarks || '');
+    if (!data.skipAutoHistory && !data.skipHistoryLog) {
+      logToHistorySheet('create', woVal, plantVal, descVal, data.user || 'Technician', data.remarks || '');
+    }
     
     return jsonResponse({ status: "success", message: "Created successfully", id: newId });
   }

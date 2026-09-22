@@ -102,22 +102,138 @@ function saveLocalData(data) {
   }
 }
 
+function parseHistoryEpoch(ts, displayTime) {
+  if (typeof ts === 'number' && !isNaN(ts) && ts > 0) return ts;
+  const direct = ts ? new Date(ts).getTime() : NaN;
+  if (!isNaN(direct) && direct > 0) return direct;
+  
+  const targetStr = String(displayTime || ts || '').trim();
+  const m = targetStr.match(/^(\d{1,2})[./\-](\d{1,2})[./\-](\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?(?:\s*(AM|PM))?)?$/i);
+  if (m) {
+    const day = parseInt(m[1], 10);
+    const month = parseInt(m[2], 10) - 1;
+    const year = parseInt(m[3], 10);
+    let hour = m[4] ? parseInt(m[4], 10) : 0;
+    const min = m[5] ? parseInt(m[5], 10) : 0;
+    const sec = m[6] ? parseInt(m[6], 10) : 0;
+    const ampm = m[7] ? m[7].toUpperCase() : '';
+    if (ampm === 'PM' && hour < 12) hour += 12;
+    if (ampm === 'AM' && hour === 12) hour = 0;
+    const dt = new Date(year, month, day, hour, min, sec);
+    if (!isNaN(dt.getTime())) return dt.getTime();
+  }
+  return 0;
+}
+
+function format24HourDateTime(epoch) {
+  if (!epoch) return '';
+  const d = new Date(epoch);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, '0');
+  const mins = String(d.getMinutes()).padStart(2, '0');
+  return `${day}.${month}.${year} ${hours}:${mins}`;
+}
+
+function normalizeHistoryAction(act) {
+  const a = String(act || '').toLowerCase().trim();
+  if (a.includes('create') || a.includes('new')) return 'create';
+  if (a.includes('update') || a.includes('edit')) return 'update';
+  if (a.includes('status')) return 'status';
+  if (a.includes('delete')) return 'delete';
+  if (a.includes('clean')) return 'clean';
+  if (a.includes('sync') || a.includes('link')) return 'sync';
+  return a || 'info';
+}
+
+function isGenericHistoryUser(u) {
+  const s = String(u || '').toLowerCase().trim();
+  return !s || s === 'technician' || s === 'supervisor' || s === 'system' || s === 'user';
+}
+
 function deduplicateHistoryList(list) {
   if (!Array.isArray(list)) return [];
-  const seen = new Set();
-  const clean = [];
-  for (const item of list) {
-    if (!item) continue;
-    const timeKey = (item.timestamp || item.displayTime || '').slice(0, 16);
-    const key = item.id && !String(item.id).startsWith('cloud_hist_') ? 
-      String(item.id) : 
-      `${item.action || ''}_${item.workOrder || ''}_${item.plant || ''}_${item.description || ''}_${timeKey}`;
-    if (!seen.has(key)) {
-      seen.add(key);
-      clean.push(item);
+  
+  // 1. Prepare items with parsed epoch, normalized action and 24h displayTime
+  const prepared = list.map((item, idx) => {
+    if (!item) return null;
+    const wo = String(item.workOrder || '').replace(/^#/, '').trim();
+    const desc = String(item.description || '').trim();
+    const plant = String(item.plant || '').trim();
+    const details = String(item.details || '').trim();
+    // Filter out completely blank ghost rows
+    if (!wo && !desc && !plant && !details) return null;
+
+    const epoch = parseHistoryEpoch(item.timestamp, item.displayTime) || (Date.now() - idx * 1000);
+    const normAction = normalizeHistoryAction(item.action || item.actionLabel);
+    const normWo = wo.toLowerCase();
+    const display24 = format24HourDateTime(epoch);
+
+    const actionLabels = {
+      'create': 'Created',
+      'update': 'Edited',
+      'status': 'Status',
+      'delete': 'Deleted',
+      'clean': 'Cleaned',
+      'sync': 'Synced'
+    };
+
+    return {
+      ...item,
+      epoch,
+      action: normAction,
+      actionLabel: actionLabels[normAction] || item.actionLabel || 'Activity',
+      workOrder: wo,
+      normWo,
+      plant: plant,
+      displayTime: display24,
+      timestamp: new Date(epoch).toISOString()
+    };
+  }).filter(Boolean);
+
+  // 2. Sort strictly chronologically descending (newest on top)
+  prepared.sort((a, b) => b.epoch - a.epoch);
+
+  // 3. Deduplicate
+  const result = [];
+  for (const item of prepared) {
+    const existingIdx = result.findIndex(r => {
+      if (r.id && item.id && r.id === item.id) return true;
+      if (r.action !== item.action) return false;
+      
+      const sameWo = r.normWo === item.normWo;
+      const timeDiff = Math.abs(r.epoch - item.epoch);
+      
+      // If same work order and within 5 minutes, or both empty WO and within 20s
+      if (sameWo && (r.normWo ? timeDiff < 300000 : timeDiff < 20000)) {
+        return true;
+      }
+      return false;
+    });
+
+    if (existingIdx === -1) {
+      result.push(item);
+    } else {
+      // Merge: prefer real logged user over generic ('Technician'/'Supervisor')
+      const existing = result[existingIdx];
+      if (isGenericHistoryUser(existing.user) && !isGenericHistoryUser(item.user)) {
+        existing.user = item.user;
+      }
+      // Prefer richer description
+      if ((item.description || '').length > (existing.description || '').length) {
+        existing.description = item.description;
+      }
+      if (item.details && !existing.details) {
+        existing.details = item.details;
+      }
+      if (item.plant && !existing.plant) {
+        existing.plant = item.plant;
+      }
     }
   }
-  return clean;
+
+  return result.map(({ epoch, normWo, ...rest }) => rest);
 }
 
 function loadHistoryData() {
@@ -216,7 +332,7 @@ app.get('/api/operation-history', async (req, res) => {
   // Always try to fetch live from Google Sheet "History" tab
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const timeoutId = setTimeout(() => controller.abort(), 3500);
     const cloudRes = await fetch(APPS_SCRIPT_URL + '?action=getHistory&t=' + Date.now(), {
       signal: controller.signal,
       redirect: 'follow'
@@ -229,31 +345,9 @@ app.get('/api/operation-history', async (req, res) => {
           history = [];
           saveHistoryData([]);
         } else {
-          // Merge cloud history with local with strict deduplication
-          const newFromCloud = [];
-          for (const ch of json.data) {
-            const chTime = ch.timestamp ? new Date(ch.timestamp).getTime() : 0;
-            const isDup = history.some(h => {
-              if (h.id && ch.id && h.id === ch.id) return true;
-              const hTime = h.timestamp ? new Date(h.timestamp).getTime() : 0;
-              const timeDiff = Math.abs(chTime - hTime);
-              // Match same action & same description & same workOrder
-              const sameEvent = h.action === ch.action &&
-                                (h.workOrder || '') === (ch.workOrder || '') &&
-                                (h.description || '') === (ch.description || '');
-              if (sameEvent && (timeDiff < 180000 || !chTime || !hTime)) return true;
-              return false;
-            });
-            if (!isDup) {
-              newFromCloud.push(ch);
-            }
-          }
-          if (newFromCloud.length > 0) {
-            history = [...newFromCloud, ...history];
-          } else if (json.data.length >= history.length) {
-            history = json.data;
-          }
-          history.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+          // Merge cloud history with local with intelligent deduplication and 24-hour formatting
+          const combined = [...json.data, ...history];
+          history = deduplicateHistoryList(combined);
           if (history.length > 200) history.length = 200;
           saveHistoryData(history);
         }
@@ -270,39 +364,40 @@ app.post('/api/operation-history', (req, res) => {
   if (!item.action && !item.description) {
     return res.status(400).json({ status: 'error', message: 'Invalid history item' });
   }
-  const history = loadHistoryData();
 
-  // Strict deduplication check: avoid logging same event within 20 seconds
-  const itemTime = item.timestamp ? new Date(item.timestamp).getTime() : Date.now();
-  const isDuplicate = history.some(h => {
-    if (h.id && item.id && h.id === item.id) return true;
-    const hTime = h.timestamp ? new Date(h.timestamp).getTime() : 0;
-    const diffSec = Math.abs(itemTime - hTime) / 1000;
-    return (
-      diffSec < 20 &&
-      h.action === item.action &&
-      h.description === item.description
-    );
-  });
+  const epoch = parseHistoryEpoch(item.timestamp, item.displayTime) || Date.now();
+  const normAction = normalizeHistoryAction(item.action || item.actionLabel);
+  const display24 = format24HourDateTime(epoch);
+  const wo = String(item.workOrder || '').replace(/^#/, '').trim();
+  const plant = String(item.plant || '').trim();
+  const user = String(item.user || '').trim() || 'Technician';
 
-  if (isDuplicate) {
-    return res.json({ status: 'success', data: item, duplicate: true });
-  }
+  const actionLabels = {
+    'create': 'Created',
+    'update': 'Edited',
+    'status': 'Status',
+    'delete': 'Deleted',
+    'clean': 'Cleaned',
+    'sync': 'Synced'
+  };
 
   const entry = {
-    id: item.id || ('hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000)),
-    timestamp: item.timestamp || new Date().toISOString(),
-    displayTime: item.displayTime || (new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })),
-    action: item.action || 'info',
-    actionLabel: item.actionLabel || 'Activity',
-    workOrder: item.workOrder || '',
-    plant: item.plant || '',
+    id: item.id || ('hist_' + epoch + '_' + Math.floor(Math.random() * 1000)),
+    timestamp: new Date(epoch).toISOString(),
+    displayTime: display24,
+    action: normAction,
+    actionLabel: actionLabels[normAction] || item.actionLabel || 'Activity',
+    workOrder: wo,
+    plant: plant,
     description: item.description || '',
     details: item.details || '',
-    user: item.user || 'Technician',
-    badgeColor: item.badgeColor || 'var(--primary)'
+    user: user,
+    badgeColor: item.badgeColor || (normAction === 'delete' ? '#dc2626' : (normAction === 'status' ? '#16a34a' : (normAction === 'update' ? '#7c3aed' : '#1a73e8')))
   };
+
+  let history = loadHistoryData();
   history.unshift(entry);
+  history = deduplicateHistoryList(history);
   if (history.length > 150) history.length = 150; // Keep last 150 logs
   saveHistoryData(history);
 
@@ -366,7 +461,7 @@ app.post('/api/operation-requests', async (req, res) => {
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ ...body, skipAutoHistory: true, skipHistoryLog: true }),
       redirect: 'follow'
     }).catch(err => console.error("Apps Script delete error:", err));
 
@@ -396,7 +491,7 @@ app.post('/api/operation-requests', async (req, res) => {
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ ...body, skipAutoHistory: true, skipHistoryLog: true }),
       redirect: 'follow'
     }).catch(err => console.error("Apps Script updateStatus error:", err));
 
@@ -438,7 +533,7 @@ app.post('/api/operation-requests', async (req, res) => {
       team: updatedTarget['Team'] || updatedTarget.team || '',
       status: updatedTarget['Status'] || updatedTarget.status || 'Requested',
       remarks: updatedTarget['Remarks'] || updatedTarget.remarks || ''
-    } : {}, body);
+    } : {}, body, { skipAutoHistory: true, skipHistoryLog: true });
 
     if (appsScriptPayload.workOrder || appsScriptPayload.description || appsScriptPayload.plant) {
       fetch(APPS_SCRIPT_URL, {
@@ -480,7 +575,7 @@ app.post('/api/operation-requests', async (req, res) => {
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ ...body, id: newId }),
+      body: JSON.stringify({ ...body, id: newId, skipAutoHistory: true, skipHistoryLog: true }),
       redirect: 'follow'
     }).catch(err => console.error("Apps Script create error:", err));
 

@@ -734,9 +734,9 @@
             </div>
             <div class="tile" onclick="handleTileClick(event, 'PM_Checklist_Generator.html', this)">
                 <div class="tile-title">PM Checklist Generator</div>
-                <div class="tile-subtitle">Create &amp; Download Checklist • In Active Development</div>
-                <i class="fas fa-tasks tile-icon" style="color:#d97706;"></i>
-                <div class="tile-status" style="color:#d97706; font-weight:700;"><i class="fas fa-tools"></i> Under Development</div>
+                <div class="tile-subtitle">Create &amp; Download Checklist</div>
+                <i class="fas fa-tasks tile-icon" style="color:var(--primary);"></i>
+                <div class="tile-status" style="color:var(--secondary);"><i class="fas fa-check-circle"></i> Ready</div>
             </div>
             <div class="tile" onclick="handleTileClick(event, 'ETS_Locator.html', this)">
                 <div class="tile-title">ETS Locator</div>
@@ -771,20 +771,6 @@
                 <div class="tile-subtitle">App preferences &amp; Sync</div>
                 <i class="fas fa-cog tile-icon" style="color:var(--text-secondary);"></i>
             </div>
-            <div class="tile" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#93c5fd;" onclick="handleTileClick(event, 'RELEASE_NOTES', this)">
-                <div class="tile-title" style="color:#1d4ed8;">Release Notes</div>
-                <div class="tile-subtitle">Credits &amp; New Features</div>
-                <i class="fas fa-award tile-icon" style="color:#2563eb;"></i>
-            </div>
-            <div class="tile tile-beta" onclick="switchToBetaTheme()">
-                <span class="beta-tag">BETA</span>
-                <div class="tile-title">Beta Theme</div>
-                <div class="tile-subtitle">Try the new UI design</div>
-                <i class="fas fa-flask tile-icon"></i>
-                <div class="tile-status" style="color:#8b5cf6;background:rgba(124,58,237,.1);padding:3px 8px;border-radius:20px;font-size:10px;">
-                    <i class="fas fa-wand-magic-sparkles" style="font-size:9px;"></i> New
-                </div>
-            </div>
             <div class="tile tile-feedback" onclick="openFeedbackModal()">
                 <div class="tile-title" style="color:#ea580c;">Share Feedback</div>
                 <div class="tile-subtitle">Report bugs or ideas</div>
@@ -800,6 +786,11 @@
                 <i class="fas fa-mobile-alt tile-icon" style="color:#2563eb;"></i>
                 <div class="tile-status" style="color:#dc2626;font-weight:800;"><i class="fas fa-flask"></i> Beta</div>
             </div>
+            <div class="tile" style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-color:#93c5fd;" onclick="handleTileClick(event, 'RELEASE_NOTES', this)">
+                <div class="tile-title" style="color:#1d4ed8;">Release Notes</div>
+                <div class="tile-subtitle">Credits &amp; New Features</div>
+                <i class="fas fa-award tile-icon" style="color:#2563eb;"></i>
+            </div>
         </div>
 
         <div id="dev-tools-group" style="display:none;margin-top:40px;">
@@ -808,6 +799,15 @@
                 <button onclick="lockDeveloperMode()" style="background:rgba(217,48,37,0.08);border:1px solid rgba(217,48,37,.3);color:var(--danger);padding:3px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;"><i class="fas fa-lock"></i> Lock</button>
             </h2>
             <div class="tile-grid">
+                <div class="tile tile-beta" onclick="switchToBetaTheme()">
+                    <span class="beta-tag">BETA</span>
+                    <div class="tile-title">Beta Theme</div>
+                    <div class="tile-subtitle">Try the new UI design</div>
+                    <i class="fas fa-flask tile-icon"></i>
+                    <div class="tile-status" style="color:#8b5cf6;background:rgba(124,58,237,.1);padding:3px 8px;border-radius:20px;font-size:10px;">
+                        <i class="fas fa-wand-magic-sparkles" style="font-size:9px;"></i> New
+                    </div>
+                </div>
                 <div class="tile" onclick="showToast('Under Development','info')">
                     <div class="tile-title">Service Report</div>
                     <div class="tile-subtitle">Time Entry Format</div>
@@ -3349,6 +3349,31 @@ window.startSmartInstall = async function() {
        RELEASE NOTES — full working module
     ────────────────────────────────────── */
     const RELEASE_HISTORY = [
+        {
+            version: "v2.1.3",
+            date: "September 2026",
+            badge: "UI & Tool Organization",
+            badgeColor: "#16a34a",
+            sections: [
+                {
+                    emoji: "✅",
+                    title: "PM Checklist Generator",
+                    color: "var(--secondary)",
+                    items: [
+                        { text: "Removed 'Under Development' label — checklist generator is live and ready.", credit: "Majeed" }
+                    ]
+                },
+                {
+                    emoji: "🛠️",
+                    title: "Developer Tools & Downloads",
+                    color: "var(--primary)",
+                    items: [
+                        { text: "Beta Theme switcher relocated into Developer Tools section.", credit: "Majeed" },
+                        { text: "Release Notes moved into the Downloads section for easier access.", credit: "Majeed" }
+                    ]
+                }
+            ]
+        },
         {
             version: "v2.1.2",
             date: "September 2026",

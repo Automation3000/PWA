@@ -409,9 +409,6 @@ input[type="date"] {
                         <h2 style="font-size:1.2rem; font-weight:800; margin:0; display:flex; align-items:center; gap:8px;">
                             <i class="fas fa-history" style="color:#d97706;"></i> Operation History Log
                         </h2>
-                        <span style="font-size:0.75rem; color:var(--text-muted); display:inline-flex; align-items:center; gap:5px; margin-top:2px;">
-                            <i class="fas fa-cloud" style="color:#0284c7;"></i> Linked to Cloud: <b>History</b>
-                        </span>
                     </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -1073,22 +1070,136 @@ input[type="date"] {
         const LS_HISTORY = 'tabreed_operation_history';
         let currentHistoryFilter = 'all';
 
+        function parseHistoryEpoch(ts, displayTime) {
+            if (typeof ts === 'number' && !isNaN(ts) && ts > 0) return ts;
+            const direct = ts ? new Date(ts).getTime() : NaN;
+            if (!isNaN(direct) && direct > 0) return direct;
+            
+            const targetStr = String(displayTime || ts || '').trim();
+            const m = targetStr.match(/^(\d{1,2})[./\-](\d{1,2})[./\-](\d{4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?(?:\s*(AM|PM))?)?$/i);
+            if (m) {
+                const day = parseInt(m[1], 10);
+                const month = parseInt(m[2], 10) - 1;
+                const year = parseInt(m[3], 10);
+                let hour = m[4] ? parseInt(m[4], 10) : 0;
+                const min = m[5] ? parseInt(m[5], 10) : 0;
+                const sec = m[6] ? parseInt(m[6], 10) : 0;
+                const ampm = m[7] ? m[7].toUpperCase() : '';
+                if (ampm === 'PM' && hour < 12) hour += 12;
+                if (ampm === 'AM' && hour === 12) hour = 0;
+                const dt = new Date(year, month, day, hour, min, sec);
+                if (!isNaN(dt.getTime())) return dt.getTime();
+            }
+            return 0;
+        }
+
+        function format24HourDateTime(epoch) {
+            if (!epoch) return '';
+            const d = (epoch instanceof Date) ? epoch : new Date(epoch);
+            if (isNaN(d.getTime())) return String(epoch);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            const hours = String(d.getHours()).padStart(2, '0');
+            const mins = String(d.getMinutes()).padStart(2, '0');
+            return `${day}.${month}.${year} ${hours}:${mins}`;
+        }
+
+        function normalizeHistoryAction(act) {
+            const a = String(act || '').toLowerCase().trim();
+            if (a.includes('create') || a.includes('new')) return 'create';
+            if (a.includes('update') || a.includes('edit')) return 'update';
+            if (a.includes('status')) return 'status';
+            if (a.includes('delete')) return 'delete';
+            if (a.includes('clean')) return 'clean';
+            if (a.includes('sync') || a.includes('link')) return 'sync';
+            return a || 'info';
+        }
+
+        function isGenericHistoryUser(u) {
+            const s = String(u || '').toLowerCase().trim();
+            return !s || s === 'technician' || s === 'supervisor' || s === 'system' || s === 'user';
+        }
+
         function deduplicateHistory(hist) {
             if (!Array.isArray(hist)) return [];
-            const seen = new Set();
+
+            const actionLabels = {
+                'create': 'Created',
+                'update': 'Edited',
+                'status': 'Status',
+                'delete': 'Deleted',
+                'clean': 'Cleaned',
+                'sync': 'Synced'
+            };
+
+            // 1. Prepare items with parsed epoch, normalized action and 24h displayTime
+            const prepared = hist.map((item, idx) => {
+                if (!item) return null;
+                const wo = String(item.workOrder || '').replace(/^#/, '').trim();
+                const desc = String(item.description || '').trim();
+                const plant = String(item.plant || '').trim();
+                const details = String(item.details || '').trim();
+                if (!wo && !desc && !plant && !details) return null;
+
+                const epoch = parseHistoryEpoch(item.timestamp, item.displayTime) || (Date.now() - idx * 1000);
+                const normAction = normalizeHistoryAction(item.action || item.actionLabel);
+                const normWo = wo.toLowerCase();
+                const display24 = format24HourDateTime(epoch);
+
+                return {
+                    ...item,
+                    epoch,
+                    action: normAction,
+                    actionLabel: actionLabels[normAction] || item.actionLabel || 'Activity',
+                    workOrder: wo,
+                    normWo,
+                    plant: plant,
+                    displayTime: display24,
+                    timestamp: new Date(epoch).toISOString()
+                };
+            }).filter(Boolean);
+
+            // 2. Sort strictly chronologically descending (newest on top)
+            prepared.sort((a, b) => b.epoch - a.epoch);
+
+            // 3. Deduplicate
             const result = [];
-            for (const h of hist) {
-                if (!h) continue;
-                const timeKey = (h.timestamp || h.displayTime || '').slice(0, 16);
-                const key = h.id && !String(h.id).startsWith('cloud_hist_') ? 
-                    String(h.id) : 
-                    `${h.action || ''}_${h.workOrder || ''}_${h.plant || ''}_${h.description || ''}_${timeKey}`;
-                if (!seen.has(key)) {
-                    seen.add(key);
-                    result.push(h);
+            for (const item of prepared) {
+                const existingIdx = result.findIndex(r => {
+                    if (r.id && item.id && r.id === item.id) return true;
+                    if (r.action !== item.action) return false;
+                    
+                    const sameWo = r.normWo === item.normWo;
+                    const timeDiff = Math.abs(r.epoch - item.epoch);
+                    
+                    // Same work order within 5 mins, or both empty WO within 20s
+                    if (sameWo && (r.normWo ? timeDiff < 300000 : timeDiff < 20000)) {
+                        return true;
+                    }
+                    return false;
+                });
+
+                if (existingIdx === -1) {
+                    result.push(item);
+                } else {
+                    const existing = result[existingIdx];
+                    if (isGenericHistoryUser(existing.user) && !isGenericHistoryUser(item.user)) {
+                        existing.user = item.user;
+                    }
+                    if ((item.description || '').length > (existing.description || '').length) {
+                        existing.description = item.description;
+                    }
+                    if (item.details && !existing.details) {
+                        existing.details = item.details;
+                    }
+                    if (item.plant && !existing.plant) {
+                        existing.plant = item.plant;
+                    }
                 }
             }
-            return result;
+
+            return result.map(({ epoch, normWo, ...rest }) => rest);
         }
 
         function getLocalHistory() {
@@ -1155,14 +1266,14 @@ input[type="date"] {
                 'sync': '#0284c7'
             };
             const now = new Date();
-            const displayTime = now.toLocaleDateString('en-GB') + ' ' + now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const displayTime = format24HourDateTime(now);
 
             const hist = getLocalHistory();
 
-            // Prevent rapid duplicate logging (within 15 seconds)
+            // Prevent rapid duplicate logging (within 15 seconds for same work order and action)
             const isDup = hist.some(h => {
                 const diff = Math.abs(now.getTime() - new Date(h.timestamp || 0).getTime()) / 1000;
-                return diff < 15 && h.action === action && h.description === description;
+                return diff < 15 && h.action === action && (h.workOrder || '') === (workOrder || '');
             });
             if (isDup) return;
 
@@ -1170,8 +1281,8 @@ input[type="date"] {
                 id: 'hist_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
                 timestamp: now.toISOString(),
                 displayTime: displayTime,
-                action: action,
-                actionLabel: actionLabel,
+                action: normalizeHistoryAction(action),
+                actionLabel: actionLabel || 'Activity',
                 workOrder: workOrder || '',
                 plant: plant || '',
                 description: description || '',
@@ -1181,25 +1292,16 @@ input[type="date"] {
             };
 
             hist.unshift(item);
-            if (hist.length > 150) hist.length = 150;
             saveLocalHistory(hist);
             updateHistoryBadge();
 
-            // Post only to backend proxy, which persists and syncs cleanly with Cloud
+            // Post only to backend proxy, which persists and syncs cleanly with Cloud without creating duplicates
             fetch('/api/operation-history', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(item)
             }).catch(e => {
-                // If backend unreachable, direct fallback to Apps Script
-                try {
-                    fetch(APPS_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'logHistory', historyItem: item }),
-                        redirect: 'follow'
-                    }).catch(err => console.warn("Direct Apps Script history error:", err));
-                } catch(err) {}
+                console.warn("Operation history POST warning:", e);
             });
         }
 
@@ -1869,16 +1971,22 @@ input[type="date"] {
             const curFull = String(curUser.full || '').trim().toLowerCase();
             const curCode = String(curUser.code || curUser.empId || '').trim().toLowerCase();
             
-            const reqCreator = String(req.createdBy || '').trim().toLowerCase();
+            const reqCreator = String(req.createdBy || req.user || '').trim().toLowerCase();
             const reqTeam = String(req.team || '').trim().toLowerCase();
+            const reqRemarks = String(req.remarks || '').trim().toLowerCase();
             
             if (reqCreator) {
-                if (curShort && reqCreator === curShort) return true;
-                if (curFull && reqCreator === curFull) return true;
-                if (curCode && reqCreator === curCode) return true;
+                if (curShort && (reqCreator === curShort || reqCreator.includes(curShort) || curShort.includes(reqCreator))) return true;
+                if (curFull && (reqCreator === curFull || reqCreator.includes(curFull) || curFull.includes(reqCreator))) return true;
+                if (curCode && (reqCreator === curCode || reqCreator.includes(curCode))) return true;
             }
-            if (curShort && reqTeam.toLowerCase().includes(curShort)) return true;
-            if (curFull && reqTeam.toLowerCase().includes(curFull)) return true;
+            if (reqTeam) {
+                if (curShort && (reqTeam === curShort || reqTeam.includes(curShort) || curShort.includes(reqTeam))) return true;
+                if (curFull && (reqTeam === curFull || reqTeam.includes(curFull) || curFull.includes(reqTeam))) return true;
+                if (curCode && (reqTeam === curCode || reqTeam.includes(curCode))) return true;
+            }
+            if (curShort && reqRemarks.includes(curShort)) return true;
+            if (curCode && reqRemarks.includes(curCode)) return true;
             
             return false;
         }
@@ -1886,9 +1994,10 @@ input[type="date"] {
         function updateUIPermissions() {
             const hasAccess = isSupervisor();
             const isDev = isDeveloper();
-            const hasActionAccess = hasAccess || isDev;
+            const hasLoggedInUser = !!currentUser;
+            const hasActionAccess = hasAccess || isDev || hasLoggedInUser;
             
-            // Show/Hide Supervisor/Dev Action column in Table Header
+            // Show/Hide Action column in Table Header
             const actionTh = document.getElementById('actionThHeader');
             if (actionTh) {
                 actionTh.style.display = hasActionAccess ? '' : 'none';
@@ -2551,7 +2660,7 @@ input[type="date"] {
                         diffs.push(`Status: "${oldReq.status || ''}" → "${status}"`);
                     }
 
-                    const nowFormatted = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const nowFormatted = format24HourDateTime(new Date());
                     changeSummary = diffs.length > 0 ? diffs.join('; ') : 'Details saved';
                     newAuditStamp = `[Edited: ${nowFormatted} by ${userName} | ${changeSummary}]`;
 
@@ -2621,6 +2730,9 @@ input[type="date"] {
                 status: status,
                 remarks: finalRemarks,
                 createdBy: newReq.createdBy || userName,
+                user: userName,
+                skipAutoHistory: true,
+                skipHistoryLog: true,
                 details: id ? newAuditStamp : ''
             };
 
@@ -2696,11 +2808,17 @@ input[type="date"] {
             showToast("Deleting from Cloud...", "info");
 
             // 5. Send to server / Cloud or push to offline queue
+            const curUser = (typeof getCurrentUser === 'function' ? getCurrentUser() : currentUser) || {};
+            const userName = curUser.short || curUser.full || curUser.name || curUser.code || 'Supervisor';
             const payload = {
                 action: 'delete',
                 id: id,
                 workOrder: targetWo,
-                rowIdx: targetRowIdx
+                plant: targetReq ? targetReq.plant : '',
+                rowIdx: targetRowIdx,
+                user: userName,
+                skipAutoHistory: true,
+                skipHistoryLog: true
             };
 
             if (!navigator.onLine) {
@@ -3042,13 +3160,17 @@ input[type="date"] {
             overrides[idStr] = newStatus;
             saveLocalStatusOverrides(overrides);
 
-            // Log activity
+            // Log activity with current user
+            const curUser = (typeof getCurrentUser === 'function' ? getCurrentUser() : currentUser) || {};
+            const userName = curUser.short || curUser.full || curUser.name || curUser.code || 'Supervisor';
             logOperationActivity(
                 'status',
                 'Status Changed',
                 `Status changed from "${oldStatus}" to "${newStatus}" for WO #${req.wo || id}`,
                 req.wo,
-                req.plant
+                req.plant,
+                '#16a34a',
+                `Status changed from "${oldStatus}" to "${newStatus}"`
             );
 
             // 2. Immediately update local storage cache so it NEVER reverts on reload
@@ -3064,7 +3186,12 @@ input[type="date"] {
                 id: idStr,
                 rowIdx: req.rowIdx || null,
                 workOrder: req.wo,
-                status: newStatus
+                plant: req.plant,
+                status: newStatus,
+                user: userName,
+                skipAutoHistory: true,
+                skipHistoryLog: true,
+                details: `Status changed from "${oldStatus}" to "${newStatus}"`
             };
 
             if (!navigator.onLine) {
@@ -3455,7 +3582,8 @@ input[type="date"] {
             const lowerFilter = (filterText || "").toLowerCase().trim();
             const userIsSupervisor = isSupervisor();
             const userIsDeveloper = isDeveloper();
-            const canAccessActions = userIsSupervisor || userIsDeveloper;
+            const hasLoggedInUser = !!currentUser;
+            const canAccessActions = userIsSupervisor || userIsDeveloper || hasLoggedInUser;
             
             // Header action column visibility matches canAccessActions
             const actionTh = document.getElementById('actionThHeader');
@@ -3493,13 +3621,30 @@ input[type="date"] {
                     const archIcon = isArch ? 'fa-box-open' : 'fa-archive';
                     const archTitle = isArch ? 'Unarchive Request' : 'Archive Request';
                     const archColor = isArch ? '#d97706' : '#64748b';
+                    const isSup = userIsSupervisor || userIsDeveloper;
+                    const canEdit = canUserEditRequest(req);
 
-                    actionsHtml = `
-                        <td class="action-icons" style="text-align:right; white-space:nowrap;">
+                    let actionContent = '';
+                    if (isSup) {
+                        actionContent = `
                             <i class="fab fa-whatsapp icon-whatsapp" title="Send WhatsApp Message" onclick="openWhatsAppModal('${req.id}')" style="cursor:pointer; margin-right:10px; color:#25D366; font-size:15px;"></i>
                             <i class="fas ${archIcon} icon-archive" title="${archTitle}" onclick="toggleArchiveRequest('${req.id}')" style="cursor:pointer; margin-right:10px; color:${archColor}; font-size:14px;"></i>
                             <i class="fas fa-edit icon-edit" title="Edit" onclick="openRequestModal('${req.id}')" style="cursor:pointer; margin-right:10px; color:var(--primary); font-size:14px;"></i>
                             <i class="fas fa-trash icon-delete" title="Delete" onclick="deleteRequest('${req.id}')" style="cursor:pointer; color:var(--danger); font-size:14px;"></i>
+                        `;
+                    } else if (canEdit) {
+                        actionContent = `
+                            <button type="button" class="btn-action" title="Edit Request" onclick="openRequestModal('${req.id}')" style="background:rgba(26,115,232,0.1); color:var(--primary); border:1.5px solid rgba(26,115,232,0.35); border-radius:6px; padding:4px 10px; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s ease;" onmouseover="this.style.background='var(--primary)'; this.style.color='white';" onmouseout="this.style.background='rgba(26,115,232,0.1)'; this.style.color='var(--primary)';">
+                                <i class="fas fa-edit" style="font-size:12px;"></i> <span>Edit</span>
+                            </button>
+                        `;
+                    } else {
+                        actionContent = `<span style="color:var(--text-muted); font-size:12px; opacity:0.4;">-</span>`;
+                    }
+
+                    actionsHtml = `
+                        <td class="action-icons" style="text-align:right; white-space:nowrap;">
+                            ${actionContent}
                         </td>
                     `;
                 }
