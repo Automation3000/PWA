@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabreed Automation App — System Architecture & Technical Documentation</title>
+    <style>
+        /* ==========================================================================
+           RESET & CSS VARIABLES (LIGHT & DARK THEMES)
+           100% OFFLINE - ZERO EXTERNAL FONTS OR CDNS
+           ========================================================================== */
+        :root {
+            --bg-body: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-surface-elevated: #ffffff;
+            --bg-surface-subtle: #f1f5f9;
+            --border-subtle: #e2e8f0;
+            --border-strong: #cbd5e1;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --text-faint: #64748b;
+            
+            --brand-primary: #1a73e8;
+            --brand-primary-hover: #1557b0;
+            --brand-primary-light: #e8f0fe;
+            --brand-success: #16a34a;
+            --brand-success-light: #dcfce7;
+            --brand-warning: #d97706;
+            --brand-warning-light: #fef3c7;
+            --brand-danger: #dc2626;
+            --brand-danger-light: #fee2e2;
+            --brand-purple: #7c3aed;
+            --brand-purple-light: #f3e8ff;
+            --brand-teal: #0d9488;
+            --brand-teal-light: #ccfbf1;
+            
+            --sidebar-width: 280px;
+            --header-height: 64px;
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            --radius-pill: 9999px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+            --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        }
+
+        body.dark-mode {
+            --bg-body: #0b0f19;
+            --bg-surface: #111827;
+            --bg-surface-elevated: #1e293b;
+            --bg-surface-subtle: #1e293b;
+            --border-subtle: #1f293d;
+            --border-strong: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --text-faint: #94a3b8;
+            
+            --brand-primary: #38bdf8;
+            --brand-primary-hover: #0284c7;
+            --brand-primary-light: rgba(56, 189, 248, 0.12);
+            --brand-success: #22c55e;
+            --brand-success-light: rgba(34, 197, 94, 0.12);
+            --brand-warning: #fbbf24;
+            --brand-warning-light: rgba(251, 191, 36, 0.12);
+            --brand-danger: #f87171;
+            --brand-danger-light: rgba(248, 113, 113, 0.12);
+            --brand-purple: #c084fc;
+            --brand-purple-light: rgba(192, 132, 252, 0.12);
+            --brand-teal: #2dd4bf;
+            --brand-teal-light: rgba(45, 212, 191, 0.12);
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            transition: background-color 0.25s ease, color 0.25s ease;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ==========================================================================
+           HEADER & NAV
+           ========================================================================== */
+        header.doc-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: var(--header-height);
+            background: var(--bg-surface);
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 1000;
+            backdrop-filter: blur(8px);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+        }
+
+        .header-badge {
+            background: var(--brand-primary-light);
+            color: var(--brand-primary);
+            padding: 2px 10px;
+            border-radius: var(--radius-pill);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .header-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 240px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 7px 12px 7px 32px;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-strong);
+            background: var(--bg-surface-subtle);
+            color: var(--text-main);
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .search-input:focus {
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 3px var(--brand-primary-light);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            fill: var(--text-faint);
+            pointer-events: none;
+        }
+
+        .theme-toggle-btn, .print-btn {
+            background: var(--bg-surface-subtle);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.15s ease;
+        }
+
+        .theme-toggle-btn:hover, .print-btn:hover {
+            background: var(--brand-primary-light);
+            color: var(--brand-primary);
+            border-color: var(--brand-primary);
+        }
+
+        /* ==========================================================================
+           LAYOUT: SIDEBAR & MAIN CONTENT
+           ========================================================================== */
+        .layout-container {
+            display: flex;
+            margin-top: var(--header-height);
+            min-height: calc(100vh - var(--header-height));
+        }
+
+        nav.doc-sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-surface);
+            border-right: 1px solid var(--border-subtle);
+            position: fixed;
+            top: var(--header-height);
+            bottom: 0;
+            left: 0;
+            overflow-y: auto;
+            padding: 20px 12px;
+            z-index: 900;
+        }
+
+        .nav-group-title {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-faint);
+            padding: 10px 12px 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            margin-bottom: 2px;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-surface-subtle);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background: var(--brand-primary-light);
+            color: var(--brand-primary);
+            font-weight: 700;
+        }
+
+        .nav-icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            opacity: 0.85;
+            flex-shrink: 0;
+        }
+
+        main.doc-main {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 40px 48px;
+            max-width: 1280px;
+        }
+
+        /* ==========================================================================
+           TYPOGRAPHY & CARDS
+           ========================================================================== */
+        h1, h2, h3, h4 {
+            color: var(--text-main);
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        h1.doc-hero-title {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .doc-lead {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+            max-width: 900px;
+        }
+
+        .meta-strip {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .meta-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+            background: var(--bg-surface);
+            border: 1px solid var(--border-strong);
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .meta-tag-blue { background: var(--brand-primary-light); color: var(--brand-primary); border-color: transparent; }
+        .meta-tag-green { background: var(--brand-success-light); color: var(--brand-success); border-color: transparent; }
+        .meta-tag-purple { background: var(--brand-purple-light); color: var(--brand-purple); border-color: transparent; }
+
+        section.doc-section {
+            margin-bottom: 56px;
+            scroll-margin-top: 84px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-subtle);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--border-strong);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ==========================================================================
+           INTERACTIVE ARCHITECTURE BLOCK DIAGRAM (PURE HTML/CSS)
+           ========================================================================== */
+        .diagram-container {
+            background: var(--bg-surface-elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 32px;
+            overflow-x: auto;
+        }
+
+        .diagram-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .diagram-filters {
+            display: flex;
+            gap: 8px;
+        }
+
+        .filter-chip {
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-surface);
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .filter-chip.active, .filter-chip:hover {
+            background: var(--brand-primary);
+            color: #ffffff;
+            border-color: var(--brand-primary);
+        }
+
+        .arch-tiers {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            position: relative;
+        }
+
+        .arch-tier {
+            background: var(--bg-body);
+            border: 1.5px dashed var(--border-strong);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            position: relative;
+        }
+
+        .tier-label {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-strong);
+            padding: 2px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            color: var(--brand-primary);
+        }
+
+        .tier-blocks {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin-top: 6px;
+        }
+
+        .arch-block {
+            background: var(--bg-surface);
+            border: 1.5px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .arch-block:hover {
+            border-color: var(--brand-primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .arch-block.selected {
+            border-color: var(--brand-primary);
+            background: var(--brand-primary-light);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.25);
+        }
+
+        .arch-block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .arch-block-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        .arch-block-badge {
+            font-size: 0.68rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+            background: var(--bg-surface-subtle);
+            color: var(--text-muted);
+        }
+
+        .arch-block-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .flow-connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-faint);
+            font-size: 0.8rem;
+            font-weight: 700;
+            gap: 8px;
+            padding: 2px 0;
+        }
+
+        .flow-line {
+            height: 2px;
+            background: var(--border-strong);
+            flex: 1;
+            position: relative;
+        }
+
+        .flow-arrow-down {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 8px solid var(--border-strong);
+            margin: 0 auto;
+        }
+
+        /* Inspector card for clicked diagram block */
+        .diagram-inspector {
+            margin-top: 24px;
+            background: var(--bg-surface);
+            border: 2px solid var(--brand-primary);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            animation: fadeIn 0.2s ease-in;
+        }
+
+        /* ==========================================================================
+           PIPELINE DATA FLOW VISUALIZER
+           ========================================================================== */
+        .pipeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin: 24px 0;
+        }
+
+        .pipeline-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 20px;
+        }
+
+        .pipeline-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pipeline-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            position: relative;
+        }
+
+        .pipeline-step {
+            background: var(--bg-surface-subtle);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .step-number {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--brand-primary);
+            text-transform: uppercase;
+        }
+
+        .step-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .step-body {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* ==========================================================================
+           DATA TABLES & MATRICES
+           ========================================================================== */
+        .table-wrap {
+            overflow-x: auto;
+            margin: 16px 0;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            background: var(--bg-surface);
+        }
+
+        table.doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            text-align: left;
+        }
+
+        table.doc-table th {
+            background: var(--bg-surface-subtle);
+            color: var(--text-main);
+            font-weight: 700;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-strong);
+            white-space: nowrap;
+        }
+
+        table.doc-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            vertical-align: top;
+        }
+
+        table.doc-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        table.doc-table tr:hover td {
+            background: var(--bg-body);
+        }
+
+        .code-tag {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            padding: 2px 6px;
+            background: var(--bg-surface-subtle);
+            border: 1px solid var(--border-subtle);
+            border-radius: 4px;
+            color: var(--brand-primary);
+        }
+
+        pre.code-block {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 0.84rem;
+            overflow-x: auto;
+            line-height: 1.5;
+            margin: 12px 0;
+            border: 1px solid #1e293b;
+        }
+
+        /* ==========================================================================
+           GRID & ACCORDIONS
+           ========================================================================== */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .component-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .component-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .component-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-role-dev { background: var(--brand-danger-light); color: var(--brand-danger); padding: 2px 8px; border-radius: var(--radius-pill); font-size: 0.72rem; font-weight: 700; }
+        .badge-role-sup { background: var(--brand-warning-light); color: var(--brand-warning); padding: 2px 8px; border-radius: var(--radius-pill); font-size: 0.72rem; font-weight: 700; }
+        .badge-role-all { background: var(--brand-success-light); color: var(--brand-success); padding: 2px 8px; border-radius: var(--radius-pill); font-size: 0.72rem; font-weight: 700; }
+
+        /* ==========================================================================
+           PRINT STYLES
+           ========================================================================== */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+            }
+            header.doc-header, nav.doc-sidebar, .theme-toggle-btn, .print-btn, .search-box {
+                display: none !important;
+            }
+            main.doc-main {
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+            .card, .diagram-container, .pipeline-card {
+                border: 1px solid #999 !important;
+                box-shadow: none !important;
+                page-break-inside: avoid;
+            }
+            .arch-block {
+                border: 1px solid #777 !important;
+                box-shadow: none !important;
+            }
+        }
+
+        /* ==========================================================================
+           RESPONSIVE MOBILE
+           ========================================================================== */
+        @media (max-width: 900px) {
+            nav.doc-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.25s ease;
+            }
+            nav.doc-sidebar.open {
+                transform: translateX(0);
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+            }
+            main.doc-main {
+                margin-left: 0;
+                padding: 24px 16px;
+            }
+            .search-box {
+                display: none;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================================================
+         TOP HEADER (OFFLINE & RESPONSIVE CONTROLS)
+         ========================================================================== -->
+    <header class="doc-header">
+        <div class="header-brand">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--brand-primary)">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+            </svg>
+            <span class="header-title">Tabreed Automation App</span>
+            <span class="header-badge">Architecture &amp; Docs</span>
+        </div>
+
+        <div class="header-actions">
+            <div class="search-box">
+                <svg class="search-icon" viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                </svg>
+                <input type="text" id="docSearchInput" class="search-input" placeholder="Search components, APIs...">
+            </div>
+
+            <button type="button" class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDocTheme()" title="Toggle Dark/Light Mode">
+                <svg id="themeIcon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"></path>
+                </svg>
+                <span id="themeBtnText">Dark Mode</span>
+            </button>
+
+            <button type="button" class="print-btn" onclick="window.print()" title="Print Documentation or Save PDF">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"></path>
+                </svg>
+                <span>Print / PDF</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ==========================================================================
+         LAYOUT: SIDEBAR NAVIGATION & MAIN CONTENT
+         ========================================================================== -->
+    <div class="layout-container">
+
+        <!-- SIDEBAR -->
+        <nav class="doc-sidebar" id="docSidebar">
+            <div class="nav-group-title">Overview</div>
+            <a href="#overview" class="nav-item active">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                <span>Executive Summary</span>
+            </a>
+            <a href="#interactive-architecture" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm6 12H6v-1c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1z"/></svg>
+                <span>Interactive Architecture</span>
+            </a>
+            <a href="#data-flow" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                <span>Data Flow Pipelines</span>
+            </a>
+
+            <div class="nav-group-title">File-by-File Breakdown</div>
+            <a href="#server-backend" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
+                <span>server.js (Proxy &amp; API)</span>
+            </a>
+            <a href="#module-op-request" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                <span>Operation Request Module</span>
+            </a>
+            <a href="#module-portal" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
+                <span>Portal &amp; Tile Launchpad</span>
+            </a>
+            <a href="#module-ets" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                <span>ETS Locator &amp; Documents</span>
+            </a>
+
+            <div class="nav-group-title">Engineering Details</div>
+            <a href="#auth-rbac" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                <span>Auth &amp; RBAC Security</span>
+            </a>
+            <a href="#offline-pwa" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+                <span>PWA &amp; Offline Sync Engine</span>
+            </a>
+            <a href="#api-reference" class="nav-item">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                <span>REST API Specification</span>
+            </a>
+        </nav>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="doc-main">
+
+            <!-- 1. OVERVIEW -->
+            <section id="overview" class="doc-section">
+                <h1 class="doc-hero-title">Tabreed Automation App</h1>
+                <p class="doc-lead">
+                    A comprehensive, offline-first Progressive Web Application (PWA) and industrial control portal built for district cooling automation engineers, supervisors, and plant technicians. Designed to streamline work orders, instrument lookups, plant navigation, and operational audits.
+                </p>
+
+                <div class="meta-strip">
+                    <span class="meta-tag meta-tag-blue">Architecture: Full-Stack Express + PWA SPA</span>
+                    <span class="meta-tag meta-tag-green">Cloud Target: Cloud Run (Node.js ESM)</span>
+                    <span class="meta-tag meta-tag-purple">Database: Google Sheets (GAS) + Local Cache</span>
+                    <span class="meta-tag">Port: 3000 (Reverse Proxy Safe)</span>
+                    <span class="meta-tag">Offline Tier: Service Worker v17 + LocalStorage Queue</span>
+                </div>
+
+                <div class="grid-3">
+                    <div class="card">
+                        <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                            <span style="color:var(--brand-primary);">⚡</span> Offline-First Design
+                        </h3>
+                        <p style="font-size:0.88rem; color:var(--text-muted);">
+                            Operates with zero internet connectivity. All static bundles are cached via Service Worker, while data mutations queue in LocalStorage and sync automatically once network reconnects.
+                        </p>
+                    </div>
+                    <div class="card">
+                        <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                            <span style="color:var(--brand-success);">🔄</span> 2-Way Cloud Sync
+                        </h3>
+                        <p style="font-size:0.88rem; color:var(--text-muted);">
+                            Bi-directional communication between client devices and Google Sheets via Google Apps Script (GAS) Web Apps, buffered through an intelligent Express proxy.
+                        </p>
+                    </div>
+                    <div class="card">
+                        <h3 style="margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                            <span style="color:var(--brand-purple);">🛡️</span> Strict Audit &amp; RBAC
+                        </h3>
+                        <p style="font-size:0.88rem; color:var(--text-muted);">
+                            Role-based access control (User, Supervisor, Super-Admin 41764). Built-in audit trail with deduplication and 24-hour timestamps attributing real user names.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. INTERACTIVE ARCHITECTURE OVERVIEW -->
+            <section id="interactive-architecture" class="doc-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--brand-primary)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm6 12H6v-1c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1z"/></svg>
+                        Interactive System Architecture
+                    </h2>
+                </div>
+
+                <p style="color:var(--text-muted); margin-bottom:16px;">
+                    Click on any block below to inspect its responsibilities, dependencies, security rules, and code location. Use the filter chips to isolate specific tiers.
+                </p>
+
+                <div class="diagram-container">
+                    <div class="diagram-controls">
+                        <div class="diagram-filters">
+                            <button type="button" class="filter-chip active" onclick="filterArchTiers('all')">All Layers</button>
+                            <button type="button" class="filter-chip" onclick="filterArchTiers('client')">Client Tier</button>
+                            <button type="button" class="filter-chip" onclick="filterArchTiers('backend')">Backend &amp; Proxy Tier</button>
+                            <button type="button" class="filter-chip" onclick="filterArchTiers('cloud')">Cloud &amp; Storage Tier</button>
+                        </div>
+                        <span style="font-size:0.8rem; color:var(--text-faint);">Interactive HTML/CSS Component Map</span>
+                    </div>
+
+                    <div class="arch-tiers">
+                        <!-- TIER 1: CLIENT -->
+                        <div class="arch-tier tier-client" id="tier-client">
+                            <span class="tier-label">Tier 1: Client &amp; PWA Presentation Layer</span>
+                            <div class="tier-blocks">
+                                <div class="arch-block" onclick="inspectBlock('index')">
+                                    <div class="arch-block-header">
+                                        <span class="arch-block-title">Portal Launchpad</span>
+                                        <span class="arch-block-badge">index.html</span>
+                                    </div>
+                                    <div class="arch-block-desc">SAP Fiori-styled module launcher, Employee auth (PIN/code), background sync manager.</div>
+                                </div>
+                                <div class="arch-block" onclick="inspectBlock('operation-request')">
+                                    <div class="arch-block-header">
+                                        <span class="arch-block-title">Operation Request</span>
+                                        <span class="arch-block-badge">Operation_Request.html</span>
+                                    </div>
+                                    <div class="arch-block-desc">Work order operations CRUD, 24hr audit log, inline status updates, Creator Edit actions.</div>
+                                </div>
+                                <div class="arch-block" onclick="inspectBlock('ets-locator')">
+                                    <div class="arch-block-header">
+                                        <span class="arch-block-title">ETS Locator</span>
+                                        <span class="arch-block-badge">ETS_Locator.html</span>
+                                    </div>
+                                    <div class="arch-block-desc">Plant geo-coordinates, navigation links, search by plant/customer, Leaflet map support.</div>
+                                </div>
+                                <div class="arch-block" onclick="inspectBlock('sw')">
+                                    <div class="arch-block-header">
+                                        <span class="arch-block-title">Service Worker Engine</span>
+                                        <span class="arch-block-badge">sw.js (v17)</span>
+                                    </div>
+                                    <div class="arch-block-desc">Network-first for HTML, Cache-first for assets, offline queue flushing, background sync.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CONNECTOR -->
+                        <div class="flow-connector">
+                            <div class="flow-line"></div>
+                            <span>HTTP REST / JSON API Calls &amp; Offline Sync Queues</span>
+                            <div class="flow-arrow-down"></div>
+                            <div class="flow-line"></div>
+                        </div>
+
+                        <!-- TIER 2: SERVER & PROXY -->
+                        <div class="arch-tier tier-backend" id="tier-backend">
+                            <span class="tier-label">Tier 2: Express Server &amp; Resilient Proxy Layer</span>
+                            <div class="tier-blocks">
+                                <div class="arch-block" onclick="inspectBlock('server-core')">
+                                    <div class="arch-block-header">
+                                        <span class="arch-block-title">Express Controller</span>
+                                        <span class="arch-block-badge">server.js</span>
+                                    </div>
+                                    <div class="arch-block-desc">Single entry on Port 3000, static bundle hosting, CORS handling, REST endpoints.</div>
+                                </div>
+                                <div class="arch-block" onclick="inspectBlock('gas-proxy')">
+                                    <div class="arch-block-header">
+                                        <span class="arch-block-title">GAS Resilient Proxy</span>
+                                        <span class="arch-block-badge">appsScriptProxy</span>
+                                    </div>
+                                    <div class="arch-block-desc">Bypasses browser CORS &amp; network aborts. Retries with exponential backoff &amp; fallback cache.</div>
+                                </div>
+                                <div class="arch-block" onclick="inspectBlock('history-dedup')">
+                                    <div class="arch-block-header">
+                                        <span class="arch-block-title">History Deduplicator</span>
+                                        <span class="arch-block-badge">deduplicateHistoryList</span>
+                                    </div>
+                                    <div class="arch-block-desc">Collapses triple/duplicate edits, formats 24hr timestamps, attributes real logged users.</div>
+                                </div>
+                                <div class="arch-block" onclick="inspectBlock('gemini-engine')">
+                                    <div class="arch-block-header">
+                                        <span class="arch-block-title">AI / Gemini Gateway</span>
+                                        <span class="arch-block-badge">Server AI Capability</span>
+                                    </div>
+                                    <div class="arch-block-desc">Server-side proxy for Gemini API tokens, keeping all keys confidential from client devtools.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CONNECTOR -->
+                        <div class="flow-connector">
+                            <div class="flow-line"></div>
+                            <span>Secure Webhook Calls / HTTPS POST Web App Execution</span>
+                            <div class="flow-arrow-down"></div>
+                            <div class="flow-line"></div>
+                        </div>
+
+                        <!-- TIER 3: CLOUD & STORAGE -->
+                        <div class="arch-tier tier-cloud" id="tier-cloud">
+                            <span class="tier-label">Tier 3: Cloud &amp; Persistence Storage Layer</span>
+                            <div class="tier-blocks">
+                                <div class="arch-block" onclick="inspectBlock('gas-sheet')">
+                                    <div class="arch-block-header">
+                                        <span class="arch-block-title">Google Apps Script</span>
+                                        <span class="arch-block-badge">GAS Web Apps</span>
+                                    </div>
+                                    <div class="arch-block-desc">Executes spreadsheet read/write, history logging with skipAutoHistory guards.</div>
+                                </div>
+                                <div class="arch-block" onclick="inspectBlock('google-sheets')">
+                                    <div class="arch-block-header">
+                                        <span class="arch-block-title">Google Sheets DB</span>
+                                        <span class="arch-block-badge">Cloud Sheets</span>
+                                    </div>
+                                    <div class="arch-block-desc">Tabreed Master sheets: Requests, Operation History, ETS Locations, Documents.</div>
+                                </div>
+                                <div class="arch-block" onclick="inspectBlock('local-storage')">
+                                    <div class="arch-block-header">
+                                        <span class="arch-block-title">Local Persistence</span>
+                                        <span class="arch-block-badge">JSON &amp; LocalStorage</span>
+                                    </div>
+                                    <div class="arch-block-desc">Instant offline availability: operation_requests.json, operation_history.json, sync queues.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DYNAMIC INSPECTOR PANEL -->
+                    <div class="diagram-inspector" id="diagramInspector" style="display:none;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                            <h3 id="inspectTitle" style="color:var(--brand-primary); font-size:1.15rem;">Component Title</h3>
+                            <button type="button" onclick="document.getElementById('diagramInspector').style.display='none'" style="background:none; border:none; cursor:pointer; font-size:1.1rem; color:var(--text-faint);">✕</button>
+                        </div>
+                        <p id="inspectFile" style="font-family:var(--font-mono); font-size:0.82rem; color:var(--text-faint); margin-bottom:12px;">path/to/file</p>
+                        <p id="inspectDesc" style="font-size:0.9rem; color:var(--text-main); margin-bottom:14px; line-height:1.5;">Description</p>
+                        <div style="display:flex; gap:16px; flex-wrap:wrap; font-size:0.84rem; border-top:1px solid var(--border-subtle); padding-top:12px;">
+                            <div><b>Role Access:</b> <span id="inspectRole">All Users</span></div>
+                            <div><b>Key Functions:</b> <span id="inspectFuncs" style="font-family:var(--font-mono);">fn()</span></div>
+                            <div><b>Sync Target:</b> <span id="inspectTarget">Local + Cloud</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. DATA FLOW PIPELINES -->
+            <section id="data-flow" class="doc-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--brand-primary)"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                        End-to-End Data Flow Pipelines
+                    </h2>
+                </div>
+
+                <div class="pipeline-container">
+                    <!-- PIPELINE 1 -->
+                    <div class="pipeline-card">
+                        <div class="pipeline-card-title">
+                            <span style="color:var(--brand-primary);">1.</span> Work Order Request Submission &amp; 2-Way Sync
+                        </div>
+                        <div class="pipeline-steps">
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 01: Client Input</span>
+                                <span class="step-title">saveRequest()</span>
+                                <span class="step-body">User fills Work Order, Plant, Date, 24-hr Time &amp; Team. Form computes audit diff if editing.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 02: Optimistic UI</span>
+                                <span class="step-title">LocalStorage Cache</span>
+                                <span class="step-body">New/edited item is immediately saved into <span class="code-tag">LS_REQUESTS</span>. UI renders without waiting for network.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 03: Express Proxy</span>
+                                <span class="step-title">POST /api/operation-requests</span>
+                                <span class="step-body">Payload carries <span class="code-tag">skipAutoHistory:true</span> and logged-in user name. Proxy writes to local JSON fallback.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 04: Google Sheet</span>
+                                <span class="step-title">Operation_Request_GAS</span>
+                                <span class="step-body">GAS script updates row in Google Sheet. Avoids duplicate log creation due to skipAutoHistory flag.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PIPELINE 2 -->
+                    <div class="pipeline-card">
+                        <div class="pipeline-card-title">
+                            <span style="color:var(--brand-success);">2.</span> Status Update &amp; Deduplicated Audit Logging
+                        </div>
+                        <div class="pipeline-steps">
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 01: Supervisor Action</span>
+                                <span class="step-title">saveInlineStatus()</span>
+                                <span class="step-body">Supervisor changes status via inline dropdown (e.g. Requested → Pending). Verifies role authorization.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 02: Real-User Log</span>
+                                <span class="step-title">logOperationActivity()</span>
+                                <span class="step-body">Frontend records activity with actual technician/supervisor name (e.g. <i>Majeed</i>) rather than generic label.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 03: Server Deduplication</span>
+                                <span class="step-title">deduplicateHistoryList()</span>
+                                <span class="step-body">Collapses concurrent entries within 5-min window, standardizes to 24-hr <span class="code-tag">DD.MM.YYYY HH:mm</span>, prioritizes named user.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 04: Audit History</span>
+                                <span class="step-title">operation_history.json</span>
+                                <span class="step-body">Stored in descending chronological order. Re-rendered instantly in History modal with filter tabs.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PIPELINE 3 -->
+                    <div class="pipeline-card">
+                        <div class="pipeline-card-title">
+                            <span style="color:var(--brand-purple);">3.</span> Offline-First Resilience &amp; Background Sync
+                        </div>
+                        <div class="pipeline-steps">
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 01: Offline Detection</span>
+                                <span class="step-title">navigator.onLine = false</span>
+                                <span class="step-body">App switches to offline mode with top status badge. Network mutations enter <span class="code-tag">tabreed_sync_queue</span>.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 02: Service Worker Cache</span>
+                                <span class="step-title">tabreed-pro-v17</span>
+                                <span class="step-body">All HTML, stylesheets, scripts and cached JSON data serve instantly from Cache Storage.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 03: Reconnect Event</span>
+                                <span class="step-title">window 'online' Event</span>
+                                <span class="step-body">Service Worker fires <span class="code-tag">sync</span> trigger; client triggers <span class="code-tag">syncOfflineQueue()</span>.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 04: Batch Flush</span>
+                                <span class="step-title">POST batchSync</span>
+                                <span class="step-body">Queued mutations execute sequentially with retry limits, purging resolved queue items on success.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PIPELINE 4 -->
+                    <div class="pipeline-card">
+                        <div class="pipeline-card-title">
+                            <span style="color:var(--brand-teal);">4.</span> Server-Side Gemini API / AI Logic Gateway
+                        </div>
+                        <div class="pipeline-steps">
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 01: Secure Architecture</span>
+                                <span class="step-title">Zero Client Secrets</span>
+                                <span class="step-body">Client UI never stores API keys. All AI operations are proxied through server-side <span class="code-tag">/api/*</span> routes.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 02: Server Invocation</span>
+                                <span class="step-title">@google/genai SDK</span>
+                                <span class="step-body">Node.js server uses the official Google GenAI SDK initialized lazily with Cloud environment variables.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 03: Model Execution</span>
+                                <span class="step-title">gemini-2.5-flash</span>
+                                <span class="step-body">Processes operations summarization, checklist validation, and diagnostic prompts with low latency.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 04: Sanitized Response</span>
+                                <span class="step-title">JSON Payload Return</span>
+                                <span class="step-body">Structured insights return to client UI for non-blocking rendering.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. STEP-BY-STEP TECHNICAL BREAKDOWN -->
+            <section id="server-backend" class="doc-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--brand-primary)"><path d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
+                        Backend Server &amp; Proxy Layer (server.js)
+                    </h2>
+                </div>
+
+                <div class="card">
+                    <h3 style="margin-bottom:12px;">Architecture Role</h3>
+                    <p style="color:var(--text-muted); font-size:0.92rem; margin-bottom:16px;">
+                        <span class="code-tag">server.js</span> is an ES-module Node.js Express server running on port 3000. It acts as both the static file host and an intelligent, fault-tolerant proxy between the PWA clients and Google Apps Script Web Apps.
+                    </p>
+
+                    <div class="table-wrap">
+                        <table class="doc-table">
+                            <thead>
+                                <tr>
+                                    <th>Function / Component</th>
+                                    <th>Type</th>
+                                    <th>Technical Description &amp; Guarantees</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="code-tag">appsScriptProxy</span></td>
+                                    <td>Proxy Handler</td>
+                                    <td>Forwards requests to GAS with custom headers, 12s timeout, 3-retry exponential backoff, and fallback to local JSON file when cloud is unreachable.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="code-tag">deduplicateHistoryList()</span></td>
+                                    <td>Data Engine</td>
+                                    <td>Normalizes actions ('create', 'update', 'status'), parses timestamps into epoch ms, formats to 24-hr strings, and merges duplicate entries within 5 minutes.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="code-tag">format24HourDateTime()</span></td>
+                                    <td>Formatter</td>
+                                    <td>Converts epoch ms to strict <span class="code-tag">DD.MM.YYYY HH:mm</span> 24-hour time format with zero padding.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="code-tag">loadHistoryData() / saveHistoryData()</span></td>
+                                    <td>Persistence</td>
+                                    <td>Maintains local disk cache in <span class="code-tag">operation_history.json</span> with thread-safe atomic file writes.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="code-tag">loadRequestsData() / saveRequestsData()</span></td>
+                                    <td>Persistence</td>
+                                    <td>Maintains persistent local copy of requests in <span class="code-tag">operation_requests.json</span> for offline fast boot.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. OPERATION REQUEST BREAKDOWN -->
+            <section id="module-op-request" class="doc-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--brand-primary)"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                        Operation Request Module (Operation_Request.html &amp; GAS)
+                    </h2>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="margin-bottom:10px;">Operation_Request.html</h3>
+                        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
+                            Single-page application handling the entire lifecycle of industrial work order requests:
+                        </p>
+                        <ul style="font-size:0.86rem; color:var(--text-muted); padding-left:18px; line-height:1.6;">
+                            <li><b>Creator Edit Actions:</b> <span class="code-tag">canUserEditRequest(req)</span> permits logged-in users who created or are listed on a request to edit their own entry directly via an "Edit" button in the Action column.</li>
+                            <li><b>Supervisor Controls:</b> Full status change dropdown, WhatsApp message generator, archive toggle, Excel/PDF export, delete confirmation modal.</li>
+                            <li><b>24-Hour Time Picker:</b> Built-in minimal time selector modal supporting strict 24-hr industrial formats.</li>
+                            <li><b>Live Search &amp; Filters:</b> Filter by WO#, Plant ID, status pills (All, Requested, Pending, In Progress, Completed, Cancelled).</li>
+                            <li><b>Audit Trail:</b> In-modal history view showing exact diff changes, who edited the request, and timestamps.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-bottom:10px;">Operation_Request_GAS.gs.txt</h3>
+                        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
+                            Google Apps Script backend deployed as a Web App to interact with Google Sheets:
+                        </p>
+                        <ul style="font-size:0.86rem; color:var(--text-muted); padding-left:18px; line-height:1.6;">
+                            <li><b>doGet(e):</b> Fetches all requests from the 'Operation Request' sheet and history logs from 'History' sheet.</li>
+                            <li><b>doPost(e):</b> Dispatches actions: <span class="code-tag">create</span>, <span class="code-tag">update</span>, <span class="code-tag">updateStatus</span>, <span class="code-tag">delete</span>, <span class="code-tag">batchSync</span>.</li>
+                            <li><b>skipAutoHistory Guard:</b> Prevents duplicate entry generation by verifying <span class="code-tag">!data.skipAutoHistory &amp;&amp; !data.skipHistoryLog</span> before calling <span class="code-tag">logToHistorySheet()</span>.</li>
+                            <li><b>Auto-Indexing:</b> Maintains Work Order identifiers and row index pointers for rapid lookup.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. PORTAL & TILES -->
+            <section id="module-portal" class="doc-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--brand-primary)"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
+                        Portal Launchpad &amp; Auxiliary Modules
+                    </h2>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th>Category</th>
+                                <th>Access Level</th>
+                                <th>Core Features &amp; Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="code-tag">index.html</span></td>
+                                <td>Main Launchpad</td>
+                                <td><span class="badge-role-all">All / RBAC</span></td>
+                                <td>Central portal with tile grids (Automation &amp; Control, Offline Tools, Downloads, Developer Tools). Manages employee login, theme switching, and PWA installs.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag">PM_Checklist_Generator.html</span></td>
+                                <td>Checklist Tool</td>
+                                <td><span class="badge-role-all">All</span></td>
+                                <td>Full-screen industrial PM checklist generator embedding the Google Apps Script tool cleanly without clutter or headers.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag">Team_Contacts.html</span></td>
+                                <td>Directory</td>
+                                <td><span class="badge-role-all">All</span></td>
+                                <td>Employee phonebook and emergency contact directory with direct click-to-call, WhatsApp links, and plant assignment filtering.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag">DocumentFolder.html</span></td>
+                                <td>Document Hub</td>
+                                <td><span class="badge-role-all">All</span></td>
+                                <td>Library of technical manuals, P&amp;ID schematics, SOP documents, and video guides organized by plant category.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag">Share_FeedBack.html</span></td>
+                                <td>Feedback</td>
+                                <td><span class="badge-role-all">All</span></td>
+                                <td>User suggestion box and defect reporter submitting directly to developer notifications.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag">themes.css</span></td>
+                                <td>Theming</td>
+                                <td><span class="badge-role-all">All</span></td>
+                                <td>CSS custom properties for 10 distinct UI themes (Default, Fiori Blue, Dark Slate, Emerald Green, Amber Sunset, High Contrast, etc.).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 7. ETS LOCATOR -->
+            <section id="module-ets" class="doc-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--brand-primary)"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                        ETS Locator Architecture (ETS_Locator.html &amp; GAS)
+                    </h2>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="margin-bottom:10px;">ETS Locator Features</h3>
+                        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
+                            Energy Transfer Station (ETS) navigation and mapping assistant for field service technicians:
+                        </p>
+                        <ul style="font-size:0.86rem; color:var(--text-muted); padding-left:18px; line-height:1.6;">
+                            <li><b>Plant Search:</b> Instant fuzzy filtering by ETS code (e.g. AD-032), Customer Name, Sector, or Plant Type.</li>
+                            <li><b>Navigation Links:</b> Direct deep-linking to Google Maps GPS navigation using plant latitude and longitude coordinates.</li>
+                            <li><b>Offline Storage:</b> Complete ETS directory cached locally for remote plant basements without cellular signal.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-bottom:10px;">Backend Setup (ETS_Locator_GAS.gs.txt)</h3>
+                        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
+                            Google Apps Script script that queries the central plant inventory spreadsheet:
+                        </p>
+                        <ul style="font-size:0.86rem; color:var(--text-muted); padding-left:18px; line-height:1.6;">
+                            <li>Returns structured JSON with headers: Plant ID, Name, Customer, Latitude, Longitude, Status.</li>
+                            <li>Cached in browser via IndexedDB/LocalStorage with automatic sync triggers on reconnection.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. AUTH & RBAC SECURITY -->
+            <section id="auth-rbac" class="doc-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--brand-primary)"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                        Authentication &amp; Role-Based Access Control (RBAC)
+                    </h2>
+                </div>
+
+                <div class="card">
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:16px;">
+                        The application uses a lightweight, resilient authentication system defined in <span class="code-tag">employees.json</span> with three functional privilege tiers:
+                    </p>
+
+                    <div class="table-wrap">
+                        <table class="doc-table">
+                            <thead>
+                                <tr>
+                                    <th>Role Tier</th>
+                                    <th>Identifiers</th>
+                                    <th>Privileges &amp; Visible Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge-role-dev">Super Admin / Developer</span></td>
+                                    <td>Code: <b>41764</b> (Majeed)</td>
+                                    <td>Full system unlock: Developer Tools tile grid, PingLogger, System Logs, Cache Reset, Broadcast Notifications, Beta Theme Switcher, Full Data Export (Excel/PDF), and unconstrained record editing.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge-role-sup">Supervisor</span></td>
+                                    <td>Role: <b>supervisor</b> (e.g. Bibin 40078)</td>
+                                    <td>Status dropdown mutation (Inline status updates), Work Order deletion with confirmation modal, request archiving/unarchiving, Excel/PDF export, full audit trail visibility.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge-role-all">Field Technician / Creator</span></td>
+                                    <td>Standard Employee Codes (e.g. 40311, 40334, 40659)</td>
+                                    <td>Submit work order requests, view plant catalogs and contacts. When logged in, <b>Edit button</b> is enabled exclusively for requests created by or assigned to them.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. OFFLINE & PWA ENGINE -->
+            <section id="offline-pwa" class="doc-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--brand-primary)"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/></svg>
+                        Service Worker (sw.js v17) &amp; PWA Offline Engine
+                    </h2>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="margin-bottom:10px;">Caching Strategy</h3>
+                        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
+                            <span class="code-tag">sw.js</span> enforces dual cache policies to balance real-time freshness and offline resilience:
+                        </p>
+                        <ul style="font-size:0.86rem; color:var(--text-muted); padding-left:18px; line-height:1.6;">
+                            <li><b>HTML Documents:</b> <i>Network-First with Cache Fallback</i> — Guarantees users always see the latest UI deployments when online, while falling back gracefully to cached pages when offline.</li>
+                            <li><b>Static Assets (CSS, JS, Icons):</b> <i>Cache-First with Background Revalidation</i> — Instant load times with zero network overhead.</li>
+                            <li><b>API Exemption:</b> <span class="code-tag">/api/</span> and <span class="code-tag">script.google.com</span> bypass Service Worker fetch interception to allow native browser queuing.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-bottom:10px;">Native Installation Profiles</h3>
+                        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
+                            Configured for zero-friction mobile deployment across all operating systems:
+                        </p>
+                        <ul style="font-size:0.86rem; color:var(--text-muted); padding-left:18px; line-height:1.6;">
+                            <li><b>manifest.json:</b> Standalone display mode, high-res PWA icons (72x72 through 512x512), theme color <span class="code-tag">#1a73e8</span>.</li>
+                            <li><b>Automation.mobileconfig:</b> Apple iOS WebClip profile enabling direct home screen installation on iPhones without App Store restrictions.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. REST API REFERENCE -->
+            <section id="api-reference" class="doc-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--brand-primary)"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>
+                        Server REST API Reference
+                    </h2>
+                </div>
+
+                <div class="table-wrap">
+                    <table class="doc-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Endpoint</th>
+                                <th>Payload / Query</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="code-tag" style="color:var(--brand-success); font-weight:700;">GET</span></td>
+                                <td><span class="code-tag">/api/operation-requests</span></td>
+                                <td>None</td>
+                                <td>Returns all current requests from Google Sheet or fallback <span class="code-tag">operation_requests.json</span>.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag" style="color:var(--brand-primary); font-weight:700;">POST</span></td>
+                                <td><span class="code-tag">/api/operation-requests</span></td>
+                                <td>JSON object with <span class="code-tag">action</span> (create, update, updateStatus, delete, batchSync)</td>
+                                <td>Executes mutation, writes to local disk cache, and forwards to Google Apps Script.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag" style="color:var(--brand-success); font-weight:700;">GET</span></td>
+                                <td><span class="code-tag">/api/operation-history</span></td>
+                                <td>None</td>
+                                <td>Returns chronologically sorted, deduplicated history entries with 24-hr timestamps and attributed user names.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag" style="color:var(--brand-primary); font-weight:700;">POST</span></td>
+                                <td><span class="code-tag">/api/operation-history</span></td>
+                                <td>Activity log object</td>
+                                <td>Appends new audit entry, executes deduplication filter, and updates <span class="code-tag">operation_history.json</span>.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag" style="color:var(--brand-success); font-weight:700;">GET</span></td>
+                                <td><span class="code-tag">/api/documents</span></td>
+                                <td>None</td>
+                                <td>Returns document library categories and file metadata.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag" style="color:var(--brand-success); font-weight:700;">GET</span></td>
+                                <td><span class="code-tag">/api/team-contacts</span></td>
+                                <td>None</td>
+                                <td>Returns cached employee and emergency directory contacts.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ==========================================================================
+         PURE JAVASCRIPT INTERACTIVE LOGIC (ZERO EXTERNAL LIBRARIES)
+         ========================================================================== -->
+    <script>
+        // 1. THEME SWITCHER (DARK / LIGHT MODE WITH LOCALSTORAGE PERSISTENCE)
+        const THEME_STORAGE_KEY = 'tabreed_doc_theme';
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+            const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.body.classList.add('dark-mode');
+                updateThemeUI(true);
+            } else {
+                document.body.classList.remove('dark-mode');
+                updateThemeUI(false);
+            }
+        }
+
+        function toggleDocTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem(THEME_STORAGE_KEY, isDark ? 'dark' : 'light');
+            updateThemeUI(isDark);
+        }
+
+        function updateThemeUI(isDark) {
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeBtnText');
+            if (!icon || !text) return;
+
+            if (isDark) {
+                text.textContent = 'Light Mode';
+                icon.innerHTML = '<path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>';
+            } else {
+                text.textContent = 'Dark Mode';
+                icon.innerHTML = '<path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"></path>';
+            }
+        }
+
+        // 2. INTERACTIVE ARCHITECTURE BLOCK INSPECTOR
+        const COMPONENT_DATA = {
+            'index': {
+                title: 'Portal Launchpad & Navigation Hub',
+                file: '/index.html',
+                desc: 'Main user interface utilizing SAP Fiori-style responsive tiles. Hosts auth PIN login, employee code verification, offline sync controls, and theme selection.',
+                role: 'All Employees (Developer mode unlocks for 41764)',
+                funcs: 'handleTileClick(), checkDevAccess(), switchToBetaTheme(), updateStatus()',
+                target: 'LocalStorage + Cloud Auth Sync'
+            },
+            'operation-request': {
+                title: 'Operation Request Management Module',
+                file: '/Operation_Request.html',
+                desc: 'Industrial work order tracking application with optimistic UI rendering, 24-hr timepicker, creator edit permissions, WhatsApp messaging, and PDF/Excel reports.',
+                role: 'Creators (Edit Own), Supervisors (Full Control), Developers',
+                funcs: 'saveRequest(), saveInlineStatus(), canUserEditRequest(), deduplicateHistory()',
+                target: 'LocalStorage (LS_REQUESTS) + /api/operation-requests'
+            },
+            'ets-locator': {
+                title: 'Energy Transfer Station (ETS) Locator',
+                file: '/ETS_Locator.html',
+                desc: 'Field navigation tool for locating plant equipment, viewing customer details, and launching real-time GPS driving directions.',
+                role: 'All Field Personnel',
+                funcs: 'filterPlants(), openGoogleMaps(), cacheLocationOffline()',
+                target: 'Cached in IndexedDB & LocalStorage'
+            },
+            'sw': {
+                title: 'Service Worker v17 Offline Engine',
+                file: '/sw.js',
+                desc: 'Ensures robust offline operation via Cache Storage. Implements Network-First for HTML navigation and Cache-First for static scripts and stylesheets.',
+                role: 'System Background Worker',
+                funcs: 'install, activate, fetch, sync, push, notificationclick',
+                target: 'Browser CacheStorage (tabreed-pro-v17)'
+            },
+            'server-core': {
+                title: 'Express REST Server & Static Host',
+                file: '/server.js',
+                desc: 'Node.js Express application running on Port 3000. Provides robust static serving, CORS headers, API endpoints, and atomic file persistence.',
+                role: 'System Infrastructure',
+                funcs: 'express.static(), appsScriptProxy(), deduplicateHistoryList()',
+                target: 'Cloud Run / Local Container (Port 3000)'
+            },
+            'gas-proxy': {
+                title: 'Google Apps Script Resilient Proxy',
+                file: '/server.js (appsScriptProxy)',
+                desc: 'Middle-tier proxy that forwards client requests to Google Apps Script Web Apps while shielding clients from CORS issues, timeouts, and network drops.',
+                role: 'System Internal Proxy',
+                funcs: 'fetchWithRetry(), abortTimeoutHandler()',
+                target: 'Google Apps Script Web App Endpoint'
+            },
+            'history-dedup': {
+                title: 'Operation History Deduplication Engine',
+                file: '/server.js (deduplicateHistoryList)',
+                desc: 'Consolidates triple/duplicate edit entries, parses epoch timestamps into 24-hr format (DD.MM.YYYY HH:mm), and replaces generic supervisor tags with named user IDs.',
+                role: 'Audit Quality Assurance',
+                funcs: 'parseHistoryEpoch(), format24HourDateTime(), deduplicateHistoryList()',
+                target: '/operation_history.json & Cloud Sheet'
+            },
+            'gemini-engine': {
+                title: 'Server-Side Gemini AI Gateway',
+                file: '/server.js & metadata.json',
+                desc: 'Enforces secure server-side AI execution. Eliminates API key leaks by channeling all Gemini prompts through Cloud Run server routes.',
+                role: 'Enterprise AI Service',
+                funcs: 'GoogleGenAI.getGenerativeModel(), generateContent()',
+                target: 'Gemini Models (gemini-2.5-flash)'
+            },
+            'gas-sheet': {
+                title: 'Google Apps Script Web Apps',
+                file: '/Operation_Request_GAS.gs.txt',
+                desc: 'Cloud functions executing on Google Workspace infrastructure. Appends, updates, deletes rows and writes audit logs into Google Sheets.',
+                role: 'Cloud Backend Handler',
+                funcs: 'doGet(), doPost(), logToHistorySheet()',
+                target: 'Google Drive Spreadsheet'
+            },
+            'google-sheets': {
+                title: 'Google Sheets Industrial Database',
+                file: 'Remote Cloud Spreadsheet',
+                desc: 'Central cloud data repository storing all work order records, audit history entries, plant listings, and document indexes.',
+                role: 'Cloud Database',
+                funcs: 'Sheets API, AppSheet, GAS SpreadSheetApp',
+                target: 'Google Cloud Platform'
+            },
+            'local-storage': {
+                title: 'Local Fallback Storage & Queues',
+                file: '/operation_requests.json, /operation_history.json',
+                desc: 'File-based persistence on disk and LocalStorage in browser ensuring fast boot times and offline data availability.',
+                role: 'High Availability Storage',
+                funcs: 'localStorage.setItem(), fs.writeFileSync()',
+                target: 'Local File System & Browser Memory'
+            }
+        };
+
+        function inspectBlock(blockKey) {
+            const data = COMPONENT_DATA[blockKey];
+            if (!data) return;
+
+            // Highlight selected block
+            document.querySelectorAll('.arch-block').forEach(el => el.classList.remove('selected'));
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('selected');
+            }
+
+            const inspector = document.getElementById('diagramInspector');
+            document.getElementById('inspectTitle').textContent = data.title;
+            document.getElementById('inspectFile').textContent = data.file;
+            document.getElementById('inspectDesc').textContent = data.desc;
+            document.getElementById('inspectRole').textContent = data.role;
+            document.getElementById('inspectFuncs').textContent = data.funcs;
+            document.getElementById('inspectTarget').textContent = data.target;
+
+            inspector.style.display = 'block';
+            inspector.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function filterArchTiers(tierType) {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            if (event && event.currentTarget) event.currentTarget.classList.add('active');
+
+            const clientTier = document.getElementById('tier-client');
+            const backendTier = document.getElementById('tier-backend');
+            const cloudTier = document.getElementById('tier-cloud');
+
+            if (tierType === 'all') {
+                clientTier.style.display = 'block';
+                backendTier.style.display = 'block';
+                cloudTier.style.display = 'block';
+            } else if (tierType === 'client') {
+                clientTier.style.display = 'block';
+                backendTier.style.display = 'none';
+                cloudTier.style.display = 'none';
+            } else if (tierType === 'backend') {
+                clientTier.style.display = 'none';
+                backendTier.style.display = 'block';
+                cloudTier.style.display = 'none';
+            } else if (tierType === 'cloud') {
+                clientTier.style.display = 'none';
+                backendTier.style.display = 'none';
+                cloudTier.style.display = 'block';
+            }
+        }
+
+        // 3. SEARCH & HIGHLIGHT CONTROLLER
+        const searchInput = document.getElementById('docSearchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const term = e.target.value.toLowerCase().trim();
+                const cards = document.querySelectorAll('.card, .arch-block, .pipeline-card, tr');
+                
+                cards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    if (!term || text.includes(term)) {
+                        card.style.opacity = '1';
+                        card.style.display = '';
+                    } else {
+                        card.style.opacity = '0.35';
+                    }
+                });
+            });
+        }
+
+        // 4. ACTIVE SIDEBAR SCROLL SPY
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section.doc-section');
+            const navLinks = document.querySelectorAll('.nav-item');
+            
+            let current = '';
+            sections.forEach(section => {
+                const top = section.offsetTop - 120;
+                if (window.scrollY >= top) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Initialize theme on load
+        document.addEventListener('DOMContentLoaded', initTheme);
+    </script>
+</body>
+</html>

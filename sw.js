@@ -1,7 +1,8 @@
-const CACHE_NAME = 'tabreed-pro-v17'; // v17: Network-First for HTML files, updated Operation Request actions
+const CACHE_NAME = 'tabreed-pro-v18'; // v18: Precache app-documentation.html offline architecture docs
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/app-documentation.html',
   '/Operation_Request.html',
   '/Team_Contacts.html',
   '/DocumentFolder.html',

@@ -54,20 +54,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
-        }
-        .header {
-            background-color: #1a73e8;
-            color: white;
-            padding: 10px 15px;
-            font-size: 1.2em;
-            display: flex;
-            align-items: center;
-        }
-        .header a {
-            color: white;
-            text-decoration: none;
-            margin-right: 15px;
-            font-size: 1.5em;
+            width: 100vw;
         }
         iframe {
             flex-grow: 1;
@@ -76,19 +63,10 @@
             height: 100%;
         }
     </style>
-    <!-- Font Awesome for back icon -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="themes.css">
 </head>
 <body>
-    <div class="header" style="background:#1e293b; color:white; padding:8px 15px; display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #2563eb;">
-        <div style="display:flex; align-items:center; gap:12px;">
-            <a href="index.html" style="color:white; text-decoration:none; font-size:1.1rem; display:inline-flex; align-items:center;" title="Back to Portal"><i class="fas fa-arrow-left"></i></a>
-            <span style="font-weight:700; font-size:0.95rem;">PM Checklist Generator</span>
-        </div>
-        <span style="font-size:0.75rem; color:#94a3b8; font-weight:600;">Tabreed Automation Team</span>
-    </div>
-    <div class="container" style="height:calc(100vh - 46px);">
+    <div class="container" style="height:100vh;">
         <iframe src="https://script.google.com/macros/s/AKfycbyeoJRA2WhN0pWxmE_ZPE9Q1-_G3xvNneHoBMbMJvlGoKITNhQ1InqAQd0OLU9wYzSRzw/exec"></iframe>
     </div>
 <div class="toast-container" id="toastContainer"></div>
