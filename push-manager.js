@@ -672,6 +672,206 @@ function getDispatchLog() {
   }
 }
 
+function clearDispatchLog() {
+  try {
+    localStorage.removeItem('tabreed_push_dispatch_log');
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * Auto-Prompt / Auto-Sync for Google Chrome & Web Push
+ * Automatically subscribes if permission is already granted,
+ * or displays a polite top bar to enable Chrome notifications.
+ */
+async function initAutoPushPrompt() {
+  if (!isPushNotificationSupported()) return;
+
+  const inIframe = window.self !== window.top;
+  const permission = ('Notification' in window) ? Notification.permission : 'unsupported';
+
+  // If already granted, ensure subscription is registered in backend
+  if (permission === 'granted') {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        // Re-subscribe device
+        await subscribeUserToPush();
+      } else {
+        // Quietly sync with server if not synced recently
+        const lastSync = localStorage.getItem('tabreed_last_push_sync');
+        const now = Date.now();
+        if (!lastSync || now - parseInt(lastSync, 10) > 3600000) { // every 1 hour
+          const subJson = sub.toJSON();
+          const platform = getPlatformDetails();
+          const currentUser = (typeof currentAuthUser !== 'undefined' && currentAuthUser) 
+            ? (currentAuthUser.name || currentAuthUser.email || currentAuthUser.code || 'User') 
+            : 'User';
+
+          fetch('/api/push/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              endpoint: subJson.endpoint,
+              keys: subJson.keys || {},
+              user: currentUser,
+              os: platform.os,
+              browser: platform.browser,
+              platform: platform.platformLabel,
+              isStandalone: platform.isStandalone,
+              userAgent: navigator.userAgent,
+              rawSubscription: JSON.stringify(subJson)
+            })
+          }).then(() => {
+            localStorage.setItem('tabreed_last_push_sync', now.toString());
+          }).catch(() => {});
+        }
+      }
+    } catch (e) {
+      console.warn('[PushManager] Auto-sync check:', e);
+    }
+    return;
+  }
+
+  // If permission is 'default' (not yet asked or decided), show prompt banner
+  if (permission === 'default') {
+    // Don't show if user dismissed in the last 24 hours
+    const dismissedAt = localStorage.getItem('tabreed_push_dismissed_at');
+    if (dismissedAt && (Date.now() - parseInt(dismissedAt, 10) < 86400000)) {
+      return;
+    }
+
+    // Don't inject twice
+    if (document.getElementById('tabreedChromePushBanner')) return;
+
+    const banner = document.createElement('div');
+    banner.id = 'tabreedChromePushBanner';
+    banner.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 99999;
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      border-bottom: 2px solid #3b82f6;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      color: #f8fafc;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      animation: slideDownBanner 0.35s ease;
+    `;
+
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+      @keyframes slideDownBanner {
+        from { transform: translateY(-100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(styleEl);
+
+    if (inIframe) {
+      banner.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="background:rgba(59,130,246,0.2);color:#60a5fa;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">
+            <i class="fas fa-bell"></i>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:0.83rem;color:#f8fafc;">Enable Google Chrome Push Notifications</div>
+            <div style="font-size:0.73rem;color:#94a3b8;margin-top:2px;">Google Chrome requires opening in a direct browser tab to enable push alerts.</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button id="btnOpenChromeTab" style="background:#3b82f6;color:white;border:none;border-radius:6px;padding:7px 14px;font-size:0.78rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">
+            <i class="fas fa-external-link-alt"></i> Open in Chrome Tab
+          </button>
+          <button id="btnDismissPushBanner" style="background:transparent;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer;padding:4px 8px;" title="Dismiss">&times;</button>
+        </div>
+      `;
+    } else {
+      banner.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="background:rgba(59,130,246,0.2);color:#60a5fa;width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;">
+            <i class="fab fa-chrome"></i>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:0.83rem;color:#f8fafc;">Turn on Chrome Notifications</div>
+            <div style="font-size:0.73rem;color:#94a3b8;margin-top:2px;">Receive instant maintenance work orders, chiller alerts, and system updates directly on this screen.</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button id="btnEnablePushNow" style="background:#3b82f6;color:white;border:none;border-radius:6px;padding:7px 15px;font-size:0.78rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:0.2s;">
+            <i class="fas fa-bell"></i> Enable Notifications
+          </button>
+          <button id="btnDismissPushBanner" style="background:transparent;border:none;color:#94a3b8;font-size:1.1rem;cursor:pointer;padding:4px 8px;" title="Dismiss">&times;</button>
+        </div>
+      `;
+    }
+
+    document.body.appendChild(banner);
+
+    const btnDismiss = document.getElementById('btnDismissPushBanner');
+    if (btnDismiss) {
+      btnDismiss.addEventListener('click', () => {
+        banner.style.display = 'none';
+        localStorage.setItem('tabreed_push_dismissed_at', Date.now().toString());
+      });
+    }
+
+    const btnOpenTab = document.getElementById('btnOpenChromeTab');
+    if (btnOpenTab) {
+      btnOpenTab.addEventListener('click', () => {
+        window.open(window.location.href, '_blank');
+      });
+    }
+
+    const btnEnable = document.getElementById('btnEnablePushNow');
+    if (btnEnable) {
+      btnEnable.addEventListener('click', async () => {
+        btnEnable.disabled = true;
+        btnEnable.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enabling...';
+        try {
+          const res = await subscribeUserToPush();
+          if (res.success) {
+            banner.style.background = 'linear-gradient(135deg, #064e3b, #047857)';
+            banner.style.borderBottomColor = '#10b981';
+            banner.innerHTML = `
+              <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;font-weight:700;color:#34d399;">
+                <i class="fas fa-check-circle" style="font-size:1.1rem;"></i>
+                <span>Notifications Enabled! This Google Chrome browser is now ready to receive real-time Tabreed alerts.</span>
+              </div>
+            `;
+            sendLocalDeviceTest({
+              title: 'Tabreed Notifications Active 🔔',
+              message: 'Google Chrome is now connected to receive instant alerts.',
+              url: '/index.html'
+            });
+            setTimeout(() => {
+              banner.style.display = 'none';
+            }, 4000);
+          } else {
+            btnEnable.disabled = false;
+            btnEnable.innerHTML = '<i class="fas fa-bell"></i> Try Again';
+            alert(res.error || 'Failed to enable notifications. Please check Chrome site settings.');
+          }
+        } catch (err) {
+          btnEnable.disabled = false;
+          btnEnable.innerHTML = '<i class="fas fa-bell"></i> Try Again';
+          alert('Error: ' + err.message);
+        }
+      });
+    }
+  }
+}
+
 // Expose globally to window
 window.PushNotificationManager = {
   config: PUSH_CONFIG,
@@ -690,5 +890,17 @@ window.PushNotificationManager = {
   runDiagnostics: runPushDiagnostics,
   getDispatchLog,
   clearDispatchLog,
-  recordDispatchLog
+  recordDispatchLog,
+  initAutoPrompt: initAutoPushPrompt
 };
+
+// Auto-initialize when loaded
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(initAutoPushPrompt, 800);
+    });
+  } else {
+    setTimeout(initAutoPushPrompt, 800);
+  }
+}
