@@ -1374,7 +1374,7 @@ input[type="date"] {
             const plantText = req.plant ? `Plant: ${req.plant}` : '';
             reqInfoEl.textContent = `${plantText} • ${woText} • ${req.desc || ''}`;
             
-            teamInfoEl.innerHTML = `<i class="fas fa-user-check" style="color:var(--primary);"></i> Team Member: <strong>${req.team || 'N/A'}</strong> <span style="margin-left:8px;opacity:0.75;">| Date: ${req.date || 'N/A'} ${req.time || ''}</span>`;
+            teamInfoEl.innerHTML = `<i class="fas fa-user-check" style="color:var(--primary);"></i> Team Member: <strong>${sanitizeInput(req.team || 'N/A')}</strong> <span style="margin-left:8px;opacity:0.75;">| Date: ${sanitizeInput(req.date || 'N/A')} ${sanitizeInput(req.time || '')}</span>`;
 
             const rawRemarks = (req.remarks || req.comment || '').trim();
             const auditMatches = rawRemarks.match(/\[Edited:[^\]]+\]/g);
@@ -1515,16 +1515,21 @@ input[type="date"] {
 
             tbody.innerHTML = filtered.map((item, idx) => {
                 const badge = actionBadges[item.action] || { bg: 'rgba(100,116,139,0.12)', color: 'var(--text-primary)', border: 'var(--border)', icon: 'fa-info-circle', label: item.actionLabel || item.action };
-                const woText = item.workOrder ? `#${item.workOrder}` : '';
+                const safeWo = sanitizeInput(item.workOrder ? `#${item.workOrder}` : '');
+                const safePlant = sanitizeInput(item.plant || '');
                 const woAndPlant = [
-                    woText ? `<span style="font-weight:700; color:var(--primary); font-family:monospace;">${woText}</span>` : '',
-                    item.plant ? `<span style="background:var(--bg-surface); padding:2px 7px; border-radius:4px; font-size:11px; font-weight:700; border:1px solid var(--border);">${item.plant}</span>` : ''
+                    safeWo ? `<span style="font-weight:700; color:var(--primary); font-family:monospace;">${safeWo}</span>` : '',
+                    safePlant ? `<span style="background:var(--bg-surface); padding:2px 7px; border-radius:4px; font-size:11px; font-weight:700; border:1px solid var(--border);">${safePlant}</span>` : ''
                 ].filter(Boolean).join(' • ') || '<span style="color:var(--text-muted);">-</span>';
 
-                let summary = item.description || item.details || 'Activity record';
+                let rawSummary = item.description || item.details || 'Activity record';
                 if (item.action === 'status' && item.details) {
-                    summary = item.details;
+                    rawSummary = item.details;
                 }
+                const summary = sanitizeInput(rawSummary);
+                const safeTime = sanitizeInput(item.displayTime || '');
+                const safeActionLabel = sanitizeInput(item.actionLabel || badge.label);
+                const safeUser = sanitizeInput(item.user || 'Technician');
 
                 return `
                     <tr style="border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.15s ease;"
@@ -1533,11 +1538,11 @@ input[type="date"] {
                         onmouseover="this.style.background='var(--bg-surface)'"
                         onmouseout="this.style.background='transparent'">
                         <td style="padding:11px 14px; font-size:12px; font-weight:600; color:var(--text-muted); white-space:nowrap;">
-                            ${item.displayTime || ''}
+                            ${safeTime}
                         </td>
                         <td style="padding:11px 14px; white-space:nowrap;">
                             <span style="background:${badge.bg}; color:${badge.color}; border:1px solid ${badge.border}; padding:3px 9px; border-radius:12px; font-size:11px; font-weight:800; display:inline-flex; align-items:center; gap:4px;">
-                                <i class="fas ${badge.icon}"></i> ${item.actionLabel || badge.label}
+                                <i class="fas ${badge.icon}"></i> ${safeActionLabel}
                             </span>
                         </td>
                         <td style="padding:11px 14px; white-space:nowrap;">
@@ -1547,7 +1552,7 @@ input[type="date"] {
                             ${summary}
                         </td>
                         <td style="padding:11px 14px; font-size:12px; font-weight:700; color:var(--text-primary); white-space:nowrap;">
-                            <i class="fas fa-user-circle" style="color:var(--primary); margin-right:4px;"></i>${item.user || 'Technician'}
+                            <i class="fas fa-user-circle" style="color:var(--primary); margin-right:4px;"></i>${safeUser}
                         </td>
                         <td style="padding:11px 14px; text-align:center; white-space:nowrap;">
                             <span style="display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:rgba(37,99,235,0.08); color:var(--primary); font-size:11px;">
@@ -1578,47 +1583,55 @@ input[type="date"] {
             };
             const badge = actionBadges[item.action] || { bg: 'rgba(100,116,139,0.12)', color: 'var(--text-primary)', border: 'var(--border)', icon: 'fa-info-circle', label: item.actionLabel || item.action };
 
+            const safeWoTitle = item.workOrder ? '#' + sanitizeInput(item.workOrder) : 'General Record';
+            const safeAction = sanitizeInput(item.actionLabel || badge.label);
+            const safePlant = sanitizeInput(item.plant || 'Not Specified');
+            const safeUser = sanitizeInput(item.user || 'Technician');
+            const safeTime = sanitizeInput(item.displayTime || item.timestamp || '-');
+            const safeDesc = item.description ? sanitizeInput(item.description) : '<span style="color:var(--text-muted); font-style:italic;">No description provided</span>';
+            const safeDetails = item.details ? sanitizeInput(item.details) : '';
+
             content.innerHTML = `
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border);">
                     <div>
                         <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Work Order</div>
                         <div style="font-size:1.25rem; font-weight:800; color:var(--primary); font-family:monospace;">
-                            ${item.workOrder ? '#' + item.workOrder : 'General Record'}
+                            ${safeWoTitle}
                         </div>
                     </div>
                     <span style="background:${badge.bg}; color:${badge.color}; border:1px solid ${badge.border}; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:800; display:inline-flex; align-items:center; gap:6px;">
-                        <i class="fas ${badge.icon}"></i> ${item.actionLabel || badge.label}
+                        <i class="fas ${badge.icon}"></i> ${safeAction}
                     </span>
                 </div>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
                     <div style="background:var(--bg-surface); padding:10px 12px; border-radius:10px; border:1px solid var(--border);">
                         <div style="font-size:11px; color:var(--text-muted); font-weight:700;"><i class="fas fa-building" style="margin-right:4px;"></i> Plant</div>
-                        <div style="font-size:13px; font-weight:700; color:var(--text-primary); margin-top:3px;">${item.plant || 'Not Specified'}</div>
+                        <div style="font-size:13px; font-weight:700; color:var(--text-primary); margin-top:3px;">${safePlant}</div>
                     </div>
                     <div style="background:var(--bg-surface); padding:10px 12px; border-radius:10px; border:1px solid var(--border);">
                         <div style="font-size:11px; color:var(--text-muted); font-weight:700;"><i class="fas fa-user-circle" style="margin-right:4px;"></i> Logged By</div>
-                        <div style="font-size:13px; font-weight:700; color:var(--text-primary); margin-top:3px;">${item.user || 'Technician'}</div>
+                        <div style="font-size:13px; font-weight:700; color:var(--text-primary); margin-top:3px;">${safeUser}</div>
                     </div>
                 </div>
 
                 <div style="background:var(--bg-surface); padding:10px 12px; border-radius:10px; border:1px solid var(--border); margin-bottom:14px;">
                     <div style="font-size:11px; color:var(--text-muted); font-weight:700;"><i class="fas fa-clock" style="margin-right:4px;"></i> Date &amp; Time</div>
-                    <div style="font-size:13px; font-weight:600; color:var(--text-primary); margin-top:3px;">${item.displayTime || item.timestamp || '-'}</div>
+                    <div style="font-size:13px; font-weight:600; color:var(--text-primary); margin-top:3px;">${safeTime}</div>
                 </div>
 
                 <div style="margin-bottom:14px;">
                     <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:5px;">Description / Activity:</div>
                     <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:13px; color:var(--text-primary); line-height:1.4;">
-                        ${item.description || '<span style="color:var(--text-muted); font-style:italic;">No description provided</span>'}
+                        ${safeDesc}
                     </div>
                 </div>
 
-                ${item.details ? `
+                ${safeDetails ? `
                 <div>
                     <div style="font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:5px;">Change Details &amp; Notes:</div>
                     <div style="background:var(--bg-surface); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-size:12px; color:var(--text-primary); font-family:monospace; word-break:break-word; line-height:1.5;">
-                        ${item.details}
+                        ${safeDetails}
                     </div>
                 </div>` : ''}
             `;
@@ -1654,7 +1667,13 @@ input[type="date"] {
             saveLocalHistory([]);
             renderHistoryList();
             try {
-                await fetch('/api/operation-history', { method: 'DELETE' });
+                await fetch('/api/operation-history', { 
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-User-Role': (currentUser && currentUser.role) || 'developer'
+                    }
+                });
             } catch(e) {}
             try {
                 await fetch(APPS_SCRIPT_URL + '?action=clearHistory&t=' + Date.now(), { redirect: 'follow', mode: 'no-cors' });
@@ -2011,15 +2030,17 @@ input[type="date"] {
             const supFields = document.querySelectorAll('.supervisor-field');
             supFields.forEach(field => field.style.display = hasAccess ? 'block' : 'none');
 
+            const isSupOrDev = hasAccess || isDev;
+
             // Export to Excel & PDF: strictly Supervisor & Developer only
             const exportExcelBtn = document.getElementById('exportExcelBtn');
-            if (exportExcelBtn) exportExcelBtn.style.display = hasActionAccess ? 'inline-flex' : 'none';
+            if (exportExcelBtn) exportExcelBtn.style.display = isSupOrDev ? 'inline-flex' : 'none';
             const exportPdfBtn = document.getElementById('exportPdfBtn');
-            if (exportPdfBtn) exportPdfBtn.style.display = hasActionAccess ? 'inline-flex' : 'none';
+            if (exportPdfBtn) exportPdfBtn.style.display = isSupOrDev ? 'inline-flex' : 'none';
 
             // Show All toggle for archived: strictly Supervisor & Developer only
             const showAllToggleBtn = document.getElementById('showAllToggleBtn');
-            if (showAllToggleBtn) showAllToggleBtn.style.display = hasActionAccess ? 'inline-flex' : 'none';
+            if (showAllToggleBtn) showAllToggleBtn.style.display = isSupOrDev ? 'inline-flex' : 'none';
 
             // History button is accessible strictly to Supervisor and Developer
             const histBtn = document.getElementById('historyBtn');
@@ -2536,14 +2557,43 @@ input[type="date"] {
 
             let remaining = [];
             let syncedCount = 0;
+            const syncedBatchItems = [];
 
             for (let i = 0; i < queue.length; i++) {
                 const item = queue[i];
                 if (item.module === 'operation_request') {
                     try {
-                        const res = await sendToCloudBackend(item.payload || item);
+                        const payload = item.payload || item;
+                        const res = await sendToCloudBackend(payload);
                         if (res.success) {
                             syncedCount++;
+                            // Build granular diff for sync history log
+                            const changes = [];
+                            const wo = payload.workOrder || payload.wo || '—';
+                            const act = item.action || payload.action || 'update';
+                            if (act === 'updateStatus') {
+                                changes.push({ field: 'Status', from: payload.oldStatus || 'Requested', to: payload.status || 'Updated', type: 'diff' });
+                                changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
+                                if (payload.plant) changes.push({ field: 'Plant', value: payload.plant, type: 'info' });
+                            } else if (act === 'delete') {
+                                changes.push({ field: 'Action', value: 'Deleted from Cloud', type: 'danger' });
+                                changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
+                            } else {
+                                changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
+                                if (payload.plant) changes.push({ field: 'Plant', value: payload.plant, type: 'info' });
+                                if (payload.description) changes.push({ field: 'Description', value: payload.description, type: 'info' });
+                            }
+
+                            syncedBatchItems.push({
+                                name: `Operation Request #${wo}`,
+                                module: 'operation_request',
+                                action: act,
+                                user: item.updatedBy || currentUser.short || 'User',
+                                status: 'success',
+                                summary: act === 'updateStatus' ? `Status updated to "${payload.status}"` : `Work Order #${wo} updated`,
+                                changes: changes,
+                                cloudTarget: 'Google Sheets (Tabreed Cloud Data)'
+                            });
                         } else {
                             remaining.push(item);
                         }
@@ -2553,6 +2603,35 @@ input[type="date"] {
                 } else {
                     remaining.push(item);
                 }
+            }
+
+            // Save to tabreed_detailed_sync_history if items were synced
+            if (syncedBatchItems.length > 0) {
+                try {
+                    const LS_LOG = 'tabreed_detailed_sync_history';
+                    const history = JSON.parse(localStorage.getItem(LS_LOG) || '[]');
+                    const now = new Date();
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const mon = String(now.getMonth() + 1).padStart(2, '0');
+                    const yr = now.getFullYear();
+                    const hrs = String(now.getHours()).padStart(2, '0');
+                    const mins = String(now.getMinutes()).padStart(2, '0');
+                    const secs = String(now.getSeconds()).padStart(2, '0');
+                    const fmtTime = `${day}.${mon}.${yr} ${hrs}:${mins}:${secs}`;
+
+                    history.unshift({
+                        id: 'sync_evt_' + now.getTime(),
+                        timestamp: now.toISOString(),
+                        formattedTime: fmtTime,
+                        triggerSource: manual ? 'manual' : 'network_online',
+                        user: currentUser.short || 'User',
+                        syncedCount: syncedCount,
+                        failedCount: remaining.length,
+                        status: 'success',
+                        items: syncedBatchItems
+                    });
+                    localStorage.setItem(LS_LOG, JSON.stringify(history.slice(0, 100)));
+                } catch(e) {}
             }
 
             localStorage.setItem(LS_QUEUE, JSON.stringify(remaining));
@@ -3649,19 +3728,19 @@ input[type="date"] {
                     `;
                 }
                 
-                let statusHtml = `<span class="status-tag" style="${statusStyle}">${req.status}</span>`;
+                let statusHtml = `<span class="status-tag" style="${statusStyle}">${sanitizeInput(req.status || DEFAULT_STATUS)}</span>`;
                 if (userIsSupervisor) {
                     statusHtml = `
                     <div style="display:inline-flex;align-items:center;gap:6px;">
                         <select class="status-tag inline-select" 
                                 style="${statusStyle}"
-                                id="inline-status-${req.id}" 
-                                data-original="${req.status}" 
-                                onchange="onInlineStatusChange('${req.id}', this)">
+                                id="inline-status-${sanitizeInput(req.id)}" 
+                                data-original="${sanitizeInput(req.status)}" 
+                                onchange="onInlineStatusChange('${sanitizeInput(req.id)}', this)">
                             ${getStatusOptionsHTML(req.status)}
                         </select>
-                        <button id="save-status-btn-${req.id}" 
-                                onclick="saveInlineStatus('${req.id}')" 
+                        <button id="save-status-btn-${sanitizeInput(req.id)}" 
+                                onclick="saveInlineStatus('${sanitizeInput(req.id)}')" 
                                 title="Click to Save Status" 
                                 style="display:none;background:#16a34a;color:white;border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:0.85rem;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(22,163,74,0.35);">
                             <i class="fas fa-check"></i>
@@ -3669,8 +3748,14 @@ input[type="date"] {
                     </div>`;
                 }
                 
-                const woDisplay = req.wo ? req.wo : `<span style="color:var(--text-muted);font-style:italic;font-weight:normal;">N/A</span>`;
-                const woCopyClick = req.wo ? `onclick="navigator.clipboard.writeText('${req.wo}'); showToast('Copied: ${req.wo}')" title="Click to copy"` : '';
+                const safeWo = sanitizeInput(req.wo || '');
+                const safeWoDisplay = req.wo ? safeWo : `<span style="color:var(--text-muted);font-style:italic;font-weight:normal;">N/A</span>`;
+                const woCopyClick = req.wo ? `data-copy-wo="${safeWo}" onclick="navigator.clipboard.writeText(this.getAttribute('data-copy-wo')); showToast('Copied: ' + this.getAttribute('data-copy-wo'))" title="Click to copy"` : '';
+                const safeDesc = sanitizeInput(req.desc || '-');
+                const safePlant = sanitizeInput(req.plant || '-');
+                const safeDate = sanitizeInput(formatDisplayDateWithDots(req.date));
+                const safeTime = sanitizeInput(req.time || '');
+                const safeTeam = sanitizeInput(req.team || '-');
 
                 // Comment icon calculation right after team member name
                 const rawRemarks = (req.remarks || req.comment || '').trim();
@@ -3682,23 +3767,23 @@ input[type="date"] {
 
                 let commentIconHtml = '';
                 if (hasAnyNote) {
-                    commentIconHtml = `<button type="button" onclick="event.stopPropagation(); showCommentPopup('${req.id}')" title="View Comment &amp; Remarks" style="background:none; border:none; padding:2px 4px; margin-left:6px; cursor:pointer; vertical-align:middle; display:inline-flex; align-items:center; border-radius:4px; color:#d97706; transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                    commentIconHtml = `<button type="button" onclick="event.stopPropagation(); showCommentPopup('${sanitizeInput(req.id)}')" title="View Comment &amp; Remarks" style="background:none; border:none; padding:2px 4px; margin-left:6px; cursor:pointer; vertical-align:middle; display:inline-flex; align-items:center; border-radius:4px; color:#d97706; transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
                         <i class="fas fa-comment-dots" style="font-size:13px;"></i>
                     </button>`;
                 } else {
-                    commentIconHtml = `<button type="button" onclick="event.stopPropagation(); showCommentPopup('${req.id}')" title="Add / View Comment" style="background:none; border:none; padding:2px 4px; margin-left:6px; cursor:pointer; vertical-align:middle; display:inline-flex; align-items:center; border-radius:4px; color:var(--text-muted); opacity:0.38; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.38'">
+                    commentIconHtml = `<button type="button" onclick="event.stopPropagation(); showCommentPopup('${sanitizeInput(req.id)}')" title="Add / View Comment" style="background:none; border:none; padding:2px 4px; margin-left:6px; cursor:pointer; vertical-align:middle; display:inline-flex; align-items:center; border-radius:4px; color:var(--text-muted); opacity:0.38; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.38'">
                         <i class="far fa-comment" style="font-size:12px;"></i>
                     </button>`;
                 }
 
                 tr.innerHTML = `
-                    <td style="font-weight:700; color:var(--primary); cursor:${req.wo ? 'pointer' : 'default'};" ${woCopyClick}>${woDisplay}</td>
-                    <td>${req.desc}</td>
-                    <td><span style="background:var(--bg-surface);padding:3px 8px;border-radius:4px;font-size:.8rem;border:1px solid var(--border);">${req.plant}</span></td>
-                    <td>${formatDisplayDateWithDots(req.date)}<br><span style="font-size:0.75rem;color:var(--text-muted);">${req.time || ''}</span></td>
+                    <td style="font-weight:700; color:var(--primary); cursor:${req.wo ? 'pointer' : 'default'};" ${woCopyClick}>${safeWoDisplay}</td>
+                    <td>${safeDesc}</td>
+                    <td><span style="background:var(--bg-surface);padding:3px 8px;border-radius:4px;font-size:.8rem;border:1px solid var(--border);">${safePlant}</span></td>
+                    <td>${safeDate}<br><span style="font-size:0.75rem;color:var(--text-muted);">${safeTime}</span></td>
                     <td style="white-space:nowrap;">
                         <div style="display:inline-flex;align-items:center;">
-                            <span>${req.team || '-'}</span>
+                            <span>${safeTeam}</span>
                             ${commentIconHtml}
                         </div>
                     </td>

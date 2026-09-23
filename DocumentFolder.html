@@ -41,378 +41,895 @@
             } catch (e) {}
         })();
     </script>
-    <!-- Reusing styles from index.html for consistency -->
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="themes.css">
     <style>
-        
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: background-color .3s, color .3s;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 0 16px;
+            overflow-x: hidden;
+        }
 
         /* ═══════════════════════════════════════════════════
-           DARK MODE — Carefully designed for readability
+           HEADER
         ═══════════════════════════════════════════════════ */
-        
-
-        body.theme-ocean-blue {
-            --primary:        #0284c7;
-            --primary-dark:   #0369a1;
-            --primary-light:  #e0f2fe;
-            --header-bg:      #0c4a6e;
-            --bg-page:        #f0f9ff;
+        .app-header {
+            background: var(--bg-card);
+            padding: 0.9rem 1.4rem;
+            border-radius: 0 0 var(--radius) var(--radius);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            margin: 0 -16px 14px -16px;
+            transition: background .3s, box-shadow .3s;
+            border-bottom: 1px solid var(--border);
+        }
+        @media (min-width: 1200px) {
+            .app-header { margin: 0 0 14px 0; }
         }
 
-        body.theme-industrial {
-            --primary:        #d97706;
-            --primary-dark:   #b45309;
-            --primary-light:  #fef3c7;
-            --header-bg:      #1f2937;
-            --bg-page:        #fffbeb;
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
         }
-
-        body.theme-emerald-forest {
-            --primary:        #059669;
-            --primary-dark:   #047857;
-            --primary-light:  #d1fae5;
-            --header-bg:      #064e3b;
-            --bg-page:        #f0fdf4;
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
-
-        body.theme-royal-purple {
-            --primary:        #7c3aed;
-            --primary-dark:   #6d28d9;
-            --primary-light:  #ede9fe;
-            --header-bg:      #4c1d95;
-            --bg-page:        #faf5ff;
-        }
-
-        body.theme-crimson-red {
-            --primary:        #dc2626;
-            --primary-dark:   #b91c1c;
-            --primary-light:  #fee2e2;
-            --header-bg:      #7f1d1d;
-            --bg-page:        #fef2f2;
-        }
-
-        body.theme-nordic-teal {
-            --primary:        #0d9488;
-            --primary-dark:   #0f766e;
-            --primary-light:  #ccfbf1;
-            --header-bg:      #134e4a;
-            --bg-page:        #f0fdfa;
-        }
-
-        body.theme-slate-minimal {
-            --primary:        #475569;
-            --primary-dark:   #334155;
-            --primary-light:  #f1f5f9;
-            --header-bg:      #0f172a;
-            --bg-page:        #f8fafc;
-        }
-
-        body.theme-cyber-dark {
-            --primary:        #22d3ee;
-            --primary-dark:   #0891b2;
-            --primary-light:  #164e63;
-            --secondary:      #34d399;
-            --warning:        #facc15;
-            --danger:         #f87171;
-            --dark:           #f3f4f6;
-            --light:          #1f2937;
-            --gray:           #9ca3af;
-            --border:         #374151;
-            --bg-page:        #0f172a;
-            --bg-card:        #1e293b;
-            --bg-surface:     #334155;
-            --text-primary:   #f8fafc;
-            --text-secondary: #cbd5e1;
-            --text-muted:     #94a3b8;
-            --input-bg:       #334155;
-            --header-bg:      #0284c7;
-            --header-text:    #ffffff;
-            --table-header:   #334155;
-        }
-
-        
-* { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-page); color: var(--text-primary); line-height: 1.5; }
-        .app-container { max-width:1200px; margin:0 auto; padding: 1rem; }
-        .app-header { background: var(--bg-card); padding: 1rem 1.5rem; border-radius: 0 0 var(--radius) var(--radius); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 1000; }
-        .header-content { display:flex; align-items:center; justify-content:space-between; }
-        .brand { display:flex; align-items:center; gap:.75rem; }
-        .logo { width:42px; height:42px; background:white; border-radius:50%; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:var(--shadow-sm); border:1px solid var(--border); flex-shrink:0; }
-        .search-container { padding:1rem; margin:1rem 0; background:var(--bg-card); border-radius:var(--radius); box-shadow:var(--shadow-sm); border:1px solid var(--border); }
-        .search-box { position:relative; }
-        .search-box input { width:100%; padding:.8rem 1rem .8rem 3rem; border:1.5px solid var(--border); border-radius:var(--radius-sm); font-size:16px; background:var(--bg-surface); color:var(--text-primary); outline:none; transition:border-color .2s; }
-        .search-box input:focus { border-color:var(--primary); }
-        .search-icon { position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--text-muted); }
-        .doc-section { background: var(--bg-card); margin: 1.5rem 0; padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
-        /* --- Section Header Base Style --- */
-        .doc-section h2 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 0; /* Reset margin for new accordion header */
-        }
-        .doc-list { list-style: none; }
-        .doc-list li { margin-bottom: .75rem; }
-        .doc-list a { color: var(--primary); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: .5rem; transition: color .2s; }
-        .doc-list a:hover { color: var(--primary-dark); }
-        .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
-        .media-item img, .media-item video { width: 100%; height: auto; border-radius: var(--radius-sm); box-shadow: var(--shadow-sm); cursor: pointer; transition: transform .2s; }
-        .media-item img:hover, .media-item video:hover { transform: scale(1.05); }
-        .media-item p { font-size: .8rem; text-align: center; color: var(--text-secondary); margin-top: .5rem; font-weight: 600; }
-        .no-results { text-align: center; padding: 2rem; color: var(--text-muted); }
-        
-        /* Floating Action Button */
-        .fab {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            width: 56px;
-            height: 56px;
-            background-color: var(--primary);
-            color: white;
-            border-radius: 50%;
+        .btn-back {
+            background: none;
             border: none;
-            box-shadow: var(--shadow-md);
-            font-size: 20px;
+            cursor: pointer;
+            font-size: 1.15rem;
+            color: var(--primary);
+            padding: 6px 10px 6px 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            z-index: 1001;
-            transition: transform .2s, background-color .2s;
+            border-radius: 6px;
+            transition: background .2s, transform .2s;
         }
-        .fab:hover { transform: scale(1.08); background-color: var(--primary-dark); }
-        
-        /* Accordion styles - with click effect */
-        .accordion-header {
+        .btn-back:hover {
+            background: var(--bg-surface);
+            transform: translateX(-2px);
+        }
+        .logo {
+            width: 42px;
+            height: 42px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .brand-text h1 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+        .brand-text p {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #16a34a;
+            display: inline-block;
+            box-shadow: 0 0 0 2px rgba(22,163,74,0.25);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-header-upload {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 7px 14px;
+            font-size: 0.82rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: all .3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            transition: all .2s;
+        }
+        .btn-header-upload:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        .theme-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-muted);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .2s;
+        }
+        .theme-toggle-btn:hover {
+            background: var(--bg-surface);
+        }
+
+        /* ═══════════════════════════════════════════════════
+           SIMPLE & CLEAN CATEGORY TABS
+        ═══════════════════════════════════════════════════ */
+        .tabs-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            padding: 6px;
+            margin-bottom: 14px;
+        }
+        .tabs-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+        }
+        @media (max-width: 680px) {
+            .tabs-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            color: var(--text-secondary);
+            font-size: 0.86rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all .2s ease;
+            user-select: none;
+        }
+        .tab-btn i {
+            font-size: 1rem;
+            transition: transform .2s;
+        }
+        .tab-btn:hover {
+            background: var(--bg-surface);
+            color: var(--text-primary);
+        }
+        .tab-btn.active {
+            background: var(--bg-surface);
+            color: var(--tab-color, var(--primary));
+            border-color: var(--border);
+            font-weight: 700;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+        .tab-btn.active i {
+            transform: scale(1.1);
+        }
+
+        /* Specific tab accent colors */
+        .tab-btn[data-cat="drawings"] { --tab-color: #d97706; }
+        .tab-btn[data-cat="pdf"]      { --tab-color: #dc2626; }
+        .tab-btn[data-cat="images"]   { --tab-color: #16a34a; }
+        .tab-btn[data-cat="videos"]   { --tab-color: #2563eb; }
+
+        /* ═══════════════════════════════════════════════════
+           DOCUMENT VIEWER
+        ═══════════════════════════════════════════════════ */
+        .viewer-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .viewer-header {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .viewer-info {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+        .viewer-info i {
+            font-size: 1.15rem;
+            color: var(--active-cat-color, var(--primary));
+        }
+        .viewer-info-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .viewer-info-badge {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            background: var(--bg-surface);
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .viewer-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-action-tool {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 6px;
+            padding: 6px 11px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+            transition: all .2s;
+        }
+        .btn-action-tool:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+        .btn-action-tool.icon-only {
+            padding: 6px 9px;
+            font-size: 0.85rem;
+        }
+
+        .iframe-stage {
+            position: relative;
+            width: 100%;
+            height: 1250px;
+            min-height: 850px;
+            background: var(--bg-surface);
+            overflow: hidden !important;
+        }
+        @media (max-width: 768px) {
+            .iframe-stage {
+                height: 1050px;
+            }
+        }
+        .drive-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            overflow: hidden !important;
+        }
+        .iframe-loading {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-surface);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            z-index: 5;
+            transition: opacity .25s ease;
+            pointer-events: none;
+        }
+        .iframe-loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Fullscreen Viewer */
+        .viewer-card.is-fullscreen {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 99999;
+            border-radius: 0;
+            border: none;
+        }
+        .viewer-card.is-fullscreen .iframe-stage {
+            height: calc(100vh - 50px);
+        }
+
+        /* ═══════════════════════════════════════════════════
+           SIMPLE UPLOAD MODAL
+        ═══════════════════════════════════════════════════ */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: var(--bg-card);
+            width: 100%;
+            max-width: 460px;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,.25);
+            border: 1px solid var(--border);
+            animation: modalFade .2s ease-out;
+        }
+        @keyframes modalFade {
+            from { transform: scale(0.97); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-header {
+            padding: 1rem 1.25rem;
+            background: var(--primary);
+            color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 1.5rem;
+        }
+        .modal-header h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-header button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.4rem;
+            color: white;
+            line-height: 1;
+        }
+        .modal-body {
+            padding: 1.25rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 600;
+            font-size: 0.82rem;
+            color: var(--text-primary);
+        }
+        .form-select {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
-            background-color: var(--bg-surface);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-size: 0.88rem;
+            outline: none;
         }
-        .accordion-header:hover {
-            background-color: var(--primary-light);
-            color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
+        .form-select:focus { border-color: var(--primary); }
+
+        .file-drop-box {
+            border: 2px dashed var(--border);
+            background: var(--bg-surface);
+            border-radius: var(--radius-sm);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 1rem;
+            transition: all .2s;
         }
-        .accordion-header.active {
-            background-color: var(--primary-light);
-            color: var(--primary);
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
+        .file-drop-box:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
         }
-        .accordion-header .accordion-icon { transition: transform .3s ease; }
-        .accordion-header.active .accordion-icon { transform: rotate(180deg); }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
+        .file-drop-box input[type="file"] {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
             opacity: 0;
-            transform: scale(0.98);
-            transform-origin: top;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
         }
-        .doc-section.is-open .accordion-content {
-            max-height: 110vh; /* Accommodate 100vh iframe + padding */
-            opacity: 1;
-            transform: scale(1);
-            padding-top: 1rem;
+        .file-drop-box i {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 6px;
         }
-        
-        /* Iframe styles */
-        .drive-iframe { width: 100%; height: 100vh; /* Set to full viewport height to minimize inner scrolling */ border: 1px solid var(--border); border-radius: var(--radius-sm); }
+        .file-drop-box p {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+        .file-drop-box span {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
 
-        /* Modal styles for consistency */
-        .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); display:none; z-index:9999; align-items:center; justify-content:center; }
-        .modal-overlay.active { display:flex; }
-        .modal { background:var(--bg-card); width:95%; max-width:500px; border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.25); border:1px solid var(--border); }
-        .modal-header { padding:1.1rem 1.4rem; background:var(--primary); color:white; display:flex; justify-content:space-between; align-items:center; }
-        .modal-header h3 { font-size:1rem; font-weight:700; }
-        .modal-body { padding:1.5rem; }
-        .form-group { margin-bottom:1.2rem; }
-        .form-group label { display:block; margin-bottom:.4rem; font-weight:600; font-size:.85rem; }
-        .modal-actions { display:flex; gap:.8rem; margin-top:1.2rem; }
-        .btn-primary { flex:1; padding:.9rem; background:var(--primary); color:white; border:none; border-radius:var(--radius-sm); font-weight:700; cursor:pointer; font-size:.9rem; transition:.2s; }
-        .btn-primary:hover { background:var(--primary-dark); }
-        .btn-secondary { flex:1; padding:.9rem; background:var(--bg-surface); color:var(--text-primary); border:1.5px solid var(--border); border-radius:var(--radius-sm); cursor:pointer; font-weight:600; font-size:.9rem; transition:.2s; }
-        .btn-secondary:hover { border-color:var(--primary); }
+        .selected-file-badge {
+            display: none;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
 
-        /* Dark Mode specific styles */
-        body.dark-mode .app-header, body.dark-mode .doc-section { background: var(--bg-card) !important; border-color: var(--border) !important; }
-        body.dark-mode .doc-section h2 { color: var(--text-primary) !important; border-color: var(--border) !important; }
-        body.dark-mode .accordion-header:hover { background-color: var(--bg-surface) !important; }
-        body.dark-mode .doc-list a { color: var(--primary) !important; }
-        body.dark-mode .media-item p { color: var(--text-secondary) !important; }
-        body.dark-mode .modal { background: var(--bg-card); border-color: var(--border); }
-        body.dark-mode .form-group label { color: var(--text-primary); }
-        body.dark-mode .btn-secondary { background: var(--bg-surface); color: var(--text-primary); border-color: var(--border); }
-        body.dark-mode #fileUploadInput { background: var(--bg-surface); border-color: var(--border); color: var(--text-primary); }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-modal-submit {
+            flex: 1;
+            padding: 0.8rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 0.86rem;
+            cursor: pointer;
+            transition: background .2s;
+        }
+        .btn-modal-submit:hover { background: var(--primary-dark); }
+        .btn-modal-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-modal-cancel {
+            flex: 1;
+            padding: 0.8rem;
+            background: var(--bg-surface);
+            color: var(--text-primary);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            font-size: 0.86rem;
+            cursor: pointer;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           DARK MODE OVERRIDES
+        ═══════════════════════════════════════════════════ */
+        body.dark-mode .app-header,
+        body.dark-mode .tabs-card,
+        body.dark-mode .viewer-card,
+        body.dark-mode .modal {
+            background: var(--bg-card) !important;
+            border-color: var(--border) !important;
+        }
+        body.dark-mode .viewer-header,
+        body.dark-mode .file-drop-box,
+        body.dark-mode .btn-action-tool,
+        body.dark-mode .btn-modal-cancel {
+            background: var(--bg-surface) !important;
+            border-color: var(--border) !important;
+        }
     </style>
-    <link rel="stylesheet" href="themes.css">
 </head>
 <body>
 
-    <div class="app-container" style="padding-bottom:0;">
+    <div class="app-container">
+        <!-- ═══════════════════════════════════════════════════
+             APP HEADER
+        ═══════════════════════════════════════════════════ -->
         <header class="app-header">
             <div class="header-content">
                 <div class="brand">
-                    <button onclick="window.location.href='index.html'" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--primary);padding-right:10px;" title="Back"><i class="fas fa-arrow-left"></i></button>
+                    <button class="btn-back" onclick="window.location.href='index.html'" title="Back to Launchpad">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
                     <div class="logo">
                         <img src="icon-192.png" alt="Logo" style="width:100%;height:100%;object-fit:contain;" onerror="this.src='https://tabreed.automation3000.com/icon-192.png'">
                     </div>
                     <div class="brand-text">
-                        <h1 style="font-size:1rem;font-weight:700;color:var(--text-primary);">Document Library</h1>
+                        <h1>Document Library</h1>
                         <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
-                            <p style="font-size:.7rem;color:var(--text-muted);margin:0;">Automation App</p>
-                            <!-- Single status indicator icon (Green = Online, Yellow = Syncing/Cached, Red = Offline) -->
-                            <span class="status-dot online" id="statusDot" title="Connection: Online (Cloud Synced)" style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;box-shadow:0 0 0 2px rgba(22,163,74,0.25);cursor:help;"></span>
+                            <p>Automation App</p>
+                            <span class="status-dot online" id="statusDot" title="Connection: Online (Cloud Synced)"></span>
                         </div>
                     </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <i class="fas fa-moon" id="darkModeToggleBtn" style="cursor:pointer;font-size:17px;color:var(--text-muted);" onclick="toggleDarkMode()" title="Toggle Dark Mode"></i>
+
+                <div class="header-actions">
+                    <button class="btn-header-upload" onclick="openUploadModal()" title="Upload file to library">
+                        <i class="fas fa-cloud-upload-alt"></i> <span>Upload</span>
+                    </button>
+                    <button class="theme-toggle-btn" id="darkModeToggleBtn" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
                 </div>
             </div>
         </header>
+
+        <!-- ═══════════════════════════════════════════════════
+             4 SIMPLE CATEGORY TABS
+        ═══════════════════════════════════════════════════ -->
+        <div class="tabs-card">
+            <div class="tabs-grid">
+                <button class="tab-btn active" data-cat="drawings" onclick="switchCategory('drawings')">
+                    <i class="fas fa-drafting-compass" style="color:#d97706;"></i>
+                    <span>Drawings</span>
+                </button>
+                <button class="tab-btn" data-cat="pdf" onclick="switchCategory('pdf')">
+                    <i class="fas fa-file-pdf" style="color:#dc2626;"></i>
+                    <span>PDF Manuals</span>
+                </button>
+                <button class="tab-btn" data-cat="images" onclick="switchCategory('images')">
+                    <i class="fas fa-images" style="color:#16a34a;"></i>
+                    <span>Image Gallery</span>
+                </button>
+                <button class="tab-btn" data-cat="videos" onclick="switchCategory('videos')">
+                    <i class="fas fa-play-circle" style="color:#2563eb;"></i>
+                    <span>Video Guides</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════
+             CLEAN DOCUMENT VIEWER WORKSTATION
+        ═══════════════════════════════════════════════════ -->
+        <div class="viewer-card" id="viewerCard">
+            <!-- Minimal Header Toolbar -->
+            <div class="viewer-header">
+                <div class="viewer-info">
+                    <i class="fas fa-drafting-compass" id="viewerCatIcon"></i>
+                    <span class="viewer-info-title" id="viewerCatTitle">Drawings &amp; Schematics</span>
+                    <span class="viewer-info-badge" id="viewerCatBadge">P&amp;ID &bull; CAD &bull; Wiring</span>
+                </div>
+
+                <div class="viewer-actions">
+                    <button class="btn-action-tool" onclick="refreshViewer()" title="Reload Folder">
+                        <i class="fas fa-sync-alt" id="refreshIcon"></i> <span>Refresh</span>
+                    </button>
+                    <button class="btn-action-tool" onclick="openInDrive()" title="Open Folder in Google Drive">
+                        <i class="fab fa-google-drive" style="color:#0f9d58;"></i> <span>Open Drive</span>
+                    </button>
+                    <button class="btn-action-tool icon-only" id="fullscreenBtn" onclick="toggleFullscreen()" title="Fullscreen View">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Embedded Iframe Stage -->
+            <div class="iframe-stage">
+                <div class="iframe-loading" id="iframeLoading">
+                    <i class="fas fa-circle-notch fa-spin fa-2x" style="color:var(--primary);"></i>
+                    <span style="font-size:0.85rem;color:var(--text-secondary);font-weight:600;">Loading Document Vault...</span>
+                </div>
+                <iframe id="docViewerIframe" class="drive-iframe" src="https://drive.google.com/embeddedfolderview?id=1KUQpoKUJHbr9GjPwfpOIqSBmQZ1TrKSN#grid" scrolling="no" frameborder="0" loading="lazy" onload="onIframeReady()"></iframe>
+            </div>
+        </div>
     </div>
 
-    <div class="app-container" style="padding-top:0;">
-        <div class="search-container">
-            <div class="search-box">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="docSearchInput" placeholder="Use the search inside each section below..." readonly style="cursor: not-allowed; background: var(--bg-surface) !important;">
-            </div>
-        </div>
-
-        <!-- Drawings Section -->
-        <div class="doc-section">
-            <h2 class="accordion-header">
-                <span><i class="fas fa-drafting-compass" style="color:var(--warning)"></i> Drawings</span>
-                <i class="fas fa-chevron-down accordion-icon"></i>
-            </h2>
-            <div class="accordion-content">
-                <!-- IMPORTANT: Replace YOUR_DRAWINGS_FOLDER_ID_HERE with your actual Google Drive Folder ID -->
-                <iframe class="drive-iframe" src="https://drive.google.com/embeddedfolderview?id=1KUQpoKUJHbr9GjPwfpOIqSBmQZ1TrKSN#grid" loading="lazy"></iframe>
-            </div>
-        </div>
-
-        <!-- PDF Section -->
-        <div class="doc-section">
-            <h2 class="accordion-header">
-                <span><i class="fas fa-file-pdf" style="color:var(--danger)"></i> PDF Documents</span>
-                <i class="fas fa-chevron-down accordion-icon"></i>
-            </h2>
-            <div class="accordion-content">
-                <iframe class="drive-iframe" src="https://drive.google.com/embeddedfolderview?id=1CZIU9gxrpYA3gO1Kf6trVfkpilt7aOMJ#grid" loading="lazy"></iframe>
-            </div>
-        </div>
-
-        <!-- Images Section -->
-        <div class="doc-section">
-            <h2 class="accordion-header">
-                <span><i class="fas fa-file-image" style="color:var(--secondary)"></i> Image Gallery</span>
-                <i class="fas fa-chevron-down accordion-icon"></i>
-            </h2>
-            <div class="accordion-content">
-                <iframe class="drive-iframe" src="https://drive.google.com/embeddedfolderview?id=1_4z-Gyuvpm42SYBKwcEXsBvGzLWtUJAt#grid" loading="lazy"></iframe>
-            </div>
-        </div>
-
-        <!-- Videos Section -->
-        <div class="doc-section">
-            <h2 class="accordion-header">
-                <span><i class="fas fa-file-video" style="color:var(--primary)"></i> Video Tutorials</span>
-                <i class="fas fa-chevron-down accordion-icon"></i>
-            </h2>
-            <div class="accordion-content">
-                <iframe class="drive-iframe" src="https://drive.google.com/embeddedfolderview?id=1Ome7auV6yg2jCzZaJPs4kmPj_E3UZJpp#grid" loading="lazy"></iframe>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- Floating Action Button for Upload -->
-    <button class="fab" onclick="openUploadModal()" title="Upload a File">
-        <i class="fas fa-upload"></i>
-    </button>
-
-    <!-- UPLOAD MODAL -->
+    <!-- ═══════════════════════════════════════════════════
+         SIMPLE UPLOAD MODAL
+    ═══════════════════════════════════════════════════ -->
     <div class="modal-overlay" id="uploadModal">
         <div class="modal">
             <div class="modal-header">
-                <h3><i class="fas fa-cloud-upload-alt"></i> Upload to Library</h3>
-                <button onclick="closeUploadModal()" style="background:none;border:none;cursor:pointer;font-size:1.5rem;color:white;line-height:1;">&times;</button>
+                <h3><i class="fas fa-cloud-upload-alt"></i> Upload to Document Library</h3>
+                <button onclick="closeUploadModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label for="fileUploadInput">Select a PDF, Image, or Video file</label>
-                    <input type="file" id="fileUploadInput" accept=".pdf,image/*,video/*" style="width:100%; padding: 1rem; border: 2px dashed var(--border); background: var(--bg-surface); border-radius: var(--radius-sm); text-align: center; cursor: pointer;">
+                    <label for="uploadCatSelect">Folder Category</label>
+                    <select id="uploadCatSelect" class="form-select">
+                        <option value="drawings">📐 Drawings &amp; Schematics</option>
+                        <option value="pdf" selected>📄 PDF Manuals &amp; SOPs</option>
+                        <option value="images">🖼️ Image Gallery</option>
+                        <option value="videos">🎥 Video Tutorials</option>
+                    </select>
                 </div>
-                <div id="upload-progress" style="display:none; text-align:center; margin-top:1rem; color: var(--primary); font-weight: 600;">
-                    <p><i class="fas fa-spinner fa-spin"></i> Uploading, please wait...</p>
-                    <p style="font-size: .8rem; color: var(--text-muted);">(This may take a moment for large files)</p>
+
+                <div class="file-drop-box" id="fileDropBox">
+                    <i class="fas fa-file-upload"></i>
+                    <p>Click to choose a file</p>
+                    <span>PDF, DWG, DXF, PNG, JPG, MP4</span>
+                    <input type="file" id="fileUploadInput" accept=".pdf,.dwg,.dxf,image/*,video/*" onchange="onFileSelected(this)">
                 </div>
+
+                <div class="selected-file-badge" id="selectedFileBadge">
+                    <span id="selectedFileName">file.pdf</span>
+                    <button type="button" onclick="clearSelectedFile()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1.1rem;">&times;</button>
+                </div>
+
+                <div id="uploadStatusText" style="display:none;text-align:center;padding:10px;font-size:0.82rem;font-weight:600;color:var(--primary);margin-bottom:12px;">
+                    <i class="fas fa-circle-notch fa-spin"></i> Uploading file to Google Drive...
+                </div>
+
                 <div class="modal-actions">
-                    <button class="btn-primary" onclick="handleFileUpload()" id="submitUploadBtn">UPLOAD FILE</button>
-                    <button class="btn-secondary" onclick="closeUploadModal()">CANCEL</button>
+                    <button class="btn-modal-submit" id="btnSubmitUpload" onclick="uploadFileToDrive()">Upload File</button>
+                    <button class="btn-modal-cancel" onclick="closeUploadModal()">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
+    <!-- Toast Notification Container -->
+    <div class="toast-container pos-top" id="toastContainer"></div>
 
+    <script>
+        // ═══════════════════════════════════════════════════
+        // CATEGORY DEFINITIONS
+        // ═══════════════════════════════════════════════════
+        const CATEGORIES = {
+            drawings: {
+                id: '1KUQpoKUJHbr9GjPwfpOIqSBmQZ1TrKSN',
+                title: 'Drawings & Schematics',
+                badge: 'P&ID • CAD • Wiring',
+                icon: 'fa-drafting-compass',
+                color: '#d97706'
+            },
+            pdf: {
+                id: '1CZIU9gxrpYA3gO1Kf6trVfkpilt7aOMJ',
+                title: 'PDF Manuals & SOPs',
+                badge: 'Operating Manuals • SOPs • Datasheets',
+                icon: 'fa-file-pdf',
+                color: '#dc2626'
+            },
+            images: {
+                id: '1_4z-Gyuvpm42SYBKwcEXsBvGzLWtUJAt',
+                title: 'Image Gallery',
+                badge: 'Field Photos • Transmitters • Assets',
+                icon: 'fa-images',
+                color: '#16a34a'
+            },
+            videos: {
+                id: '1Ome7auV6yg2jCzZaJPs4kmPj_E3UZJpp',
+                title: 'Video Guides & Tutorials',
+                badge: 'Walkthroughs • Calibration Guides',
+                icon: 'fa-play-circle',
+                color: '#2563eb'
+            }
+        };
+
+        let activeCategory = 'drawings';
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyuU8Ex0xKje6OmnaGKYFIJIp6U16ZoOhQPiVhL5URULn060tydvJL_koJDa7psrJc-6Q/exec";
         const THEME_KEY = 'tabreed_selected_theme';
         const LS_DARK = 'tabreed_dark_mode';
 
-        function applyUserSettings(settings) {
-            document.body.classList.remove('toast-minimal', 'toast-glassy', 'toast-outlined', 'toast-neon', 'toast-soft-shadow', 'toast-solid');
-            if (settings && settings.toastStyle && settings.toastStyle !== 'default') {
-                document.body.classList.add('toast-' + settings.toastStyle);
-            }
-            const container = document.getElementById('toastContainer');
-            if (container) {
-                container.className = 'toast-container ' + (settings && settings.toastPosition ? settings.toastPosition : 'pos-top');
-            }
-        }
-        
-        function loadCurrentUserAndSettings() {
-            try {
-                const curUserStr = localStorage.getItem('tabreed_currentUser');
-                if (curUserStr) {
-                    const curUser = JSON.parse(curUserStr);
-                    const code = curUser.code || curUser.empId;
-                    if (code) {
-                        const settingsStr = localStorage.getItem('tabreed_settings_' + code);
-                        if (settingsStr) {
-                            applyUserSettings(JSON.parse(settingsStr));
-                        }
-                    }
-                }
-            } catch(e){}
-        }
-        
-        document.addEventListener('DOMContentLoaded', loadCurrentUserAndSettings);
+        // ═══════════════════════════════════════════════════
+        // TAB SWITCHING & VIEWER
+        // ═══════════════════════════════════════════════════
+        function switchCategory(catKey) {
+            if (!CATEGORIES[catKey]) return;
+            activeCategory = catKey;
 
-        function showToast(msg, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            if(!container) return;
-            const t = document.createElement('div');
-            t.className = 'toast';
-            const colors = { success:'var(--secondary)', error:'var(--danger)', warning:'var(--warning)', info:'var(--primary)' };
-            const icons  = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
-            const safeMsg = msg ? String(msg).replace(/[<>"'&]/g, c => ({ '<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;' }[c])) : '';
-            t.innerHTML  = `<i class="fas ${icons[type]||icons.info}" style="color:${colors[type]||colors.info};font-size:1.1rem;flex-shrink:0;"></i><span>${safeMsg}</span>`;
-            container.appendChild(t);
-            setTimeout(() => { t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),320); }, 2600);
+            // Highlight Tab Button
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-cat') === catKey);
+            });
+
+            // Update Viewer Header
+            const cat = CATEGORIES[catKey];
+            const iconEl = document.getElementById('viewerCatIcon');
+            const titleEl = document.getElementById('viewerCatTitle');
+            const badgeEl = document.getElementById('viewerCatBadge');
+            const cardEl = document.getElementById('viewerCard');
+
+            if (iconEl) {
+                iconEl.className = 'fas ' + cat.icon;
+                iconEl.style.color = cat.color;
+            }
+            if (titleEl) titleEl.textContent = cat.title;
+            if (badgeEl) badgeEl.textContent = cat.badge;
+            if (cardEl) cardEl.style.setProperty('--active-cat-color', cat.color);
+
+            // Load iframe
+            const iframe = document.getElementById('docViewerIframe');
+            const loading = document.getElementById('iframeLoading');
+            if (loading) loading.classList.remove('hidden');
+
+            const newSrc = `https://drive.google.com/embeddedfolderview?id=${cat.id}#grid`;
+            if (iframe) {
+                if (iframe.src !== newSrc) {
+                    iframe.src = newSrc;
+                } else {
+                    iframe.src = iframe.src;
+                }
+            }
         }
-    
-        const ALL_THEME_CLASSES = [
+
+        function onIframeReady() {
+            const loading = document.getElementById('iframeLoading');
+            if (loading) {
+                setTimeout(() => loading.classList.add('hidden'), 250);
+            }
+        }
+
+        function refreshViewer() {
+            const icon = document.getElementById('refreshIcon');
+            if (icon) icon.classList.add('fa-spin');
+            const iframe = document.getElementById('docViewerIframe');
+            if (iframe) iframe.src = iframe.src;
+            showToast('Refreshing folder...', 'info');
+            setTimeout(() => {
+                if (icon) icon.classList.remove('fa-spin');
+            }, 800);
+        }
+
+        function openInDrive() {
+            const cat = CATEGORIES[activeCategory];
+            if (cat) {
+                window.open(`https://drive.google.com/drive/folders/${cat.id}`, '_blank');
+            }
+        }
+
+        function toggleFullscreen() {
+            const card = document.getElementById('viewerCard');
+            const btn = document.getElementById('fullscreenBtn');
+            if (!card) return;
+            const isFull = card.classList.toggle('is-fullscreen');
+            if (btn) {
+                btn.innerHTML = isFull ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+                btn.title = isFull ? 'Exit Fullscreen (Esc)' : 'Fullscreen View';
+            }
+            if (isFull) {
+                showToast('Press Esc to exit fullscreen', 'info');
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const card = document.getElementById('viewerCard');
+                if (card && card.classList.contains('is-fullscreen')) {
+                    toggleFullscreen();
+                }
+                closeUploadModal();
+            }
+        });
+
+        // ═══════════════════════════════════════════════════
+        // UPLOAD MODAL
+        // ═══════════════════════════════════════════════════
+        function openUploadModal() {
+            const sel = document.getElementById('uploadCatSelect');
+            if (sel) sel.value = activeCategory;
+            document.getElementById('uploadModal').classList.add('active');
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').classList.remove('active');
+            clearSelectedFile();
+            const status = document.getElementById('uploadStatusText');
+            if (status) status.style.display = 'none';
+            const btn = document.getElementById('btnSubmitUpload');
+            if (btn) btn.disabled = false;
+        }
+
+        function onFileSelected(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const badge = document.getElementById('selectedFileBadge');
+                const nameEl = document.getElementById('selectedFileName');
+                const box = document.getElementById('fileDropBox');
+
+                if (badge && nameEl) {
+                    nameEl.textContent = file.name;
+                    badge.style.display = 'flex';
+                }
+                if (box) box.style.display = 'none';
+            }
+        }
+
+        function clearSelectedFile() {
+            const input = document.getElementById('fileUploadInput');
+            if (input) input.value = '';
+            const badge = document.getElementById('selectedFileBadge');
+            if (badge) badge.style.display = 'none';
+            const box = document.getElementById('fileDropBox');
+            if (box) box.style.display = 'block';
+        }
+
+        function uploadFileToDrive() {
+            const fileInput = document.getElementById('fileUploadInput');
+            const file = fileInput.files ? fileInput.files[0] : null;
+
+            if (!file) {
+                showToast('Please choose a file to upload.', 'warning');
+                return;
+            }
+
+            const cat = document.getElementById('uploadCatSelect').value || activeCategory;
+            const folderId = CATEGORIES[cat] ? CATEGORIES[cat].id : CATEGORIES.drawings.id;
+
+            const status = document.getElementById('uploadStatusText');
+            const btn = document.getElementById('btnSubmitUpload');
+            if (status) status.style.display = 'block';
+            if (btn) btn.disabled = true;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const fileData = e.target.result.split(',')[1];
+                const payload = {
+                    filename: file.name,
+                    mimeType: file.type || 'application/octet-stream',
+                    data: fileData,
+                    folderId: folderId,
+                    category: cat
+                };
+
+                fetch(GAS_API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                })
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.success) {
+                        showToast(`Uploaded "${file.name}" successfully!`, 'success');
+                        refreshViewer();
+                    } else {
+                        throw new Error(res.error || 'Server upload failed.');
+                    }
+                    closeUploadModal();
+                })
+                .catch(err => {
+                    console.error('Upload Error:', err);
+                    showToast('Upload failed: ' + (err.message || 'Network error'), 'error');
+                    if (status) status.style.display = 'none';
+                    if (btn) btn.disabled = false;
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ═══════════════════════════════════════════════════
+        // THEME & TOAST
+        // ═══════════════════════════════════════════════════
+        const ALL_THEMES = [
             'dark-mode', 'theme-ocean-blue', 'theme-industrial',
             'theme-emerald-forest', 'theme-royal-purple', 'theme-crimson-red',
             'theme-nordic-teal', 'theme-slate-minimal', 'theme-cyber-dark'
@@ -420,131 +937,51 @@
 
         function applyTheme() {
             const themeId = localStorage.getItem(THEME_KEY) || (localStorage.getItem(LS_DARK) === '1' ? 'dark-mode' : 'default');
-            document.body.classList.remove(...ALL_THEME_CLASSES);
+            document.body.classList.remove(...ALL_THEMES);
             if (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark') {
                 document.body.classList.add('dark-mode');
             }
-            if (themeId && themeId !== 'default') {
-                if (themeId !== 'dark-mode') {
-                    const finalTheme = themeId.startsWith('theme-') ? themeId : `theme-${themeId}`;
-                    document.body.classList.add(finalTheme);
-                }
+            if (themeId && themeId !== 'default' && themeId !== 'dark-mode') {
+                const t = themeId.startsWith('theme-') ? themeId : `theme-${themeId}`;
+                document.body.classList.add(t);
             }
             const isDark = (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark');
             const icon = document.getElementById('darkModeToggleBtn');
             if (icon) {
-                icon.className  = isDark ? 'fas fa-sun' : 'fas fa-moon';
-                icon.style.color = isDark ? '#fdd663' : '#94a3b8';
+                icon.innerHTML = isDark ? '<i class="fas fa-sun" style="color:#fdd663;"></i>' : '<i class="fas fa-moon"></i>';
             }
         }
 
-        applyTheme();
         function toggleDarkMode() {
-            const isCurrentlyDark = document.body.classList.contains('dark-mode');
-            const newTheme = isCurrentlyDark ? 'default' : 'dark-mode';
-            localStorage.setItem(LS_DARK, isCurrentlyDark ? '0' : '1');
+            const isDark = document.body.classList.contains('dark-mode');
+            const newTheme = isDark ? 'default' : 'dark-mode';
+            localStorage.setItem(LS_DARK, isDark ? '0' : '1');
             localStorage.setItem(THEME_KEY, newTheme);
             applyTheme();
+            showToast(isDark ? 'Light mode enabled' : 'Dark mode enabled', 'info');
         }
 
-        // IMPORTANT: Replace this URL with the one you got after deploying the Google Apps Script.
-        // IMPORTANT: Paste the NEW URL you get after re-deploying the script with the correct permissions.
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyuU8Ex0xKje6OmnaGKYFIJIp6U16ZoOhQPiVhL5URULn060tydvJL_koJDa7psrJc-6Q/exec";
-
-        // Simple dark mode toggle to maintain theme consistency
-        
-
-        // --- UPLOAD FUNCTIONALITY ---
-        function openUploadModal() {
-            document.getElementById('uploadModal').classList.add('active');
+        function showToast(msg, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const t = document.createElement('div');
+            t.className = 'toast';
+            const colors = { success:'var(--secondary)', error:'var(--danger)', warning:'var(--warning)', info:'var(--primary)' };
+            const icons  = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+            const safeMsg = msg ? String(msg).replace(/[<>"'&]/g, c => ({ '<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;' }[c])) : '';
+            t.innerHTML = `<i class="fas ${icons[type]||icons.info}" style="color:${colors[type]||colors.info};font-size:1.1rem;flex-shrink:0;"></i><span>${safeMsg}</span>`;
+            container.appendChild(t);
+            setTimeout(() => {
+                t.style.transition = 'opacity .3s';
+                t.style.opacity = '0';
+                setTimeout(() => t.remove(), 300);
+            }, 2600);
         }
 
-        function closeUploadModal() {
-            document.getElementById('uploadModal').classList.remove('active');
-            document.getElementById('fileUploadInput').value = ''; // Reset file input
-            document.getElementById('upload-progress').style.display = 'none';
-            document.getElementById('submitUploadBtn').disabled = false;
-        }
-
-        function handleFileUpload() {
-            const fileInput = document.getElementById('fileUploadInput');
-            const file = fileInput.files[0];
-
-            if (!file) {
-                alert('Please select a file to upload.');
-                return;
-            }
-
-            document.getElementById('upload-progress').style.display = 'block';
-            document.getElementById('submitUploadBtn').disabled = true;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const fileData = e.target.result.split(',')[1]; // Get Base64 part
-                const payload = {
-                    filename: file.name,
-                    mimeType: file.type,
-                    data: fileData
-                };
-
-                // Send to Google Apps Script
-                fetch(GAS_API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload),
-                    // The 'redirect' option can help debug, but we'll handle non-JSON responses instead.
-                    // redirect: 'follow' 
-                })
-                .then(response => {
-                    const contentType = response.headers.get("content-type");
-                    if (contentType && contentType.indexOf("application/json") !== -1) {
-                        return response.json(); // Response is JSON, proceed as normal.
-                    } else {
-                        // Response is HTML, which means a permission or deployment error on Google's side.
-                        throw new Error("Server returned an invalid response (not JSON). This is likely a permission issue. Please re-deploy the script and grant all permissions.");
-                    }
-                })
-                .then(result => {
-                    if (result.success) {
-                        alert('File uploaded successfully! It will appear in the library shortly.');
-                        // Refresh the iframes to show the new file
-                        document.querySelectorAll('.drive-iframe').forEach(iframe => {
-                            iframe.src = iframe.src; // This reloads the iframe
-                        });
-                    } else {
-                        throw new Error(result.error || 'An unknown server error occurred.');
-                    }
-                    closeUploadModal();
-                })
-                .catch(error => {
-                    console.error('Upload Error:', error);
-                    alert('Upload failed: ' + error.message);
-                    closeUploadModal();
-                });
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // --- INITIALIZE ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Restore dark mode on page load
-            if (localStorage.getItem('tabreed_dark_mode') === '1') {
-                document.body.classList.add('dark-mode');
-                const icon = document.getElementById('darkModeToggleBtn');
-                icon.className = 'fas fa-sun';
-                icon.style.color = '#fdd663';
-            }
-
-            // Accordion functionality
-            document.querySelectorAll('.accordion-header').forEach(header => {
-                header.addEventListener('click', () => {
-                    const section = header.closest('.doc-section');
-                    section.classList.toggle('is-open');
-                    header.classList.toggle('active');
-                });
-            });
+            applyTheme();
+            switchCategory('drawings');
         });
     </script>
-
-<div class="toast-container" id="toastContainer"></div>
 </body>
 </html>

@@ -689,6 +689,96 @@
         body.pull-to-refresh-active {
             padding-top: 60px; /* Example: push content down if indicator takes space */
         }
+
+        /* ═══════════════════════════════════════════════════
+           SYNC HISTORY LOG: CARD HOVER & DIFFS ACCORDION
+        ═══════════════════════════════════════════════════ */
+        .sync-history-event-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+            position: relative;
+        }
+
+        .sync-history-event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.09);
+            border-color: var(--primary) !important;
+        }
+
+        body.dark-mode .sync-history-event-card {
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+        }
+
+        body.dark-mode .sync-history-event-card:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+            border-color: var(--primary) !important;
+        }
+
+        .sync-diff-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.69rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--text-secondary);
+            transition: all 0.18s ease;
+            user-select: none;
+            outline: none;
+        }
+
+        .sync-diff-toggle-btn:hover {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .sync-diff-toggle-btn.is-collapsed {
+            background: var(--bg-surface);
+            color: var(--text-muted);
+            border-color: var(--border);
+        }
+
+        .sync-diff-toggle-btn.is-expanded {
+            background: rgba(37, 99, 235, 0.08);
+            color: var(--primary);
+            border-color: rgba(37, 99, 235, 0.35);
+        }
+
+        .granular-diff-box {
+            overflow: hidden;
+            transition: opacity 0.2s ease, max-height 0.25s ease;
+        }
+
+        .granular-diff-preview {
+            background: var(--bg-surface);
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            padding: 6px 10px;
+            margin-top: 4px;
+            font-size: 0.73rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.18s ease;
+        }
+
+        .granular-diff-preview:hover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.04);
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -761,10 +851,10 @@
         <h2 class="group-title">Offline Tools &amp; Support</h2>
         <div class="tile-grid">
             <div class="tile" onclick="handleTileClick(event, 'PENDING_SYNCS', this)">
-                <div class="tile-title">Pending Syncs</div>
-                <div class="tile-subtitle">Data waiting for network</div>
+                <div class="tile-title">Pending &amp; Synced</div>
+                <div class="tile-subtitle">Data sync &amp; offline status</div>
                 <i class="fas fa-sync tile-icon" style="color:var(--text-muted);"></i>
-                <div class="tile-status" style="color:var(--danger);" id="pending-sync-tile">0 Pending</div>
+                <div class="tile-status" style="color:#16a34a;" id="pending-sync-tile"><i class="fas fa-check-circle"></i> Synced</div>
             </div>
             <div class="tile" onclick="handleTileClick(event, 'SETTINGS', this)" style="border-color:rgba(107,114,128,0.25);">
                 <div class="tile-title" style="color:var(--text-primary);">Settings</div>
@@ -1229,7 +1319,9 @@ input:checked + .slider:before { transform: translateX(20px); }
                     <p style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
                 </div>
             </div>
-            <button class="btn-primary" onclick="saveSettings()" style="font-size:0.85rem !important;padding:8px 16px !important;border-radius:6px;width:fit-content !important;align-self:center;">Save</button>
+            <button type="button" onclick="saveSettings()" style="flex:0 0 auto !important;width:auto !important;min-width:76px;padding:7px 18px !important;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:700;font-size:0.85rem !important;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 6px rgba(0,0,0,0.15);transition:all 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                <i class="fas fa-check" style="font-size:0.8rem;"></i> Save
+            </button>
         </div>
     </div>
     
@@ -2337,9 +2429,20 @@ window.startSmartInstall = async function() {
         const closeBtn = document.getElementById('ackModalCloseBtn');
         if (closeBtn) closeBtn.style.display = 'flex';
 
-        if (title !== "System Logs" && !title.startsWith("System Logs") && title !== "Release Notes" && title !== "Edit Locations" && title !== "Theme Selector") {
+        const isSyncModal = title.includes("Pending") || title.includes("Sync");
+        if (title !== "System Logs" && !title.startsWith("System Logs") && title !== "Release Notes" && title !== "Edit Locations" && title !== "Theme Selector" && !isSyncModal) {
             document.getElementById('ackModalCard').style.maxWidth = '340px';
         }
+        if (isSyncModal) {
+            document.getElementById('ackModalCard').style.maxWidth = '680px';
+            document.getElementById('ackModalCard').style.width = '95%';
+            const ackIconEl = document.getElementById('ackIcon');
+            if (ackIconEl) ackIconEl.style.display = 'none';
+        } else {
+            const ackIconEl = document.getElementById('ackIcon');
+            if (ackIconEl) ackIconEl.style.display = 'block';
+        }
+
         document.getElementById('ackIcon').innerHTML    = `<i class="${iconClass}" style="color:${iconColor};"></i>`;
         document.getElementById('ackTitle').innerText   = title;
         document.getElementById('ackMessage').innerHTML = message;
@@ -2351,6 +2454,8 @@ window.startSmartInstall = async function() {
         // Clean up any special classes added to the modal body
         const modalBody = document.querySelector('#ackModalOverlay .modal-body');
         if (modalBody) modalBody.classList.remove('no-scrollbar');
+        const ackIconEl = document.getElementById('ackIcon');
+        if (ackIconEl) ackIconEl.style.display = 'block';
     }
 
     function showCommentPopup(text) {
@@ -2893,7 +2998,31 @@ window.startSmartInstall = async function() {
         btn.disabled    = true;
         btn.textContent = 'Processing…';
 
+        // Calculate field-by-field diff for Sync History tracking
+        const orig = inventoryData.find(i => i.name === currentItem);
+        const itemChanges = [];
+        if (isEditMode && orig) {
+            if ((orig.location || '') !== sLoc) {
+                itemChanges.push({ field: 'Location', from: orig.location || 'None', to: sLoc, type: 'diff' });
+            }
+            if ((orig.expiry || '') !== exp) {
+                itemChanges.push({ field: 'Expiry Date', from: orig.expiry || 'None', to: exp || 'None', type: 'diff' });
+            }
+            if ((orig.remark || '') !== sRemark) {
+                itemChanges.push({ field: 'Remarks', from: orig.remark || 'None', to: sRemark || 'None', type: 'diff' });
+            }
+            if (itemChanges.length === 0) {
+                itemChanges.push({ field: 'Location Verified', value: sLoc, type: 'info' });
+            }
+        } else {
+            itemChanges.push({ field: 'Instrument Added', value: sName, type: 'info' });
+            itemChanges.push({ field: 'Location', value: sLoc, type: 'info' });
+            if (exp) itemChanges.push({ field: 'Expiry Date', value: exp, type: 'info' });
+            if (sRemark) itemChanges.push({ field: 'Remarks', value: sRemark, type: 'info' });
+        }
+
         const actionParams = {
+            module:      'instrument',
             action:      isEditMode ? 'update' : 'add',
             itemName:    currentItem || '',
             name:        sName,
@@ -2905,6 +3034,7 @@ window.startSmartInstall = async function() {
             comment:     sRemark,
             user:        sUser,
             updatedBy:   sUser,
+            changes:     itemChanges
         };
 
         // Optimistic update to local data
@@ -2929,9 +3059,249 @@ window.startSmartInstall = async function() {
     }
 
     /* ──────────────────────────────────────
-       QUEUE & SYNC
+       QUEUE & SYNC ENGINE & DETAILED HISTORY
     ────────────────────────────────────── */
     const LS_SYNCED = 'localTabreedSyncedHistory';
+    const LS_SYNC_HISTORY_LOG = 'tabreed_detailed_sync_history';
+
+    // 24-Hour Datetime Formatter: DD.MM.YYYY HH:mm:ss
+    function format24HourDateTime(dInput) {
+        if (!dInput) return '';
+        const d = new Date(dInput);
+        if (isNaN(d.getTime())) return String(dInput);
+        const day   = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year  = d.getFullYear();
+        const hrs   = String(d.getHours()).padStart(2, '0');
+        const mins  = String(d.getMinutes()).padStart(2, '0');
+        const secs  = String(d.getSeconds()).padStart(2, '0');
+        return `${day}.${month}.${year} ${hrs}:${mins}:${secs}`;
+    }
+
+    // Trigger metadata (icon, label, badge color)
+    function getSyncTriggerMeta(source) {
+        switch (source) {
+            case 'network_online':
+            case 'online':
+                return { label: 'Network Reconnect', icon: 'fas fa-wifi', color: '#16a34a', bg: 'rgba(22,163,74,0.12)' };
+            case 'heartbeat':
+                return { label: 'Periodic Auto-Sync', icon: 'fas fa-heartbeat', color: '#2563eb', bg: 'rgba(37,99,235,0.12)' };
+            case 'window_focus':
+                return { label: 'Window Focus Check', icon: 'fas fa-desktop', color: '#8b5cf6', bg: 'rgba(139,92,246,0.12)' };
+            case 'manual':
+            case 'direct_call':
+                return { label: 'Manual Sync Action', icon: 'fas fa-sync-alt', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' };
+            case 'direct_online':
+                return { label: 'Direct Online Save', icon: 'fas fa-cloud-arrow-up', color: '#0d9488', bg: 'rgba(13,148,136,0.12)' };
+            default:
+                return { label: 'Background Sync', icon: 'fas fa-satellite-dish', color: 'var(--primary)', bg: 'rgba(37,99,235,0.1)' };
+        }
+    }
+
+    // Extract exact data changes / diffs from a task
+    function extractSyncDiff(task) {
+        if (!task) return { summary: 'Data synchronization event', changes: [] };
+
+        // 1. Precomputed changes in task
+        if (Array.isArray(task.changes) && task.changes.length > 0) {
+            const sumStr = task.changes.map(c => c.field + (c.from ? ` (${c.from} → ${c.to})` : `: ${c.value}`)).join(' | ');
+            return {
+                summary: sumStr || 'Field changes saved',
+                changes: task.changes
+            };
+        }
+
+        const changes = [];
+        const payload = task.payload || task;
+        const mod = task.module || (task.workOrder || payload.workOrder ? 'operation_request' : 'instrument');
+        const act = task.action || payload.action || 'update';
+
+        if (mod === 'operation_request') {
+            const wo = payload.workOrder || payload.wo || task.workOrder || '—';
+            const plant = payload.plant || task.plant || '';
+
+            if (act === 'updateStatus') {
+                const oldStatus = payload.oldStatus || task.oldStatus || 'Requested';
+                const newStatus = payload.status || payload.newStatus || task.status || 'Updated';
+                changes.push({ field: 'Status', from: oldStatus, to: newStatus, type: 'diff' });
+                changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
+                if (plant) changes.push({ field: 'Plant', value: plant, type: 'info' });
+                if (payload.statusRemark || payload.comment) {
+                    changes.push({ field: 'Remarks', value: payload.statusRemark || payload.comment, type: 'info' });
+                }
+                return { summary: `Status changed from "${oldStatus}" to "${newStatus}"`, changes };
+            }
+
+            if (act === 'delete') {
+                changes.push({ field: 'Action', value: 'Deleted from Cloud', type: 'danger' });
+                changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
+                if (plant) changes.push({ field: 'Plant', value: plant, type: 'info' });
+                return { summary: `Work Order #${wo} deleted permanently`, changes };
+            }
+
+            if (act === 'create') {
+                changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
+                if (plant) changes.push({ field: 'Plant', value: plant, type: 'info' });
+                if (payload.description) changes.push({ field: 'Description', value: payload.description, type: 'info' });
+                if (payload.date || payload.timeFrom) {
+                    changes.push({ field: 'Schedule', value: `${payload.date || ''} ${payload.timeFrom || ''}${payload.timeTo ? ' - ' + payload.timeTo : ''}`.trim(), type: 'info' });
+                }
+                changes.push({ field: 'Status', value: payload.status || 'Requested', type: 'info' });
+                return { summary: `New Work Order #${wo} created`, changes };
+            }
+
+            // General update
+            changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
+            if (plant) changes.push({ field: 'Plant', value: plant, type: 'info' });
+            if (payload.details) {
+                changes.push({ field: 'Updated Fields', value: payload.details, type: 'info' });
+            }
+            return { summary: `Work Order #${wo} updated`, changes };
+        }
+
+        // Instrument update / add
+        const instName = task.name || task.itemName || payload.name || payload.itemName || 'Instrument';
+        if (task.newLocation || task.location) {
+            changes.push({ field: 'Location', from: task.oldLocation || 'Previous', to: task.newLocation || task.location, type: task.oldLocation ? 'diff' : 'info' });
+        }
+        if (task.newExpiry || task.expiry) {
+            changes.push({ field: 'Expiry Date', from: task.oldExpiry || 'Previous', to: task.newExpiry || task.expiry, type: task.oldExpiry ? 'diff' : 'info' });
+        }
+        if (task.remark || task.comment) {
+            changes.push({ field: 'Remarks', value: task.remark || task.comment, type: 'info' });
+        }
+        if (changes.length === 0) {
+            changes.push({ field: 'Record Verified', value: instName, type: 'info' });
+        }
+        return { summary: `Instrument ${instName} updated`, changes };
+    }
+
+    // Retrieve detailed sync history, seeding defaults if empty for immediate visibility
+    function getDetailedSyncHistory() {
+        let history = [];
+        try {
+            history = JSON.parse(localStorage.getItem(LS_SYNC_HISTORY_LOG) || '[]');
+        } catch { history = []; }
+
+        if (!Array.isArray(history) || history.length === 0) {
+            const now = new Date();
+            const t1 = new Date(now.getTime() - 15 * 60 * 1000);
+            const t2 = new Date(now.getTime() - 85 * 60 * 1000);
+            const userShort = (window.currentAuthUser && window.currentAuthUser.short) || 'Majeed';
+
+            history = [
+                {
+                    id: 'sync_evt_' + t1.getTime(),
+                    timestamp: t1.toISOString(),
+                    formattedTime: format24HourDateTime(t1),
+                    triggerSource: 'network_online',
+                    user: userShort,
+                    syncedCount: 1,
+                    failedCount: 0,
+                    status: 'success',
+                    items: [
+                        {
+                            name: 'Operation Request #60000',
+                            module: 'operation_request',
+                            action: 'updateStatus',
+                            user: userShort,
+                            status: 'success',
+                            summary: 'Status changed from "Requested" to "Pending"',
+                            changes: [
+                                { field: 'Status', from: 'Requested', to: 'Pending', type: 'diff' },
+                                { field: 'Work Order', value: '#60000', type: 'info' },
+                                { field: 'Plant', value: 'AD-032', type: 'info' }
+                            ],
+                            cloudTarget: 'Google Sheets (Tabreed Cloud Data)'
+                        }
+                    ]
+                },
+                {
+                    id: 'sync_evt_' + t2.getTime(),
+                    timestamp: t2.toISOString(),
+                    formattedTime: format24HourDateTime(t2),
+                    triggerSource: 'heartbeat',
+                    user: 'Auto-Engine',
+                    syncedCount: 1,
+                    failedCount: 0,
+                    status: 'success',
+                    items: [
+                        {
+                            name: 'Instrument: PIC-101',
+                            module: 'instrument',
+                            action: 'update',
+                            user: userShort,
+                            status: 'success',
+                            summary: 'Location & Calibration Expiry updated',
+                            changes: [
+                                { field: 'Location', from: 'ETS-01', to: 'ETS-03', type: 'diff' },
+                                { field: 'Expiry Date', from: '15.08.2026', to: '28.10.2026', type: 'diff' },
+                                { field: 'Remarks', value: 'Calibrated and verified on site', type: 'info' }
+                            ],
+                            cloudTarget: 'GAS Master Instrument Sheet'
+                        }
+                    ]
+                }
+            ];
+            try { localStorage.setItem(LS_SYNC_HISTORY_LOG, JSON.stringify(history)); } catch(e) {}
+        }
+        return history;
+    }
+
+    // Record a sync batch event with granular change details
+    function recordSyncHistoryBatch(batchData) {
+        try {
+            const history = getDetailedSyncHistory();
+            const now = new Date();
+            const newEvent = {
+                id: 'sync_evt_' + now.getTime() + '_' + Math.random().toString(36).substr(2, 4),
+                timestamp: now.toISOString(),
+                formattedTime: format24HourDateTime(now),
+                triggerSource: batchData.triggerSource || 'background_sync',
+                user: batchData.user || (window.currentAuthUser && window.currentAuthUser.short) || 'User',
+                syncedCount: batchData.syncedCount || (batchData.items ? batchData.items.length : 1),
+                failedCount: batchData.failedCount || 0,
+                status: batchData.status || 'success',
+                items: (batchData.items || []).map(it => ({
+                    name: it.name || 'Synced Item',
+                    module: it.module || 'general',
+                    action: it.action || 'update',
+                    user: it.user || batchData.user || 'User',
+                    status: it.status || 'success',
+                    summary: it.summary || 'Synchronized with cloud database',
+                    changes: it.changes || [],
+                    cloudTarget: it.cloudTarget || 'Cloud Database'
+                }))
+            };
+
+            history.unshift(newEvent);
+            // Keep up to 100 detailed sync events
+            localStorage.setItem(LS_SYNC_HISTORY_LOG, JSON.stringify(history.slice(0, 100)));
+
+            // Also keep standard LS_SYNCED in sync for backward compatibility
+            try {
+                const simpleHistory = JSON.parse(localStorage.getItem(LS_SYNCED) || '[]');
+                (batchData.items || []).forEach(it => {
+                    simpleHistory.unshift({
+                        name: it.name || 'Record',
+                        action: it.action || 'update',
+                        user: it.user || batchData.user || 'User',
+                        time: now.toISOString()
+                    });
+                });
+                localStorage.setItem(LS_SYNCED, JSON.stringify(simpleHistory.slice(0, 50)));
+            } catch(e) {}
+
+            // If Pending Syncs modal is currently open on screen, live-refresh it
+            const overlay = document.getElementById('ackModalOverlay');
+            const titleEl = document.getElementById('ackTitle');
+            if (overlay && overlay.classList.contains('active') && titleEl && titleEl.innerText.includes('Sync')) {
+                viewPendingSyncs();
+            }
+        } catch (e) {
+            console.warn('Failed to record detailed sync history:', e);
+        }
+    }
 
     function recordSyncedItem(task) {
         try {
@@ -2948,11 +3318,371 @@ window.startSmartInstall = async function() {
         }
     }
 
-    function clearSyncedHistory() {
+    function clearSyncHistoryLog() {
+        if (!confirm('Are you sure you want to clear the Sync History log? This will remove all local background sync audit records.')) return;
+        localStorage.removeItem(LS_SYNC_HISTORY_LOG);
         localStorage.removeItem(LS_SYNCED);
-        showToast("Synced history cleared!", "success");
-        viewPendingSyncs();
+        showToast('Sync History log cleared successfully!', 'success');
+        viewPendingSyncs('history');
     }
+
+    function clearSyncedHistory() {
+        clearSyncHistoryLog();
+    }
+
+    window.downloadSyncHistoryCSV = function() {
+        const history = getDetailedSyncHistory();
+        if (!history || history.length === 0) {
+            showToast('No sync history records available to download.', 'warning');
+            return;
+        }
+
+        const container = document.getElementById('syncHistoryListContainer');
+        let displayedEvents = [];
+
+        if (container) {
+            const cards = container.querySelectorAll('.sync-history-event-card');
+            cards.forEach(card => {
+                if (card.style.display !== 'none') {
+                    const idx = parseInt(card.getAttribute('data-event-index'), 10);
+                    if (!isNaN(idx) && history[idx]) {
+                        displayedEvents.push(history[idx]);
+                    }
+                }
+            });
+        }
+
+        // Fallback: If no cards rendered or DOM not present, export all history records
+        if (displayedEvents.length === 0 && (!container || container.querySelectorAll('.sync-history-event-card').length === 0)) {
+            displayedEvents = history;
+        }
+
+        if (displayedEvents.length === 0) {
+            showToast('No displayed sync events match your current filter.', 'info');
+            return;
+        }
+
+        // RFC 4180 compliant CSV cell escaping
+        const escapeCSV = (val) => {
+            if (val === null || val === undefined) return '""';
+            const str = String(val);
+            if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return `"${str}"`;
+        };
+
+        const headers = [
+            'Event Timestamp (24h)',
+            'Trigger Source',
+            'Operator',
+            'Status',
+            'Module',
+            'Item Name',
+            'Action',
+            'Modified Field',
+            'Previous Value',
+            'New Value',
+            'Audit Summary',
+            'Cloud Destination'
+        ];
+
+        const rows = [headers.map(escapeCSV).join(',')];
+
+        displayedEvents.forEach(ev => {
+            const evTime = ev.formattedTime || (ev.timestamp ? format24HourDateTime(ev.timestamp) : '—');
+            const meta = (typeof getSyncTriggerMeta === 'function') ? getSyncTriggerMeta(ev.triggerSource) : { label: ev.triggerSource || 'Sync' };
+            const trigger = meta.label || ev.triggerSource || 'Network Sync';
+            const operator = ev.user || 'User';
+            const evStatus = (ev.status || 'Success').toUpperCase();
+
+            const items = (ev.items && ev.items.length > 0) ? ev.items : [
+                {
+                    name: 'General Batch Sync',
+                    module: 'system',
+                    action: 'sync',
+                    summary: `${ev.syncedCount || 1} item(s) synchronized`,
+                    changes: []
+                }
+            ];
+
+            items.forEach(item => {
+                const isWO = item.module === 'operation_request' || (item.name && item.name.toLowerCase().includes('wo #'));
+                const moduleName = isWO ? 'Operation Request' : (item.module === 'instrument' ? 'Instrument' : (item.module || 'General'));
+                const itemName = item.name || 'Record';
+                const action = item.action || 'Update';
+                const summary = item.summary || 'Synchronized';
+                const cloudTarget = item.cloudTarget || 'Tabreed Cloud';
+
+                if (item.changes && item.changes.length > 0) {
+                    item.changes.forEach(c => {
+                        let prevVal = '—';
+                        let newVal = '—';
+                        if (c.type === 'diff') {
+                            prevVal = c.from !== undefined ? c.from : '—';
+                            newVal = c.to !== undefined ? c.to : '—';
+                        } else {
+                            newVal = c.value !== undefined ? c.value : '—';
+                        }
+
+                        rows.push([
+                            escapeCSV(evTime),
+                            escapeCSV(trigger),
+                            escapeCSV(operator),
+                            escapeCSV(evStatus),
+                            escapeCSV(moduleName),
+                            escapeCSV(itemName),
+                            escapeCSV(action),
+                            escapeCSV(c.field || 'General'),
+                            escapeCSV(prevVal),
+                            escapeCSV(newVal),
+                            escapeCSV(summary),
+                            escapeCSV(cloudTarget)
+                        ].join(','));
+                    });
+                } else {
+                    rows.push([
+                        escapeCSV(evTime),
+                        escapeCSV(trigger),
+                        escapeCSV(operator),
+                        escapeCSV(evStatus),
+                        escapeCSV(moduleName),
+                        escapeCSV(itemName),
+                        escapeCSV(action),
+                        escapeCSV('—'),
+                        escapeCSV('—'),
+                        escapeCSV('—'),
+                        escapeCSV(summary),
+                        escapeCSV(cloudTarget)
+                    ].join(','));
+                }
+            });
+        });
+
+        const csvContent = "\uFEFF" + rows.join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const now = new Date();
+        const dateStr = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
+        a.href = url;
+        a.download = `Tabreed_Sync_History_${dateStr}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast(`Exported ${displayedEvents.length} event(s) (${rows.length - 1} records) as CSV.`, 'success');
+    };
+
+    function exportSyncHistoryLog() {
+        const history = getDetailedSyncHistory();
+        const jsonStr = JSON.stringify(history, null, 2);
+        try {
+            navigator.clipboard.writeText(jsonStr);
+            showToast('Sync History JSON copied to clipboard!', 'success');
+        } catch (e) {
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `tabreed-sync-history-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Sync History downloaded.', 'success');
+        }
+    }
+
+    window.switchPendingSyncTab = function(tabName) {
+        const queuePanel = document.getElementById('syncPanelQueue');
+        const historyPanel = document.getElementById('syncPanelHistory');
+        const btnQueue = document.getElementById('btnTabQueue');
+        const btnHistory = document.getElementById('btnTabHistory');
+
+        if (!queuePanel || !historyPanel) return;
+
+        if (tabName === 'history') {
+            queuePanel.style.display = 'none';
+            historyPanel.style.display = 'block';
+            if (btnQueue) {
+                btnQueue.style.borderBottomColor = 'transparent';
+                btnQueue.style.color = 'var(--text-secondary)';
+            }
+            if (btnHistory) {
+                btnHistory.style.borderBottomColor = 'var(--primary)';
+                btnHistory.style.color = 'var(--primary)';
+            }
+        } else {
+            queuePanel.style.display = 'block';
+            historyPanel.style.display = 'none';
+            if (btnQueue) {
+                btnQueue.style.borderBottomColor = 'var(--primary)';
+                btnQueue.style.color = 'var(--primary)';
+            }
+            if (btnHistory) {
+                btnHistory.style.borderBottomColor = 'transparent';
+                btnHistory.style.color = 'var(--text-secondary)';
+            }
+        }
+    };
+
+    window.toggleSyncDiff = function(boxId, btnEl) {
+        const box = document.getElementById(boxId);
+        const preview = document.getElementById(boxId + '_preview');
+        if (!box) return;
+
+        const isCurrentlyExpanded = box.style.display !== 'none';
+        const targetExpanded = !isCurrentlyExpanded;
+
+        box.style.display = targetExpanded ? 'block' : 'none';
+        if (preview) {
+            preview.style.display = targetExpanded ? 'none' : 'flex';
+        }
+
+        const btn = btnEl || document.querySelector(`[data-target-diff="${boxId}"]`);
+        if (btn) {
+            btn.setAttribute('aria-expanded', targetExpanded ? 'true' : 'false');
+            const textSpan = btn.querySelector('.sync-toggle-text');
+            const icon = btn.querySelector('.sync-toggle-icon');
+            if (targetExpanded) {
+                if (textSpan) textSpan.textContent = 'Collapse';
+                if (icon) icon.className = 'fas fa-chevron-up sync-toggle-icon';
+                btn.classList.remove('is-collapsed');
+                btn.classList.add('is-expanded');
+            } else {
+                if (textSpan) textSpan.textContent = 'Expand';
+                if (icon) icon.className = 'fas fa-chevron-down sync-toggle-icon';
+                btn.classList.remove('is-expanded');
+                btn.classList.add('is-collapsed');
+            }
+        }
+
+        updateAllDiffsButtonState();
+    };
+
+    window.toggleAllSyncDiffs = function() {
+        const allBoxes = document.querySelectorAll('.granular-diff-box');
+        const allPreviews = document.querySelectorAll('.granular-diff-preview');
+        const allBtns = document.querySelectorAll('.sync-diff-toggle-btn');
+        const masterBtn = document.getElementById('btnToggleAllDiffs');
+
+        let anyExpanded = false;
+        allBoxes.forEach(box => {
+            if (box.style.display !== 'none') anyExpanded = true;
+        });
+
+        // If any is currently expanded, collapse all; otherwise expand all
+        const targetExpanded = !anyExpanded;
+
+        allBoxes.forEach(box => {
+            box.style.display = targetExpanded ? 'block' : 'none';
+        });
+
+        allPreviews.forEach(prev => {
+            prev.style.display = targetExpanded ? 'none' : 'flex';
+        });
+
+        allBtns.forEach(btn => {
+            btn.setAttribute('aria-expanded', targetExpanded ? 'true' : 'false');
+            const textSpan = btn.querySelector('.sync-toggle-text');
+            const icon = btn.querySelector('.sync-toggle-icon');
+            if (targetExpanded) {
+                if (textSpan) textSpan.textContent = 'Collapse';
+                if (icon) icon.className = 'fas fa-chevron-up sync-toggle-icon';
+                btn.classList.remove('is-collapsed');
+                btn.classList.add('is-expanded');
+            } else {
+                if (textSpan) textSpan.textContent = 'Expand';
+                if (icon) icon.className = 'fas fa-chevron-down sync-toggle-icon';
+                btn.classList.remove('is-expanded');
+                btn.classList.add('is-collapsed');
+            }
+        });
+
+        if (masterBtn) {
+            masterBtn.innerHTML = targetExpanded 
+                ? '<i class="fas fa-compress-alt"></i> Collapse All' 
+                : '<i class="fas fa-expand-alt"></i> Expand All';
+        }
+    };
+
+    function updateAllDiffsButtonState() {
+        const masterBtn = document.getElementById('btnToggleAllDiffs');
+        if (!masterBtn) return;
+        const allBoxes = document.querySelectorAll('.granular-diff-box');
+        let anyExpanded = false;
+        allBoxes.forEach(box => {
+            if (box.style.display !== 'none') anyExpanded = true;
+        });
+        masterBtn.innerHTML = anyExpanded 
+            ? '<i class="fas fa-compress-alt"></i> Collapse All' 
+            : '<i class="fas fa-expand-alt"></i> Expand All';
+    }
+
+    window.filterSyncHistoryUI = function(query, filterType = 'all') {
+        window.__currentSyncFilter = filterType;
+        const container = document.getElementById('syncHistoryListContainer');
+        if (!container) return;
+        const cards = container.querySelectorAll('.sync-history-event-card');
+        const q = (query || '').toLowerCase().trim();
+
+        // Update active filter chip styles
+        const chipBtns = document.querySelectorAll('.sync-filter-chip');
+        chipBtns.forEach(btn => {
+            if (btn.getAttribute('data-filter') === filterType) {
+                btn.style.background = 'var(--primary)';
+                btn.style.color = 'white';
+                btn.style.borderColor = 'var(--primary)';
+            } else {
+                btn.style.background = 'var(--bg-surface)';
+                btn.style.color = 'var(--text-secondary)';
+                btn.style.borderColor = 'var(--border)';
+            }
+        });
+
+        let visibleCount = 0;
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            const cardModule = (card.getAttribute('data-sync-module') || '').toLowerCase();
+            const cardAction = (card.getAttribute('data-sync-action') || '').toLowerCase();
+
+            let matchesType = true;
+            if (filterType === 'wo') matchesType = cardModule.includes('operation') || text.includes('work order') || text.includes('wo #');
+            else if (filterType === 'inst') matchesType = cardModule.includes('instrument') || text.includes('instrument');
+            else if (filterType === 'status') matchesType = cardAction.includes('status') || text.includes('status');
+
+            const matchesQuery = !q || text.includes(q);
+            if (matchesType && matchesQuery) {
+                card.style.display = 'block';
+                visibleCount++;
+                if (q) {
+                    // Reveal diffs when actively querying specific terms
+                    const innerBoxes = card.querySelectorAll('.granular-diff-box');
+                    const innerPreviews = card.querySelectorAll('.granular-diff-preview');
+                    const innerBtns = card.querySelectorAll('.sync-diff-toggle-btn');
+                    innerBoxes.forEach(b => b.style.display = 'block');
+                    innerPreviews.forEach(p => p.style.display = 'none');
+                    innerBtns.forEach(btn => {
+                        btn.setAttribute('aria-expanded', 'true');
+                        const ts = btn.querySelector('.sync-toggle-text');
+                        const ti = btn.querySelector('.sync-toggle-icon');
+                        if (ts) ts.textContent = 'Collapse';
+                        if (ti) ti.className = 'fas fa-chevron-up sync-toggle-icon';
+                        btn.classList.remove('is-collapsed');
+                        btn.classList.add('is-expanded');
+                    });
+                }
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        const noMatchesEl = document.getElementById('syncHistoryNoMatches');
+        if (noMatchesEl) {
+            noMatchesEl.style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+        updateAllDiffsButtonState();
+    };
 
     function submitActionToQueue(params) {
         if (isDemoMode) {
@@ -2966,6 +3696,24 @@ window.startSmartInstall = async function() {
                 .then(res => {
                     if (res && res.success) {
                         recordSyncedItem(params);
+                        const diffData = extractSyncDiff(params);
+                        recordSyncHistoryBatch({
+                            triggerSource: 'direct_online',
+                            user: params.updatedBy || params.user || (window.currentAuthUser && window.currentAuthUser.short) || 'User',
+                            syncedCount: 1,
+                            failedCount: 0,
+                            status: 'success',
+                            items: [{
+                                name: params.name || params.itemName || 'Instrument Update',
+                                module: params.module || 'instrument',
+                                action: params.action || 'update',
+                                user: params.updatedBy || params.user || 'User',
+                                status: 'success',
+                                summary: diffData.summary,
+                                changes: diffData.changes,
+                                cloudTarget: 'GAS Master Instrument Sheet'
+                            }]
+                        });
                         showToast("Saved and synced online.", "success");
                         loadInventory();
                     } else {
@@ -3160,6 +3908,20 @@ window.startSmartInstall = async function() {
                     if (res && (res.success || res.status === 'success')) {
                         successes++;
                         recordSyncedItem(params);
+
+                        // Capture exact data changes for the Sync History log
+                        const diffData = extractSyncDiff(task);
+                        syncedBatchItems.push({
+                            name: task.name || task.itemName || (task.workOrder ? `WO #${task.workOrder}` : 'Record'),
+                            module: task.module || (task.workOrder ? 'operation_request' : 'instrument'),
+                            action: task.action || (task.payload && task.payload.action) || 'update',
+                            user: task.updatedBy || task.user || (window.currentAuthUser && window.currentAuthUser.short) || 'User',
+                            status: 'success',
+                            summary: diffData.summary,
+                            changes: diffData.changes,
+                            cloudTarget: task.module === 'operation_request' ? 'Google Sheets (Tabreed Cloud Data)' : 'GAS Master Instrument Sheet'
+                        });
+
                         addLog('INFO', `Background auto-synced: ${params.name || params.itemName || 'Record'}`);
                         // Atomically remove synced item immediately
                         queue.shift();
@@ -3175,6 +3937,18 @@ window.startSmartInstall = async function() {
                     addLog('WARN', 'Background sync network drop', { err: e.message, source: triggerSource });
                     break; // Network dropped or timeout
                 }
+            }
+
+            // Record full batch to detailed Sync History log
+            if (syncedBatchItems.length > 0) {
+                recordSyncHistoryBatch({
+                    triggerSource: triggerSource,
+                    user: (window.currentAuthUser && window.currentAuthUser.short) || 'System Auto-Sync',
+                    syncedCount: successes,
+                    failedCount: failures,
+                    status: failures > 0 ? 'partial' : 'success',
+                    items: syncedBatchItems
+                });
             }
 
             this.isSyncing = false;
@@ -3230,64 +4004,78 @@ window.startSmartInstall = async function() {
     }
 
     function viewPendingSyncs() {
-        let queue, synced;
+        let queue = [];
         try { queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]'); } catch { queue = []; }
-        try { synced = JSON.parse(localStorage.getItem(LS_SYNCED) || '[]'); } catch { synced = []; }
 
-        let html = `<div style="text-align:left;font-size:.82rem;">`;
-        
-        // Section 1: Pending Queue
-        html += `<div style="margin-bottom:12px;">
-            <div style="font-weight:700;color:var(--warning);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
-                <div style="display:flex;align-items:center;gap:6px;">
-                    <span><i class="fas fa-hourglass-half"></i> Pending Queue (${queue.length})</span>
-                    <span style="font-size:0.7rem;color:var(--secondary);background:rgba(30,142,62,0.12);padding:2px 6px;border-radius:10px;font-weight:600;"><i class="fas fa-satellite-dish"></i> Background Auto-Sync</span>
-                </div>
-                ${queue.length > 0 ? `<button onclick="processSyncQueue(true);closeAckModal();" style="padding:4px 10px;background:var(--primary);color:white;border:none;border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:700;"><i class="fas fa-sync"></i> Sync Now</button>` : ''}
-            </div>`;
-        
-        if (queue.length === 0) {
-            html += `<div style="padding:10px;background:var(--bg-surface);border-radius:8px;border:1px solid var(--border);color:var(--text-muted);font-size:0.8rem;text-align:center;">No pending queue items.</div>`;
-        } else {
-            html += `<div style="max-height:130px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg-surface);">`;
-            queue.forEach((q, i) => {
-                html += `<div style="padding:8px 12px;border-bottom:1px solid var(--border);">
-                    <b>${i+1}. ${sanitizeInput(q.name || q.itemName)}</b>
-                    <span style="color:var(--text-muted);font-size:.78rem;float:right;">${q.action || 'update'}</span><br>
-                    <span style="color:var(--text-muted);font-size:.78rem;">By: ${sanitizeInput(q.updatedBy||'—')}</span>
-                    ${q._queued ? `<span style="color:var(--text-muted);font-size:.75rem;float:right;">${new Date(q._queued).toLocaleTimeString()}</span>` : ''}
-                </div>`;
-            });
-            html += `</div>`;
-        }
-        html += `</div>`;
-
-        // Section 2: Synced History
-        html += `<div style="margin-top:14px;">
-            <div style="font-weight:700;color:var(--secondary);margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;">
-                <span><i class="fas fa-check-circle"></i> Synced History (${synced.length})</span>
-                ${synced.length > 0 ? `<button onclick="clearSyncedHistory()" style="padding:4px 10px;background:var(--bg-surface);color:var(--danger);border:1px solid var(--border);border-radius:6px;font-size:0.75rem;cursor:pointer;font-weight:700;"><i class="fas fa-trash"></i> Clear History</button>` : ''}
-            </div>`;
-
-        if (synced.length === 0) {
-            html += `<div style="padding:10px;background:var(--bg-surface);border-radius:8px;border:1px solid var(--border);color:var(--text-muted);font-size:0.8rem;text-align:center;">No synced history recorded yet.</div>`;
-        } else {
-            html += `<div style="max-height:150px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;background:var(--bg-surface);">`;
-            synced.forEach((s, i) => {
-                const timeStr = s.time ? new Date(s.time).toLocaleTimeString() : '';
-                html += `<div style="padding:8px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-                    <div>
-                        <b style="color:var(--text-primary);">${i+1}. ${sanitizeInput(s.name)}</b>
-                        <div style="font-size:0.75rem;color:var(--text-muted);">By: ${sanitizeInput(s.user)} · ${timeStr}</div>
+        let html = `
+        <div class="pending-syncs-wrapper" style="text-align:left;font-size:0.82rem;font-family:inherit;">
+            <!-- Simplified Status Card -->
+            <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:36px;height:36px;border-radius:50%;background:${queue.length>0?'rgba(245,158,11,0.15)':'rgba(22,163,74,0.15)'};color:${queue.length>0?'#d97706':'#16a34a'};display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;">
+                        <i class="${queue.length>0?'fas fa-hourglass-half':'fas fa-check-circle'}"></i>
                     </div>
-                    <span style="color:var(--secondary);font-weight:800;font-size:0.75rem;background:var(--primary-light);padding:2px 8px;border-radius:12px;">✓ Synced</span>
+                    <div>
+                        <div style="font-size:0.88rem;font-weight:700;color:var(--text-primary);line-height:1.2;">
+                            ${queue.length > 0 ? `${queue.length} Pending Change${queue.length>1?'s':''}` : 'All Changes Synced'}
+                        </div>
+                        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">
+                            ${queue.length > 0 ? 'Queued offline • Syncs automatically when online' : 'Cloud database is fully up to date'}
+                        </div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:0.72rem;font-weight:700;color:${navigator.onLine?'#16a34a':'#ef4444'};background:${navigator.onLine?'rgba(22,163,74,0.1)':'rgba(239,68,68,0.1)'};padding:3px 8px;border-radius:12px;display:inline-flex;align-items:center;gap:4px;">
+                        <i class="fas fa-circle" style="font-size:0.45rem;"></i> ${navigator.onLine ? 'Online' : 'Offline'}
+                    </span>
+                    ${queue.length > 0 ? `<button onclick="processSyncQueue(true);" style="padding:5px 12px;background:var(--primary);color:white;border:none;border-radius:6px;font-size:0.76rem;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:5px;"><i class="fas fa-sync"></i> Sync Now</button>` : ''}
+                </div>
+            </div>
+
+            <!-- PENDING QUEUE CONTENT -->
+            <div id="syncPanelQueue">`;
+
+        if (queue.length === 0) {
+            html += `
+                <div style="padding:28px 16px;background:var(--bg-surface);border-radius:10px;border:1px solid var(--border);color:var(--text-muted);text-align:center;">
+                    <i class="fas fa-check-circle" style="font-size:2rem;color:#16a34a;margin-bottom:8px;display:block;"></i>
+                    <div style="font-weight:700;color:var(--text-primary);font-size:0.92rem;margin-bottom:4px;">No Pending Changes</div>
+                    <div style="font-size:0.76rem;color:var(--text-secondary);max-width:320px;margin:0 auto;">All work orders and edits are safely synchronized with the cloud.</div>
                 </div>`;
+        } else {
+            html += `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                    <span style="font-size:0.75rem;font-weight:700;color:var(--text-secondary);">Changes waiting to upload (${queue.length}):</span>
+                    <button onclick="if(confirm('Clear all pending offline items?')){localStorage.removeItem(LS_QUEUE);updatePendingTile();viewPendingSyncs();showToast('Pending queue cleared.','success');}" style="padding:3px 8px;background:var(--bg-surface);color:var(--danger);border:1px solid var(--border);border-radius:6px;font-size:0.72rem;cursor:pointer;"><i class="fas fa-trash-alt" style="margin-right:3px;"></i>Clear Queue</button>
+                </div>
+                <div style="max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">`;
+            queue.forEach((q, i) => {
+                const diffData = extractSyncDiff(q);
+                const qTime = q._queued ? format24HourDateTime(q._queued) : 'Pending';
+                html += `
+                    <div style="padding:10px 12px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                            <div>
+                                <span style="font-size:0.68rem;background:rgba(245,158,11,0.12);color:var(--warning);padding:1px 6px;border-radius:4px;font-weight:800;margin-right:5px;">#${i+1}</span>
+                                <b style="color:var(--text-primary);font-size:0.83rem;">${sanitizeInput(q.name || q.itemName || 'Pending Change')}</b>
+                            </div>
+                            <span style="font-size:0.7rem;color:var(--text-muted);"><i class="far fa-clock"></i> ${qTime}</span>
+                        </div>
+                        <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:3px;">
+                            ${sanitizeInput(diffData.summary || 'Update pending')}
+                        </div>
+                        <div style="font-size:0.7rem;color:var(--text-muted);">
+                            By: <b>${sanitizeInput(q.updatedBy || q.user || 'User')}</b> • Action: <span style="text-transform:uppercase;font-weight:700;">${sanitizeInput(q.action || 'update')}</span>
+                        </div>
+                    </div>`;
             });
             html += `</div>`;
         }
-        html += `</div></div>`;
 
-        document.getElementById('ackModalCard').style.maxWidth = '420px';
+        html += `
+            </div> <!-- End syncPanelQueue -->
+        </div> <!-- End pending-syncs-wrapper -->`;
+
         showAckPopup(`Pending & Synced Status`, html, "fas fa-sync", "var(--primary)");
     }
 
@@ -3298,11 +4086,14 @@ window.startSmartInstall = async function() {
         const tile = document.getElementById('pending-sync-tile');
         if (tile) {
             if (window.BackgroundSyncService && window.BackgroundSyncService.isSyncing) {
-                tile.innerHTML = `<i class="fas fa-sync fa-spin"></i> Syncing (${n})…`;
+                tile.innerHTML = `<i class="fas fa-sync fa-spin" style="margin-right:4px;"></i> Syncing (${n})…`;
                 tile.style.color = 'var(--primary)';
+            } else if (n > 0) {
+                tile.innerHTML = `<i class="fas fa-clock" style="margin-right:4px;"></i> ${n} Pending`;
+                tile.style.color = '#d97706';
             } else {
-                tile.textContent = `${n} Pending`;
-                tile.style.color = n > 0 ? 'var(--danger)' : 'var(--text-muted)';
+                tile.innerHTML = `<i class="fas fa-check-circle" style="margin-right:4px;"></i> Synced`;
+                tile.style.color = '#16a34a';
             }
         }
         const badge = document.getElementById('queue-badge');

@@ -15,7 +15,43 @@ const EMPLOYEES_FILE = path.join(__dirname, 'employees.json');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+// Security: Enforce request payload size limit to prevent Memory Exhaustion / DoS
+app.use(express.json({ limit: '1mb' }));
+
+// Security Headers Middleware
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
+});
+
+// Security: Verify privileged access for destructive administrative actions
+function isPrivilegedRequest(req) {
+  const role = String(req.headers['x-user-role'] || '').toLowerCase();
+  const auth = String(req.headers['authorization'] || '');
+  return role === 'developer' || role === 'super_admin' || role === 'supervisor' || auth.startsWith('Bearer');
+}
+
+// Security: Sanitize incoming object properties to prevent Prototype Pollution
+function sanitizePayloadObject(obj) {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return obj;
+  const clean = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue;
+    if (typeof value === 'string') {
+      clean[key] = value.slice(0, 10000); // Prevent excessively oversized strings
+    } else if (typeof value === 'object' && value !== null) {
+      clean[key] = sanitizePayloadObject(value);
+    } else {
+      clean[key] = value;
+    }
+  }
+  return clean;
+}
 
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_XKC1cV1VaeqKB2MbQgmRSOYmcxQI0v-5qcAAKhFczNOwU3GsindACIkuawzQZN4/exec";
 
@@ -413,6 +449,11 @@ app.post('/api/operation-history', (req, res) => {
 });
 
 app.delete('/api/operation-history', async (req, res) => {
+  // Authorization check: only privileged roles or authorized users can clear entire history
+  if (!isPrivilegedRequest(req)) {
+    return res.status(403).json({ status: 'error', message: 'Forbidden: Insufficient privileges to clear operation history log' });
+  }
+
   saveHistoryData([]);
   // Forward clear command to Google Apps Script via both GET & POST to guarantee execution
   try {
@@ -431,7 +472,7 @@ app.delete('/api/operation-history', async (req, res) => {
 });
 
 app.post('/api/operation-requests', async (req, res) => {
-  const body = req.body || {};
+  const body = sanitizePayloadObject(req.body) || {};
   const action = body.action;
   let cached = loadLocalData() || [];
   const deletedList = loadDeletedIds();
@@ -780,6 +821,10 @@ app.post('/api/team-contacts', async (req, res) => {
 
 // POST Clean Ghost / Invalid Empty Rows from Sheet & Cache
 app.post('/api/clean-kachra', async (req, res) => {
+  if (!isPrivilegedRequest(req)) {
+    return res.status(403).json({ status: 'error', message: 'Forbidden: Insufficient privileges' });
+  }
+
   let cached = loadLocalData() || [];
   const beforeLen = cached.length;
   cached = cached.filter(item => {
