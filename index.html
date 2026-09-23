@@ -5067,7 +5067,11 @@ window.startSmartInstall = async function() {
                 showToast('Push Dispatcher is restricted to Developer only.', 'error');
                 return;
             }
-            openPushNotificationModal();
+            // Launch All-in-One Push Notification Studio & Tester
+            const win = window.open('/push-tester.html', '_blank');
+            if (!win || win.closed || typeof win.closed === 'undefined') {
+                openPushNotificationModal();
+            }
         }
         else window.location.href = destination;
     }

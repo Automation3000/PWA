@@ -689,5 +689,6 @@ window.PushNotificationManager = {
   requestPermission: requestNotificationPermission,
   runDiagnostics: runPushDiagnostics,
   getDispatchLog,
+  clearDispatchLog,
   recordDispatchLog
 };
