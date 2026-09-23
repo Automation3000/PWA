@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Automation App">
-    <link rel="manifest" href="https://tabreed.automation3000.com/manifest.json" />
+    <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" href="icon-192.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png" />
     <link rel="apple-touch-icon" sizes="152x152" href="icon-144.png" />
@@ -5212,20 +5212,39 @@ window.startSmartInstall = async function() {
 
         <!-- Body (Scrollable) -->
         <div style="padding:16px;overflow-y:auto;flex:1;font-size:0.83rem;display:flex;flex-direction:column;gap:14px;">
+            <!-- Permission Status & Standalone Launch Bar -->
+            <div id="pushPermissionBanner" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);border-radius:10px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:0.75rem;font-weight:700;color:var(--text-primary);"><i class="fas fa-bell"></i> Notification Permission:</span>
+                    <span id="pushModalPermBadge" style="font-size:0.7rem;padding:2px 8px;border-radius:5px;font-weight:700;background:rgba(245,158,11,0.15);color:#f59e0b;">Checking...</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                    <button type="button" id="btnModalRequestPerm" onclick="requestPushPermissionFromModal()" style="padding:4px 10px;font-size:0.72rem;background:var(--primary);color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+                        <i class="fas fa-key"></i> Enable
+                    </button>
+                    <a href="/push-tester.html" target="_blank" style="padding:4px 10px;font-size:0.72rem;background:var(--bg-card);color:var(--primary);border:1px solid var(--border);border-radius:6px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                        <i class="fas fa-external-link-alt"></i> Standalone Tester
+                    </a>
+                </div>
+            </div>
+
             <!-- Status & Endpoints Toolbar -->
             <div style="background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
                 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                     <span id="pushGasBadge" style="font-size:0.7rem;padding:3px 8px;border-radius:6px;background:rgba(22,163,74,0.12);color:#16a34a;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
-                        <i class="fas fa-file-excel"></i> Google Sheets
+                        <i class="fas fa-file-excel"></i> Google Sheets (Fixed)
                     </span>
                     <span id="pushNodeBadge" style="font-size:0.7rem;padding:3px 8px;border-radius:6px;background:rgba(37,99,235,0.12);color:#2563eb;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
-                        <i class="fas fa-cube"></i> Self-Hosted Engine
+                        <i class="fas fa-cube"></i> Node.js (Automation3000/PWA)
                     </span>
                     <span id="pushActiveSubscribers" style="font-size:0.7rem;padding:3px 8px;border-radius:6px;background:rgba(245,158,11,0.12);color:#d97706;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
                         <i class="fas fa-mobile-alt"></i> <span>Checking...</span>
                     </span>
                 </div>
                 <div style="display:flex;align-items:center;gap:6px;">
+                    <button type="button" onclick="runModalPushDiagnostic()" style="padding:3px 9px;font-size:0.72rem;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--primary);cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+                        <i class="fas fa-vial"></i> Test Standalone
+                    </button>
                     <button type="button" onclick="togglePushConfigSection()" style="padding:3px 9px;font-size:0.72rem;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text-secondary);cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
                         <i class="fas fa-sliders-h"></i> Config
                     </button>
@@ -5245,12 +5264,12 @@ window.startSmartInstall = async function() {
                 </div>
                 <div style="display:flex;flex-direction:column;gap:8px;">
                     <div>
-                        <label style="display:block;font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;font-weight:600;">Google Apps Script Web App URL (Google Sheets Backup):</label>
-                        <input type="text" id="pushGasInput" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;padding:6px 9px;font-size:0.74rem;border:1px solid var(--border);border-radius:6px;background:var(--input-bg);color:var(--text-primary);box-sizing:border-box;">
+                        <label style="display:block;font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;font-weight:600;">Google Apps Script Web App URL (Fixed in System):</label>
+                        <input type="text" id="pushGasInput" value="https://script.google.com/macros/s/AKfycbxr-HQedn7rqxJ9zP7JmDnLtHnp8ad8PhQ0v8bpBI8pOvw8D4P14OI_ojVKyUBOzDdN/exec" style="width:100%;padding:6px 9px;font-size:0.74rem;border:1px solid var(--border);border-radius:6px;background:var(--input-bg);color:var(--text-primary);box-sizing:border-box;">
                     </div>
                     <div>
-                        <label style="display:block;font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;font-weight:600;">Node.js Push Engine (Self-contained in this GitHub repo / server.js):</label>
-                        <input type="text" id="pushNodeInput" placeholder="Self-Hosted Native (/api/push) - No 3rd party needed" style="width:100%;padding:6px 9px;font-size:0.74rem;border:1px solid var(--border);border-radius:6px;background:var(--input-bg);color:var(--text-primary);box-sizing:border-box;">
+                        <label style="display:block;font-size:0.7rem;color:var(--text-muted);margin-bottom:3px;font-weight:600;">Node.js Push Engine (Repository: Automation3000/PWA / server.js):</label>
+                        <input type="text" id="pushNodeInput" placeholder="Self-Hosted Native (/api/push) - Automation3000/PWA" style="width:100%;padding:6px 9px;font-size:0.74rem;border:1px solid var(--border);border-radius:6px;background:var(--input-bg);color:var(--text-primary);box-sizing:border-box;">
                     </div>
                     <div style="display:flex;justify-content:flex-end;margin-top:2px;">
                         <button type="button" onclick="savePushEndpointsFromUI()" style="padding:4px 14px;background:var(--primary);color:white;border:none;border-radius:6px;font-size:0.75rem;font-weight:700;cursor:pointer;">
@@ -5360,44 +5379,89 @@ function openPushNotificationModal() {
     const modal = document.getElementById('pushDispatcherModal');
     if (!modal) return;
 
+    // Fixed Google Apps Script URL prefill
+    const FIXED_DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxr-HQedn7rqxJ9zP7JmDnLtHnp8ad8PhQ0v8bpBI8pOvw8D4P14OI_ojVKyUBOzDdN/exec';
+    if (!localStorage.getItem('tabreed_gas_push_url')) {
+        localStorage.setItem('tabreed_gas_push_url', FIXED_DEFAULT_GAS_URL);
+    }
+
     // Prefill endpoint inputs
     const gasInp = document.getElementById('pushGasInput');
     const nodeInp = document.getElementById('pushNodeInput');
     const gasBadge = document.getElementById('pushGasBadge');
     const nodeBadge = document.getElementById('pushNodeBadge');
 
-    const gasUrl = localStorage.getItem('tabreed_gas_push_url') || (window.PushNotificationManager ? PushNotificationManager.config.gasWebhookUrl : '');
-    const nodeUrl = localStorage.getItem('tabreed_node_push_url') || (window.PushNotificationManager ? PushNotificationManager.config.nodeServerUrl : '');
+    const gasUrl = localStorage.getItem('tabreed_gas_push_url') || FIXED_DEFAULT_GAS_URL;
+    const nodeUrl = localStorage.getItem('tabreed_node_push_url') || (window.PushNotificationManager ? PushNotificationManager.config.nodeServerUrl : window.location.origin);
 
-    const hasGas = gasUrl && gasUrl !== 'YOUR_GOOGLE_APPS_SCRIPT_WEBAPP_URL';
-    const hasNode = nodeUrl && nodeUrl !== 'YOUR_NODEJS_PUSH_SERVER_URL';
-
-    if (gasInp) gasInp.value = hasGas ? gasUrl : '';
-    if (nodeInp) nodeInp.value = hasNode ? nodeUrl : '';
+    if (gasInp) gasInp.value = gasUrl;
+    if (nodeInp) nodeInp.value = nodeUrl;
 
     if (gasBadge) {
-        if (hasGas) {
-            gasBadge.style.background = 'rgba(22,163,74,0.12)';
-            gasBadge.style.color = '#16a34a';
-            gasBadge.innerHTML = '<i class="fas fa-check-circle"></i> GAS Connected';
-        } else {
-            gasBadge.style.background = 'rgba(245,158,11,0.12)';
-            gasBadge.style.color = '#d97706';
-            gasBadge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> GAS Needed';
-        }
+        gasBadge.style.background = 'rgba(22,163,74,0.12)';
+        gasBadge.style.color = '#16a34a';
+        gasBadge.innerHTML = '<i class="fas fa-check-circle"></i> Google Sheets (Fixed)';
     }
 
     if (nodeBadge) {
         nodeBadge.style.background = 'rgba(37,99,235,0.12)';
         nodeBadge.style.color = '#2563eb';
-        nodeBadge.innerHTML = '<i class="fas fa-check-circle"></i> Engine Ready (Self-Hosted)';
+        nodeBadge.innerHTML = '<i class="fas fa-cube"></i> Node.js (Automation3000/PWA)';
     }
 
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 
+    updateModalPermissionStatus();
     refreshSubscriberStats();
     renderPushDispatchLogs();
+}
+
+function updateModalPermissionStatus() {
+    const permBadge = document.getElementById('pushModalPermBadge');
+    if (!permBadge) return;
+    const perm = ('Notification' in window) ? Notification.permission : 'unsupported';
+    if (perm === 'granted') {
+        permBadge.style.background = 'rgba(22,163,74,0.15)';
+        permBadge.style.color = '#16a34a';
+        permBadge.innerHTML = '<i class="fas fa-check-circle"></i> Granted';
+    } else if (perm === 'denied') {
+        permBadge.style.background = 'rgba(239,68,68,0.15)';
+        permBadge.style.color = '#ef4444';
+        permBadge.innerHTML = '<i class="fas fa-times-circle"></i> Denied (Blocked)';
+    } else {
+        permBadge.style.background = 'rgba(245,158,11,0.15)';
+        permBadge.style.color = '#f59e0b';
+        permBadge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Not Enabled (Click Enable)';
+    }
+}
+
+async function requestPushPermissionFromModal() {
+    if (!window.PushNotificationManager) return;
+    showToast('Requesting browser notification permission...', 'info');
+    try {
+        const res = await PushNotificationManager.requestPermission();
+        updateModalPermissionStatus();
+        if (res === 'granted') {
+            showToast('Notification permission granted successfully!', 'success');
+            PushNotificationManager.subscribe();
+        } else {
+            showToast('Permission not granted. Opening Standalone Tester is recommended.', 'warning');
+        }
+    } catch (e) {
+        showToast('Permission note: ' + e.message, 'error');
+    }
+}
+
+async function runModalPushDiagnostic() {
+    if (!window.PushNotificationManager) return;
+    showToast('Running Push Diagnostics...', 'info');
+    const diag = await PushNotificationManager.runDiagnostics();
+    updateModalPermissionStatus();
+    
+    const summary = `Push Diagnostics Summary:\n\n• Service Worker: ${diag.swRegistered ? '✅ Active (/sw.js)' : '❌ Inactive'}\n• Browser Permission: ${diag.permission.toUpperCase()}\n• Node.js Engine (Automation3000/PWA): ${diag.nodeOnline ? '✅ Online (' + diag.latency + 'ms)' : '❌ Offline'}\n• Google Sheets Script: ${diag.gasOnline ? '✅ Connected' : '❌ Error'}\n• Active Subscribers: ${diag.activeSubscribers}\n• Running in iFrame: ${diag.inIframe ? '⚠️ Yes (Open Standalone Tester for 100% native dialog)' : '✅ Standalone Window'}`;
+    
+    alert(summary);
 }
 
 function closePushNotificationModal() {
@@ -5445,7 +5509,11 @@ async function refreshSubscriberStats() {
     badge.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
     const res = await PushNotificationManager.fetchSubscriberStats();
     if (res.success) {
-        badge.innerHTML = `<i class="fas fa-mobile-alt"></i> ${res.activeCount} Active Device(s)`;
+        let extra = '';
+        if (res.platforms && (res.platforms.windows || res.platforms.ios || res.platforms.android)) {
+            extra = ` (Win: ${res.platforms.windows} | iOS: ${res.platforms.ios} | Android: ${res.platforms.android})`;
+        }
+        badge.innerHTML = `<i class="fas fa-satellite-dish"></i> ${res.activeCount} Device(s)${extra}`;
         badge.style.color = '#16a34a';
         badge.style.background = 'rgba(22,163,74,0.12)';
     } else {

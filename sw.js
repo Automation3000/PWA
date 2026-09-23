@@ -145,7 +145,7 @@ self.addEventListener('periodicsync', event => {
 });
 
 // ==========================================
-// 6. PUSH NOTIFICATIONS
+// 6. PUSH NOTIFICATIONS (Windows, Android, iOS)
 // ==========================================
 self.addEventListener('push', event => {
   console.log('[Service Worker] Push Notification Received');
@@ -170,22 +170,31 @@ self.addEventListener('push', event => {
     }
   }
 
+  // Cross-Platform Options (Windows, Android, iOS 16.4+)
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
   const options = {
     body: notificationData.body,
     icon: notificationData.icon || '/icon-192.png',
     badge: notificationData.badge || '/icon-72.png',
-    vibrate: [200, 100, 200],
-    tag: notificationData.tag || ('push-' + Date.now()),
+    tag: notificationData.tag || ('tabreed-' + Date.now()),
     renotify: true,
     data: {
       dateOfArrival: Date.now(),
       url: notificationData.url || '/index.html'
-    },
-    actions: [
+    }
+  };
+
+  // Android & Windows support vibration and action buttons
+  // iOS Safari ignores vibrate and can drop notifications if actions are present
+  if (!isIOS) {
+    options.vibrate = [200, 100, 200];
+    options.actions = [
       { action: 'open', title: 'Open App' },
       { action: 'close', title: 'Dismiss' }
-    ]
-  };
+    ];
+  }
 
   event.waitUntil(
     self.registration.showNotification(notificationData.title, options)

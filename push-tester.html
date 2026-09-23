@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabreed - Push Notification Standalone Tester</title>
+    <link rel="icon" type="image/png" href="/icon-192.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-body: #0b1120;
+            --bg-card: #151e32;
+            --bg-card-hover: #1c2742;
+            --border: #223254;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.25);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 720px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-title i {
+            font-size: 1.5rem;
+            color: var(--primary);
+            background: var(--primary-glow);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 10px;
+        }
+        .badge {
+            font-size: 0.72rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.3); }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245,158,11,0.3); }
+        .badge-danger { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239,68,68,0.3); }
+        .badge-info { background: rgba(59, 130, 246, 0.15); color: var(--primary); border: 1px solid rgba(59,130,246,0.3); }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        .btn-primary:hover { background: #2563eb; }
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        .btn-success:hover { background: #059669; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+        .btn-outline:hover { background: var(--bg-card-hover); }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .step-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: var(--bg-body);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.83rem;
+        }
+        .step-item .step-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .console-box {
+            background: #060911;
+            border: 1px solid #1a233a;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.76rem;
+            color: #a5b4fc;
+            max-height: 180px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+        .console-entry { margin-bottom: 4px; word-break: break-all; }
+        .console-time { color: var(--text-muted); margin-right: 6px; }
+        .console-err { color: #f87171; }
+        .console-ok { color: #34d399; }
+        .console-warn { color: #fbbf24; }
+
+        .banner-warning {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 0.82rem;
+            color: #fbbf24;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        /* In-App Toast Simulation */
+        #inAppToast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 360px;
+            background: #1e293b;
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+            padding: 14px 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Header -->
+    <div class="header">
+        <div class="header-title">
+            <i class="fas fa-bell"></i>
+            <div>
+                <h1 style="font-size:1.15rem;font-weight:800;">Push Notification Standalone Tester</h1>
+                <p style="font-size:0.75rem;color:var(--text-secondary);">Direct Testing Environment • Self-Hosted &amp; Google Sheets</p>
+            </div>
+        </div>
+        <a href="/index.html" class="btn btn-outline btn-sm">
+            <i class="fas fa-arrow-left"></i> Back to App
+        </a>
+    </div>
+
+    <!-- Iframe Warning (If opened inside an iframe) -->
+    <div id="iframeNotice" class="banner-warning" style="display:none;">
+        <i class="fas fa-exclamation-triangle" style="font-size:1.2rem;margin-top:2px;"></i>
+        <div>
+            <strong>Running inside Preview iFrame:</strong>
+            <p style="margin-top:4px;font-size:0.78rem;">Browsers restrict Notification Permission inside iframes. For 100% native OS notification alerts, click the button below to open in a direct tab.</p>
+            <button onclick="window.open(window.location.href, '_blank')" class="btn btn-sm btn-primary" style="margin-top:8px;">
+                <i class="fas fa-external-link-alt"></i> Open in New Standalone Tab
+            </button>
+        </div>
+    </div>
+
+    <!-- OS & Platform Compatibility Card (Windows / iOS / Android) -->
+    <div class="card" id="platformCard">
+        <div class="card-header">
+            <span><i class="fas fa-layer-group" style="color:var(--primary);margin-right:6px;"></i> OS &amp; Multi-Platform Support</span>
+            <span id="platformBadge" class="badge badge-info"><i class="fas fa-microchip"></i> Detecting Device...</span>
+        </div>
+        
+        <div id="iosGuidanceNotice" style="display:none;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:10px;padding:12px;font-size:0.8rem;color:#fbbf24;">
+            <div style="font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                <i class="fab fa-apple" style="font-size:1.1rem;"></i> Apple iOS 16.4+ Requirement:
+            </div>
+            <p style="margin:0;line-height:1.4;">
+                iPhone/iPad par Push Notifications enable karne ke liye Apple requirement hai k app <strong>Home Screen</strong> par add ho. Safari me Share button (⎋) tap karein ➔ <strong>'Add to Home Screen' (⊞)</strong> karein ➔ Phir Home Screen icon se Tabreed open karke permission allow karein.
+            </p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;font-size:0.78rem;">
+            <div id="cardWindows" style="background:var(--bg-body);padding:10px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+                <i class="fab fa-windows" style="font-size:1.3rem;color:#38bdf8;"></i>
+                <div>
+                    <strong>Windows 10/11:</strong>
+                    <div style="color:var(--text-muted);font-size:0.7rem;">Action Center Alerts (100% Ready)</div>
+                </div>
+            </div>
+            <div id="cardAndroid" style="background:var(--bg-body);padding:10px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+                <i class="fab fa-android" style="font-size:1.3rem;color:#4ade80;"></i>
+                <div>
+                    <strong>Android Mobile:</strong>
+                    <div style="color:var(--text-muted);font-size:0.7rem;">FCM &amp; Vibration (100% Ready)</div>
+                </div>
+            </div>
+            <div id="cardIOS" style="background:var(--bg-body);padding:10px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+                <i class="fab fa-apple" style="font-size:1.3rem;color:#f43f5e;"></i>
+                <div>
+                    <strong>Apple iOS:</strong>
+                    <div style="color:var(--text-muted);font-size:0.7rem;">APNs via Home Screen PWA</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permission Control Card -->
+    <div class="card">
+        <div class="card-header">
+            <span><i class="fas fa-shield-alt" style="color:var(--primary);margin-right:6px;"></i> 1. Browser Notification Permission</span>
+            <span id="permBadge" class="badge badge-warning">Checking...</span>
+        </div>
+        <p style="font-size:0.82rem;color:var(--text-secondary);">
+            Before push notifications can appear on your screen, your browser must grant permission. Click the button below to trigger the browser's native permission prompt.
+        </p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button id="btnRequestPerm" onclick="requestPermissionDirect()" class="btn btn-primary">
+                <i class="fas fa-key"></i> Request / Enable Permission
+            </button>
+            <button onclick="subscribeDeviceDirect()" class="btn btn-success">
+                <i class="fas fa-satellite-dish"></i> Subscribe Device Token
+            </button>
+        </div>
+        <div id="permHelpText" style="display:none;font-size:0.76rem;color:var(--danger);background:rgba(239,68,68,0.1);padding:8px 12px;border-radius:6px;">
+            <i class="fas fa-info-circle"></i> If permission is <strong>Denied</strong>: Click the site lock/settings icon next to the address bar and switch Notifications to <strong>Allow</strong>, then reload.
+        </div>
+    </div>
+
+    <!-- Live Testing Actions Card -->
+    <div class="card">
+        <div class="card-header">
+            <span><i class="fas fa-vial" style="color:var(--success);margin-right:6px;"></i> 2. Instant Push Test Triggers</span>
+            <span class="badge badge-info">Interactive</span>
+        </div>
+        <div class="actions-grid">
+            <button onclick="testLocalScreenAlert()" class="btn btn-outline">
+                <i class="fas fa-desktop" style="color:var(--primary);"></i>
+                <div style="text-align:left;">
+                    <div>Local Screen Alert</div>
+                    <small style="color:var(--text-muted);font-size:0.68rem;">Test Service Worker UI</small>
+                </div>
+            </button>
+            <button onclick="testSelfHostedEcho()" class="btn btn-outline">
+                <i class="fas fa-cube" style="color:var(--success);"></i>
+                <div style="text-align:left;">
+                    <div>Node.js Echo Push</div>
+                    <small style="color:var(--text-muted);font-size:0.68rem;">Automation3000/PWA</small>
+                </div>
+            </button>
+            <button onclick="testBroadcastAll()" class="btn btn-outline">
+                <i class="fas fa-broadcast-tower" style="color:var(--warning);"></i>
+                <div style="text-align:left;">
+                    <div>Broadcast All Devices</div>
+                    <small style="color:var(--text-muted);font-size:0.68rem;">VAPID to all subscribers</small>
+                </div>
+            </button>
+            <button onclick="testGoogleSheetsSync()" class="btn btn-outline">
+                <i class="fas fa-file-excel" style="color:#10b981;"></i>
+                <div style="text-align:left;">
+                    <div>Google Sheets Sync</div>
+                    <small style="color:var(--text-muted);font-size:0.68rem;">Test fixed GAS Webhook</small>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <!-- System Diagnostics List -->
+    <div class="card">
+        <div class="card-header">
+            <span><i class="fas fa-clipboard-check" style="color:var(--primary);margin-right:6px;"></i> 3. Comprehensive Diagnostics</span>
+            <button onclick="runAllDiagnostics()" class="btn btn-outline btn-sm">
+                <i class="fas fa-sync-alt"></i> Run Diagnostics
+            </button>
+        </div>
+        <div class="step-list" id="diagStepList">
+            <div class="step-item">
+                <span class="step-left"><i class="fas fa-spinner fa-spin"></i> Initializing diagnostics...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Console Output -->
+    <div class="card">
+        <div class="card-header">
+            <span><i class="fas fa-terminal" style="color:var(--text-secondary);margin-right:6px;"></i> 4. Live Event Log</span>
+            <button onclick="clearConsoleLog()" class="btn btn-outline btn-sm" style="padding:2px 8px;font-size:0.7rem;">Clear</button>
+        </div>
+        <div class="console-box" id="consoleOutput">
+            <div class="console-entry"><span class="console-time">[00:00:00]</span> Push Notification Standalone Tester initialized.</div>
+        </div>
+    </div>
+</div>
+
+<!-- In-App Notification Toast Preview -->
+<div id="inAppToast">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+        <strong id="toastTitle" style="font-size:0.88rem;color:#60a5fa;display:flex;align-items:center;gap:6px;">
+            <i class="fas fa-bell"></i> Push Notification Preview
+        </strong>
+        <span style="font-size:0.7rem;color:#94a3b8;">Just now</span>
+    </div>
+    <p id="toastBody" style="font-size:0.78rem;color:#cbd5e1;margin-top:2px;">This is a test notification message.</p>
+</div>
+
+<!-- Load Push Notification Manager -->
+<script src="/push-manager.js"></script>
+
+<script>
+const FIXED_GAS_URL = 'https://script.google.com/macros/s/AKfycbxr-HQedn7rqxJ9zP7JmDnLtHnp8ad8PhQ0v8bpBI8pOvw8D4P14OI_ojVKyUBOzDdN/exec';
+
+function log(msg, type = 'info') {
+    const box = document.getElementById('consoleOutput');
+    if (!box) return;
+    const now = new Date().toTimeString().split(' ')[0];
+    const entry = document.createElement('div');
+    entry.className = 'console-entry';
+    let cls = '';
+    if (type === 'ok') cls = 'console-ok';
+    if (type === 'err') cls = 'console-err';
+    if (type === 'warn') cls = 'console-warn';
+
+    entry.innerHTML = `<span class="console-time">[${now}]</span> <span class="${cls}">${msg}</span>`;
+    box.appendChild(entry);
+    box.scrollTop = box.scrollHeight;
+}
+
+function clearConsoleLog() {
+    const box = document.getElementById('consoleOutput');
+    if (box) box.innerHTML = '';
+}
+
+function showInAppToast(title, body) {
+    const toast = document.getElementById('inAppToast');
+    document.getElementById('toastTitle').innerHTML = `<i class="fas fa-bell"></i> ${title}`;
+    document.getElementById('toastBody').innerText = body;
+    toast.style.display = 'flex';
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 5000);
+}
+
+// Update Permission UI Badge & Platform Detection
+function updatePermissionUI() {
+    const badge = document.getElementById('permBadge');
+    const help = document.getElementById('permHelpText');
+    const perm = ('Notification' in window) ? Notification.permission : 'unsupported';
+
+    if (perm === 'granted') {
+        badge.className = 'badge badge-success';
+        badge.innerHTML = '<i class="fas fa-check-circle"></i> Granted';
+        help.style.display = 'none';
+    } else if (perm === 'denied') {
+        badge.className = 'badge badge-danger';
+        badge.innerHTML = '<i class="fas fa-times-circle"></i> Denied';
+        help.style.display = 'block';
+    } else {
+        badge.className = 'badge badge-warning';
+        badge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Default (Not Granted)';
+        help.style.display = 'none';
+    }
+
+    // Platform detection (Windows, iOS, Android)
+    if (window.PushNotificationManager && PushNotificationManager.getPlatformDetails) {
+        const platform = PushNotificationManager.getPlatformDetails();
+        const pBadge = document.getElementById('platformBadge');
+        if (pBadge) {
+            pBadge.className = 'badge badge-info';
+            pBadge.innerHTML = `<i class="fas fa-laptop-code"></i> Detected: ${platform.platformLabel}`;
+        }
+
+        const iosNotice = document.getElementById('iosGuidanceNotice');
+        if (iosNotice) {
+            iosNotice.style.display = platform.iosNeedsPwaInstall ? 'block' : 'none';
+        }
+
+        const winCard = document.getElementById('cardWindows');
+        const androidCard = document.getElementById('cardAndroid');
+        const iosCard = document.getElementById('cardIOS');
+        if (winCard) winCard.style.borderColor = platform.isWindows ? '#38bdf8' : 'var(--border)';
+        if (androidCard) androidCard.style.borderColor = platform.isAndroid ? '#4ade80' : 'var(--border)';
+        if (iosCard) iosCard.style.borderColor = platform.isIOS ? '#f43f5e' : 'var(--border)';
+    }
+}
+
+// Request Permission Directly
+async function requestPermissionDirect() {
+    log('Requesting browser notification permission...');
+    if (!('Notification' in window)) {
+        log('Notification API not supported by this browser!', 'err');
+        return;
+    }
+
+    try {
+        const result = await window.PushNotificationManager.requestPermission();
+        log(`Permission request result: ${result}`, result === 'granted' ? 'ok' : 'warn');
+        updatePermissionUI();
+        if (result === 'granted') {
+            log('Permission granted! Subscribing device token...', 'ok');
+            subscribeDeviceDirect();
+        } else {
+            log('Permission was not granted. Check browser site settings.', 'err');
+        }
+    } catch (e) {
+        log(`Permission request error: ${e.message}`, 'err');
+    }
+}
+
+// Subscribe Device Direct
+async function subscribeDeviceDirect() {
+    log('Initiating VAPID Push Subscription...');
+    try {
+        const res = await window.PushNotificationManager.subscribe(FIXED_GAS_URL);
+        if (res.success) {
+            log('Device successfully subscribed and registered on server & Google Sheets!', 'ok');
+            runAllDiagnostics();
+        } else {
+            log(`Subscription failed: ${res.error}`, 'err');
+        }
+    } catch (e) {
+        log(`Subscription exception: ${e.message}`, 'err');
+    }
+}
+
+// Test Local Screen Alert
+async function testLocalScreenAlert() {
+    log('Testing Local Screen Notification...');
+    try {
+        const res = await window.PushNotificationManager.sendTest({
+            title: 'Tabreed Local Test 🔔',
+            message: 'Screen alert delivered successfully!',
+            url: '/push-tester.html'
+        });
+        showInAppToast('Tabreed Local Test 🔔', 'Screen alert delivered successfully!');
+        if (res.success) {
+            log(`Local test: ${res.message}`, 'ok');
+        } else {
+            log(`Local test note: ${res.error}`, 'warn');
+        }
+    } catch (e) {
+        log(`Local test failed: ${e.message}`, 'err');
+    }
+}
+
+// Test Node.js Echo Push
+async function testSelfHostedEcho() {
+    log('Testing Node.js VAPID push route (/api/push/send-test)...');
+    try {
+        const existingSub = await window.PushNotificationManager.getExistingSubscription();
+        if (!existingSub) {
+            log('No active subscription found. Subscribing first...', 'warn');
+            await subscribeDeviceDirect();
+        }
+
+        const sub = await window.PushNotificationManager.getExistingSubscription();
+        if (!sub) {
+            log('Cannot echo test without active subscription token.', 'err');
+            return;
+        }
+
+        const res = await fetch('/api/push/send-test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                subscription: sub,
+                title: 'Tabreed Self-Hosted Echo 🚀',
+                message: 'Encrypted via Automation3000/PWA server.js and delivered!',
+                url: '/push-tester.html'
+            })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+            log('Node.js echo notification sent and delivered to browser push service!', 'ok');
+            showInAppToast('Tabreed Self-Hosted Echo 🚀', 'Encrypted via Automation3000/PWA and delivered!');
+        } else {
+            log(`Node.js echo failed: ${data.error || res.statusText}`, 'err');
+        }
+    } catch (e) {
+        log(`Echo request error: ${e.message}`, 'err');
+    }
+}
+
+// Test Broadcast to All
+async function testBroadcastAll() {
+    log('Broadcasting notification via /api/push/broadcast...');
+    try {
+        const res = await window.PushNotificationManager.broadcast({
+            title: 'Broadcast Announcement 📢',
+            message: 'Broadcast test from Tabreed Standalone Tester.',
+            url: '/push-tester.html'
+        });
+        if (res.success) {
+            log(`Broadcast completed: ${res.summary}`, 'ok');
+            showInAppToast('Broadcast Announcement 📢', 'Broadcast dispatched to registered devices.');
+        } else {
+            log(`Broadcast error: ${res.error}`, 'err');
+        }
+    } catch (e) {
+        log(`Broadcast exception: ${e.message}`, 'err');
+    }
+}
+
+// Test Google Sheets Sync
+async function testGoogleSheetsSync() {
+    log(`Testing Google Sheets Webhook (${FIXED_GAS_URL.substring(0, 45)}...)...`);
+    try {
+        const res = await fetch(FIXED_GAS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'get_stats' })
+        });
+        const data = await res.json();
+        log(`Google Sheets Webhook responded successfully! Total Subscriptions: ${data.total || 0}, Active: ${data.activeCount || 0}`, 'ok');
+    } catch (e) {
+        log(`Google Sheets Webhook test note: ${e.message}`, 'warn');
+    }
+}
+
+// Run All Diagnostics
+async function runAllDiagnostics() {
+    const list = document.getElementById('diagStepList');
+    list.innerHTML = '<div class="step-item"><span class="step-left"><i class="fas fa-spinner fa-spin"></i> Running diagnostics...</span></div>';
+    log('Running comprehensive diagnostics...');
+
+    const diag = await window.PushNotificationManager.runDiagnostics();
+    list.innerHTML = '';
+
+    diag.steps.forEach(step => {
+        const item = document.createElement('div');
+        item.className = 'step-item';
+        let badgeClass = 'badge-info';
+        let icon = '<i class="fas fa-info-circle"></i>';
+
+        if (step.status === 'pass') {
+            badgeClass = 'badge-success';
+            icon = '<i class="fas fa-check-circle" style="color:var(--success);"></i>';
+        } else if (step.status === 'warn') {
+            badgeClass = 'badge-warning';
+            icon = '<i class="fas fa-exclamation-triangle" style="color:var(--warning);"></i>';
+        } else if (step.status === 'fail') {
+            badgeClass = 'badge-danger';
+            icon = '<i class="fas fa-times-circle" style="color:var(--danger);"></i>';
+        }
+
+        item.innerHTML = `
+            <span class="step-left">${icon} <strong>${step.name}</strong></span>
+            <span class="badge ${badgeClass}">${step.text}</span>
+        `;
+        list.appendChild(item);
+    });
+
+    updatePermissionUI();
+    log(`Diagnostics completed. Node.js Latency: ${diag.latency}ms, Active Subscribers: ${diag.activeSubscribers}`, 'ok');
+}
+
+// Auto Init
+window.addEventListener('DOMContentLoaded', () => {
+    // Detect iframe
+    if (window.self !== window.top) {
+        document.getElementById('iframeNotice').style.display = 'flex';
+        log('Warning: Running inside preview iframe. Notification permission may be restricted.', 'warn');
+    }
+    updatePermissionUI();
+    runAllDiagnostics();
+});
+</script>
+
+</body>
+</html>

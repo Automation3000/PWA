@@ -38,6 +38,34 @@ Everything runs directly between your **GitHub Repository (`server.js`)**, **PWA
 
 ---
 
+## 📱 Multi-Platform Support: Windows, iOS, and Android
+
+The self-hosted push architecture works across **Windows**, **Android**, and **Apple iOS (16.4+)**:
+
+### 1. 💻 Windows (Windows 10 & 11)
+- **Supported Browsers:** Google Chrome, Microsoft Edge, Mozilla Firefox, Brave, and installed PWA.
+- **Experience:** Notifications appear natively in the **Windows Action Center** (bottom right corner banner) with sounds, badges, and click-to-open actions.
+- **How to Subscribe:** Open app in Chrome/Edge, click **"Enable Permission"**, and allow notifications in the browser prompt.
+
+### 2. 🤖 Android (Smartphones & Tablets)
+- **Supported Browsers:** Chrome, Edge, Samsung Internet, Firefox, and installed PWA.
+- **Experience:** Push notifications appear in the **Android System Notification Shade** with vibration pattern `[200, 100, 200]`, app icon, and action buttons. Works even when the browser or phone screen is locked/sleeping!
+- **How to Subscribe:** Open app in Android Chrome/Edge, tap **"Enable Permission"**, and tap **"Allow"**.
+
+### 3. 🍎 Apple iOS (iPhone & iPad - iOS 16.4+)
+- **Apple's Requirement:** Apple APNs requires web apps to be installed as a **Standalone PWA on the Home Screen** to receive Push Notifications. Standard Safari browser tabs do not receive background push.
+- **How to Subscribe on iPhone / iPad:**
+  1. Open the app URL in **Safari** on iOS 16.4+.
+  2. Tap the **Share icon (⎋)** at the bottom of Safari.
+  3. Scroll down and tap **"Add to Home Screen" (⊞)**.
+  4. Tap **"Add"** in the top right.
+  5. Close Safari and tap the new **Tabreed** icon on your iPhone Home Screen.
+  6. In the app, go to **Offline Tools ➔ Push Dispatcher** (or open `/push-tester.html`) and tap **"Enable Permission"**.
+  7. When Apple's native prompt appears: *"Tabreed would like to send you notifications"*, tap **"Allow"**.
+  8. Your iPhone token is now registered with Apple APNs and Google Sheets!
+
+---
+
 ## 🚀 How It Works (100% Self-Contained)
 
 1. **Native App Engine (`server.js`):**

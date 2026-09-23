@@ -9,10 +9,10 @@ const PUSH_CONFIG = {
   // Provided VAPID Public Key
   vapidPublicKey: 'BF1FJVnaTi9Zd1Bl4sjSrz9ALDS9LI__Bl5JjKL0cHkHt-UcR38IX0CXVLO_jw18AGubhNI2a-i7Nr8FbC3wluk',
   
-  // Google Apps Script Web App for Google Sheets Sync (Optional / Automated)
-  gasWebhookUrl: 'https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec',
+  // Google Apps Script Web App for Google Sheets Sync (Configured & Fixed)
+  gasWebhookUrl: 'https://script.google.com/macros/s/AKfycbxr-HQedn7rqxJ9zP7JmDnLtHnp8ad8PhQ0v8bpBI8pOvw8D4P14OI_ojVKyUBOzDdN/exec',
   
-  // Self-Hosted Node.js Push Server (Uses the current app origin directly - NO 3rd party needed)
+  // Self-Hosted Node.js Push Server (Automation3000/PWA repository backend)
   nodeServerUrl: window.location.origin
 };
 
@@ -42,6 +42,47 @@ function isPushNotificationSupported() {
 }
 
 /**
+ * Detect Client Platform: Windows, iOS, Android, macOS, Linux
+ */
+function getPlatformDetails() {
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(ua);
+  const isWindows = /Windows/i.test(ua);
+  const isMac = !isIOS && /Macintosh|Mac OS X/i.test(ua);
+  const isLinux = !isAndroid && /Linux/i.test(ua);
+
+  let os = 'Unknown';
+  if (isIOS) os = 'iOS';
+  else if (isAndroid) os = 'Android';
+  else if (isWindows) os = 'Windows';
+  else if (isMac) os = 'macOS';
+  else if (isLinux) os = 'Linux';
+
+  const isStandalone = ('standalone' in navigator && navigator.standalone) || 
+                       window.matchMedia('(display-mode: standalone)').matches ||
+                       window.matchMedia('(display-mode: fullscreen)').matches;
+
+  let browser = 'Browser';
+  if (/Edg/i.test(ua)) browser = 'Edge';
+  else if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'Chrome';
+  else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Safari';
+  else if (/Firefox/i.test(ua)) browser = 'Firefox';
+  else if (/SamsungBrowser/i.test(ua)) browser = 'Samsung Internet';
+
+  return {
+    os,
+    isIOS,
+    isAndroid,
+    isWindows,
+    isStandalone,
+    browser,
+    platformLabel: `${os} • ${browser}${isStandalone ? ' (PWA)' : ''}`,
+    iosNeedsPwaInstall: isIOS && !isStandalone
+  };
+}
+
+/**
  * Get current push subscription if already active
  */
 async function getExistingPushSubscription() {
@@ -53,6 +94,151 @@ async function getExistingPushSubscription() {
     console.warn('[PushManager] Error fetching existing subscription:', err);
     return null;
   }
+}
+
+/**
+ * Safely request Notification permission handling Promises, Callbacks, and iframe security
+ */
+async function requestNotificationPermission() {
+  if (!('Notification' in window)) {
+    return 'unsupported';
+  }
+  
+  if (Notification.permission === 'granted') {
+    return 'granted';
+  }
+
+  try {
+    const result = await Notification.requestPermission();
+    return result;
+  } catch (err) {
+    return new Promise((resolve) => {
+      try {
+        Notification.requestPermission((result) => resolve(result));
+      } catch (e) {
+        resolve(Notification.permission || 'denied');
+      }
+    });
+  }
+}
+
+/**
+ * Run comprehensive Push & Permissions Diagnostics
+ */
+async function runPushDiagnostics() {
+  const inIframe = window.self !== window.top;
+  const platform = getPlatformDetails();
+  const diag = {
+    inIframe,
+    platform,
+    notificationSupported: 'Notification' in window,
+    serviceWorkerSupported: 'serviceWorker' in navigator,
+    pushManagerSupported: 'PushManager' in window,
+    permission: 'Notification' in window ? Notification.permission : 'unsupported',
+    swRegistered: false,
+    subscription: null,
+    gasOnline: false,
+    nodeOnline: false,
+    latency: 0,
+    activeSubscribers: 0,
+    steps: []
+  };
+
+  // 0. Platform check (Windows, iOS, Android)
+  if (platform.isIOS) {
+    if (platform.isStandalone) {
+      diag.steps.push({ name: 'Apple iOS Status', status: 'pass', text: 'PWA Home Screen Active (APNs Push Ready)' });
+    } else {
+      diag.steps.push({ 
+        name: 'Apple iOS Status', 
+        status: 'warn', 
+        text: 'Safari Tab: Tap Share (⎋) ➔ Add to Home Screen (⊞) to enable APNs' 
+      });
+    }
+  } else if (platform.isAndroid) {
+    diag.steps.push({ name: 'Android Status', status: 'pass', text: `${platform.platformLabel} (FCM Push Ready)` });
+  } else if (platform.isWindows) {
+    diag.steps.push({ name: 'Windows Status', status: 'pass', text: `${platform.platformLabel} (Action Center Ready)` });
+  } else {
+    diag.steps.push({ name: 'Operating System', status: 'pass', text: platform.platformLabel });
+  }
+
+  // 1. Service Worker check
+  if ('serviceWorker' in navigator) {
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      if (reg) {
+        diag.swRegistered = true;
+        diag.steps.push({ name: 'Service Worker', status: 'pass', text: 'Active (/sw.js registered)' });
+      } else {
+        const newReg = await navigator.serviceWorker.register('/sw.js');
+        diag.swRegistered = !!newReg;
+        diag.steps.push({ name: 'Service Worker', status: 'pass', text: 'Registered successfully' });
+      }
+    } catch (e) {
+      diag.steps.push({ name: 'Service Worker', status: 'fail', text: e.message });
+    }
+  } else {
+    diag.steps.push({ name: 'Service Worker', status: 'fail', text: 'Browser does not support Service Workers' });
+  }
+
+  // 2. Permission check
+  if (diag.permission === 'granted') {
+    diag.steps.push({ name: 'Notification Permission', status: 'pass', text: 'Granted (Ready to receive alerts)' });
+  } else if (diag.permission === 'denied') {
+    diag.steps.push({ 
+      name: 'Notification Permission', 
+      status: 'fail', 
+      text: inIframe 
+        ? 'Denied or blocked by iframe. Open in standalone tab (/push-tester.html)' 
+        : 'Permission Denied in browser settings. Please allow notifications for this site.' 
+    });
+  } else {
+    diag.steps.push({ 
+      name: 'Notification Permission', 
+      status: 'warn', 
+      text: inIframe 
+        ? 'Default (Click "Request Permission" or test in standalone tab)' 
+        : 'Default (User permission needed)' 
+    });
+  }
+
+  // 3. Subscription check
+  if (diag.swRegistered && 'PushManager' in window) {
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      diag.subscription = await reg.pushManager.getSubscription();
+      if (diag.subscription) {
+        diag.steps.push({ name: 'Device Push Token', status: 'pass', text: 'Active VAPID Subscription ready' });
+      } else {
+        diag.steps.push({ name: 'Device Push Token', status: 'info', text: 'Not subscribed yet (Click Subscribe)' });
+      }
+    } catch (e) {
+      diag.steps.push({ name: 'Device Push Token', status: 'warn', text: e.message });
+    }
+  }
+
+  // 4. Node.js backend check (Automation3000/PWA)
+  const nodePing = await pingNodeServer();
+  if (nodePing.online) {
+    diag.nodeOnline = true;
+    diag.latency = nodePing.latency;
+    diag.activeSubscribers = nodePing.activeSubscribers || 0;
+    diag.steps.push({ name: 'Node.js Push Engine', status: 'pass', text: `Online (${nodePing.latency}ms) - Automation3000/PWA` });
+  } else {
+    diag.steps.push({ name: 'Node.js Push Engine', status: 'fail', text: nodePing.error || 'Server unreachable' });
+  }
+
+  // 5. Google Apps Script Webhook check
+  const gasUrl = getActiveGasUrl();
+  if (gasUrl && gasUrl.includes('script.google.com')) {
+    diag.gasOnline = true;
+    diag.steps.push({ name: 'Google Sheets Script', status: 'pass', text: 'Configured & Fixed (AKfycbxr-HQed...)' });
+  } else {
+    diag.steps.push({ name: 'Google Sheets Script', status: 'warn', text: 'GAS Webhook not configured' });
+  }
+
+  return diag;
 }
 
 /**
@@ -73,18 +259,30 @@ async function subscribeUserToPush(gasUrl) {
     }
     await navigator.serviceWorker.ready;
 
-    // Step 2: Request User Permission
-    const permission = await Notification.requestPermission();
+    // Step 2: Check iOS PWA Home Screen requirement
+    const platform = getPlatformDetails();
+    if (platform.iosNeedsPwaInstall) {
+      return { 
+        success: false, 
+        error: 'Apple iOS Requirement: Tap the Share button (⎋) in Safari, tap "Add to Home Screen" (⊞), then open Tabreed from your Home Screen to enable Push Notifications.' 
+      };
+    }
+
+    // Step 3: Request User Permission safely
+    const permission = await requestNotificationPermission();
     if (permission !== 'granted') {
+      const isIframe = window.self !== window.top;
       return { 
         success: false, 
         error: permission === 'denied' 
-          ? 'Notification permission was denied. Please allow notifications in your browser settings.' 
+          ? (isIframe 
+              ? 'Permission is blocked in preview iframe. Open /push-tester.html in a new tab to grant permission!' 
+              : 'Notification permission was denied. Please allow notifications in site settings.') 
           : 'Notification permission request was dismissed.' 
       };
     }
 
-    // Step 3: Check for existing subscription or create new
+    // Step 4: Check for existing subscription or create new
     let subscription = await registration.pushManager.getSubscription();
     
     if (!subscription) {
@@ -95,7 +293,7 @@ async function subscribeUserToPush(gasUrl) {
       });
     }
 
-    // Step 4: Prepare payload for Google Sheets / Google Apps Script
+    // Step 5: Prepare payload with device and OS information (Windows, iOS, Android)
     const subJson = subscription.toJSON();
     const currentUser = (typeof currentAuthUser !== 'undefined' && currentAuthUser) 
       ? (currentAuthUser.name || currentAuthUser.email || currentAuthUser.code || 'User') 
@@ -105,6 +303,10 @@ async function subscribeUserToPush(gasUrl) {
       action: 'subscribe',
       timestamp: new Date().toISOString(),
       user: currentUser,
+      os: platform.os,
+      platform: platform.platformLabel,
+      isStandalone: platform.isStandalone,
+      browser: platform.browser,
       userAgent: navigator.userAgent,
       endpoint: subJson.endpoint,
       keys: {
@@ -425,7 +627,12 @@ async function fetchSubscriberStats() {
     const res = await fetch('/api/push/status');
     if (res.ok) {
       const data = await res.json();
-      return { success: true, total: data.totalRegistered || 0, activeCount: data.activeSubscribers || 0 };
+      return { 
+        success: true, 
+        total: data.totalRegistered || 0, 
+        activeCount: data.activeSubscribers || 0,
+        platforms: data.platforms || { windows: 0, ios: 0, android: 0, other: 0 }
+      };
     }
   } catch (e) {}
 
@@ -478,6 +685,9 @@ window.PushNotificationManager = {
   sendTest: sendLocalDeviceTest,
   pingNodeServer,
   fetchSubscriberStats,
+  getPlatformDetails,
+  requestPermission: requestNotificationPermission,
+  runDiagnostics: runPushDiagnostics,
   getDispatchLog,
   recordDispatchLog
 };

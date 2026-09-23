@@ -18,6 +18,7 @@ const SUBSCRIPTIONS_FILE = path.join(__dirname, 'subscriptions.json');
 const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || 'BF1FJVnaTi9Zd1Bl4sjSrz9ALDS9LI__Bl5JjKL0cHkHt-UcR38IX0CXVLO_jw18AGubhNI2a-i7Nr8FbC3wluk';
 const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || 'uJ3D-WWMjIYp_9Xm7xdu1OCsx2caeN9ZIauS825BUjQ';
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:qadriabdulmajid@gmail.com';
+const PUSH_APPS_SCRIPT_URL = process.env.PUSH_APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbxr-HQedn7rqxJ9zP7JmDnLtHnp8ad8PhQ0v8bpBI8pOvw8D4P14OI_ojVKyUBOzDdN/exec";
 
 try {
   webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
@@ -949,20 +950,31 @@ app.post('/api/sync-all-to-sheets', async (req, res) => {
 // 1. Get Push Service Health & Stats
 app.get('/api/push/status', (req, res) => {
   const subs = loadSubscriptions();
-  const activeCount = subs.filter(s => s.status !== 'expired' && s.status !== 'unsubscribed').length;
+  const activeSubs = subs.filter(s => s.status !== 'expired' && s.status !== 'unsubscribed');
+  const platforms = {
+    windows: activeSubs.filter(s => s.os === 'Windows' || /Windows/i.test(s.userAgent || '')).length,
+    ios: activeSubs.filter(s => s.os === 'iOS' || /iPhone|iPad|iPod/i.test(s.userAgent || '')).length,
+    android: activeSubs.filter(s => s.os === 'Android' || /Android/i.test(s.userAgent || '')).length,
+    other: 0
+  };
+  platforms.other = Math.max(0, activeSubs.length - (platforms.windows + platforms.ios + platforms.android));
+
   res.json({
     status: 'online',
     service: 'Tabreed Self-Hosted Web Push Engine',
+    repository: 'Automation3000/PWA',
     publicVapidKey: VAPID_PUBLIC_KEY,
+    gasWebhookUrl: PUSH_APPS_SCRIPT_URL,
     totalRegistered: subs.length,
-    activeSubscribers: activeCount
+    activeSubscribers: activeSubs.length,
+    platforms
   });
 });
 
 // 2. Register Device Subscription
 app.post('/api/push/subscribe', async (req, res) => {
   try {
-    const { endpoint, keys, user, userAgent, rawSubscription } = req.body;
+    const { endpoint, keys, user, userAgent, rawSubscription, os, platform, isStandalone, browser } = req.body;
     if (!endpoint) {
       return res.status(400).json({ error: 'Missing subscription endpoint' });
     }
@@ -971,11 +983,17 @@ app.post('/api/push/subscribe', async (req, res) => {
     const existingIndex = subs.findIndex(s => s.endpoint === endpoint);
     const rawSubStr = rawSubscription || (typeof req.body.subscription === 'string' ? req.body.subscription : JSON.stringify(req.body.subscription || { endpoint, keys }));
 
+    const detectedOs = os || (/iPhone|iPad|iPod/i.test(userAgent || '') ? 'iOS' : /Android/i.test(userAgent || '') ? 'Android' : /Windows/i.test(userAgent || '') ? 'Windows' : 'Other');
+
     const subRecord = {
       endpoint,
       keys: keys || {},
       user: user || 'Anonymous User',
       userAgent: userAgent || 'Unknown Device',
+      os: detectedOs,
+      platform: platform || detectedOs,
+      isStandalone: !!isStandalone,
+      browser: browser || '',
       rawSubscription: rawSubStr,
       status: 'active',
       updatedAt: new Date().toISOString()
@@ -990,7 +1008,7 @@ app.post('/api/push/subscribe', async (req, res) => {
 
     // Also sync in background to Google Apps Script / Google Sheets
     try {
-      fetch(APPS_SCRIPT_URL, {
+      fetch(PUSH_APPS_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action: 'subscribe', ...subRecord }),
@@ -998,7 +1016,13 @@ app.post('/api/push/subscribe', async (req, res) => {
       }).catch(() => {});
     } catch(e) {}
 
-    res.json({ success: true, message: 'Subscription saved successfully', activeCount: subs.filter(s => s.status === 'active').length });
+    const activeList = subs.filter(s => s.status === 'active');
+    res.json({ 
+      success: true, 
+      message: 'Subscription saved successfully', 
+      activeCount: activeList.length,
+      device: subRecord.os
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

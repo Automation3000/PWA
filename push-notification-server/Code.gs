@@ -18,10 +18,12 @@
 // ==============================================================================
 // 1. CONFIGURATION
 // ==============================================================================
-// Your Tabreed App URL (The web app hosted from your GitHub repository)
+// Your Tabreed App URL (Hosted from GitHub repo: Automation3000/PWA)
 // No 3rd party service (Render/Railway/Glitch) required! Your app's own server.js handles push encryption.
-// Example: 'https://ais-dev-tbyiuhehvatfspwpkrkka7-505128504808.europe-west2.run.app' or your custom domain
+// Development App URL:
 var TABREED_APP_URL = 'https://ais-dev-tbyiuhehvatfspwpkrkka7-505128504808.europe-west2.run.app';
+// Deployment Web App Script URL (Fixed):
+// https://script.google.com/macros/s/AKfycbxr-HQedn7rqxJ9zP7JmDnLtHnp8ad8PhQ0v8bpBI8pOvw8D4P14OI_ojVKyUBOzDdN/exec
 
 // Sheet name where browser subscriptions are stored
 var SHEET_NAME = 'Subscriptions';
