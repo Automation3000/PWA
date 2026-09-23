@@ -150,25 +150,36 @@ self.addEventListener('periodicsync', event => {
 self.addEventListener('push', event => {
   console.log('[Service Worker] Push Notification Received');
   
-  let notificationData = { title: 'Automation App', body: 'New update available in the system.' };
+  let notificationData = { 
+    title: 'Tabreed Pro Alert', 
+    body: 'New notification from system.',
+    icon: '/icon-192.png',
+    badge: '/icon-72.png',
+    url: '/index.html'
+  };
   
   try {
     if (event.data) {
-      notificationData = event.data.json();
+      const parsed = event.data.json();
+      notificationData = { ...notificationData, ...parsed };
     }
   } catch (e) {
     console.log('[Service Worker] Push data is text, not JSON');
-    notificationData.body = event.data.text();
+    if (event.data) {
+      notificationData.body = event.data.text();
+    }
   }
 
   const options = {
     body: notificationData.body,
-    icon: '/icon-192.png',
-    badge: '/icon-72.png',
-    vibrate: [100, 50, 100],
+    icon: notificationData.icon || '/icon-192.png',
+    badge: notificationData.badge || '/icon-72.png',
+    vibrate: [200, 100, 200],
+    tag: notificationData.tag || ('push-' + Date.now()),
+    renotify: true,
     data: {
       dateOfArrival: Date.now(),
-      primaryKey: 'tabreed-app'
+      url: notificationData.url || '/index.html'
     },
     actions: [
       { action: 'open', title: 'Open App' },
@@ -185,25 +196,27 @@ self.addEventListener('push', event => {
 // 7. NOTIFICATION CLICK HANDLING
 // ==========================================
 self.addEventListener('notificationclick', event => {
-  console.log('[Service Worker] Notification Clicked');
   event.notification.close();
 
-  if (event.action !== 'close') {
-    // Open app logic
-    event.waitUntil(
-      clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
-        // If app is already open, focus it
-        for (let i = 0; i < windowClients.length; i++) {
-          let client = windowClients[i];
-          if (client.url.includes('/NEW.html') && 'focus' in client) {
+  if (event.action === 'close') return;
+
+  const targetUrl = (event.notification.data && event.notification.data.url) || '/index.html';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+      // If already open, focus it
+      for (let i = 0; i < windowClients.length; i++) {
+        let client = windowClients[i];
+        if ('focus' in client) {
+          if (client.url.includes(targetUrl) || client.url.includes('/index.html') || client.url.endsWith('/')) {
             return client.focus();
           }
         }
-        // If app is closed, open a new window
-        if (clients.openWindow) {
-          return clients.openWindow('/NEW.html');
-        }
-      })
-    );
-  }
+      }
+      // Otherwise open target URL
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl);
+      }
+    })
+  );
 });
