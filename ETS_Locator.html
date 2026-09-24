@@ -245,9 +245,10 @@
         }
 
         /* BUTTONS */
+        /* BUTTONS */
         .btn-dir {
             background: #1a73e8; /* Google Maps Blue */
-            color: white;
+            color: #ffffff;
             border: none;
             padding: 6px 12px;
             border-radius: 6px;
@@ -256,11 +257,16 @@
             font-size: .8rem;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
             transition: var(--transition);
             text-decoration: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+            box-shadow: 0 1px 2px rgba(26, 115, 232, 0.2);
         }
-        .btn-dir:hover { background: #1557b0; }
+        .btn-dir:hover { background: #1557b0; color: #ffffff; }
+        .btn-dir i { font-size: 0.85rem; }
+        .btn-dir span { font-weight: 600; }
         
         .btn-edit {
             background: var(--bg-surface);
@@ -313,21 +319,135 @@
         .btn-edit:hover { border-color: var(--primary); color: var(--primary); }
         .actions-icon:hover { color: var(--primary) !important; }
 
-        /* Actions Column Container */
+        /* Column Styles (Desktop) */
+        .col-plant {
+            width: 22%;
+            min-width: 95px;
+        }
+        .col-ets {
+            min-width: 140px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .col-coords {
+            min-width: 155px;
+            text-align: center;
+            white-space: nowrap;
+        }
         .col-actions {
             text-align: right;
             white-space: nowrap;
+            min-width: 165px;
+            width: 175px;
         }
         .action-btn-group {
             display: inline-flex;
             align-items: center;
             justify-content: flex-end;
             gap: 6px;
+            flex-shrink: 0;
+        }
+        .ets-mobile-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ets-name-box {
+            min-width: 0;
+        }
+        .ets-name-text {
+            font-weight: 700;
+            color: var(--primary);
         }
 
-        /* Plant Mobile Toggle */
+        /* Plant Mobile Badge Default */
+        .badge-plant-mobile {
+            display: none;
+            font-size: 0.68rem;
+            font-weight: 700;
+            background: var(--primary-light, #e0f2fe);
+            color: var(--primary, #0284c7);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(2, 132, 199, 0.25);
+            vertical-align: middle;
+            align-items: center;
+        }
+
+        /* Mobile Responsive Viewport - One Page Without Side Scroll */
         @media (max-width: 768px) {
-            .col-plant { display: none !important; }
+            .card-container {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+                border-radius: var(--radius-sm) !important;
+            }
+            .table-responsive {
+                overflow-x: hidden !important;
+                width: 100% !important;
+            }
+            table {
+                width: 100% !important;
+                table-layout: fixed !important;
+            }
+            th, td {
+                padding: 10px 8px !important;
+            }
+            .col-plant, .col-coords {
+                display: none !important;
+            }
+            .col-ets {
+                width: auto !important;
+                min-width: 0 !important;
+                padding-left: 10px !important;
+                padding-right: 6px !important;
+            }
+            .col-actions {
+                width: 140px !important;
+                min-width: 140px !important;
+                max-width: 140px !important;
+                padding-left: 4px !important;
+                padding-right: 8px !important;
+                text-align: right !important;
+            }
+            body.is-dev-user .col-actions {
+                width: 172px !important;
+                min-width: 172px !important;
+                max-width: 172px !important;
+            }
+            .action-btn-group {
+                display: inline-flex !important;
+                width: 100% !important;
+                gap: 5px !important;
+                justify-content: flex-end !important;
+                align-items: center !important;
+                flex-shrink: 0 !important;
+                white-space: nowrap !important;
+            }
+            .btn-dir {
+                padding: 6px 10px !important;
+                font-size: 0.78rem !important;
+                border-radius: 6px !important;
+                gap: 5px !important;
+                flex-shrink: 0 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                box-shadow: 0 1px 3px rgba(26,115,232,0.3) !important;
+                background: #1a73e8 !important;
+                color: #ffffff !important;
+                transition: transform 0.2s ease, background 0.2s ease !important;
+            }
+            .btn-dir span {
+                display: inline !important;
+                font-weight: 600 !important;
+            }
+            .btn-dir i {
+                font-size: 0.82rem !important;
+            }
+            .btn-edit, .btn-delete {
+                padding: 6px 8px !important;
+                font-size: 0.78rem !important;
+                flex-shrink: 0 !important;
+            }
             .badge-plant-mobile {
                 display: inline-flex !important;
                 white-space: nowrap !important;
@@ -345,32 +465,27 @@
                 display: flex !important;
                 align-items: center !important;
                 flex-wrap: nowrap !important;
-                white-space: nowrap !important;
                 gap: 6px !important;
+                min-width: 0 !important;
                 max-width: 100% !important;
+                overflow: hidden !important;
+            }
+            .ets-name-box {
+                min-width: 0 !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+                flex: 1 !important;
             }
             .ets-name-text {
                 white-space: nowrap !important;
                 overflow: hidden !important;
                 text-overflow: ellipsis !important;
-                font-size: 0.88rem !important;
+                font-size: 0.86rem !important;
+                display: inline-block !important;
+                max-width: 100% !important;
+                vertical-align: middle !important;
             }
-            .hide-mobile { display: none !important; }
-            .btn-dir, .btn-edit, .btn-delete {
-                padding: 6px 8px;
-            }
-        }
-        .badge-plant-mobile {
-            display: none;
-            font-size: 0.68rem;
-            font-weight: 700;
-            background: var(--primary-light, #e0f2fe);
-            color: var(--primary, #0284c7);
-            padding: 2px 6px;
-            border-radius: 4px;
-            border: 1px solid rgba(2, 132, 199, 0.25);
-            vertical-align: middle;
-            align-items: center;
         }
 
         /* Coordinates Column */
@@ -576,6 +691,9 @@
         </div>
 
         <div class="quick-actions">
+            <button class="action-btn" onclick="openAddModal()">
+                <i class="fas fa-plus-circle" style="color:#7c3aed;margin-bottom:4px;"></i><span>Add ETS</span>
+            </button>
             <button id="btn-refresh" class="action-btn" onclick="refreshTable(true)">
                 <i class="fas fa-sync-alt" style="color:var(--primary);margin-bottom:4px;"></i><span>Refresh</span>
             </button>
@@ -586,14 +704,11 @@
                 </div>
                 <select id="locationFilter" class="select-wrapper" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; z-index:5; font-size:16px;" onchange="filterETS()" oninput="filterETS()"></select>
             </div>
-            <button class="action-btn" onclick="openAddModal()">
-                <i class="fas fa-plus-circle" style="color:#7c3aed;margin-bottom:4px;"></i><span>Add ETS</span>
-            </button>
             <button class="action-btn" onclick="showStats()">
                 <i class="fas fa-chart-pie" style="color:var(--warning);margin-bottom:4px;"></i><span>Stats</span>
             </button>
-            <!-- Advance Control Option (Contains Excel & PDF Export) -->
-            <button id="btn-admin-control" class="action-btn" onclick="handleAdminControlClick()" title="Advance Control">
+            <!-- Advance Control Option (Contains Excel & PDF Export - Developer Only) -->
+            <button id="btn-admin-control" class="action-btn" onclick="handleAdminControlClick()" title="Advance Control" style="display:none;">
                 <i class="fas fa-sliders-h" id="admin-icon" style="color:var(--primary);margin-bottom:4px;"></i>
                 <span id="admin-label">Advance</span>
             </button>
@@ -613,15 +728,15 @@
                 <table>
                     <thead>
                         <tr>
-                            <th class="col-plant" style="width: 22%; min-width: 95px;">Plant Name</th>
-                            <th class="col-ets" style="min-width: 140px;">ETS Name</th>
-                            <th class="col-coords" id="th-coords" style="min-width: 155px; text-align: center;">
+                            <th class="col-plant">Plant Name</th>
+                            <th class="col-ets">ETS Name</th>
+                            <th class="col-coords" id="th-coords" style="display: none;">
                                 <div onclick="toggleCoords()" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;" title="Click to show/hide GPS coordinates">
                                     <span>Coordinates</span>
                                     <i class="fas fa-eye-slash coords-icon" id="coordsEyeIcon" style="color:var(--text-muted); font-size:0.85rem; padding:2px 4px;"></i>
                                 </div>
                             </th>
-                            <th class="col-actions" style="text-align:right; min-width: 165px; width: 175px;">
+                            <th class="col-actions">
                                 <div onclick="toggleEditBtns()" style="display:inline-flex; align-items:center; justify-content:flex-end; gap:6px; cursor:pointer;" title="Toggle Actions (Edit / Delete)">
                                     <span class="actions-text">Actions</span>
                                     <i class="fas fa-eye actions-icon" style="color:var(--text-muted); font-size:0.85rem; padding:2px 4px;"></i>
@@ -652,32 +767,33 @@
                 <input type="hidden" id="editRowIdx" value="-1">
                 <div class="form-group" style="display:flex;gap:10px;">
                     <div style="flex:1;">
-                        <label>ETS Name</label>
-                        <input type="text" id="etsName" placeholder="e.g. ETS-201" required>
-                    </div>
-                    <div style="flex:1;">
                         <label>Plant</label>
                         <input type="text" id="etsPlant" placeholder="e.g. AD-032" required>
                     </div>
+                    <div style="flex:1;">
+                        <label>ETS Name</label>
+                        <input type="text" id="etsName" placeholder="e.g. ETS-201" required>
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label style="display:flex; justify-content:space-between; align-items:center;">
+                    <label style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
                         <span>Coordinates (Lat, Lng)</span>
-                        <span id="gpsAccuracyBadge" style="font-size:0.7rem; font-weight:600; color:var(--text-muted); display:none;"></span>
+                        <span id="gpsAccuracyBadge" style="font-size:0.72rem; font-weight:600; color:var(--text-muted); display:none;"></span>
                     </label>
-                    <div style="position:relative; display:flex; align-items:center;">
-                        <input type="text" id="etsCoords" placeholder="e.g. 24.452254, 54.614217" required style="padding-right:44px; width:100%;" oninput="cleanseCoordsInput(this)" onpaste="handleCoordsPaste(event, this)">
-                        <button type="button" id="btnGetGPS" onclick="fetchExactGPS()" title="Get Exact Device GPS Coordinates" style="position:absolute; right:5px; width:34px; height:34px; border-radius:6px; border:1px solid var(--border); background:var(--bg-surface); color:var(--primary); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:var(--transition);">
-                            <i class="fas fa-crosshairs" id="gpsIcon" style="font-size:0.95rem;"></i>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <input type="text" id="etsCoords" placeholder="e.g. 24.452254, 54.614217" required style="flex:1; font-family:monospace; font-size:0.85rem; padding:10px;" oninput="cleanseCoordsInput(this)" onpaste="handleCoordsPaste(event, this)">
+                        <button type="button" id="btnGetGPS" onclick="fetchExactGPS()" title="Get Exact Device GPS Coordinates" style="padding:10px 14px; border-radius:var(--radius-sm); border:1px solid var(--primary); background:linear-gradient(135deg, var(--primary), #1d4ed8); color:#ffffff; font-weight:700; font-size:0.78rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; box-shadow:0 2px 6px rgba(37,99,235,0.25); transition:var(--transition); flex-shrink:0;">
+                            <i class="fas fa-crosshairs" id="gpsIcon"></i>
+                            <span>Exact GPS</span>
                         </button>
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 15px;">
                     <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom: 8px;">
                         <input type="checkbox" id="hasContactCb" onchange="toggleContactField()" style="width: 16px; height: 16px;"> 
-                        <span>Add Contact Person</span>
+                        <span style="font-weight:600;">Add Contact Person</span>
                     </label>
-                    <input type="text" id="etsContact" placeholder="e.g. Ali (050-XXXXXXX)" style="display:none; margin-bottom: 5px;">
+                    <div id="contactFieldsContainer" style="display:none; flex-direction:column; gap:8px;"></div>
                 </div>
                 <div class="form-group">
                     <label>Comment / Landmark Note (Optional)</label>
@@ -1075,14 +1191,19 @@
         }
 
         function updateAdminUI() {
+            const btnAdminControl = document.getElementById('btn-admin-control');
             const unlockedActions = document.getElementById('admin-unlocked-actions');
             const adminIcon = document.getElementById('admin-icon');
             const adminLabel = document.getElementById('admin-label');
             const adminUserDisplay = document.getElementById('adminUserDisplay');
             const exportSection = document.getElementById('adminExportSection');
+            const isDev = isDeveloper(currentAdminUser);
 
-            if (currentAdminUser && isDeveloper(currentAdminUser)) {
-                // Developer Majeed only (Excel, PDF, full delete rights)
+            document.body.classList.toggle('is-dev-user', isDev);
+
+            if (isDev) {
+                // Developer Majeed only (Advance button, Excel, PDF, delete rights, coordinates column)
+                if (btnAdminControl) btnAdminControl.style.display = 'flex';
                 if (unlockedActions) unlockedActions.style.display = 'contents';
                 if (adminIcon) {
                     adminIcon.className = 'fas fa-sliders-h';
@@ -1097,52 +1218,19 @@
                     adminUserDisplay.innerText = `Logged in as: ${currentAdminUser.full || currentAdminUser.short} (${currentAdminUser.code}) - Developer`;
                 }
                 if (exportSection) exportSection.style.display = 'block';
-            } else if (currentAdminUser && isUserAdmin(currentAdminUser)) {
-                // Advance / Admin control (no excel/pdf exports)
-                if (unlockedActions) unlockedActions.style.display = 'none';
-                if (adminIcon) {
-                    adminIcon.className = 'fas fa-sliders-h';
-                    adminIcon.style.color = '#16a34a';
-                }
-                if (adminLabel) {
-                    adminLabel.innerText = currentAdminUser.short || 'Advance';
-                    adminLabel.style.color = '#16a34a';
-                    adminLabel.style.fontWeight = '700';
-                }
-                if (adminUserDisplay) {
-                    adminUserDisplay.innerText = `Logged in as: ${currentAdminUser.full || currentAdminUser.short} (${currentAdminUser.code}) - Advance Control`;
-                }
-                if (exportSection) exportSection.style.display = 'none';
-            } else if (currentAdminUser) {
-                // Regular User level
-                if (unlockedActions) unlockedActions.style.display = 'none';
-                if (adminIcon) {
-                    adminIcon.className = 'fas fa-user';
-                    adminIcon.style.color = 'var(--primary)';
-                }
-                if (adminLabel) {
-                    adminLabel.innerText = currentAdminUser.short || 'User';
-                    adminLabel.style.color = 'var(--primary)';
-                    adminLabel.style.fontWeight = '600';
-                }
-                if (adminUserDisplay) {
-                    adminUserDisplay.innerText = `Logged in as: ${currentAdminUser.full || currentAdminUser.short} (${currentAdminUser.code}) - User Level`;
-                }
-                if (exportSection) exportSection.style.display = 'none';
             } else {
-                // Completely Logged Out
+                // Completely hide Advance button, Excel, PDF, and export section for non-developers
+                if (btnAdminControl) btnAdminControl.style.display = 'none';
                 if (unlockedActions) unlockedActions.style.display = 'none';
-                if (adminIcon) {
-                    adminIcon.className = 'fas fa-sliders-h';
-                    adminIcon.style.color = 'var(--primary)';
-                }
+                if (exportSection) exportSection.style.display = 'none';
                 if (adminLabel) {
                     adminLabel.innerText = 'Advance';
                     adminLabel.style.color = '';
                     adminLabel.style.fontWeight = '';
                 }
-                if (exportSection) exportSection.style.display = 'none';
             }
+
+            applyCoordsState();
         }
 
         function showAdminModal() {
@@ -1421,6 +1509,7 @@
         }
 
         function toggleCoords() {
+            if (!isDeveloper()) return;
             showCoords = !showCoords;
             applyCoordsState();
             if (showCoords) {
@@ -1431,7 +1520,14 @@
         }
 
         function applyCoordsState() {
+            const isDev = isDeveloper();
+            const th = document.getElementById('th-coords');
             const eyeIcon = document.getElementById('coordsEyeIcon');
+
+            if (th) {
+                th.style.display = isDev ? '' : 'none';
+            }
+
             if (eyeIcon) {
                 if (showCoords) {
                     eyeIcon.className = 'fas fa-eye coords-icon';
@@ -1442,11 +1538,14 @@
                 }
             }
 
+            document.querySelectorAll('td.col-coords').forEach(el => {
+                el.style.display = isDev ? '' : 'none';
+            });
             document.querySelectorAll('.coords-badge').forEach(el => {
-                el.style.display = showCoords ? 'inline-flex' : 'none';
+                el.style.display = (isDev && showCoords) ? 'inline-flex' : 'none';
             });
             document.querySelectorAll('.coords-masked').forEach(el => {
-                el.style.display = showCoords ? 'none' : 'inline-flex';
+                el.style.display = (isDev && !showCoords) ? 'inline-flex' : 'none';
             });
         }
 
@@ -1466,8 +1565,8 @@
                 
                 // If there's a comment, make the name clickable and add a small icon. Otherwise just show the name.
                 const nameDisplay = hasComment 
-                    ? `<span style="cursor:pointer; white-space:nowrap;" onclick="showComment(${idx})">${escapeHtml(item.name)} <i class="fas fa-sticky-note" style="color:#FFC107; margin-left:3px; font-size:0.85rem;" title="View Note"></i></span>` 
-                    : `<span style="white-space:nowrap;">${escapeHtml(item.name)}</span>`;
+                    ? `<span class="ets-name-text" style="cursor:pointer;" onclick="showComment(${item.rowIdx})">${escapeHtml(item.name)} <i class="fas fa-sticky-note" style="color:#FFC107; margin-left:3px; font-size:0.85rem;" title="View Note"></i></span>` 
+                    : `<span class="ets-name-text">${escapeHtml(item.name)}</span>`;
                 
                 // Ensure plantName doesn't default to N/A if it just happens to be a falsy string, checking against undefined/null
                 const plantName = (item.plant !== undefined && item.plant !== null && item.plant !== "") ? item.plant.toString().trim() : "N/A";
@@ -1476,38 +1575,44 @@
                     ? `${item.lat}, ${item.lng}`
                     : '';
 
+                const hasValidCoords = (item.lat !== undefined && item.lng !== undefined && item.lat !== '' && item.lng !== '' && !isNaN(Number(item.lat)) && !isNaN(Number(item.lng)));
+                const dirUrl = hasValidCoords ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(item.lat + ',' + item.lng)}` : '#';
+                const dirOnClick = hasValidCoords ? '' : `onclick="showToast('GPS coordinates not available', 'error'); return false;"`;
+
                 const deleteBtn = isDev ? `
-                    <button onclick="deleteETS(${idx}, ${item.rowIdx}, '${escapeHtml(item.name).replace(/'/g, "\\'")}')" class="btn-delete" title="Delete Entry (Developer Only)">
+                    <button onclick="deleteETS(${item.rowIdx}, '${escapeHtml(item.name).replace(/'/g, "\\'")}')" class="btn-delete" title="Delete Entry (Developer Only)">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 ` : '';
 
-                return `<tr class="ets-row" onmousedown="handlePressStart(this)" onmouseup="handlePressEnd()" onmouseleave="handlePressEnd()" ontouchstart="handlePressStart(this)" ontouchend="handlePressEnd()" ontouchcancel="handlePressEnd()">
+                return `<tr class="ets-row" onmousedown="handlePressStart(this)" onmouseup="handlePressEnd()" onmouseleave="handlePressEnd()" ontouchstart="handlePressStart(this)" ontouchend="handlePressEnd()" ontouchcancel="handlePressEnd()" ontouchmove="handlePressEnd()">
                     <td class="col-plant">
                         <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px;">${escapeHtml(plantName)}</div>
                     </td>
-                    <td class="col-ets" style="font-weight:700; color:var(--primary); white-space:nowrap;">
-                        <div class="ets-mobile-line" style="display:flex; align-items:center; flex-wrap:nowrap; gap:6px; white-space:nowrap;">
+                    <td class="col-ets">
+                        <div class="ets-mobile-line">
                             <span class="badge-plant-mobile" title="${escapeHtml(plantName)}">${escapeHtml(plantName)}</span>
-                            ${nameDisplay}
+                            <div class="ets-name-box" title="${escapeHtml(item.name)}">
+                                ${nameDisplay}
+                            </div>
                         </div>
                     </td>
-                    <td class="col-coords" style="text-align:center; white-space:nowrap;">
-                        <span class="coords-badge" onclick="copyCoords('${coordsFormatted}')" style="display:${showCoords ? 'inline-flex' : 'none'};" title="Click to copy GPS coordinates">
+                    <td class="col-coords" style="text-align:center; white-space:nowrap; display:${isDev ? '' : 'none'};">
+                        <span class="coords-badge" onclick="copyCoords('${coordsFormatted}')" style="display:${(isDev && showCoords) ? 'inline-flex' : 'none'};" title="Click to copy GPS coordinates">
                             <i class="fas fa-crosshairs" style="color:var(--primary); font-size:0.75rem;"></i>
                             <span>${coordsFormatted || 'N/A'}</span>
                         </span>
-                        <span class="coords-masked" onclick="toggleCoords()" style="display:${showCoords ? 'none' : 'inline-flex'};" title="Click to reveal GPS coordinates">
+                        <span class="coords-masked" onclick="toggleCoords()" style="display:${(isDev && !showCoords) ? 'inline-flex' : 'none'};" title="Click to reveal GPS coordinates">
                             <i class="fas fa-eye-slash" style="opacity:0.4; font-size:0.75rem;"></i>
                             <span style="letter-spacing:2px; opacity:0.4; font-family:monospace; font-size:0.75rem;">••••••••</span>
                         </span>
                     </td>
-                    <td class="col-actions" style="text-align:right; white-space:nowrap;">
-                        <div class="action-btn-group" style="display:inline-flex; align-items:center; justify-content:flex-end; gap:6px;">
-                            <a href="https://www.google.com/maps/dir/?api=1&destination=${item.lat},${item.lng}" target="_blank" class="btn-dir" title="Direction on Google Maps">
-                                <i class="fas fa-directions"></i> <span class="hide-mobile">Direction</span>
+                    <td class="col-actions">
+                        <div class="action-btn-group">
+                            <a href="${dirUrl}" ${dirOnClick} target="_blank" class="btn-dir" title="Direction on Google Maps">
+                                <i class="fas fa-directions"></i> <span>Direction</span>
                             </a>
-                            <button onclick="openUpdateModal(${idx}, ${item.rowIdx})" class="btn-edit" title="Edit ETS">
+                            <button onclick="openUpdateModal(${item.rowIdx})" class="btn-edit" title="Edit ETS">
                                 <i class="fas fa-edit"></i>
                             </button>
                             ${deleteBtn}
@@ -1642,15 +1747,64 @@
             document.getElementById('statsModal').style.display = 'none';
         }
 
-        // --- Modals & Save ---
+        // --- Modals & Dynamic Contact Persons ---
+        function addContactRow(val = '') {
+            const container = document.getElementById('contactFieldsContainer');
+            if (!container) return;
+            const row = document.createElement('div');
+            row.className = 'contact-row';
+            row.style.cssText = 'display:flex; gap:6px; align-items:center; margin-bottom:4px;';
+            row.innerHTML = `
+                <input type="text" class="ets-contact-input" placeholder="e.g. Ali (050-XXXXXXX)" value="${escapeHtml(val)}" style="flex:1; padding:8px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); background:var(--input-bg); color:var(--text-primary); font-size:0.85rem;">
+                <button type="button" onclick="addContactRow()" title="Add another contact" style="width:34px; height:34px; border-radius:6px; border:1px solid var(--primary); background:var(--primary-light); color:var(--primary); cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button type="button" onclick="removeContactRow(this)" title="Remove this contact" style="width:34px; height:34px; border-radius:6px; border:1px solid rgba(239,68,68,0.4); background:rgba(239,68,68,0.1); color:#ef4444; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            `;
+            container.appendChild(row);
+            updateContactRowButtons();
+            const input = row.querySelector('.ets-contact-input');
+            if (input && !val) input.focus();
+        }
+
+        function removeContactRow(btn) {
+            const container = document.getElementById('contactFieldsContainer');
+            if (!container) return;
+            const rows = container.querySelectorAll('.contact-row');
+            if (rows.length > 1) {
+                btn.closest('.contact-row').remove();
+                updateContactRowButtons();
+            } else {
+                const input = rows[0].querySelector('.ets-contact-input');
+                if (input) input.value = '';
+            }
+        }
+
+        function updateContactRowButtons() {
+            const container = document.getElementById('contactFieldsContainer');
+            if (!container) return;
+            const rows = container.querySelectorAll('.contact-row');
+            rows.forEach(r => {
+                const delBtn = r.querySelector('[title="Remove this contact"]');
+                if (delBtn) delBtn.style.display = rows.length > 1 ? 'flex' : 'none';
+            });
+        }
+
         function toggleContactField() {
             const cb = document.getElementById('hasContactCb');
-            const field = document.getElementById('etsContact');
+            const container = document.getElementById('contactFieldsContainer');
+            if (!container) return;
             if (cb.checked) {
-                field.style.display = 'block';
+                container.style.display = 'flex';
+                const rows = container.querySelectorAll('.contact-row');
+                if (rows.length === 0) {
+                    addContactRow('');
+                }
             } else {
-                field.style.display = 'none';
-                field.value = '';
+                container.style.display = 'none';
+                container.innerHTML = '';
             }
         }
 
@@ -1744,13 +1898,14 @@
             );
         }
 
-        async function deleteETS(listIdx, rowIdx, etsName) {
+        async function deleteETS(rowIdx, etsName) {
             if (!isDeveloper()) {
                 showToast("Access Denied: Delete option is restricted to Developers only.", "error");
                 return;
             }
 
-            const targetName = etsName || (etsList[listIdx] ? etsList[listIdx].name : `Row #${rowIdx}`);
+            const item = etsList.find(e => e.rowIdx === rowIdx);
+            const targetName = etsName || (item ? item.name : `Row #${rowIdx}`);
             if (!confirm(`Are you sure you want to DELETE "${targetName}"?\n\nThis will remove the ETS location permanently.`)) {
                 return;
             }
@@ -1758,7 +1913,7 @@
             showToast(`Deleting "${targetName}"...`);
 
             // Optimistically remove from local list & update UI
-            etsList = etsList.filter(item => item.rowIdx !== rowIdx);
+            etsList = etsList.filter(e => e.rowIdx !== rowIdx);
             try {
                 localStorage.setItem('tabreed_ets_cache', JSON.stringify(etsList));
             } catch(e) {}
@@ -1787,7 +1942,7 @@
             try {
                 const response = await fetch(GAS_API_URL, {
                     method: "POST",
-                    redirect: "follow",
+                    redirect: "follow", 
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
                 });
@@ -1808,7 +1963,7 @@
                     };
                     await fetch(GAS_API_URL, {
                         method: "POST",
-                        redirect: "follow",
+                        redirect: "follow", 
                         headers: { "Content-Type": "text/plain;charset=utf-8" },
                         body: JSON.stringify(fallbackPayload)
                     });
@@ -1827,14 +1982,14 @@
             const rowIdx = parseInt(document.getElementById('editRowIdx').value);
             const etsName = document.getElementById('etsName').value;
             closeModal();
-            deleteETS(-1, rowIdx, etsName);
+            deleteETS(rowIdx, etsName);
         }
 
         function openAddModal() {
             document.getElementById('modalTitle').innerHTML = '<i class="fas fa-map-marked-alt"></i> Add New ETS';
             document.getElementById('editRowIdx').value = '-1';
-            document.getElementById('etsName').value = '';
             document.getElementById('etsPlant').value = '';
+            document.getElementById('etsName').value = '';
             document.getElementById('etsCoords').value = '';
             
             const badge = document.getElementById('gpsAccuracyBadge');
@@ -1853,14 +2008,14 @@
             document.getElementById('etsModal').style.display = 'flex';
         }
 
-        function openUpdateModal(listIdx, rowIdx) {
-            const item = etsList[listIdx];
+        function openUpdateModal(rowIdx) {
+            const item = etsList.find(e => e.rowIdx === rowIdx);
             if (!item) return;
             document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit ETS Location';
             document.getElementById('editRowIdx').value = rowIdx;
-            document.getElementById('etsName').value = item.name || '';
             document.getElementById('etsPlant').value = item.plant || '';
-            document.getElementById('etsCoords').value = `${item.lat}, ${item.lng}`;
+            document.getElementById('etsName').value = item.name || '';
+            document.getElementById('etsCoords').value = (item.lat !== undefined && item.lng !== undefined && item.lat !== '' && item.lng !== '') ? `${item.lat}, ${item.lng}` : '';
             
             const badge = document.getElementById('gpsAccuracyBadge');
             if (badge) {
@@ -1891,13 +2046,23 @@
                 note = splitParts.length > 1 ? splitParts.slice(1).join("\n---\n") : "";
             }
             
+            const cb = document.getElementById('hasContactCb');
+            const container = document.getElementById('contactFieldsContainer');
+            if (container) container.innerHTML = '';
+
             if (contact) {
-                document.getElementById('hasContactCb').checked = true;
-                toggleContactField();
-                document.getElementById('etsContact').value = contact;
+                cb.checked = true;
+                container.style.display = 'flex';
+                // Split multi-contacts separated by comma, newline or pipe
+                const splitContacts = contact.split(/\s*(?:,|\n|\|)\s*(?=[A-Za-z0-9\+\(])/).map(s => s.trim()).filter(Boolean);
+                if (splitContacts.length > 0) {
+                    splitContacts.forEach(c => addContactRow(c));
+                } else {
+                    addContactRow(contact);
+                }
             } else {
-                document.getElementById('hasContactCb').checked = false;
-                toggleContactField();
+                cb.checked = false;
+                if (container) container.style.display = 'none';
             }
             
             document.getElementById('etsComment').value = note;
@@ -1911,29 +2076,33 @@
 
         function saveETS() {
             const rowIdx = parseInt(document.getElementById('editRowIdx').value);
-            const name = document.getElementById('etsName').value.trim();
             const plant = document.getElementById('etsPlant').value.trim();
+            const name = document.getElementById('etsName').value.trim();
             
             // Auto cleanse coordinates
             const rawCoords = document.getElementById('etsCoords').value;
             const coordsStr = cleanseCoordsString(rawCoords);
             document.getElementById('etsCoords').value = coordsStr;
             
-            let contact = document.getElementById('etsContact').value.trim();
-            // Automatically convert mobile starting with 05 to +971 and remove spaces in the number
-            if (contact) {
-                // First, optionally remove spaces in 05x xxxxxxx type inputs
-                // But replacing all spaces might ruin the name. So let's just target the regex.
-                // Replace 05 followed by 8 digits (optionally with spaces) into +9715...
-                contact = contact.replace(/\b0 ?(5 ?\d ?\d ?\d ?\d ?\d ?\d ?\d ?\d)\b/g, match => {
-                    return "+971" + match.replace(/\s/g, '').substring(1);
-                });
-            }
+            // Collect contacts from all contact input rows
+            const contactInputs = document.querySelectorAll('.ets-contact-input');
+            const contactList = [];
+            contactInputs.forEach(inp => {
+                let c = inp.value.trim();
+                if (c) {
+                    // Automatically convert mobile starting with 05 to +971
+                    c = c.replace(/\b0 ?(5 ?\d ?\d ?\d ?\d ?\d ?\d ?\d ?\d)\b/g, match => {
+                        return "+971" + match.replace(/\s/g, '').substring(1);
+                    });
+                    contactList.push(c);
+                }
+            });
+            const combinedContacts = contactList.join(', ');
             const rawComment = document.getElementById('etsComment').value.trim();
             
             let finalComment = rawComment;
-            if (document.getElementById('hasContactCb').checked && contact) {
-                finalComment = "Contact: " + contact + (rawComment ? "\n---\n" + rawComment : "");
+            if (document.getElementById('hasContactCb').checked && combinedContacts) {
+                finalComment = "Contact: " + combinedContacts + (rawComment ? "\n---\n" + rawComment : "");
             }
             
             // Parse coords
@@ -1941,12 +2110,12 @@
             const lat = parseFloat(coordsParts[0]);
             const lng = parseFloat(coordsParts[1]);
 
-            if (!name || !plant || isNaN(lat) || isNaN(lng)) {
-                showToast("Please fill Name, Plant, and valid Coordinates (e.g. 24.452254, 54.614217).");
+            if (!plant || !name || isNaN(lat) || isNaN(lng)) {
+                showToast("Please fill Plant, Name, and valid Coordinates (e.g. 24.452254, 54.614217).");
                 return;
             }
 
-            const coordsString = `${lat}, ${lng}`; // Use a normalized string for the backend
+            const coordsString = `${lat}, ${lng}`; // Normalized string for sheet
 
             const payload = { 
                 action: rowIdx >= 0 ? 'update' : 'add', 
@@ -2003,8 +2172,9 @@
             });
         }
 
-        function showComment(idx) {
-            const item = etsList[idx];
+        function showComment(rowIdx) {
+            const item = etsList.find(e => e.rowIdx === rowIdx);
+            if (!item) return;
             let fullComment = item.comment || '';
             let contact = '';
             let note = fullComment;
@@ -2017,19 +2187,27 @@
 
             let html = '';
             if (contact) {
-                // Auto format phone number if they entered 05...
-                contact = contact.replace(/\b0(5\d{8})\b/g, "+971$1");
-                
-                let callBtnHtml = '';
-                const phoneMatch = contact.match(/\+9715\d{8}/);
-                if (phoneMatch) {
-                    callBtnHtml = `<a href="tel:${phoneMatch[0]}" style="display:inline-block; margin-left:10px; background:var(--primary); color:white; padding:4px 10px; border-radius:12px; text-decoration:none; font-size:0.75rem; font-weight:bold;"><i class="fas fa-phone-alt"></i> Call</a>`;
-                }
+                // Split multi contacts by comma, newline or pipe
+                const contactEntries = contact.split(/\s*(?:,|\n|\|)\s*(?=[A-Za-z0-9\+\(])/).map(s => s.trim()).filter(Boolean);
+                if (contactEntries.length === 0) contactEntries.push(contact);
 
                 html += `<div style="margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--border);">
-                            <strong style="color:var(--text-primary);"><i class="fas fa-user-circle" style="color:var(--primary); margin-right:5px;"></i> Contact Person:</strong><br>
-                            <span style="color:var(--text-secondary); display:inline-block; margin-top:4px; align-items:center; display:flex;">${escapeHtml(contact)} ${callBtnHtml}</span>
-                         </div>`;
+                            <strong style="color:var(--text-primary);"><i class="fas fa-user-circle" style="color:var(--primary); margin-right:5px;"></i> Contact Person:</strong><br>`;
+
+                contactEntries.forEach(singleContact => {
+                    let formattedContact = singleContact.replace(/\b0(5\d{8})\b/g, "+971$1");
+                    let callBtnHtml = '';
+                    const phoneMatch = formattedContact.match(/\+9715\d{8}/);
+                    if (phoneMatch) {
+                        callBtnHtml = `<a href="tel:${phoneMatch[0]}" style="display:inline-flex; align-items:center; gap:4px; margin-left:8px; background:#16a34a; color:white; padding:3px 8px; border-radius:12px; text-decoration:none; font-size:0.75rem; font-weight:bold;"><i class="fas fa-phone-alt"></i> Call</a>`;
+                    }
+                    html += `<div style="color:var(--text-secondary); margin-top:6px; display:flex; align-items:center; justify-content:space-between; background:var(--bg-card); padding:8px 10px; border-radius:6px; border:1px solid var(--border);">
+                                <span>${escapeHtml(formattedContact)}</span>
+                                ${callBtnHtml}
+                             </div>`;
+                });
+
+                html += `</div>`;
             }
             if (note) {
                 html += `<div>
@@ -2047,6 +2225,37 @@
         function closeCommentModal() {
             document.getElementById('commentModal').style.display = 'none';
         }
+
+        // Global ESC key listener to close active popups / modals
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+                const passCloseBtn = document.getElementById('adminPassCloseBtn') || document.getElementById('adminPassCancel');
+                if (passCloseBtn && document.getElementById('adminPassInput')) {
+                    passCloseBtn.click();
+                    return;
+                }
+                const commentModal = document.getElementById('commentModal');
+                if (commentModal && commentModal.style.display === 'flex') {
+                    closeCommentModal();
+                    return;
+                }
+                const etsModal = document.getElementById('etsModal');
+                if (etsModal && etsModal.style.display === 'flex') {
+                    closeModal();
+                    return;
+                }
+                const statsModal = document.getElementById('statsModal');
+                if (statsModal && statsModal.style.display === 'flex') {
+                    closeStatsModal();
+                    return;
+                }
+                const adminModal = document.getElementById('adminModal');
+                if (adminModal && adminModal.style.display === 'flex') {
+                    closeAdminModal();
+                    return;
+                }
+            }
+        });
 
         
 
