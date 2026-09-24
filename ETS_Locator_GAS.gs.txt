@@ -84,6 +84,11 @@ function doPost(e) {
       sheet.getRange(item.rowIdx, 1, 1, 5).setValues([[item.name, item.plant, item.coords, item.comment, timestamp]]);
       return response(true, "Updated successfully");
     }
+    else if (action === 'delete') {
+      if (!item.rowIdx) return response(false, "Row index missing for delete.");
+      sheet.deleteRow(item.rowIdx);
+      return response(true, "Deleted successfully");
+    }
     
     return response(false, "Invalid action");
   } catch (error) {
