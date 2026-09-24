@@ -1,0 +1,19 @@
+[
+  {
+    "endpoint": "https://fcm.googleapis.com/fcm/send/dDPXyYGHlm0:APA91bERmAI5Ixlx6yK-6nwRfsiOuJMCMHeSwewrxjBMJYAwL3HfL9Ay4Z-PisimNIQpHw_AMzxOb6BWWrUdBuqo6SQsPkqS0lOG87PcGkLVUf7-lZQE1_VvKbtuxZowB3f774czYRj6",
+    "keys": {
+      "p256dh": "BCuRSkm0iltgu7_AhahHvCqSzUnXv66-9H8-VyBUNBCREVI8q_SsZyPuXzesOutQZMzaXVOJ1R4OpTed_9ttR_U",
+      "auth": "Wq6pcj7OgkWJZuI-hNavqw"
+    },
+    "user": "User",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Safari/537.36",
+    "os": "Windows",
+    "platform": "Windows • Chrome",
+    "isStandalone": false,
+    "browser": "Chrome",
+    "rawSubscription": "{\"endpoint\":\"https://fcm.googleapis.com/fcm/send/dDPXyYGHlm0:APA91bERmAI5Ixlx6yK-6nwRfsiOuJMCMHeSwewrxjBMJYAwL3HfL9Ay4Z-PisimNIQpHw_AMzxOb6BWWrUdBuqo6SQsPkqS0lOG87PcGkLVUf7-lZQE1_VvKbtuxZowB3f774czYRj6\",\"expirationTime\":null,\"keys\":{\"p256dh\":\"BCuRSkm0iltgu7_AhahHvCqSzUnXv66-9H8-VyBUNBCREVI8q_SsZyPuXzesOutQZMzaXVOJ1R4OpTed_9ttR_U\",\"auth\":\"Wq6pcj7OgkWJZuI-hNavqw\"}}",
+    "status": "active",
+    "updatedAt": "2026-09-24T10:46:06.549Z",
+    "createdAt": "2026-09-24T10:46:06.549Z"
+  }
+]
