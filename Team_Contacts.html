@@ -186,7 +186,7 @@
     </style>
     <link rel="stylesheet" href="themes.css">
 </head>
-<body onload="initApp()">
+<body class="toast-outlined" onload="initApp()">
     <div class="app-container">
         <header class="app-header">
             <div class="header-content">
@@ -264,10 +264,12 @@
             document.body.classList.remove('toast-minimal', 'toast-glassy', 'toast-outlined', 'toast-neon', 'toast-soft-shadow', 'toast-solid');
             if (settings && settings.toastStyle && settings.toastStyle !== 'default') {
                 document.body.classList.add('toast-' + settings.toastStyle);
+            } else {
+                document.body.classList.add('toast-outlined');
             }
             const container = document.getElementById('toastContainer');
             if (container) {
-                container.className = 'toast-container ' + (settings && settings.toastPosition ? settings.toastPosition : 'pos-top');
+                container.className = 'toast-container ' + (settings && settings.toastPosition ? settings.toastPosition : 'pos-bottom');
             }
         }
         
@@ -700,6 +702,6 @@
             renderContacts(filtered);
         }
     </script>
-<div class="toast-container" id="toastContainer"></div>
+<div class="toast-container pos-bottom" id="toastContainer"></div>
 </body>
 </html>

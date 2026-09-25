@@ -233,6 +233,13 @@
             text-align: center;
             max-width: 85vw;
         }
+        body.toast-outlined .toast {
+            background: var(--bg-card, #ffffff);
+            border: 2px solid var(--primary, #1a73e8);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            color: var(--text-primary, #1e293b);
+        }
         @keyframes toastCenterAnim {
             from { transform: translateY(-12px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -294,7 +301,7 @@ input[type="date"] {
 </style>
     <link rel="stylesheet" href="themes.css">
 </head>
-<body>
+<body class="toast-outlined">
     <div class="app-container">
         <header class="app-header">
             <div class="header-content">
@@ -805,13 +812,19 @@ input[type="date"] {
         const LS_DARK = 'tabreed_dark_mode';
 
         function applyUserSettings(settings) {
+            settings = settings || {};
+            const toastStyle = settings.toastStyle || 'outlined';
+            const toastPosition = settings.toastPosition || 'pos-bottom';
+
             document.body.classList.remove('toast-minimal', 'toast-glassy', 'toast-outlined', 'toast-neon', 'toast-soft-shadow', 'toast-solid');
-            if (settings && settings.toastStyle && settings.toastStyle !== 'default') {
-                document.body.classList.add('toast-' + settings.toastStyle);
+            if (toastStyle && toastStyle !== 'default') {
+                document.body.classList.add('toast-' + toastStyle);
+            } else {
+                document.body.classList.add('toast-outlined');
             }
             const container = document.getElementById('toastContainer');
             if (container) {
-                container.className = 'toast-container ' + (settings && settings.toastPosition ? settings.toastPosition : 'pos-top');
+                container.className = 'toast-container ' + toastPosition;
             }
         }
         
@@ -1256,24 +1269,30 @@ input[type="date"] {
         }
 
         function logOperationActivity(action, actionLabel, description, workOrder = '', plant = '', badgeColor = '', details = '') {
+            // User requested: "Sync Log History me zarurat nahi usko Log nahi kro"
+            if (action === 'sync') return;
+
             const curUser = (typeof getCurrentUser === 'function' ? getCurrentUser() : currentUser) || {};
             const userName = curUser.short || curUser.full || curUser.name || curUser.code || 'Technician';
             const colors = {
                 'delete': '#dc2626',
                 'status': '#16a34a',
                 'update': '#7c3aed',
-                'create': '#1a73e8',
-                'sync': '#0284c7'
+                'create': '#1a73e8'
             };
             const now = new Date();
             const displayTime = format24HourDateTime(now);
 
             const hist = getLocalHistory();
 
-            // Prevent rapid duplicate logging (within 15 seconds for same work order and action)
+            // Prevent rapid duplicate logging (within 10 seconds for exact same action and entity)
             const isDup = hist.some(h => {
                 const diff = Math.abs(now.getTime() - new Date(h.timestamp || 0).getTime()) / 1000;
-                return diff < 15 && h.action === action && (h.workOrder || '') === (workOrder || '');
+                if (diff >= 10 || h.action !== action) return false;
+                if (workOrder && h.workOrder) {
+                    return String(h.workOrder).replace(/^#/, '').trim() === String(workOrder).replace(/^#/, '').trim();
+                }
+                return (h.plant || '') === (plant || '') && (h.description || '') === (description || '');
             });
             if (isDup) return;
 
@@ -2413,7 +2432,7 @@ input[type="date"] {
             // 1. Try local server proxy first (/api/operation-requests)
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 4000);
+                const timeoutId = setTimeout(() => controller.abort(), 12000);
                 const res = await fetch('/api/operation-requests', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2650,7 +2669,9 @@ input[type="date"] {
             document.getElementById('requestModal').style.display = 'none';
         }
 
+        let isSavingRequest = false;
         function saveRequest() {
+            if (isSavingRequest) return;
             const id = document.getElementById('reqId').value;
             const wo = document.getElementById('reqWO').value.trim();
             const desc = document.getElementById('reqDesc').value.trim();
@@ -2666,6 +2687,9 @@ input[type="date"] {
                 showToast("Please fill all required fields (Description, Plant, Date, Team)", "warning");
                 return;
             }
+
+            isSavingRequest = true;
+            setTimeout(() => { isSavingRequest = false; }, 3000);
 
             const formattedDate = formatDateToDDMMYYYY(dateVal);
             let formattedTime = "";
@@ -2693,7 +2717,7 @@ input[type="date"] {
             let newAuditStamp = '';
 
             const newReq = {
-                id: id || ("row_" + Date.now()),
+                id: id || ("row_" + Date.now() + "_" + Math.floor(Math.random() * 1000)),
                 wo: wo,
                 desc: desc,
                 plant: plant,
@@ -2712,6 +2736,7 @@ input[type="date"] {
                 if (oldReq) {
                     if (!canUserEditRequest(oldReq)) {
                         showToast("Unauthorized: You can only edit your own requests.", "error");
+                        isSavingRequest = false;
                         return;
                     }
 
@@ -2810,13 +2835,14 @@ input[type="date"] {
                 remarks: finalRemarks,
                 createdBy: newReq.createdBy || userName,
                 user: userName,
-                skipAutoHistory: true,
-                skipHistoryLog: true,
+                skipAutoHistory: false,
+                skipHistoryLog: false,
                 details: id ? newAuditStamp : ''
             };
 
             if (!navigator.onLine) {
                 pushToSyncQueue(id ? 'update' : 'create', payload);
+                isSavingRequest = false;
                 return;
             }
 
@@ -2824,6 +2850,8 @@ input[type="date"] {
                 if (!res.success) {
                     pushToSyncQueue(id ? 'update' : 'create', payload);
                 }
+            }).finally(() => {
+                isSavingRequest = false;
             });
         }
         
@@ -3847,6 +3875,6 @@ input[type="date"] {
             updateStatusIndicator('offline');
         });
     </script>
-    <div class="toast-container" id="toastContainer"></div>
+    <div class="toast-container pos-bottom" id="toastContainer"></div>
 </body>
 </html>

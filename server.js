@@ -11,6 +11,53 @@ const OVERRIDES_FILE = path.join(__dirname, 'status_overrides.json');
 const HISTORY_FILE = path.join(__dirname, 'operation_history.json');
 const TEAM_CONTACTS_FILE = path.join(__dirname, 'team_contacts.json');
 const EMPLOYEES_FILE = path.join(__dirname, 'employees.json');
+const PWA_PREFERENCES_FILE = path.join(__dirname, 'pwa_preferences.json');
+const DRIVE_PWA_FILE_ID = '1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX';
+const INVENTORY_CACHE_FILE = path.join(__dirname, 'inventory_cache.json');
+const INVENTORY_HISTORY_FILE = path.join(__dirname, 'inventory_history_cache.json');
+const INVENTORY_GAS_URL = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
+
+function loadInventoryCache() {
+  try {
+    if (fs.existsSync(INVENTORY_CACHE_FILE)) {
+      const content = fs.readFileSync(INVENTORY_CACHE_FILE, 'utf8');
+      const parsed = JSON.parse(content);
+      if (parsed && (Array.isArray(parsed.data) || parsed.success)) return parsed;
+    }
+  } catch (e) {
+    console.error("Error reading inventory_cache.json:", e);
+  }
+  return { success: true, data: [], locations: [], stats: { warningItems: 0 }, totalItems: 0 };
+}
+
+function saveInventoryCache(data) {
+  try {
+    fs.writeFileSync(INVENTORY_CACHE_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (e) {
+    console.error("Error writing inventory_cache.json:", e);
+  }
+}
+
+function loadInventoryHistoryCache() {
+  try {
+    if (fs.existsSync(INVENTORY_HISTORY_FILE)) {
+      const content = fs.readFileSync(INVENTORY_HISTORY_FILE, 'utf8');
+      const parsed = JSON.parse(content);
+      if (parsed && (Array.isArray(parsed.data) || parsed.success)) return parsed;
+    }
+  } catch (e) {
+    console.error("Error reading inventory_history_cache.json:", e);
+  }
+  return { success: true, data: [] };
+}
+
+function saveInventoryHistoryCache(data) {
+  try {
+    fs.writeFileSync(INVENTORY_HISTORY_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (e) {
+    console.error("Error writing inventory_history_cache.json:", e);
+  }
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,7 +68,7 @@ app.use(express.json({ limit: '1mb' }));
 // Security Headers Middleware
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  // Allow framing for AI Studio preview iframe integration
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   res.setHeader('X-XSS-Protection', '1; mode=block');
@@ -54,6 +101,7 @@ function sanitizePayloadObject(obj) {
 }
 
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_XKC1cV1VaeqKB2MbQgmRSOYmcxQI0v-5qcAAKhFczNOwU3GsindACIkuawzQZN4/exec";
+let MIX_DATA_GAS_URL = process.env.MIX_DATA_GAS_URL || "https://script.google.com/macros/s/AKfycby3rLk9ihwFSTXmDnp0suNtsxNRfZntql7rrPzB2u-l8vYVSMpZyDwOt7kkv_LstERijQ/exec";
 
 function loadTeamContacts() {
   try {
@@ -75,6 +123,69 @@ function saveTeamContacts(data) {
     fs.writeFileSync(TEAM_CONTACTS_FILE, JSON.stringify(data, null, 2), 'utf8');
   } catch (e) {
     console.error("Error writing team_contacts.json:", e);
+  }
+}
+
+const DEVELOPER_DEFAULT_SETTINGS = {
+  toastStyle: 'outlined',
+  toastPosition: 'pos-bottom',
+  defaultTheme: 'default',
+  lightToggle: 'default',
+  darkToggle: 'dark-mode',
+  autoSync: true,
+  moduleOrder: [
+    'NATIVE_INSTRUMENT',
+    'DocumentFolder.html',
+    'PM_Checklist_Generator.html',
+    'ETS_Locator.html',
+    'Operation_Request.html',
+    'Team_Contacts.html'
+  ]
+};
+
+function loadPwaPreferences() {
+  let data = null;
+  try {
+    if (fs.existsSync(PWA_PREFERENCES_FILE)) {
+      data = JSON.parse(fs.readFileSync(PWA_PREFERENCES_FILE, 'utf8'));
+    }
+  } catch (e) {
+    console.error("Error reading pwa_preferences.json:", e);
+  }
+  if (!data || typeof data !== 'object') {
+    data = {
+      fileId: DRIVE_PWA_FILE_ID,
+      version: '1.0',
+      syncCounter: 1,
+      lastUpdated: new Date().toISOString(),
+      lastUpdatedBy: 'System',
+      moduleOrders: {},
+      userSettings: {},
+      defaultSettings: DEVELOPER_DEFAULT_SETTINGS,
+      userDefaultSettings: {},
+      globalSettings: {}
+    };
+  } else {
+    data.syncCounter = typeof data.syncCounter === 'number' ? data.syncCounter : (Number(data.syncCounter) || 1);
+    data.defaultSettings = data.defaultSettings || DEVELOPER_DEFAULT_SETTINGS;
+    data.userDefaultSettings = data.userDefaultSettings || {};
+    data.moduleOrders = data.moduleOrders || {};
+    data.userSettings = data.userSettings || {};
+    data.globalSettings = data.globalSettings || {};
+  }
+  return data;
+}
+
+function savePwaPreferences(data) {
+  try {
+    if (data && typeof data === 'object') {
+      data.syncCounter = typeof data.syncCounter === 'number' ? data.syncCounter : (Number(data.syncCounter) || 1);
+      data.defaultSettings = data.defaultSettings || DEVELOPER_DEFAULT_SETTINGS;
+      data.userDefaultSettings = data.userDefaultSettings || {};
+    }
+    fs.writeFileSync(PWA_PREFERENCES_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (e) {
+    console.error("Error writing pwa_preferences.json:", e);
   }
 }
 
@@ -376,23 +487,20 @@ app.get('/api/operation-history', async (req, res) => {
     clearTimeout(timeoutId);
     if (cloudRes.ok) {
       const json = await cloudRes.json();
-      if (json && json.status === 'success' && Array.isArray(json.data)) {
-        if (json.data.length === 0) {
-          history = [];
-          saveHistoryData([]);
-        } else {
-          // Merge cloud history with local with intelligent deduplication and 24-hour formatting
-          const combined = [...json.data, ...history];
-          history = deduplicateHistoryList(combined);
-          if (history.length > 200) history.length = 200;
-          saveHistoryData(history);
-        }
+      if (json && json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
+        // Merge cloud history with local with intelligent deduplication and 24-hour formatting
+        const combined = [...json.data, ...history];
+        history = deduplicateHistoryList(combined);
+        if (history.length > 200) history.length = 200;
+        saveHistoryData(history);
       }
     }
   } catch(e) {
     // Quiet fail to local cache
   }
-  res.json({ status: 'success', data: history });
+  // Exclude sync actions as user requested: "Sync Log History me zarurat nahi usko Log nahi kro"
+  const cleanHistory = (history || []).filter(h => h.action !== 'sync' && h.actionLabel !== 'Synced');
+  res.json({ status: 'success', data: cleanHistory });
 });
 
 app.post('/api/operation-history', (req, res) => {
@@ -401,8 +509,13 @@ app.post('/api/operation-history', (req, res) => {
     return res.status(400).json({ status: 'error', message: 'Invalid history item' });
   }
 
-  const epoch = parseHistoryEpoch(item.timestamp, item.displayTime) || Date.now();
   const normAction = normalizeHistoryAction(item.action || item.actionLabel);
+  // Do not log sync actions to operation history
+  if (normAction === 'sync' || item.action === 'sync') {
+    return res.json({ status: 'success', message: 'Sync events are not logged to operation history' });
+  }
+
+  const epoch = parseHistoryEpoch(item.timestamp, item.displayTime) || Date.now();
   const display24 = format24HourDateTime(epoch);
   const wo = String(item.workOrder || '').replace(/^#/, '').trim();
   const plant = String(item.plant || '').trim();
@@ -598,6 +711,21 @@ app.post('/api/operation-requests', async (req, res) => {
       return res.status(400).json({ status: 'error', message: 'Cannot create empty request: Work Order, Description or Plant required' });
     }
 
+    // Deduplication check: prevent double entry within 15 seconds
+    const existing = cached.find(item => {
+      const matchWo = String(item['Work Order'] || item.wo || '').trim() === woVal;
+      const matchDesc = String(item['Description'] || item.desc || '').trim() === descVal;
+      const matchPlant = String(item['Plant'] || item.plant || '').trim() === plantVal;
+      const matchDate = String(item['Date'] || item.date || '').trim() === String(body.date || '').trim();
+      const matchTime = String(item['Time'] || item.time || '').trim() === String(body.time || '').trim();
+      return matchWo && matchDesc && matchPlant && matchDate && matchTime;
+    });
+
+    if (existing) {
+      console.log(`[Operation Request] Duplicate create detected for WO: "${woVal}" / Plant: "${plantVal}". Returning existing entry.`);
+      return res.json({ status: 'success', message: 'Request already recorded (deduplicated)', data: existing });
+    }
+
     const newId = body.id || ("row_" + (cached.length + 1) + "_" + Date.now());
     const newItem = {
       "Work Order": body.workOrder || '',
@@ -613,14 +741,37 @@ app.post('/api/operation-requests', async (req, res) => {
     cached.unshift(newItem);
     saveLocalData(cached);
 
+    // Activity History Logging (Create entry & save to history)
+    const userName = body.user || body.createdBy || 'Technician';
+    const epoch = Date.now();
+    const histEntry = {
+      id: 'hist_' + epoch + '_' + Math.floor(Math.random() * 1000),
+      timestamp: new Date(epoch).toISOString(),
+      displayTime: format24HourDateTime(epoch),
+      action: 'create',
+      actionLabel: 'New Request',
+      workOrder: woVal,
+      plant: plantVal,
+      description: `Created operation request for ${plantVal}${woVal ? ` (WO #${woVal})` : ''}`,
+      details: body.remarks || '',
+      user: userName,
+      badgeColor: '#1a73e8'
+    };
+    let history = loadHistoryData();
+    history.unshift(histEntry);
+    history = deduplicateHistoryList(history);
+    if (history.length > 200) history.length = 200;
+    saveHistoryData(history);
+
+    // Forward create to Apps Script and let Apps Script also log to History
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ ...body, id: newId, skipAutoHistory: true, skipHistoryLog: true }),
+      body: JSON.stringify({ ...body, id: newId, user: userName, skipAutoHistory: false, skipHistoryLog: false }),
       redirect: 'follow'
     }).catch(err => console.error("Apps Script create error:", err));
 
-    return res.json({ status: 'success', message: 'Created successfully', data: newItem });
+    return res.json({ status: 'success', message: 'Created successfully', data: newItem, historyItem: histEntry });
   }
 
   if (action === 'saveTeamContact') {
@@ -819,6 +970,134 @@ app.post('/api/team-contacts', async (req, res) => {
   return res.json({ status: 'success', message: 'Team contact saved to Google Sheet', data: list[idx !== -1 ? idx : list.length - 1] });
 });
 
+// GET Inventory Proxy (Forward to Google Apps Script with fallback to inventory_cache.json)
+app.get('/api/inventory', async (req, res) => {
+  const query = { ...req.query };
+  if (!query.key) query.key = 'AI1';
+  const action = query.action || 'getItems';
+
+  const qs = new URLSearchParams(query).toString();
+  const targetUrl = `${INVENTORY_GAS_URL}?${qs}`;
+
+  if (action === 'getItems') {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 7500);
+      const response = await fetch(targetUrl, {
+        redirect: 'follow',
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result && result.success && Array.isArray(result.data)) {
+          saveInventoryCache(result);
+          return res.json(result);
+        }
+      }
+    } catch (err) {
+      console.warn("Live inventory fetch from GAS failed or timed out:", err.message);
+    }
+
+    // Return cached inventory data safely with 200 OK
+    const cached = loadInventoryCache();
+    return res.json({ ...cached, success: true, fromCache: true });
+  }
+
+  if (action === 'getHistory') {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 7500);
+      const response = await fetch(targetUrl, {
+        redirect: 'follow',
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result && result.success && Array.isArray(result.data)) {
+          saveInventoryHistoryCache(result);
+          return res.json(result);
+        }
+      }
+    } catch (err) {
+      console.warn("Live inventory history fetch from GAS failed:", err.message);
+    }
+
+    const cachedHist = loadInventoryHistoryCache();
+    return res.json({ ...cachedHist, success: true, fromCache: true });
+  }
+
+  // Handle other actions (updateLocations, clearCache, feedback, log_sync, etc.)
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const response = await fetch(targetUrl, {
+      redirect: 'follow',
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (response.ok) {
+      const result = await response.json();
+      return res.json(result);
+    }
+  } catch (err) {
+    console.warn(`Action ${action} proxy error:`, err.message);
+  }
+
+  // If updateLocations was requested and remote failed, update local cache
+  if (action === 'updateLocations' && query.updates) {
+    try {
+      const updates = typeof query.updates === 'string' ? JSON.parse(query.updates) : query.updates;
+      if (Array.isArray(updates)) {
+        const cached = loadInventoryCache();
+        updates.forEach(u => {
+          const item = (cached.data || []).find(it => it.name === u.name);
+          if (item) item.location = u.location;
+        });
+        saveInventoryCache(cached);
+      }
+    } catch (e) {}
+    return res.json({ success: true, message: 'Locations updated in local cache' });
+  }
+
+  return res.json({ success: true, message: 'Request processed' });
+});
+
+// POST Inventory Proxy
+app.post('/api/inventory', async (req, res) => {
+  const query = { ...req.query };
+  if (!query.key) query.key = 'AI1';
+  const body = req.body || {};
+  const qs = new URLSearchParams(query).toString();
+  const targetUrl = `${INVENTORY_GAS_URL}?${qs}`;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const response = await fetch(targetUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      redirect: 'follow',
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (response.ok) {
+      const result = await response.json();
+      return res.json(result);
+    }
+  } catch (err) {
+    console.warn("POST /api/inventory proxy error:", err.message);
+  }
+
+  return res.json({ success: true, message: 'Request accepted' });
+});
+
 // POST Clean Ghost / Invalid Empty Rows from Sheet & Cache
 app.post('/api/clean-kachra', async (req, res) => {
   if (!isPrivilegedRequest(req)) {
@@ -907,6 +1186,241 @@ app.post('/api/sync-all-to-sheets', async (req, res) => {
     contactsCount: contacts.length,
     historyCount: history.length
   });
+});
+
+// GET PWA Preferences (Tile arrangement & User Settings from Server & Google Drive PWA.json)
+app.get('/api/pwa-preferences', async (req, res) => {
+  let localData = loadPwaPreferences();
+
+  // Try to sync latest from Google Apps Script / Drive file
+  try {
+    const targetGasUrl = localData.gasUrl || MIX_DATA_GAS_URL || APPS_SCRIPT_URL;
+    const remoteUrl = `${targetGasUrl}?action=getPwaConfig&fileId=${DRIVE_PWA_FILE_ID}&t=${Date.now()}`;
+    const remoteRes = await fetch(remoteUrl, {
+      redirect: 'follow',
+      signal: AbortSignal.timeout(2000)
+    });
+    if (remoteRes.ok) {
+      const json = await remoteRes.json();
+      if (json && json.status === 'success' && json.data && typeof json.data === 'object' && Object.keys(json.data).length > 0) {
+        const remoteCounter = Number(json.data.syncCounter) || 0;
+        const localCounter = Number(localData.syncCounter) || 0;
+
+        if (remoteCounter >= localCounter) {
+          localData = {
+            ...localData,
+            ...json.data,
+            syncCounter: remoteCounter || localCounter,
+            moduleOrders: { ...(localData.moduleOrders || {}), ...(json.data.moduleOrders || {}) },
+            userSettings: { ...(localData.userSettings || {}), ...(json.data.userSettings || {}) },
+            globalSettings: { ...(localData.globalSettings || {}), ...(json.data.globalSettings || {}) }
+          };
+          savePwaPreferences(localData);
+          return res.json({ status: 'success', data: localData, source: 'google_drive' });
+        } else if (localCounter > remoteCounter) {
+          // Local has newer updates, push to remote in background!
+          fetch(targetGasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'savePwaConfig', fileId: DRIVE_PWA_FILE_ID, pwaData: localData, user: 'SyncDaemon' }),
+            redirect: 'follow',
+            signal: AbortSignal.timeout(9000)
+          }).catch(() => {});
+        }
+      }
+    }
+  } catch (err) {
+    // Timeout or Apps Script not yet updated, attempt direct Drive download
+    try {
+      const driveDirectUrl = `https://drive.usercontent.google.com/download?id=${DRIVE_PWA_FILE_ID}&export=download`;
+      const directRes = await fetch(driveDirectUrl, { signal: AbortSignal.timeout(1500) });
+      if (directRes.ok) {
+        const text = await directRes.text();
+        if (text && text.trim().length > 0) {
+          const driveData = JSON.parse(text);
+          if (driveData && typeof driveData === 'object') {
+            const remoteCounter = Number(driveData.syncCounter) || 0;
+            const localCounter = Number(localData.syncCounter) || 0;
+            if (remoteCounter >= localCounter) {
+              localData = {
+                ...localData,
+                ...driveData,
+                syncCounter: remoteCounter || localCounter,
+                moduleOrders: { ...(localData.moduleOrders || {}), ...(driveData.moduleOrders || {}) },
+                userSettings: { ...(localData.userSettings || {}), ...(driveData.userSettings || {}) },
+                globalSettings: { ...(localData.globalSettings || {}), ...(driveData.globalSettings || {}) }
+              };
+              savePwaPreferences(localData);
+              return res.json({ status: 'success', data: localData, source: 'google_drive_direct' });
+            }
+          }
+        }
+      }
+    } catch(e) {}
+  }
+
+  return res.json({ status: 'success', data: localData, source: 'server_cache' });
+});
+
+// POST PWA Preferences (Saves to server cache and writes to Google Drive PWA.json via Apps Script)
+app.post('/api/pwa-preferences', async (req, res) => {
+  const body = req.body || {};
+  let currentData = loadPwaPreferences();
+
+  const user = body.user || 'User';
+  const fileId = body.fileId || DRIVE_PWA_FILE_ID;
+  const clientCounter = Number(body.syncCounter) || 0;
+  currentData.syncCounter = Math.max(Number(currentData.syncCounter) || 0, clientCounter) + 1;
+
+  if (body.gasUrl && typeof body.gasUrl === 'string') {
+    currentData.gasUrl = body.gasUrl.trim();
+    MIX_DATA_GAS_URL = body.gasUrl.trim();
+  }
+
+  if (body.action === 'restoreUserDefault') {
+    const userCode = String(body.userCode || body.user || '').trim();
+    const restored = (userCode && currentData.userDefaultSettings && currentData.userDefaultSettings[userCode]) 
+      || currentData.defaultSettings 
+      || DEVELOPER_DEFAULT_SETTINGS;
+
+    if (userCode) {
+      if (!currentData.userSettings) currentData.userSettings = {};
+      currentData.userSettings[userCode] = { ...restored };
+    }
+    currentData.lastUpdated = new Date().toISOString();
+    currentData.lastUpdatedBy = user;
+    savePwaPreferences(currentData);
+
+    const targetGasUrl = currentData.gasUrl || MIX_DATA_GAS_URL || APPS_SCRIPT_URL;
+    fetch(targetGasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'savePwaConfig', fileId: fileId, pwaData: currentData, user: user }),
+      redirect: 'follow',
+      signal: AbortSignal.timeout(9000)
+    }).catch(() => {});
+
+    return res.json({ status: 'success', message: 'Restored default settings for user from PWA.json', restoredSettings: restored, data: currentData });
+  }
+
+  if (body.action === 'factoryResetAll') {
+    currentData.moduleOrders = {};
+    currentData.userSettings = {};
+    currentData.userDefaultSettings = {};
+    currentData.defaultSettings = { ...DEVELOPER_DEFAULT_SETTINGS };
+    currentData.lastUpdated = new Date().toISOString();
+    currentData.lastUpdatedBy = user;
+    savePwaPreferences(currentData);
+
+    const targetGasUrl = currentData.gasUrl || MIX_DATA_GAS_URL || APPS_SCRIPT_URL;
+    fetch(targetGasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'savePwaConfig', fileId: fileId, pwaData: currentData, user: user }),
+      redirect: 'follow',
+      signal: AbortSignal.timeout(9000)
+    }).catch(() => {});
+
+    return res.json({ status: 'success', message: 'All employees factory reset to Developer Defaults', data: currentData });
+  }
+
+  if (body.moduleOrders && typeof body.moduleOrders === 'object') {
+    currentData.moduleOrders = {
+      ...(currentData.moduleOrders || {}),
+      ...body.moduleOrders
+    };
+  }
+
+  if (body.userSettings && typeof body.userSettings === 'object') {
+    currentData.userSettings = {
+      ...(currentData.userSettings || {}),
+      ...body.userSettings
+    };
+  }
+
+  if (body.userDefaultSettings && typeof body.userDefaultSettings === 'object') {
+    currentData.userDefaultSettings = {
+      ...(currentData.userDefaultSettings || {}),
+      ...body.userDefaultSettings
+    };
+  }
+
+  if (body.defaultSettings && typeof body.defaultSettings === 'object') {
+    currentData.defaultSettings = {
+      ...DEVELOPER_DEFAULT_SETTINGS,
+      ...body.defaultSettings
+    };
+  }
+
+  if (body.globalSettings && typeof body.globalSettings === 'object') {
+    currentData.globalSettings = {
+      ...(currentData.globalSettings || {}),
+      ...body.globalSettings
+    };
+  }
+
+  currentData.lastUpdated = new Date().toISOString();
+  currentData.lastUpdatedBy = user;
+  currentData.fileId = fileId;
+
+  // 1. Save to local server file immediately so any device connecting to the server gets it
+  savePwaPreferences(currentData);
+
+  // 2. Forward to Mix Data Google Apps Script in background to write into Google Drive PWA.json
+  const targetGasUrl = currentData.gasUrl || MIX_DATA_GAS_URL || APPS_SCRIPT_URL;
+  fetch(targetGasUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({
+      action: 'savePwaConfig',
+      fileId: fileId,
+      pwaData: currentData,
+      user: user
+    }),
+    redirect: 'follow',
+    signal: AbortSignal.timeout(9000)
+  }).then(async r => {
+    try {
+      const resJson = await r.json();
+      if (resJson && resJson.status === 'success') {
+        console.log("[PWA Sync] Google Drive PWA.json synced successfully with syncCounter:", currentData.syncCounter);
+      }
+    } catch(e) {}
+  }).catch(() => {
+    // Safe fallback: server copy is already safely saved in pwa_preferences.json
+  });
+
+  return res.json({
+    status: 'success',
+    message: 'Saved preferences to server & syncing with Google Drive PWA.json',
+    data: currentData
+  });
+});
+
+app.post('/api/pwa-preferences/factory-reset', async (req, res) => {
+  let currentData = loadPwaPreferences();
+  const user = req.body?.user || 'Developer';
+  const fileId = req.body?.fileId || DRIVE_PWA_FILE_ID;
+  const targetGasUrl = currentData.gasUrl || MIX_DATA_GAS_URL || APPS_SCRIPT_URL;
+
+  currentData.syncCounter = (Number(currentData.syncCounter) || 0) + 1;
+  currentData.moduleOrders = {};
+  currentData.userSettings = {};
+  currentData.userDefaultSettings = {};
+  currentData.defaultSettings = { ...DEVELOPER_DEFAULT_SETTINGS };
+  currentData.lastUpdated = new Date().toISOString();
+  currentData.lastUpdatedBy = user;
+  savePwaPreferences(currentData);
+
+  fetch(targetGasUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'savePwaConfig', fileId: fileId, pwaData: currentData, user: user }),
+    redirect: 'follow',
+    signal: AbortSignal.timeout(9000)
+  }).catch(() => {});
+
+  return res.json({ status: 'success', message: 'All employees factory reset to Developer Defaults', data: currentData });
 });
 
 // Handle case-insensitive index request for PWA start_url (/Index.html)

@@ -899,8 +899,152 @@
                 </div>
 
                 <p style="color:var(--text-muted); margin-bottom:16px;">
-                    Click on any block below to inspect its responsibilities, dependencies, security rules, and code location. Use the filter chips to isolate specific tiers.
+                    Below is the complete <b>End-to-End Architectural Block Diagram</b> illustrating the data lifecycle, zero-flicker client rendering, deduplication, and Google Cloud sync workflows. Click any component below for deep-dive technical specs.
                 </p>
+
+                <!-- VISUAL SYSTEM ARCHITECTURE BLOCK DIAGRAM -->
+                <div class="card" style="margin-bottom:28px; background:var(--bg-surface); border:1.5px solid var(--border-strong); padding:24px; box-shadow:var(--shadow-md);">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; border-bottom:1px solid var(--border-subtle); padding-bottom:12px;">
+                        <h3 style="font-size:1.15rem; color:var(--text-main); display:flex; align-items:center; gap:8px;">
+                            <span style="color:var(--brand-primary);">📐</span> Master System Architecture &amp; Execution Pipeline
+                        </h3>
+                        <span class="meta-tag meta-tag-blue" style="font-size:0.75rem;">Interactive Execution Graph</span>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:16px; font-family:var(--font-mono); font-size:0.82rem;">
+                        
+                        <!-- BLOCK 1: CLIENT PRESENTATION -->
+                        <div style="background:var(--bg-surface-subtle); border:2px solid var(--brand-primary); border-radius:var(--radius-md); padding:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <b style="color:var(--brand-primary); font-size:0.9rem;">1. CLIENT PRESENTATION LAYER (SPA &amp; SUB-MODULES)</b>
+                                <span class="code-tag">Browser UI</span>
+                            </div>
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>Portal Launchpad</b> <span style="font-size:0.72rem; color:var(--text-muted);">(index.html)</span><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• Zero-flicker synchronous DOM order layout<br>• Hold "Hold to reorder" 700ms to reset defaults<br>• Silent module drag-and-drop</span>
+                                </div>
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>Operation Request</b> <span style="font-size:0.72rem; color:var(--text-muted);">(Operation_Request.html)</span><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• Work order creation &amp; Creator edit audits<br>• isSavingRequest mutex prevents double submits<br>• Excludes 'sync' actions from history</span>
+                                </div>
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>Global Notifications</b> <span style="font-size:0.72rem; color:var(--text-muted);">(themes.css)</span><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• Default style: <code>toast-outlined</code><br>• Default position: <code>pos-bottom</code> (center)<br>• Unified per-user style inheritance</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ARROW 1 -->
+                        <div style="text-align:center; color:var(--brand-primary); font-weight:bold; font-size:1.1rem; line-height:1;">
+                            ▼ <span style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-stack);">Synchronous reads before paint &amp; Async cache sync</span>
+                        </div>
+
+                        <!-- BLOCK 2: LOCAL STORAGE & PWA ENGINE -->
+                        <div style="background:var(--bg-surface-subtle); border:2px solid var(--brand-teal); border-radius:var(--radius-md); padding:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <b style="color:var(--brand-teal); font-size:0.9rem;">2. CLIENT STORAGE &amp; SYNC CONTROLLER LAYER</b>
+                                <span class="code-tag">LocalStorage + SW v17</span>
+                            </div>
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>PWA Preferences Cache</b><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• <code>tabreed_pwa_preferences</code><br>• <code>syncCounter</code>: monotonic counter check<br>• Higher counter takes precedence</span>
+                                </div>
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>User Customizations</b><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• <code>tabreed_module_order_{userKey}</code><br>• <code>tabreed_settings_{code}</code><br>• Applied synchronously in &lt;head&gt; / early DOM</span>
+                                </div>
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>Offline Mutation Queue</b><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• <code>tabreed_sync_queue</code><br>• Captures offline requests &amp; edits<br>• Flushes on reconnect with backoff</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ARROW 2 -->
+                        <div style="text-align:center; color:var(--brand-teal); font-weight:bold; font-size:1.1rem; line-height:1;">
+                            ▼ <span style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-stack);">HTTP REST Proxy Routes (/api/*) — Port 3000</span>
+                        </div>
+
+                        <!-- BLOCK 3: NODE SERVER & PROXY -->
+                        <div style="background:var(--bg-surface-subtle); border:2px solid var(--brand-purple); border-radius:var(--radius-md); padding:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <b style="color:var(--brand-purple); font-size:0.9rem;">3. NODE.JS EXPRESS CONTROLLER &amp; DEDUPLICATION (server.js)</b>
+                                <span class="code-tag">Cloud Run / Port 3000</span>
+                            </div>
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>/api/operation-requests</b><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• <b>15s Window Deduplication</b> prevents double rows<br>• Automatically logs create activity to history<br>• Writes to <code>operation_requests.json</code></span>
+                                </div>
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>/api/operation-history</b><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• Filters out <code>action === 'sync'</code> logs<br>• Formats strict 24-hr DD.MM.YYYY HH:mm<br>• Preserves history on empty cloud responses</span>
+                                </div>
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>/api/pwa-preferences</b><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• Auto-increments <code>syncCounter</code> on save<br>• <code>restoreUserDefault</code> (user defaults from JSON)<br>• <code>factoryResetAll</code> (developer defaults for all)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ARROW 3 -->
+                        <div style="text-align:center; color:var(--brand-purple); font-weight:bold; font-size:1.1rem; line-height:1;">
+                            ▼ <span style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-stack);">Secure Webhook Execution &amp; Background Forwarding</span>
+                        </div>
+
+                        <!-- BLOCK 4: GOOGLE APPS SCRIPT -->
+                        <div style="background:var(--bg-surface-subtle); border:2px solid var(--brand-success); border-radius:var(--radius-md); padding:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <b style="color:var(--brand-success); font-size:0.9rem;">4. GOOGLE APPS SCRIPT CLOUD ADAPTERS (GAS/)</b>
+                                <span class="code-tag">Google Cloud Script</span>
+                            </div>
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:10px;">
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>Operation_Request_GAS.gs.txt</b><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• Last-row deduplication check before appendRow()<br>• Appends to 'Operation Request' Google Sheet tab<br>• Logs to 'History' sheet tab with 24-hr timestamps</span>
+                                </div>
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>Mix_Data_GAS.gs.txt</b><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• Syncs preferences directly into Google Drive <code>PWA.json</code><br>• Writes clean 1-line backup log to 'PWA_Sync_Log' tab<br>• Omit raw payload JSON to maintain compact log</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ARROW 4 -->
+                        <div style="text-align:center; color:var(--brand-success); font-weight:bold; font-size:1.1rem; line-height:1;">
+                            ▼ <span style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-stack);">Cloud Storage Persistence &amp; Google Workspace APIs</span>
+                        </div>
+
+                        <!-- BLOCK 5: GOOGLE DRIVE & SHEETS -->
+                        <div style="background:var(--bg-surface-subtle); border:2px solid var(--brand-warning); border-radius:var(--radius-md); padding:16px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                                <b style="color:var(--brand-warning); font-size:0.9rem;">5. GOOGLE WORKSPACE PERSISTENCE TIER</b>
+                                <span class="code-tag">Cloud Database</span>
+                            </div>
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>'Operation Request' Sheet</b><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">Master work order repository</span>
+                                </div>
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>'History' Sheet</b><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">Operational audit log (no sync entries)</span>
+                                </div>
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>Drive PWA.json</b><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">Central cross-device preferences &amp; counter</span>
+                                </div>
+                                <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
+                                    <b>'PWA_Sync_Log' Sheet</b><br>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">Clean 1-line backup audit trace</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
 
                 <div class="diagram-container">
                     <div class="diagram-controls">
@@ -910,7 +1054,7 @@
                             <button type="button" class="filter-chip" onclick="filterArchTiers('backend')">Backend &amp; Proxy Tier</button>
                             <button type="button" class="filter-chip" onclick="filterArchTiers('cloud')">Cloud &amp; Storage Tier</button>
                         </div>
-                        <span style="font-size:0.8rem; color:var(--text-faint);">Interactive HTML/CSS Component Map</span>
+                        <span style="font-size:0.8rem; color:var(--text-faint);">Interactive Component Deep-Dive Inspector</span>
                     </div>
 
                     <div class="arch-tiers">
@@ -1059,28 +1203,28 @@
                     <!-- PIPELINE 1 -->
                     <div class="pipeline-card">
                         <div class="pipeline-card-title">
-                            <span style="color:var(--brand-primary);">1.</span> Work Order Request Submission &amp; 2-Way Sync
+                            <span style="color:var(--brand-primary);">1.</span> Work Order Request Creation with 3-Tier Deduplication &amp; History Logging
                         </div>
                         <div class="pipeline-steps">
                             <div class="pipeline-step">
-                                <span class="step-number">Step 01: Client Input</span>
-                                <span class="step-title">saveRequest()</span>
-                                <span class="step-body">User fills Work Order, Plant, Date, 24-hr Time &amp; Team. Form computes audit diff if editing.</span>
+                                <span class="step-number">Step 01: Client Submit &amp; Mutex</span>
+                                <span class="step-title">saveRequest() &amp; isSavingRequest</span>
+                                <span class="step-body">Form checks required fields, locks submit button with <span class="code-tag">isSavingRequest = true</span>, generates optimistic ID, and triggers <span class="code-tag">logOperationActivity('create')</span>.</span>
                             </div>
                             <div class="pipeline-step">
-                                <span class="step-number">Step 02: Optimistic UI</span>
-                                <span class="step-title">LocalStorage Cache</span>
-                                <span class="step-body">New/edited item is immediately saved into <span class="code-tag">LS_REQUESTS</span>. UI renders without waiting for network.</span>
+                                <span class="step-number">Step 02: Optimistic Local Cache</span>
+                                <span class="step-title">LocalStorage (LS_REQUESTS)</span>
+                                <span class="step-body">Item immediately unshifts to local array and writes to localStorage. Table renders instantly with 0ms perceived latency.</span>
                             </div>
                             <div class="pipeline-step">
-                                <span class="step-number">Step 03: Express Proxy</span>
+                                <span class="step-number">Step 03: Server 15s Deduplication</span>
                                 <span class="step-title">POST /api/operation-requests</span>
-                                <span class="step-body">Payload carries <span class="code-tag">skipAutoHistory:true</span> and logged-in user name. Proxy writes to local JSON fallback.</span>
+                                <span class="step-body">Server checks cached entries matching WO, Plant, Description, Date &amp; Time. Drops duplicates created within 15s. Records creation in <span class="code-tag">operation_history.json</span>.</span>
                             </div>
                             <div class="pipeline-step">
-                                <span class="step-number">Step 04: Google Sheet</span>
-                                <span class="step-title">Operation_Request_GAS</span>
-                                <span class="step-body">GAS script updates row in Google Sheet. Avoids duplicate log creation due to skipAutoHistory flag.</span>
+                                <span class="step-number">Step 04: GAS Last-Row Verification</span>
+                                <span class="step-title">Operation_Request_GAS.gs.txt</span>
+                                <span class="step-body">Google Apps Script verifies incoming row against last row in sheet before appending. Appends row and writes audit entry to 'History' sheet tab.</span>
                             </div>
                         </div>
                     </div>
@@ -1088,28 +1232,28 @@
                     <!-- PIPELINE 2 -->
                     <div class="pipeline-card">
                         <div class="pipeline-card-title">
-                            <span style="color:var(--brand-success);">2.</span> Status Update &amp; Deduplicated Audit Logging
+                            <span style="color:var(--brand-success);">2.</span> Operational Activity History &amp; Sync Log Exclusion
                         </div>
                         <div class="pipeline-steps">
                             <div class="pipeline-step">
-                                <span class="step-number">Step 01: Supervisor Action</span>
-                                <span class="step-title">saveInlineStatus()</span>
-                                <span class="step-body">Supervisor changes status via inline dropdown (e.g. Requested → Pending). Verifies role authorization.</span>
-                            </div>
-                            <div class="pipeline-step">
-                                <span class="step-number">Step 02: Real-User Log</span>
+                                <span class="step-number">Step 01: Activity Trigger</span>
                                 <span class="step-title">logOperationActivity()</span>
-                                <span class="step-body">Frontend records activity with actual technician/supervisor name (e.g. <i>Majeed</i>) rather than generic label.</span>
+                                <span class="step-body">Captures Work Order creates, updates, status changes, and supervisor deletes with 24-hr timestamps and real user names.</span>
                             </div>
                             <div class="pipeline-step">
-                                <span class="step-number">Step 03: Server Deduplication</span>
+                                <span class="step-number">Step 02: Sync Log Filter</span>
+                                <span class="step-title">if (action === 'sync') return</span>
+                                <span class="step-body">Sync operations are strictly excluded from history logs to prevent visual clutter and maintain clean operational audits.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 03: Multi-Level Deduplication</span>
                                 <span class="step-title">deduplicateHistoryList()</span>
-                                <span class="step-body">Collapses concurrent entries within 5-min window, standardizes to 24-hr <span class="code-tag">DD.MM.YYYY HH:mm</span>, prioritizes named user.</span>
+                                <span class="step-body">Collapses concurrent client edits within 10-second threshold, prevents duplicate sheet rows, and standardizes to 24-hr format.</span>
                             </div>
                             <div class="pipeline-step">
-                                <span class="step-number">Step 04: Audit History</span>
-                                <span class="step-title">operation_history.json</span>
-                                <span class="step-body">Stored in descending chronological order. Re-rendered instantly in History modal with filter tabs.</span>
+                                <span class="step-number">Step 04: History Persistence</span>
+                                <span class="step-title">operation_history.json &amp; Sheet</span>
+                                <span class="step-body">Persists capped 200 entries locally and synchronizes bidirectionally with the Google Sheets 'History' tab.</span>
                             </div>
                         </div>
                     </div>
@@ -1171,6 +1315,93 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- PIPELINE 5 -->
+                    <div class="pipeline-card">
+                        <div class="pipeline-card-title">
+                            <span style="color:var(--brand-primary);">5.</span> Module Reordering, 0ms Flicker Elimination &amp; Hold Reset
+                        </div>
+                        <div class="pipeline-steps">
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 01: Drag Interaction</span>
+                                <span class="step-title">Touch / Mouse Reorder</span>
+                                <span class="step-body">Logged-in employee holds tile for 180ms to drag and arrange modules on the Fiori launchpad.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 02: Silent Background Save</span>
+                                <span class="step-title">Zero Notification Noise</span>
+                                <span class="step-body">Arrangement saves to <span class="code-tag">tabreed_module_order_{userKey}</span> and syncs to Drive PWA.json completely in background without any toast notification.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 03: 0ms Flicker Prevention</span>
+                                <span class="step-title">Synchronous Inline Script</span>
+                                <span class="step-body">Immediate script after <span class="code-tag">#automationTileGrid</span> applies saved order before initial paint, eliminating 1ms layout jumps when returning from subpages.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 04: Hold Gesture Reset</span>
+                                <span class="step-title">Hold 700ms on #reorder-hint</span>
+                                <span class="step-body">Holding "Hold to reorder" for 700ms triggers haptic vibration and immediately resets module sequence to Developer Defaults.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PIPELINE 6 -->
+                    <div class="pipeline-card">
+                        <div class="pipeline-card-title">
+                            <span style="color:var(--brand-success);">6.</span> PWA Preferences syncCounter &amp; Silent Google Drive Sync
+                        </div>
+                        <div class="pipeline-steps">
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 01: Monotonic Counter</span>
+                                <span class="step-title">syncCounter Increments</span>
+                                <span class="step-body">Every modification increments <span class="code-tag">syncCounter</span>. The higher counter version always supersedes older copies across devices.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 02: LocalStorage Loading</span>
+                                <span class="step-title">tabreed_pwa_preferences</span>
+                                <span class="step-body">PWA preferences cache stores the latest settings, module orders, and counter in browser LocalStorage for instant offline boot.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 03: Silent Drive Sync</span>
+                                <span class="step-title">Drive PWA.json</span>
+                                <span class="step-body">Settings save shows only <i>"Settings Saved"</i>; cloud synchronization to Google Drive happens silently in background without toast noise.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 04: Clean 1-Line Mix Data Log</span>
+                                <span class="step-title">Mix_Data_GAS.gs.txt</span>
+                                <span class="step-body">Logs compact 5-column backup row (Timestamp, User, Action, Status, Summary) to 'PWA_Sync_Log' sheet without raw payload JSON.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PIPELINE 7 -->
+                    <div class="pipeline-card">
+                        <div class="pipeline-card-title">
+                            <span style="color:var(--brand-danger);">7.</span> Restore User Defaults &amp; Developer Factory Reset
+                        </div>
+                        <div class="pipeline-steps">
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 01: Restore My Defaults</span>
+                                <span class="step-title">restoreDefaultSettings()</span>
+                                <span class="step-body">Pulls employee's specific default profile from <span class="code-tag">userDefaultSettings</span> in PWA.json, resetting personal toast, theme, and sync options.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 02: Outlined Standard</span>
+                                <span class="step-title">toastStyle: 'outlined'</span>
+                                <span class="step-body">Restores default Outlined toast notification and Bottom Center positioning (<span class="code-tag">pos-bottom</span>) across all application screens.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 03: Developer Controls</span>
+                                <span class="step-title">factoryResetAllEmployees()</span>
+                                <span class="step-body">Protected behind Developer role (41764). Clears all employee customizations from LocalStorage and triggers backend factory reset.</span>
+                            </div>
+                            <div class="pipeline-step">
+                                <span class="step-number">Step 04: System-Wide Rollout</span>
+                                <span class="step-title">POST /api/pwa-preferences/factory-reset</span>
+                                <span class="step-body">Resets module orders and user settings in <span class="code-tag">pwa_preferences.json</span> and Google Drive <span class="code-tag">PWA.json</span> to Developer Defaults for all staff.</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -1200,6 +1431,26 @@
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td><span class="code-tag">POST /api/operation-requests</span></td>
+                                    <td>REST Handler</td>
+                                    <td>Handles 'create', 'update', 'updateStatus', 'delete'. <b>15-Second Deduplication:</b> Compares incoming workOrder, plant, desc, date, and time against cached records to prevent double submissions. Automatically logs create activity.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="code-tag">GET / POST /api/operation-history</span></td>
+                                    <td>REST Handler</td>
+                                    <td>Persists and serves audit logs. <b>Sync Filter:</b> Strictly filters out <code>action === 'sync'</code> to keep logs clean. Merges cloud history with local cache, formats 24-hr timestamps, and deduplicates within 10s windows.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="code-tag">POST /api/pwa-preferences</span></td>
+                                    <td>REST Handler</td>
+                                    <td>Manages module arrangements and user settings. Auto-increments <code>syncCounter</code> on every save. Supports <code>action === 'restoreUserDefault'</code> to restore individual user defaults. Forwards silently to Google Drive PWA.json.</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="code-tag">POST /api/pwa-preferences/factory-reset</span></td>
+                                    <td>Developer Controller</td>
+                                    <td>Restricted to Developer (41764). Resets all employee settings and module orders to Developer Defaults across local disk, browser LocalStorage, and Google Drive PWA.json.</td>
+                                </tr>
+                                <tr>
                                     <td><span class="code-tag">appsScriptProxy</span></td>
                                     <td>Proxy Handler</td>
                                     <td>Forwards requests to GAS with custom headers, 12s timeout, 3-retry exponential backoff, and fallback to local JSON file when cloud is unreachable.</td>
@@ -1210,19 +1461,14 @@
                                     <td>Normalizes actions ('create', 'update', 'status'), parses timestamps into epoch ms, formats to 24-hr strings, and merges duplicate entries within 5 minutes.</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="code-tag">format24HourDateTime()</span></td>
-                                    <td>Formatter</td>
-                                    <td>Converts epoch ms to strict <span class="code-tag">DD.MM.YYYY HH:mm</span> 24-hour time format with zero padding.</td>
-                                </tr>
-                                <tr>
                                     <td><span class="code-tag">loadHistoryData() / saveHistoryData()</span></td>
                                     <td>Persistence</td>
                                     <td>Maintains local disk cache in <span class="code-tag">operation_history.json</span> with thread-safe atomic file writes.</td>
                                 </tr>
                                 <tr>
-                                    <td><span class="code-tag">loadRequestsData() / saveRequestsData()</span></td>
+                                    <td><span class="code-tag">loadPwaPreferences() / savePwaPreferences()</span></td>
                                     <td>Persistence</td>
-                                    <td>Maintains persistent local copy of requests in <span class="code-tag">operation_requests.json</span> for offline fast boot.</td>
+                                    <td>Manages <span class="code-tag">pwa_preferences.json</span> containing moduleOrders, userSettings, defaultSettings, userDefaultSettings, and syncCounter.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1246,24 +1492,37 @@
                             Single-page application handling the entire lifecycle of industrial work order requests:
                         </p>
                         <ul style="font-size:0.86rem; color:var(--text-muted); padding-left:18px; line-height:1.6;">
+                            <li><b>Double-Entry Prevention:</b> Form submit button is locked via <span class="code-tag">isSavingRequest = true</span> mutex. Request is dispatched once to server proxy, falling back to direct cloud only if unreachable.</li>
+                            <li><b>Activity History Logging:</b> Create actions are immediately logged with technician name, WO#, plant, and 24-hr timestamp. Sync actions are strictly excluded from history.</li>
                             <li><b>Creator Edit Actions:</b> <span class="code-tag">canUserEditRequest(req)</span> permits logged-in users who created or are listed on a request to edit their own entry directly via an "Edit" button in the Action column.</li>
                             <li><b>Supervisor Controls:</b> Full status change dropdown, WhatsApp message generator, archive toggle, Excel/PDF export, delete confirmation modal.</li>
                             <li><b>24-Hour Time Picker:</b> Built-in minimal time selector modal supporting strict 24-hr industrial formats.</li>
-                            <li><b>Live Search &amp; Filters:</b> Filter by WO#, Plant ID, status pills (All, Requested, Pending, In Progress, Completed, Cancelled).</li>
-                            <li><b>Audit Trail:</b> In-modal history view showing exact diff changes, who edited the request, and timestamps.</li>
+                            <li><b>Unified Outlined Toast:</b> Inherits the employee's customized toast style (defaulting to Outlined and Bottom Center).</li>
                         </ul>
                     </div>
 
                     <div class="card">
-                        <h3 style="margin-bottom:10px;">Operation_Request_GAS.gs.txt</h3>
+                        <h3 style="margin-bottom:10px;">GAS/Operation_Request_GAS.gs.txt</h3>
                         <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
                             Google Apps Script backend deployed as a Web App to interact with Google Sheets:
                         </p>
                         <ul style="font-size:0.86rem; color:var(--text-muted); padding-left:18px; line-height:1.6;">
+                            <li><b>Last-Row Deduplication:</b> When processing action 'create', inspects the last sheet row. If workOrder, plant, and description match, duplicate creation is averted.</li>
                             <li><b>doGet(e):</b> Fetches all requests from the 'Operation Request' sheet and history logs from 'History' sheet.</li>
                             <li><b>doPost(e):</b> Dispatches actions: <span class="code-tag">create</span>, <span class="code-tag">update</span>, <span class="code-tag">updateStatus</span>, <span class="code-tag">delete</span>, <span class="code-tag">batchSync</span>.</li>
-                            <li><b>skipAutoHistory Guard:</b> Prevents duplicate entry generation by verifying <span class="code-tag">!data.skipAutoHistory &amp;&amp; !data.skipHistoryLog</span> before calling <span class="code-tag">logToHistorySheet()</span>.</li>
-                            <li><b>Auto-Indexing:</b> Maintains Work Order identifiers and row index pointers for rapid lookup.</li>
+                            <li><b>skipAutoHistory Guard:</b> Verifies <span class="code-tag">!data.skipAutoHistory &amp;&amp; !data.skipHistoryLog</span> before calling <span class="code-tag">logToHistorySheet()</span> to avoid duplicate logs.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-bottom:10px;">GAS/Mix_Data_GAS.gs.txt</h3>
+                        <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
+                            Dedicated Google Apps Script Web App for cross-system PWA configuration sync:
+                        </p>
+                        <ul style="font-size:0.86rem; color:var(--text-muted); padding-left:18px; line-height:1.6;">
+                            <li><b>Drive PWA.json Sync:</b> Writes and reads module arrangement order and user settings into Google Drive <span class="code-tag">PWA.json</span> (File ID: <span class="code-tag">1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX</span>).</li>
+                            <li><b>Clean 1-Line PWA Sync Log:</b> Formats backup log as a clean 5-column row (Timestamp, User, Action, Status, Summary) in the 'PWA_Sync_Log' sheet tab, omitting raw JSON payloads.</li>
+                            <li><b>Web App URL:</b> Deployed as an open Web App for bidirectional synchronization across all employee devices.</li>
                         </ul>
                     </div>
                 </div>
@@ -1276,6 +1535,17 @@
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--brand-primary)"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>
                         Portal Launchpad &amp; Auxiliary Modules
                     </h2>
+                </div>
+
+                <div class="card" style="margin-bottom:20px;">
+                    <h3 style="margin-bottom:10px;">Key Launchpad Capabilities</h3>
+                    <ul style="font-size:0.88rem; color:var(--text-muted); padding-left:18px; line-height:1.6;">
+                        <li><b>0ms Flicker Elimination:</b> A synchronous inline script placed immediately after <span class="code-tag">#automationTileGrid</span> parses saved module arrangements from LocalStorage before initial browser paint, completely eliminating the 1ms tile jump when navigating back from other modules.</li>
+                        <li><b>Silent Module Reordering:</b> Logged-in staff can drag and rearrange modules. Changes are saved to LocalStorage and synced to Drive PWA.json completely in the background without any toast notifications.</li>
+                        <li><b>Hold Gesture Reset:</b> Holding "Hold to reorder" for 700ms triggers haptic vibration and immediately restores the Developer Default sequence (<span class="code-tag">DEVELOPER_DEFAULT_TILE_ORDER</span>).</li>
+                        <li><b>Outlined Toast Standard:</b> Default notification style is Outlined with Bottom Center placement (<span class="code-tag">pos-bottom</span>), configurable per-employee in Settings.</li>
+                        <li><b>Developer Factory Reset:</b> Dedicated developer control under Settings to reset all staff members to Developer Defaults across all devices and Google Drive.</li>
+                    </ul>
                 </div>
 
                 <div class="table-wrap">
@@ -1293,39 +1563,50 @@
                                 <td><span class="code-tag">index.html</span></td>
                                 <td>Main Launchpad</td>
                                 <td><span class="badge-role-all">All / RBAC</span></td>
-                                <td>Central portal with tile grids (Automation &amp; Control, Offline Tools, Downloads, Developer Tools). Manages employee login, theme switching, and PWA installs.</td>
+                                <td>Central portal with tile grids. 0ms synchronous layout, hold-to-reset gesture, theme switching, and PWA install prompt.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag">Operation_Request.html</span></td>
+                                <td>Operations SPA</td>
+                                <td><span class="badge-role-all">Technicians / Sup</span></td>
+                                <td>Work order operations CRUD, 3-tier deduplication, 24hr audit log (skips sync events), inline status updates, Creator Edit actions.</td>
                             </tr>
                             <tr>
                                 <td><span class="code-tag">PM_Checklist_Generator.html</span></td>
                                 <td>Checklist Tool</td>
                                 <td><span class="badge-role-all">All</span></td>
-                                <td>Full-screen industrial PM checklist generator embedding the Google Apps Script tool cleanly without clutter or headers.</td>
+                                <td>Full-screen industrial PM checklist generator embedding Google Apps Script tool cleanly with Outlined notification support.</td>
                             </tr>
                             <tr>
                                 <td><span class="code-tag">Team_Contacts.html</span></td>
                                 <td>Directory</td>
                                 <td><span class="badge-role-all">All</span></td>
-                                <td>Employee phonebook and emergency contact directory with direct click-to-call, WhatsApp links, and plant assignment filtering.</td>
+                                <td>Employee phonebook and emergency contact directory with direct click-to-call, WhatsApp links, and Outlined notifications.</td>
                             </tr>
                             <tr>
                                 <td><span class="code-tag">DocumentFolder.html</span></td>
                                 <td>Document Hub</td>
                                 <td><span class="badge-role-all">All</span></td>
-                                <td>Library of technical manuals, P&amp;ID schematics, SOP documents, and video guides organized by plant category.</td>
+                                <td>Library of technical manuals, P&amp;ID schematics, SOP documents, and video guides organized by plant category with Outlined notifications.</td>
                             </tr>
                             <tr>
                                 <td><span class="code-tag">Share_FeedBack.html</span></td>
                                 <td>Feedback</td>
                                 <td><span class="badge-role-all">All</span></td>
-                                <td>User suggestion box and defect reporter submitting directly to developer notifications.</td>
+                                <td>User suggestion box and defect reporter submitting directly with unified Outlined notification styling.</td>
                             </tr>
                             <tr>
                                 <td><span class="code-tag">themes.css</span></td>
-                                <td>Theming</td>
+                                <td>Theming &amp; Toasts</td>
                                 <td><span class="badge-role-all">All</span></td>
-                                <td>CSS custom properties for 10 distinct UI themes (Default, Fiori Blue, Dark Slate, Emerald Green, Amber Sunset, High Contrast, etc.).</td>
+                                <td>CSS custom properties for 10 UI themes plus standard <span class="code-tag">toast-outlined</span> and <span class="code-tag">pos-bottom</span> styling.</td>
                             </tr>
-                        </tbody>
+                            <tr>
+                                <td><span class="code-tag">GAS/</span></td>
+                                <td>Google Scripts</td>
+                                <td><span class="badge-role-dev">Dev / Admin</span></td>
+                                <td>Houses all Google Apps Script source files (<span class="code-tag">Operation_Request_GAS.gs.txt</span>, <span class="code-tag">Mix_Data_GAS.gs.txt</span>, <span class="code-tag">ETS_Locator_GAS.gs.txt</span>, <span class="code-tag">ETS_Sheet_Setup.txt</span>).</td>
+                            </tr>
                     </table>
                 </div>
             </section>
@@ -1353,7 +1634,7 @@
                     </div>
 
                     <div class="card">
-                        <h3 style="margin-bottom:10px;">Backend Setup (ETS_Locator_GAS.gs.txt)</h3>
+                        <h3 style="margin-bottom:10px;">Backend Setup (GAS/ETS_Locator_GAS.gs.txt)</h3>
                         <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
                             Google Apps Script script that queries the central plant inventory spreadsheet:
                         </p>
@@ -1491,6 +1772,24 @@
                             </tr>
                             <tr>
                                 <td><span class="code-tag" style="color:var(--brand-success); font-weight:700;">GET</span></td>
+                                <td><span class="code-tag">/api/pwa-preferences</span></td>
+                                <td>None</td>
+                                <td>Returns PWA module orders, user customizations, syncCounter, and default settings with live Google Drive fallback.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag" style="color:var(--brand-primary); font-weight:700;">POST</span></td>
+                                <td><span class="code-tag">/api/pwa-preferences</span></td>
+                                <td><span class="code-tag">{ moduleOrders, userSettings, syncCounter, action }</span></td>
+                                <td>Increments <span class="code-tag">syncCounter</span>, saves settings locally and syncs to Google Drive <span class="code-tag">PWA.json</span>. Supports <span class="code-tag">action: 'restoreUserDefault'</span>.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag" style="color:var(--brand-danger); font-weight:700;">POST</span></td>
+                                <td><span class="code-tag">/api/pwa-preferences/factory-reset</span></td>
+                                <td><span class="code-tag">{ user: 'Developer' }</span></td>
+                                <td>Restricted to Developer (41764). Resets all employee settings and arrangements across all devices and Drive PWA.json.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="code-tag" style="color:var(--brand-success); font-weight:700;">GET</span></td>
                                 <td><span class="code-tag">/api/documents</span></td>
                                 <td>None</td>
                                 <td>Returns document library categories and file metadata.</td>
@@ -1617,11 +1916,11 @@
             },
             'gas-sheet': {
                 title: 'Google Apps Script Web Apps',
-                file: '/Operation_Request_GAS.gs.txt',
-                desc: 'Cloud functions executing on Google Workspace infrastructure. Appends, updates, deletes rows and writes audit logs into Google Sheets.',
+                file: '/GAS/Operation_Request_GAS.gs.txt & /GAS/Mix_Data_GAS.gs.txt',
+                desc: 'Cloud functions executing on Google Workspace infrastructure. Appends, updates, deletes rows and writes audit logs into Google Sheets, plus Google Drive PWA preferences sync.',
                 role: 'Cloud Backend Handler',
-                funcs: 'doGet(), doPost(), logToHistorySheet()',
-                target: 'Google Drive Spreadsheet'
+                funcs: 'doGet(), doPost(), logToHistorySheet(), savePwaConfig()',
+                target: 'Google Drive Spreadsheet & PWA.json'
             },
             'google-sheets': {
                 title: 'Google Sheets Industrial Database',

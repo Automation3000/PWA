@@ -280,6 +280,19 @@ function doGet(e) {
       return jsonResponse({ status: "success", message: "History cleared from sheet" });
     }
 
+    // 6. Fetch PWA Config from Google Drive PWA.json via GET
+    if (paramAction === 'getPwaConfig') {
+      var targetFileId = (e && e.parameter && e.parameter.fileId) ? String(e.parameter.fileId) : '1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX';
+      try {
+        var pwaFile = DriveApp.getFileById(targetFileId);
+        var pwaText = pwaFile.getBlob().getDataAsString();
+        var pwaJson = pwaText ? JSON.parse(pwaText) : {};
+        return jsonResponse({ status: "success", data: pwaJson, fileId: targetFileId });
+      } catch(dErr) {
+        return jsonResponse({ status: "error", message: "Error reading Drive file: " + dErr.toString() });
+      }
+    }
+
     const sheet = getSheet();
     
     // Check if another action was passed via GET query parameter
@@ -521,6 +534,37 @@ function handleAction(data, sheet) {
     return jsonResponse({ status: "success", message: "Team Contact saved to Google Sheet", code: targetCode });
   }
 
+  // 5B. GET PWA CONFIG (Read from Google Drive PWA.json)
+  if (action === 'getPwaConfig') {
+    var gFid = data.fileId || '1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX';
+    try {
+      var dFile = DriveApp.getFileById(gFid);
+      var text = dFile.getBlob().getDataAsString();
+      return jsonResponse({ status: "success", data: text ? JSON.parse(text) : {} });
+    } catch(err) {
+      return jsonResponse({ status: "error", message: "Drive read error: " + err.toString() });
+    }
+  }
+
+  // 5C. SAVE PWA CONFIG (Write directly to Google Drive PWA.json)
+  if (action === 'savePwaConfig') {
+    var sFid = data.fileId || '1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX';
+    try {
+      var dFile = DriveApp.getFileById(sFid);
+      var payload = data.pwaData || data.data || data;
+      var fileContent = (typeof payload === 'string') ? payload : JSON.stringify(payload, null, 2);
+      dFile.setContent(fileContent);
+      return jsonResponse({
+        status: "success",
+        message: "Saved to Google Drive PWA.json successfully",
+        fileId: sFid,
+        timestamp: new Date().toISOString()
+      });
+    } catch(err) {
+      return jsonResponse({ status: "error", message: "Drive write error: " + err.toString() });
+    }
+  }
+
   // 6. BULK SYNC TEAM CONTACTS (Initial Population or Full Sync)
   if (action === 'bulkSaveTeamContacts' || action === 'syncAllTeamContacts') {
     var tcSheet = getTeamContactsSheet();
@@ -548,7 +592,7 @@ function handleAction(data, sheet) {
     return jsonResponse({ status: "success", message: "All " + list.length + " team contacts synced to sheet" });
   }
 
-  // 7. CREATE ACTION (STRICT VALIDATION)
+  // 7. CREATE ACTION (STRICT VALIDATION & DEDUPLICATION)
   if (action === 'create') {
     var woVal = String(data.workOrder || '').trim();
     var descVal = String(data.description || '').trim();
@@ -557,6 +601,17 @@ function handleAction(data, sheet) {
     // STRICT CHECK: Never append empty rows!
     if (!woVal && !descVal && !plantVal) {
       return jsonResponse({ status: "error", message: "Cannot create empty request: Work Order, Description or Plant required" });
+    }
+
+    // Deduplication check: inspect the last row to avoid duplicate insertion
+    var lastRow = sheet.getLastRow();
+    if (lastRow > 1) {
+      var lastVals = sheet.getRange(lastRow, 1, 1, 3).getValues()[0];
+      if (String(lastVals[0]).trim() === woVal && 
+          String(lastVals[1]).trim() === descVal && 
+          String(lastVals[2]).trim() === plantVal) {
+        return jsonResponse({ status: "success", message: "Request already recorded (deduplicated)", id: data.id || ("row_" + lastRow) });
+      }
     }
 
     var newId = data.id || ("row_" + new Date().getTime());

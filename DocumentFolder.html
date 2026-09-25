@@ -151,25 +151,6 @@
             align-items: center;
             gap: 8px;
         }
-        .btn-header-upload {
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 7px 14px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-            transition: all .2s;
-        }
-        .btn-header-upload:hover {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-        }
         .theme-toggle-btn {
             background: none;
             border: none;
@@ -189,67 +170,197 @@
         }
 
         /* ═══════════════════════════════════════════════════
-           SIMPLE & CLEAN CATEGORY TABS
+           CATEGORY FOLDER CARDS
         ═══════════════════════════════════════════════════ */
         .tabs-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
-            padding: 6px;
-            margin-bottom: 14px;
+            background: transparent;
+            border: none;
+            padding: 0;
+            margin-bottom: 16px;
         }
         .tabs-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
+            gap: 10px;
         }
-        @media (max-width: 680px) {
+        @media (max-width: 900px) {
             .tabs-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+        @media (max-width: 500px) {
+            .tabs-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
 
-        .tab-btn {
-            background: transparent;
-            border: 1px solid transparent;
-            border-radius: var(--radius-sm);
-            padding: 10px 12px;
-            color: var(--text-secondary);
-            font-size: 0.86rem;
-            font-weight: 600;
+        .tab-card-btn {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+            color: var(--text-primary);
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all .2s ease;
+            gap: 12px;
+            box-shadow: var(--shadow-sm);
+            transition: all .22s cubic-bezier(0.16, 1, 0.3, 1);
             user-select: none;
+            text-align: left;
+            position: relative;
+            outline: none;
         }
-        .tab-btn i {
-            font-size: 1rem;
-            transition: transform .2s;
+        .tab-card-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--card-accent, var(--primary));
+            box-shadow: var(--shadow);
         }
-        .tab-btn:hover {
-            background: var(--bg-surface);
-            color: var(--text-primary);
+        .tab-card-btn.active {
+            border-color: var(--card-accent, var(--primary));
+            background: var(--bg-card);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08), 0 0 0 1px var(--card-accent, var(--primary));
         }
-        .tab-btn.active {
-            background: var(--bg-surface);
-            color: var(--tab-color, var(--primary));
-            border-color: var(--border);
+        .tab-card-btn[data-cat="drawings"] { --card-accent: #d97706; }
+        .tab-card-btn[data-cat="pdf"]      { --card-accent: #dc2626; }
+        .tab-card-btn[data-cat="images"]   { --card-accent: #16a34a; }
+        .tab-card-btn[data-cat="videos"]   { --card-accent: #2563eb; }
+
+        .tab-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            transition: transform .2s ease;
+        }
+        .tab-card-btn:hover .tab-card-icon,
+        .tab-card-btn.active .tab-card-icon {
+            transform: scale(1.08);
+        }
+        .tab-card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+            flex: 1;
+        }
+        .tab-card-title {
+            font-size: 0.92rem;
             font-weight: 700;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            color: var(--text-primary);
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .tab-btn.active i {
-            transform: scale(1.1);
+        .tab-card-sub {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .tab-card-arrow {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            transition: transform .2s ease, color .2s ease;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .tab-card-btn.active .tab-card-arrow {
+            transform: rotate(180deg);
+            color: var(--card-accent, var(--primary));
         }
 
-        /* Specific tab accent colors */
-        .tab-btn[data-cat="drawings"] { --tab-color: #d97706; }
-        .tab-btn[data-cat="pdf"]      { --tab-color: #dc2626; }
-        .tab-btn[data-cat="images"]   { --tab-color: #16a34a; }
-        .tab-btn[data-cat="videos"]   { --tab-color: #2563eb; }
+        /* Initial prompt before clicking a category */
+        .select-prompt-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-sm);
+            border: 1.5px dashed var(--border);
+            padding: 3.5rem 1.5rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 6px;
+            transition: all .2s;
+        }
+        .select-prompt-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 14px;
+        }
+        .select-prompt-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+        .select-prompt-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        /* Floating Action Button (FAB) Bottom Right */
+        .fab-upload-btn {
+            position: fixed;
+            bottom: 26px;
+            right: 26px;
+            z-index: 1050;
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 50px;
+            padding: 13px 22px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.28);
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+            text-decoration: none;
+            user-select: none;
+        }
+        .fab-upload-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 26px rgba(0,0,0,0.36);
+            background: var(--primary-dark);
+            color: #ffffff;
+        }
+        .fab-upload-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+        .fab-upload-btn i {
+            font-size: 1.1rem;
+        }
+        @media (max-width: 600px) {
+            .fab-upload-btn {
+                bottom: 20px;
+                right: 18px;
+                padding: 12px 18px;
+                font-size: 0.84rem;
+            }
+        }
 
         /* ═══════════════════════════════════════════════════
            DOCUMENT VIEWER
@@ -260,9 +371,14 @@
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
             overflow: hidden;
-            display: flex;
+            display: none; /* Hidden until clicked */
             flex-direction: column;
             flex: 1;
+            animation: fadeInViewer .25s ease-out;
+        }
+        @keyframes fadeInViewer {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .viewer-header {
@@ -559,7 +675,7 @@
         }
     </style>
 </head>
-<body>
+<body class="toast-outlined">
 
     <div class="app-container">
         <!-- ═══════════════════════════════════════════════════
@@ -584,9 +700,6 @@
                 </div>
 
                 <div class="header-actions">
-                    <button class="btn-header-upload" onclick="openUploadModal()" title="Upload file to library">
-                        <i class="fas fa-cloud-upload-alt"></i> <span>Upload</span>
-                    </button>
                     <button class="theme-toggle-btn" id="darkModeToggleBtn" onclick="toggleDarkMode()" title="Toggle Dark Mode">
                         <i class="fas fa-moon"></i>
                     </button>
@@ -595,31 +708,62 @@
         </header>
 
         <!-- ═══════════════════════════════════════════════════
-             4 SIMPLE CATEGORY TABS
+             CATEGORY FOLDER CARDS (Click to reveal documents)
         ═══════════════════════════════════════════════════ -->
         <div class="tabs-card">
             <div class="tabs-grid">
-                <button class="tab-btn active" data-cat="drawings" onclick="switchCategory('drawings')">
-                    <i class="fas fa-drafting-compass" style="color:#d97706;"></i>
-                    <span>Drawings</span>
+                <button class="tab-card-btn" data-cat="drawings" onclick="selectCategory('drawings')">
+                    <div class="tab-card-icon" style="background: rgba(217, 119, 6, 0.12); color: #d97706;">
+                        <i class="fas fa-drafting-compass"></i>
+                    </div>
+                    <div class="tab-card-content">
+                        <span class="tab-card-title">Drawings &amp; Schematics</span>
+                        <span class="tab-card-sub">P&amp;ID &bull; ETS &amp; FOC Drawing &bull; Wiring</span>
+                    </div>
+                    <i class="fas fa-chevron-down tab-card-arrow"></i>
                 </button>
-                <button class="tab-btn" data-cat="pdf" onclick="switchCategory('pdf')">
-                    <i class="fas fa-file-pdf" style="color:#dc2626;"></i>
-                    <span>PDF Manuals</span>
+                <button class="tab-card-btn" data-cat="pdf" onclick="selectCategory('pdf')">
+                    <div class="tab-card-icon" style="background: rgba(220, 38, 38, 0.12); color: #dc2626;">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="tab-card-content">
+                        <span class="tab-card-title">PDF Manuals &amp; SOPs</span>
+                        <span class="tab-card-sub">Operating Manuals &bull; Datasheets</span>
+                    </div>
+                    <i class="fas fa-chevron-down tab-card-arrow"></i>
                 </button>
-                <button class="tab-btn" data-cat="images" onclick="switchCategory('images')">
-                    <i class="fas fa-images" style="color:#16a34a;"></i>
-                    <span>Image Gallery</span>
+                <button class="tab-card-btn" data-cat="images" onclick="selectCategory('images')">
+                    <div class="tab-card-icon" style="background: rgba(22, 163, 74, 0.12); color: #16a34a;">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <div class="tab-card-content">
+                        <span class="tab-card-title">Image Gallery</span>
+                        <span class="tab-card-sub">Field Photos &bull; Transmitters &bull; Assets</span>
+                    </div>
+                    <i class="fas fa-chevron-down tab-card-arrow"></i>
                 </button>
-                <button class="tab-btn" data-cat="videos" onclick="switchCategory('videos')">
-                    <i class="fas fa-play-circle" style="color:#2563eb;"></i>
-                    <span>Video Guides</span>
+                <button class="tab-card-btn" data-cat="videos" onclick="selectCategory('videos')">
+                    <div class="tab-card-icon" style="background: rgba(37, 99, 235, 0.12); color: #2563eb;">
+                        <i class="fas fa-play-circle"></i>
+                    </div>
+                    <div class="tab-card-content">
+                        <span class="tab-card-title">Video Guides &amp; Tutorials</span>
+                        <span class="tab-card-sub">Walkthroughs &bull; Calibration Guides</span>
+                    </div>
+                    <i class="fas fa-chevron-down tab-card-arrow"></i>
                 </button>
             </div>
         </div>
 
+        <!-- Initial Placeholder Prompt (Shown before category is clicked) -->
+        <div class="select-prompt-card" id="selectPromptCard">
+            <div class="select-prompt-icon"><i class="fas fa-folder-open"></i></div>
+            <h3>Select a Category Above</h3>
+            <p>Click any category above to view documents, drawings, manuals, and files below.</p>
+        </div>
+
         <!-- ═══════════════════════════════════════════════════
-             CLEAN DOCUMENT VIEWER WORKSTATION
+             CLEAN DOCUMENT VIEWER WORKSTATION (Shown on click)
         ═══════════════════════════════════════════════════ -->
         <div class="viewer-card" id="viewerCard">
             <!-- Minimal Header Toolbar -->
@@ -627,7 +771,7 @@
                 <div class="viewer-info">
                     <i class="fas fa-drafting-compass" id="viewerCatIcon"></i>
                     <span class="viewer-info-title" id="viewerCatTitle">Drawings &amp; Schematics</span>
-                    <span class="viewer-info-badge" id="viewerCatBadge">P&amp;ID &bull; CAD &bull; Wiring</span>
+                    <span class="viewer-info-badge" id="viewerCatBadge">P&amp;ID &bull; ETS &amp; FOC Drawing &bull; Wiring</span>
                 </div>
 
                 <div class="viewer-actions">
@@ -698,10 +842,42 @@
         </div>
     </div>
 
+    <!-- Floating Action Button (FAB) Bottom Right for Upload -->
+    <button class="fab-upload-btn" id="fabUploadBtn" onclick="openUploadModal()" title="Upload File to Library">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <span>Upload</span>
+    </button>
+
     <!-- Toast Notification Container -->
-    <div class="toast-container pos-top" id="toastContainer"></div>
+    <div class="toast-container pos-bottom" id="toastContainer"></div>
 
     <script>
+        function applyUserSettings(settings) {
+            document.body.classList.remove('toast-minimal', 'toast-glassy', 'toast-outlined', 'toast-neon', 'toast-soft-shadow', 'toast-solid');
+            if (settings && settings.toastStyle && settings.toastStyle !== 'default') {
+                document.body.classList.add('toast-' + settings.toastStyle);
+            } else {
+                document.body.classList.add('toast-outlined');
+            }
+            const container = document.getElementById('toastContainer');
+            if (container) {
+                container.className = 'toast-container ' + (settings && settings.toastPosition ? settings.toastPosition : 'pos-bottom');
+            }
+        }
+        function loadCurrentUserAndSettings() {
+            try {
+                const curUserStr = localStorage.getItem('tabreed_currentUser');
+                if (curUserStr) {
+                    const curUser = JSON.parse(curUserStr);
+                    const code = curUser.code || curUser.empId;
+                    if (code) {
+                        const settingsStr = localStorage.getItem('tabreed_settings_' + code);
+                        if (settingsStr) applyUserSettings(JSON.parse(settingsStr));
+                    }
+                }
+            } catch(e){}
+        }
+        document.addEventListener('DOMContentLoaded', loadCurrentUserAndSettings);
         // ═══════════════════════════════════════════════════
         // CATEGORY DEFINITIONS
         // ═══════════════════════════════════════════════════
@@ -709,14 +885,14 @@
             drawings: {
                 id: '1KUQpoKUJHbr9GjPwfpOIqSBmQZ1TrKSN',
                 title: 'Drawings & Schematics',
-                badge: 'P&ID • CAD • Wiring',
+                badge: 'P&ID • ETS & FOC Drawing • Wiring',
                 icon: 'fa-drafting-compass',
                 color: '#d97706'
             },
             pdf: {
                 id: '1CZIU9gxrpYA3gO1Kf6trVfkpilt7aOMJ',
                 title: 'PDF Manuals & SOPs',
-                badge: 'Operating Manuals • SOPs • Datasheets',
+                badge: 'Operating Manuals • Datasheets',
                 icon: 'fa-file-pdf',
                 color: '#dc2626'
             },
@@ -737,28 +913,38 @@
         };
 
         let activeCategory = 'drawings';
+        let hasUserClickedCategory = false;
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyuU8Ex0xKje6OmnaGKYFIJIp6U16ZoOhQPiVhL5URULn060tydvJL_koJDa7psrJc-6Q/exec";
         const THEME_KEY = 'tabreed_selected_theme';
         const LS_DARK = 'tabreed_dark_mode';
 
         // ═══════════════════════════════════════════════════
-        // TAB SWITCHING & VIEWER
+        // TAB SELECTION & VIEWER EXPAND
         // ═══════════════════════════════════════════════════
-        function switchCategory(catKey) {
+        function selectCategory(catKey) {
             if (!CATEGORIES[catKey]) return;
             activeCategory = catKey;
+            hasUserClickedCategory = true;
 
-            // Highlight Tab Button
-            document.querySelectorAll('.tab-btn').forEach(btn => {
+            // Highlight Tab Card Button
+            document.querySelectorAll('.tab-card-btn').forEach(btn => {
                 btn.classList.toggle('active', btn.getAttribute('data-cat') === catKey);
             });
+
+            // Hide prompt card and show document viewer
+            const promptCard = document.getElementById('selectPromptCard');
+            if (promptCard) promptCard.style.display = 'none';
+
+            const cardEl = document.getElementById('viewerCard');
+            if (cardEl) {
+                cardEl.style.display = 'flex';
+            }
 
             // Update Viewer Header
             const cat = CATEGORIES[catKey];
             const iconEl = document.getElementById('viewerCatIcon');
             const titleEl = document.getElementById('viewerCatTitle');
             const badgeEl = document.getElementById('viewerCatBadge');
-            const cardEl = document.getElementById('viewerCard');
 
             if (iconEl) {
                 iconEl.className = 'fas ' + cat.icon;
@@ -781,6 +967,18 @@
                     iframe.src = iframe.src;
                 }
             }
+
+            // Smooth scroll into viewer card so user sees it right below
+            setTimeout(() => {
+                if (cardEl) {
+                    cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, 100);
+        }
+
+        // Backward compatibility
+        function switchCategory(catKey) {
+            selectCategory(catKey);
         }
 
         function onIframeReady() {
@@ -980,7 +1178,11 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             applyTheme();
-            switchCategory('drawings');
+            // Preload iframe in background without displaying viewer until user clicks a category card
+            const iframe = document.getElementById('docViewerIframe');
+            if (iframe) {
+                iframe.src = `https://drive.google.com/embeddedfolderview?id=${CATEGORIES.drawings.id}#grid`;
+            }
         });
     </script>
 </body>

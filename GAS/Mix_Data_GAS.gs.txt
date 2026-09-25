@@ -1,0 +1,174 @@
+/* TABREED AUTOMATION - MIX DATA & PWA SYNC GOOGLE APPS SCRIPT
+================================================================
+NAME: Mix Data GAS (Google Apps Script)
+PURPOSE: Standalone handler to sync PWA preferences, Tile arrangements, 
+         User settings, and write directly into Google Drive PWA.json file.
+
+INSTRUCTIONS (KAAM KAISE KAREGA):
+----------------------------------------------------------------
+1. Google Drive me ek nayi Google Sheet banayein jiska naam rakhein: "Mix Data"
+2. Upar menu me "Extensions" par click karein aur "Apps Script" choose karein.
+3. Code.gs ke andar jo bhi pehle se likha ho use hata kar yeh pura CODE paste karein.
+4. "Save" icon (Ctrl+S) dabayein.
+5. Upar right corner me "Deploy" -> "New deployment" par click karein:
+   - Select type: "Web app" (gear icon par click karke)
+   - Description: "Mix Data & PWA Sync v1"
+   - Execute as: "Me (aapki email)"
+   - Who has access: "Anyone" (Sabse Zaroori Step!)
+6. "Deploy" button dabayein, permissions grant karein (Authorize access -> Advanced -> Go to script (unsafe) -> Allow).
+7. Web App URL copy karein aur app me ya hume provide karein!
+================================================================ */
+
+// Google Drive PWA.json File ID
+const PWA_DRIVE_FILE_ID = '1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX';
+
+// Helper: Response Formatter with CORS Support
+function jsonResponse(data) {
+  return ContentService.createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// Helper: Get or Create Sheet Tab for Backup Logs (Clean 1-line log, no raw payload)
+function getLogSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('PWA_Sync_Log');
+  if (!sheet) {
+    sheet = ss.insertSheet('PWA_Sync_Log');
+    sheet.appendRow(['Timestamp', 'User', 'Action', 'Status', 'Summary']);
+    sheet.setFrozenRows(1);
+    sheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#1e293b').setFontColor('#ffffff');
+  }
+  return sheet;
+}
+
+// ─────────────────────────────────────────────────────────────
+// GET REQUESTS: Read PWA.json or Test Connection
+// ─────────────────────────────────────────────────────────────
+function doGet(e) {
+  try {
+    var param = (e && e.parameter) ? e.parameter : {};
+    var action = param.action || 'getPwaConfig';
+    var targetFileId = param.fileId || PWA_DRIVE_FILE_ID;
+
+    // Ping / Test
+    if (action === 'ping' || action === 'test') {
+      return jsonResponse({
+        status: 'success',
+        message: 'Mix Data GAS is active and connected!',
+        fileId: targetFileId,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+    // Read PWA.json from Google Drive
+    if (action === 'getPwaConfig' || action === 'read') {
+      var file = DriveApp.getFileById(targetFileId);
+      var blob = file.getBlob();
+      var text = blob.getDataAsString();
+      var jsonData = {};
+      try {
+        jsonData = text ? JSON.parse(text) : {};
+      } catch(parseErr) {
+        jsonData = { raw: text };
+      }
+
+      return jsonResponse({
+        status: 'success',
+        source: 'google_drive_pwa_json',
+        fileId: targetFileId,
+        fileName: file.getName(),
+        lastUpdated: file.getLastUpdated().toISOString(),
+        data: jsonData
+      });
+    }
+
+    // Fallback info
+    return jsonResponse({
+      status: 'success',
+      message: 'Mix Data Web App is running. Use action=getPwaConfig (GET) or action=savePwaConfig (POST).',
+      targetFileId: targetFileId
+    });
+
+  } catch (err) {
+    return jsonResponse({
+      status: 'error',
+      message: 'Drive read error: ' + err.toString()
+    });
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// POST REQUESTS: Write into Google Drive PWA.json & Log Backup
+// ─────────────────────────────────────────────────────────────
+function doPost(e) {
+  try {
+    if (!e || !e.postData || !e.postData.contents) {
+      return jsonResponse({ status: 'error', message: 'No payload data received.' });
+    }
+
+    var requestData = JSON.parse(e.postData.contents);
+    var action = requestData.action || 'savePwaConfig';
+    var targetFileId = requestData.fileId || PWA_DRIVE_FILE_ID;
+    var user = requestData.user || 'Unknown User';
+
+    if (action === 'savePwaConfig' || action === 'update' || action === 'save') {
+      var pwaPayload = requestData.pwaData || requestData.data || requestData;
+
+      // Format payload cleanly for Drive JSON
+      var jsonString = (typeof pwaPayload === 'string') 
+        ? pwaPayload 
+        : JSON.stringify(pwaPayload, null, 2);
+
+      // 1. Direct Write to Google Drive PWA.json file
+      var driveFile = DriveApp.getFileById(targetFileId);
+      driveFile.setContent(jsonString);
+
+      // 2. Log clean 1-line backup entry in "Mix Data" spreadsheet (no raw payload)
+      try {
+        var logSheet = getLogSheet();
+        var nowStr = Utilities.formatDate(new Date(), 'GMT+4', 'dd.MM.yyyy HH:mm:ss');
+        var ordersCount = (pwaPayload.moduleOrders && typeof pwaPayload.moduleOrders === 'object')
+          ? Object.keys(pwaPayload.moduleOrders).length
+          : 0;
+        var counter = pwaPayload.syncCounter || 1;
+        var summary = 'PWA Config synced (v' + counter + ') for ' + user + ' (' + ordersCount + ' custom orders)';
+
+        logSheet.appendRow([
+          nowStr,
+          user,
+          action,
+          'SUCCESS',
+          summary
+        ]);
+
+        // Keep sheet compact (retain last 100 entries)
+        if (logSheet.getLastRow() > 105) {
+          logSheet.deleteRows(2, logSheet.getLastRow() - 100);
+        }
+      } catch(logErr) {
+        // Logging error shouldn't fail file write
+      }
+
+      return jsonResponse({
+        status: 'success',
+        message: 'Successfully updated Google Drive PWA.json!',
+        fileId: targetFileId,
+        fileName: driveFile.getName(),
+        updatedAt: new Date().toISOString(),
+        syncCounter: pwaPayload.syncCounter || 1,
+        user: user
+      });
+    }
+
+    return jsonResponse({
+      status: 'error',
+      message: 'Unrecognized action: ' + action
+    });
+
+  } catch (err) {
+    return jsonResponse({
+      status: 'error',
+      message: 'Drive write error: ' + err.toString()
+    });
+  }
+}

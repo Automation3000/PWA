@@ -1,0 +1,561 @@
+{
+  "success": true,
+  "data": [
+    {
+      "name": "Pump-01 (1179)",
+      "location": "Akbarsha",
+      "expiry": "23.03.2027",
+      "updatedBy": "Akbarsha",
+      "remark": ""
+    },
+    {
+      "name": "Pump-02 (8085)",
+      "location": "Jerlin",
+      "expiry": "28.10.2026",
+      "updatedBy": "Manikandan",
+      "remark": ""
+    },
+    {
+      "name": "Pump-03 (5035)",
+      "location": "AD-007",
+      "expiry": "14.04.2027",
+      "updatedBy": "Manikandan Subramanian",
+      "remark": ""
+    },
+    {
+      "name": "Pump-04 (4003)",
+      "location": "AD-027",
+      "expiry": "23.03.2027",
+      "updatedBy": "Jibin",
+      "remark": ""
+    },
+    {
+      "name": "Pump-05 (4708)",
+      "location": "AD-007",
+      "expiry": "26.10.2026",
+      "updatedBy": "Jibin",
+      "remark": ""
+    },
+    {
+      "name": "Pump-06 (8428)",
+      "location": "TM-003",
+      "expiry": "10.09.2026",
+      "updatedBy": "Majeed",
+      "remark": ""
+    },
+    {
+      "name": "Pump-07 (8597)",
+      "location": "Dubai",
+      "expiry": "30.10.2026",
+      "updatedBy": "Prasanth",
+      "remark": "Pump Display Blinking not working Properly.. sent service.  Bag in AD -07"
+    },
+    {
+      "name": "HotBox-01 (1358)",
+      "location": "AD-032",
+      "expiry": "01.10.2026",
+      "updatedBy": "Prasanth",
+      "remark": ""
+    },
+    {
+      "name": "HotBox-02 (1701)",
+      "location": "Dubai",
+      "expiry": "11.11.2026",
+      "updatedBy": "Prasanth",
+      "remark": "Sent to repair"
+    },
+    {
+      "name": "HotBox-03 (01357)",
+      "location": "AD-027",
+      "expiry": "25.08.2026",
+      "updatedBy": "Jibin",
+      "remark": ""
+    },
+    {
+      "name": "HotBox-04 (01239)",
+      "location": "AD-027",
+      "expiry": "30.10.2026",
+      "updatedBy": "Manikandan Subramanian",
+      "remark": ""
+    },
+    {
+      "name": "HotBox-05 (01422)",
+      "location": "AD-007",
+      "expiry": "20.06.2027",
+      "updatedBy": "Jibin",
+      "remark": "Instrument faulty"
+    },
+    {
+      "name": "Jofra: carwheel team",
+      "location": "Carwheel",
+      "expiry": "17.06.2025",
+      "updatedBy": "WhatsApp",
+      "remark": "May be Duplicate Entry after Verification we can Delete it"
+    },
+    {
+      "name": "Vaisala - Wet & Dry bulb tester (0084)",
+      "location": "AD-027",
+      "expiry": "17.12.2026",
+      "updatedBy": "Yoosaf",
+      "remark": ""
+    },
+    {
+      "name": "New Airblower",
+      "location": "AD-007",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Air blower 2",
+      "location": "TM-005",
+      "expiry": "",
+      "updatedBy": "Yoosaf",
+      "remark": ""
+    },
+    {
+      "name": "Yellow Powerextension",
+      "location": "Rajesh",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Sticker 1 🖨️ Small",
+      "location": "Jerlin",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Sticker 2 🖨️ Big",
+      "location": "TM-005",
+      "expiry": "",
+      "updatedBy": "Jibin",
+      "remark": ""
+    },
+    {
+      "name": "Sticker 3 🖨️ Nimbot",
+      "location": "TM-003",
+      "expiry": "",
+      "updatedBy": "Majeed",
+      "remark": ""
+    },
+    {
+      "name": "Sticker 4 🖨️ New",
+      "location": "Akbarsha",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Sticker 5 🖨️ New",
+      "location": "Manikandan",
+      "expiry": "",
+      "updatedBy": "Jibin",
+      "remark": ""
+    },
+    {
+      "name": "Red Decade resistance Box",
+      "location": "AD-007",
+      "expiry": "14.04.2027",
+      "updatedBy": "WhatsApp",
+      "remark": "Need to Change Entry Name it Should be\n\" Decade Box (Time Electronics) \""
+    },
+    {
+      "name": "Decade Box (Time Electronics) (9F13)",
+      "location": "AD-007",
+      "expiry": "14.04.2027",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "Drilling machine",
+      "location": "TM-005",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Hilti",
+      "location": "TM-005",
+      "expiry": "",
+      "updatedBy": "Majeed",
+      "remark": ""
+    },
+    {
+      "name": "Jigsaw cutter",
+      "location": "AD-007",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Grinder",
+      "location": "AD-007",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "E&H Fieldcheck (500063)",
+      "location": "Carwheel",
+      "expiry": "05.03.2026",
+      "updatedBy": "Akbarsha",
+      "remark": ""
+    },
+    {
+      "name": "Siemens Verificator (0010)",
+      "location": "Dubai",
+      "expiry": "06.05.2026",
+      "updatedBy": "Akbarsha",
+      "remark": "Serial number not sure, taken by ahmed"
+    },
+    {
+      "name": "ABB Calmaster DXB",
+      "location": "AD-007",
+      "expiry": "",
+      "updatedBy": "Manikandan",
+      "remark": "To be check dubai abb serial number"
+    },
+    {
+      "name": "ABB CALMASTER AUH (8711)",
+      "location": "AD-032",
+      "expiry": "30.06.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "ABB Magxe",
+      "location": "AD-007",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Xp laptop",
+      "location": "AD-007",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Win 7 laptop",
+      "location": "Carwheel",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Win10 laptop",
+      "location": "AD-007",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Dell laptop",
+      "location": "AD-027",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Toshiba Verimaster Enabled laptop (IR)",
+      "location": "AD-007",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "ABB verimaster IR device",
+      "location": "AD-007",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": "Location: AD-007 (with new Laptop)"
+    },
+    {
+      "name": "HART-ABB",
+      "location": "Carwheel",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "HART-ROSEMOUNT Carwheel",
+      "location": "Carwheel",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Jofra RTD probe",
+      "location": "AD-001",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": "May be Duplicate Entry after Verification we can Delete it"
+    },
+    {
+      "name": "Foldable Ladder #1",
+      "location": "TM-003",
+      "expiry": "",
+      "updatedBy": "Majeed",
+      "remark": "Kept at Maintenence Room"
+    },
+    {
+      "name": "Foldable Ladder #2",
+      "location": "AD-027",
+      "expiry": "",
+      "updatedBy": "Majeed",
+      "remark": ""
+    },
+    {
+      "name": "PLC Test kit Compact Logix",
+      "location": "TM-003",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "E and H clamp on",
+      "location": "Carwheel",
+      "expiry": "",
+      "updatedBy": "Akbarsha",
+      "remark": ""
+    },
+    {
+      "name": "Controltron",
+      "location": "TM-005",
+      "expiry": "",
+      "updatedBy": "Majeed",
+      "remark": ""
+    },
+    {
+      "name": "E&H Clamp-On blackbox",
+      "location": "Carwheel",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "ABB dummy",
+      "location": "AD-007",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Motorola 2 way radio (4pcs)",
+      "location": "AD-007",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Siemens clampon",
+      "location": "AD-007",
+      "expiry": "",
+      "updatedBy": "Akbarsha",
+      "remark": ""
+    },
+    {
+      "name": "SS_Tube bender ½\"",
+      "location": "AD-032",
+      "expiry": "",
+      "updatedBy": "WhatsApp",
+      "remark": ""
+    },
+    {
+      "name": "Temperature Probe (3055)",
+      "location": "Sent for Calibration",
+      "expiry": "23.02.2027",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "Temperature Verificator (7008)",
+      "location": "Sent for Calibration",
+      "expiry": "23.02.2027",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "Simubox mid (tandem with fieldcheck) (2000)",
+      "location": "Sent for Calibration",
+      "expiry": "05.03.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​Digital Multi-meter - ​Fluke 87V (0101)",
+      "location": "Manikandan",
+      "expiry": "17.03.2027",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​Loop Calibrator - ​Druck UPS-II (56101)",
+      "location": "Manikandan",
+      "expiry": "23.03.2027",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​Loop Calibrator - ​Druck UPS-II (50846)",
+      "location": "Manikandan",
+      "expiry": "19.03.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​​Digital Multi-meter - Fluke 87V (0294)",
+      "location": "Rajesh",
+      "expiry": "04.12.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​Loop Calibrator - Fluke 707 (4391)",
+      "location": "Rajesh",
+      "expiry": "30.10.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "Process calibrator - Fluke 725 (0167)",
+      "location": "Rajesh",
+      "expiry": "30.10.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​Loop Calibrator - ​Druck UPS-II (47613)",
+      "location": "Bibin",
+      "expiry": "10.09.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​​Digital Multi-meter - ​Fluke (0295)",
+      "location": "Bibin",
+      "expiry": "27.02.2027",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "Process calibrator - ​Fluke (4117)",
+      "location": "Jerlin",
+      "expiry": "30.10.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​Loop Calibrator - Fluke 707 (4239)",
+      "location": "Jerlin",
+      "expiry": "27.02.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​​Digital Multi-meter - Fluke (0105)",
+      "location": "Jerlin",
+      "expiry": "10.09.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​Digital Multi-meter - ​Fluke 87V (0063)",
+      "location": "Akbarsha",
+      "expiry": "10.09.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​Loop Calibrator - Druck (53340)",
+      "location": "Akbarsha",
+      "expiry": "10.09.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "Process calibrator - Fluke (4095)",
+      "location": "Thomas",
+      "expiry": "10.09.2026",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​Digital Multi-meter - Fluke 87V (0330)",
+      "location": "Thomas",
+      "expiry": "17.03.2027",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "​Loop Calibrator - Fluke 707 (4406)",
+      "location": "Thomas",
+      "expiry": "17.03.2027",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "Controltron System (U11627)",
+      "location": "David Team",
+      "expiry": "",
+      "updatedBy": "Bibin",
+      "remark": ""
+    },
+    {
+      "name": "E&H Prosonic 91 WA1 Clampon (M 5021402000)",
+      "location": "AD-032",
+      "expiry": "",
+      "updatedBy": "Majeed",
+      "remark": "Backside of Metal Cupboard"
+    },
+    {
+      "name": "E&H Prosonic 91 WA1 Clampon (T 610C102000)",
+      "location": "Need to Update",
+      "expiry": "",
+      "updatedBy": "from Excel",
+      "remark": ""
+    },
+    {
+      "name": "Testing Entry",
+      "location": "JIBIN TEST",
+      "expiry": "",
+      "updatedBy": "Majeed",
+      "remark": "Okay okay okay okay"
+    },
+    {
+      "name": "ABB SRV500 Tab",
+      "location": "Carwheel",
+      "expiry": "",
+      "updatedBy": "Jibin",
+      "remark": ""
+    }
+  ],
+  "totalItems": 76,
+  "locations": [
+    "AD-001",
+    "AD-007",
+    "AD-027",
+    "AD-032",
+    "Akbarsha",
+    "Bibin",
+    "Carwheel",
+    "David Team",
+    "Dubai",
+    "JIBIN TEST",
+    "Jerlin",
+    "Manikandan",
+    "Need to Update",
+    "Rajesh",
+    "Sent for Calibration",
+    "TM-003",
+    "TM-005",
+    "Thomas"
+  ],
+  "stats": {
+    "warningItems": 15
+  }
+}

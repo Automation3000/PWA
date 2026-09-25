@@ -1,0 +1,48 @@
+{
+  "fileId": "1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX",
+  "version": "1.0",
+  "syncCounter": 1,
+  "lastUpdated": "2026-09-25T10:36:12.242Z",
+  "lastUpdatedBy": "User",
+  "moduleOrders": {
+    "41764": [
+      "NATIVE_INSTRUMENT",
+      "DocumentFolder.html",
+      "PM_Checklist_Generator.html",
+      "Operation_Request.html",
+      "ETS_Locator.html",
+      "Team_Contacts.html"
+    ]
+  },
+  "userSettings": {
+    "41764": {
+      "autoSync": true,
+      "toastStyle": "outlined",
+      "toastPosition": "pos-bottom",
+      "defaultTheme": "default",
+      "lightToggle": "default",
+      "darkToggle": "cyber-dark"
+    }
+  },
+  "defaultSettings": {
+    "toastStyle": "outlined",
+    "toastPosition": "pos-bottom",
+    "defaultTheme": "default",
+    "lightToggle": "default",
+    "darkToggle": "dark-mode",
+    "autoSync": true,
+    "moduleOrder": [
+      "NATIVE_INSTRUMENT",
+      "DocumentFolder.html",
+      "PM_Checklist_Generator.html",
+      "ETS_Locator.html",
+      "Operation_Request.html",
+      "Team_Contacts.html"
+    ]
+  },
+  "userDefaultSettings": {},
+  "globalSettings": {
+    "theme": "default"
+  },
+  "status": "synced_successfully"
+}

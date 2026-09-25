@@ -476,7 +476,7 @@
             background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
         }
         body.toast-outlined .toast {
-            background: transparent; border: 2px solid var(--primary); border-radius: 8px; box-shadow:none;
+            background: var(--bg-card); border: 2px solid var(--primary); border-radius: 8px; box-shadow: var(--shadow-sm); color: var(--text-primary);
         }
         body.toast-neon .toast {
             background: var(--bg-card); border: 1px solid var(--primary); box-shadow: 0 0 10px var(--primary), 0 0 20px rgba(37,99,235,0.4);
@@ -538,13 +538,24 @@
         .tile {
             background:var(--bg-card); border-radius:6px; height:176px;
             padding:16px; position:relative; cursor:pointer;
-            box-shadow:var(--shadow-sm); transition:all .25s;
+            box-shadow:var(--shadow-sm); transition:transform .2s, box-shadow .2s, border-color .2s;
             display:flex; flex-direction:column; overflow:hidden;
             border:1px solid var(--border);
+            user-select: none;
+            -webkit-user-select: none;
         }
         .tile:hover { transform:translateY(-4px); box-shadow:var(--shadow-md); border-color:var(--primary); }
         .tile::before { content:''; position:absolute; top:0; left:0; width:100%; height:3px; background:transparent; transition:.25s; }
         .tile:hover::before { background:linear-gradient(90deg,var(--primary),#60a5fa); }
+        .tile.tile-hold-active {
+            transform: scale(1.05) translateY(-6px) !important;
+            box-shadow: 0 14px 28px rgba(37,99,235,0.35) !important;
+            border: 2px solid var(--primary) !important;
+            z-index: 100 !important;
+            cursor: grabbing !important;
+            touch-action: none !important;
+            opacity: 0.94;
+        }
 
         .tile-title    { font-size:14px; font-weight:700; color:var(--text-primary); margin-bottom:5px; }
         .tile-subtitle { font-size:11px; color:var(--text-muted); line-height:1.4; }
@@ -567,6 +578,24 @@
 
         .launchpad-footer { text-align:center; padding:20px; padding-bottom:44px; color:var(--text-muted); font-size:12px; }
         #dev-trigger { font-weight:800; color:var(--primary); cursor:pointer; padding:5px; }
+
+        /* Reordering / Drag styles for Automation tiles */
+        .tile.tile-dragging {
+            opacity: 0.85 !important;
+            transform: scale(1.05) !important;
+            box-shadow: 0 16px 32px rgba(0,0,0,0.25), 0 0 0 2px var(--primary) !important;
+            z-index: 999 !important;
+            cursor: grabbing !important;
+            transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+        }
+        .tile.tile-hold-active {
+            transform: scale(0.96) !important;
+            transition: transform 0.2s ease !important;
+        }
+        .tile.tile-drag-over {
+            border: 2px dashed var(--primary) !important;
+            background: var(--primary-light) !important;
+        }
 
         /* Iframe / App container */
         .iframe-container    { display:none; flex:1; width:100%; height:100vh; position:relative; background:var(--bg-card); }
@@ -781,7 +810,7 @@
         }
     </style>
 </head>
-<body>
+<body class="toast-outlined">
 
 <!-- ═══════════════════════════════════════
      FIORI LAUNCHPAD
@@ -806,47 +835,78 @@
             </div>
         </div>
     </header>
-
     <div id="launchpad-view">
-        <h2 class="group-title">Automation &amp; Control</h2>
-        <div class="tile-grid">
-            <div class="tile" onclick="handleTileClick(event, 'NATIVE_INSTRUMENT', this)">
+        <h2 class="group-title" style="display:flex;align-items:center;justify-content:space-between;">
+            <span>Automation &amp; Control</span>
+            <span id="reorder-hint" style="display:none;font-size:11px;font-weight:600;color:var(--text-muted);user-select:none;"><i class="fas fa-hand-pointer" style="margin-right:4px;color:var(--primary);"></i>Hold to reorder</span>
+        </h2>
+        <div class="tile-grid" id="automationTileGrid">
+            <div class="tile" data-tile-id="NATIVE_INSTRUMENT" onclick="handleTileClick(event, 'NATIVE_INSTRUMENT', this)">
                 <div class="tile-title">Master Instrument List</div>
                 <div class="tile-subtitle">AI1 Database</div>
                 <i class="fas fa-clipboard-list tile-icon"></i>
                 <div class="tile-status"><i class="fas fa-bolt"></i> Fast Offline</div>
             </div>
-            <div class="tile" onclick="handleTileClick(event, 'DocumentFolder.html', this)">
+            <div class="tile" data-tile-id="DocumentFolder.html" onclick="handleTileClick(event, 'DocumentFolder.html', this)">
                 <div class="tile-title">Document Library</div>
                 <div class="tile-subtitle">PDFs, Images &amp; Videos</div>
                 <i class="fas fa-folder-open tile-icon" style="color:var(--primary);"></i>
                 <div class="tile-status" style="color:var(--secondary);"><i class="fas fa-check-circle"></i> Ready</div>
             </div>
-            <div class="tile" onclick="handleTileClick(event, 'PM_Checklist_Generator.html', this)">
+            <div class="tile" data-tile-id="PM_Checklist_Generator.html" onclick="handleTileClick(event, 'PM_Checklist_Generator.html', this)">
                 <div class="tile-title">PM Checklist Generator</div>
                 <div class="tile-subtitle">Create &amp; Download Checklist</div>
                 <i class="fas fa-tasks tile-icon" style="color:var(--primary);"></i>
                 <div class="tile-status" style="color:var(--secondary);"><i class="fas fa-check-circle"></i> Ready</div>
             </div>
-            <div class="tile" onclick="handleTileClick(event, 'ETS_Locator.html', this)">
+            <div class="tile" data-tile-id="ETS_Locator.html" onclick="handleTileClick(event, 'ETS_Locator.html', this)">
                 <div class="tile-title">ETS Locator</div>
                 <div class="tile-subtitle">Find &amp; Navigate to ETS Locations</div>
                 <i class="fas fa-map-marked-alt tile-icon" style="color:var(--warning);"></i>
                 <div class="tile-status" style="color:var(--warning);"><i class="fas fa-hammer"></i> Demo</div>
             </div>
-            <div class="tile" onclick="handleTileClick(event, 'Operation_Request.html', this)">
+            <div class="tile" data-tile-id="Operation_Request.html" onclick="handleTileClick(event, 'Operation_Request.html', this)">
                 <div class="tile-title">Operation Request</div>
                 <div class="tile-subtitle">Request WorkOrder Operations • Testing Active</div>
                 <i class="fas fa-tools tile-icon" style="color:var(--primary);"></i>
                 <div class="tile-status" style="color:#0284c7; font-weight:700;"><i class="fas fa-flask"></i> Testing Only</div>
             </div>
-            <div class="tile" onclick="handleTileClick(event, 'Team_Contacts.html', this)">
+            <div class="tile" data-tile-id="Team_Contacts.html" onclick="handleTileClick(event, 'Team_Contacts.html', this)">
                 <div class="tile-title">Team Contacts</div>
                 <div class="tile-subtitle">Directory & Contact Information</div>
                 <i class="fas fa-address-book tile-icon" style="color:var(--primary);"></i>
-                <div class="tile-status" style="color:var(--secondary);"><i class="fas fa-check-circle"></i> Ready</div>
             </div>
         </div>
+        <script>
+        // Instant synchronous module layout from LocalStorage (ZERO millisecond flash)
+        (function() {
+            try {
+                const curUser = JSON.parse(localStorage.getItem('tabreed_admin_user') || localStorage.getItem('tabreed_currentUser') || '{}');
+                const userKey = curUser.code || curUser.empId || curUser.short || '41764';
+                let order = null;
+                const pwaPref = JSON.parse(localStorage.getItem('tabreed_pwa_preferences') || '{}');
+                if (pwaPref && pwaPref.moduleOrders && pwaPref.moduleOrders[userKey]) {
+                    order = pwaPref.moduleOrders[userKey];
+                }
+                if (!order) {
+                    const localOrder = localStorage.getItem('tabreed_module_order_' + userKey);
+                    if (localOrder) order = JSON.parse(localOrder);
+                }
+                if (order && Array.isArray(order) && order.length > 0) {
+                    const grid = document.getElementById('automationTileGrid');
+                    if (grid) {
+                        const map = {};
+                        Array.from(grid.querySelectorAll('.tile[data-tile-id]')).forEach(function(t) {
+                            map[t.getAttribute('data-tile-id')] = t;
+                        });
+                        order.forEach(function(id) {
+                            if (map[id]) grid.appendChild(map[id]);
+                        });
+                    }
+                }
+            } catch(e) {}
+        })();
+        </script>
 
         <h2 class="group-title">Offline Tools &amp; Support</h2>
         <div class="tile-grid">
@@ -1338,15 +1398,15 @@ input:checked + .slider:before { transform: translateX(20px); }
                 </label>
             </div>
 
+
             <div style="background:var(--bg-card);padding:1.25rem;border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-sm);">
                 <div class="form-group" style="margin-bottom:1.25rem;">
                     <label style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);">Toast Notification Style</label>
                     <div style="display:flex;gap:10px;margin-top:5px;">
                         <select id="settingToastStyle" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text-primary);font-family:inherit;">
-                            <option value="default">Default</option>
+                            <option value="outlined" selected>Outlined (Default)</option>
                             <option value="minimal">Minimal</option>
                             <option value="glassy">Glassy</option>
-                            <option value="outlined">Outlined</option>
                             <option value="neon">Neon</option>
                             <option value="soft-shadow">Soft Shadow</option>
                             <option value="solid">Solid</option>
@@ -1358,8 +1418,8 @@ input:checked + .slider:before { transform: translateX(20px); }
                     <label style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);">Toast Position</label>
                     <div style="display:flex;gap:10px;margin-top:5px;">
                         <select id="settingToastPosition" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text-primary);font-family:inherit;">
+                            <option value="pos-bottom" selected>Bottom Center (Default)</option>
                             <option value="pos-top">Top Center</option>
-                            <option value="pos-bottom">Bottom Center</option>
                             <option value="pos-top-right">Top Right</option>
                             <option value="pos-bottom-right">Bottom Right</option>
                             <option value="pos-top-left">Top Left</option>
@@ -1402,7 +1462,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     </div>
 </div>
 
-<div class="toast-container" id="toastContainer"></div>
+<div class="toast-container pos-bottom" id="toastContainer"></div>
 
 <!-- ═══════════════════════════════════════
      JAVASCRIPT
@@ -1413,8 +1473,9 @@ input:checked + .slider:before { transform: translateX(20px); }
     /* ──────────────────────────────────────
        CONSTANTS & CONFIG
     ────────────────────────────────────── */
-    const APP_VERSION   = "v2.1.2";
-    const GAS_API_URL   = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
+    const APP_VERSION      = "v2.1.2";
+    const GAS_DIRECT_URL   = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
+    const GAS_API_URL      = (typeof window !== 'undefined' && window.location && window.location.protocol.startsWith('http')) ? "/api/inventory" : GAS_DIRECT_URL;
     const LS_INVENTORY  = "localTabreedInventory";
     const LS_HISTORY    = "localTabreedHistory";
     const LS_QUEUE      = "tabreed_sync_queue";
@@ -1830,8 +1891,8 @@ input:checked + .slider:before { transform: translateX(20px); }
         const settings = currentAuthUser ? (JSON.parse(localStorage.getItem(`tabreed_settings_${currentAuthUser.code}`)) || {}) : {};
         
         document.getElementById('settingAutoSync').checked = settings.autoSync !== false;
-        document.getElementById('settingToastStyle').value = settings.toastStyle || 'default';
-        document.getElementById('settingToastPosition').value = settings.toastPosition || 'pos-top';
+        document.getElementById('settingToastStyle').value = settings.toastStyle || 'outlined';
+        document.getElementById('settingToastPosition').value = settings.toastPosition || 'pos-bottom';
         document.getElementById('settingDefaultTheme').value = settings.defaultTheme || 'default';
         document.getElementById('settingLightToggleTheme').value = settings.lightToggle || 'default';
         document.getElementById('settingDarkToggleTheme').value = settings.darkToggle || 'dark-mode';
@@ -1845,22 +1906,51 @@ input:checked + .slider:before { transform: translateX(20px); }
         document.getElementById('settingsModal').style.display = 'flex';
     }
 
-    function factoryResetAllEmployees() {
-        if (!confirm('WARNING: This will delete ALL custom settings for ALL employees! Are you sure?')) return;
+    async function factoryResetAllEmployees() {
+        if (!confirm('WARNING: This will reset ALL employee settings and module arrangements to Developer Defaults across all devices and Google Drive PWA.json! Continue?')) return;
         
-        // Remove all localStorage keys starting with tabreed_settings_
+        // Remove all localStorage keys starting with tabreed_settings_ or tabreed_module_order_
         const keysToRemove = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
-            if (key && key.startsWith('tabreed_settings_')) {
+            if (key && (key.startsWith('tabreed_settings_') || key.startsWith('tabreed_module_order_'))) {
                 keysToRemove.push(key);
             }
         }
         keysToRemove.forEach(k => localStorage.removeItem(k));
+        localStorage.removeItem('tabreed_selected_theme');
         
-        showToast(`Reset ${keysToRemove.length} employee settings.`, 'success');
-        applyUserSettings({}); // Revert to defaults
+        try {
+            await fetch('/api/pwa-preferences/factory-reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user: (currentAuthUser && (currentAuthUser.short || currentAuthUser.code)) || 'Developer'
+                })
+            });
+        } catch(e) {}
+
+        if (typeof restoreDefaultAutomationTileOrder === 'function') {
+            restoreDefaultAutomationTileOrder();
+        }
+
+        const devDefaults = {
+            toastStyle: 'outlined',
+            toastPosition: 'pos-bottom',
+            defaultTheme: 'default',
+            lightToggle: 'default',
+            darkToggle: 'dark-mode',
+            autoSync: true
+        };
+
+        if (currentAuthUser) {
+            localStorage.setItem(`tabreed_settings_${currentAuthUser.code}`, JSON.stringify(devDefaults));
+        }
+
+        applyUserSettings(devDefaults);
+        applyTheme('default');
         closeSettingsModal();
+        showToast('Factory Reset Complete: All employee settings restored to Developer Defaults.', 'success');
     }
 
     function closeSettingsModal() {
@@ -1892,8 +1982,8 @@ input:checked + .slider:before { transform: translateX(20px); }
         
         const settings = {
             autoSync: document.getElementById('settingAutoSync').checked,
-            toastStyle: document.getElementById('settingToastStyle').value,
-            toastPosition: document.getElementById('settingToastPosition').value,
+            toastStyle: document.getElementById('settingToastStyle').value || 'outlined',
+            toastPosition: document.getElementById('settingToastPosition').value || 'pos-bottom',
             defaultTheme: document.getElementById('settingDefaultTheme').value,
             lightToggle: document.getElementById('settingLightToggleTheme').value,
             darkToggle: document.getElementById('settingDarkToggleTheme').value
@@ -1901,29 +1991,66 @@ input:checked + .slider:before { transform: translateX(20px); }
         
         localStorage.setItem(`tabreed_settings_${currentAuthUser.code}`, JSON.stringify(settings));
         closeSettingsModal();
-        showToast('Settings Saved Successfully', 'success');
+        showToast('Settings Saved', 'success');
         
         applyUserSettings(settings);
+
+        if (window.PWACloudSync) {
+            window.PWACloudSync.saveUserSettings(currentAuthUser.code, settings);
+        }
     }
     
-    function restoreDefaultSettings() {
+    async function restoreDefaultSettings() {
         if (!confirm('Are you sure you want to restore default settings?')) return;
         
+        let restored = {
+            toastStyle: 'outlined',
+            toastPosition: 'pos-bottom',
+            defaultTheme: 'default',
+            lightToggle: 'default',
+            darkToggle: 'dark-mode',
+            autoSync: true
+        };
+
         if (currentAuthUser) {
-            localStorage.removeItem(`tabreed_settings_${currentAuthUser.code}`);
+            const userCode = currentAuthUser.code;
+            if (window.PWACloudSync && window.PWACloudSync.cache) {
+                const c = window.PWACloudSync.cache;
+                if (c.userDefaultSettings && c.userDefaultSettings[userCode]) {
+                    restored = { ...restored, ...c.userDefaultSettings[userCode] };
+                } else if (c.defaultSettings) {
+                    restored = { ...restored, ...c.defaultSettings };
+                }
+            }
+            try {
+                const res = await fetch('/api/pwa-preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'restoreUserDefault',
+                        userCode: userCode,
+                        user: currentAuthUser.short || currentAuthUser.code
+                    })
+                }).then(r => r.json());
+                if (res && res.restoredSettings) {
+                    restored = { ...restored, ...res.restoredSettings };
+                }
+            } catch(e) {}
+
+            localStorage.setItem(`tabreed_settings_${userCode}`, JSON.stringify(restored));
         }
         localStorage.removeItem('tabreed_selected_theme');
         
-        document.getElementById('settingAutoSync').checked = true;
-        document.getElementById('settingToastStyle').value = 'default';
-        document.getElementById('settingToastPosition').value = 'pos-top';
-        document.getElementById('settingDefaultTheme').value = 'default';
-        document.getElementById('settingLightToggleTheme').value = 'default';
-        document.getElementById('settingDarkToggleTheme').value = 'dark-mode';
+        document.getElementById('settingAutoSync').checked = restored.autoSync !== false;
+        document.getElementById('settingToastStyle').value = restored.toastStyle || 'outlined';
+        document.getElementById('settingToastPosition').value = restored.toastPosition || 'pos-bottom';
+        document.getElementById('settingDefaultTheme').value = restored.defaultTheme || 'default';
+        document.getElementById('settingLightToggleTheme').value = restored.lightToggle || 'default';
+        document.getElementById('settingDarkToggleTheme').value = restored.darkToggle || 'dark-mode';
         
-        showToast('Restored Default Settings', 'info');
-        applyUserSettings({});
-        applyTheme('default');
+        showToast('Restored Default Settings from PWA.json', 'info');
+        applyUserSettings(restored);
+        applyTheme(restored.defaultTheme || 'default');
     }
 
     function testToastStyle() {
@@ -1931,11 +2058,15 @@ input:checked + .slider:before { transform: translateX(20px); }
         const pos = document.getElementById('settingToastPosition').value;
         
         document.body.classList.remove('toast-minimal', 'toast-glassy', 'toast-outlined', 'toast-neon', 'toast-soft-shadow', 'toast-solid');
-        if (style !== 'default') document.body.classList.add('toast-' + style);
+        if (style && style !== 'default') {
+            document.body.classList.add('toast-' + style);
+        } else {
+            document.body.classList.add('toast-outlined');
+        }
         
         const container = document.getElementById('toastContainer');
         if (container) {
-            container.className = 'toast-container ' + pos;
+            container.className = 'toast-container ' + (pos || 'pos-bottom');
         }
         
         showToast('This is a test notification', 'info');
@@ -1953,14 +2084,20 @@ input:checked + .slider:before { transform: translateX(20px); }
     }
     
     function applyUserSettings(settings) {
+        settings = settings || {};
+        const toastStyle = settings.toastStyle || 'outlined';
+        const toastPosition = settings.toastPosition || 'pos-bottom';
+
         document.body.classList.remove('toast-minimal', 'toast-glassy', 'toast-outlined', 'toast-neon', 'toast-soft-shadow', 'toast-solid');
-        if (settings.toastStyle && settings.toastStyle !== 'default') {
-            document.body.classList.add('toast-' + settings.toastStyle);
+        if (toastStyle && toastStyle !== 'default') {
+            document.body.classList.add('toast-' + toastStyle);
+        } else {
+            document.body.classList.add('toast-outlined');
         }
         
         const container = document.getElementById('toastContainer');
         if (container) {
-            container.className = 'toast-container ' + (settings.toastPosition || 'pos-top');
+            container.className = 'toast-container ' + toastPosition;
         }
         
         if (settings.defaultTheme && !localStorage.getItem('tabreed_selected_theme')) {
@@ -2096,6 +2233,17 @@ input:checked + .slider:before { transform: translateX(20px); }
                 }
             }
         }
+
+        if (typeof applyAutomationTileOrder === 'function') {
+            applyAutomationTileOrder();
+        }
+
+        if (window.PWACloudSync) {
+            window.PWACloudSync.loadPreferences().then(() => {
+                if (typeof applyAutomationTileOrder === 'function') applyAutomationTileOrder();
+                if (typeof loadUserSettings === 'function') loadUserSettings(user.code);
+            });
+        }
     }
 
     function activateDeveloperMode(user, showPopup = true) {
@@ -2120,6 +2268,13 @@ input:checked + .slider:before { transform: translateX(20px); }
         if (headerLoginBtn) headerLoginBtn.style.display = 'inline-flex';
         if (headerUserBtn) headerUserBtn.style.display = 'none';
         if (devGroup) devGroup.style.display = 'none';
+
+        const hintEl = document.getElementById('reorder-hint');
+        if (hintEl) hintEl.style.display = 'none';
+
+        if (typeof restoreDefaultAutomationTileOrder === 'function') {
+            restoreDefaultAutomationTileOrder();
+        }
 
         closeUserProfileModal();
         closeMasterAdvanceModal();
@@ -2566,11 +2721,30 @@ window.startSmartInstall = async function() {
                 locations     = res.locations || [];
                 updateLocationsDropdown();
                 applyFilters();
-                updateStatus('online');
+                updateStatus(res.fromCache ? 'cached' : 'online');
             })
-            .catch(e => {
-                handleError(e, 'loadInventory');
-                updateStatus('offline');
+            .catch(async e => {
+                // If proxy call failed, try direct GAS URL fallback
+                if (GAS_API_URL !== GAS_DIRECT_URL) {
+                    try {
+                        const fallbackRes = await fetchWithTimeout(`${GAS_DIRECT_URL}?key=AI1&action=getItems`, {}, 6000).then(r => r.json());
+                        if (fallbackRes && fallbackRes.success) {
+                            try { localStorage.setItem(LS_INVENTORY, JSON.stringify(fallbackRes)); } catch {}
+                            inventoryData = fallbackRes.data || [];
+                            locations     = fallbackRes.locations || [];
+                            updateLocationsDropdown();
+                            applyFilters();
+                            updateStatus('online');
+                            return;
+                        }
+                    } catch (fbErr) {}
+                }
+                if (inventoryData && inventoryData.length > 0) {
+                    updateStatus('cached');
+                } else {
+                    handleError(e, 'loadInventory');
+                    updateStatus('offline');
+                }
             });
     }
 
@@ -4827,9 +5001,26 @@ window.startSmartInstall = async function() {
                 try { localStorage.setItem(LS_HISTORY, JSON.stringify(res)); } catch {}
                 renderHistoryTable(fullHistoryData);
             })
-            .catch(e => {
-                handleError(e, 'loadHistoryData');
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--danger);">Failed to load history. Check connection.</td></tr>`;
+            .catch(async e => {
+                if (GAS_API_URL !== GAS_DIRECT_URL) {
+                    try {
+                        const fallbackRes = await fetchWithTimeout(`${GAS_DIRECT_URL}?key=AI1&action=getHistory`, {}, 6000).then(r => r.json());
+                        if (fallbackRes && fallbackRes.success) {
+                            fullHistoryData = fallbackRes.data || [];
+                            try { localStorage.setItem(LS_HISTORY, JSON.stringify(fallbackRes)); } catch {}
+                            renderHistoryTable(fullHistoryData);
+                            return;
+                        }
+                    } catch (fbErr) {}
+                }
+                const cached = JSON.parse(localStorage.getItem(LS_HISTORY) || 'null');
+                if (cached && cached.data) {
+                    fullHistoryData = cached.data;
+                    renderHistoryTable(fullHistoryData);
+                } else {
+                    handleError(e, 'loadHistoryData');
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--danger);">Failed to load history. Check connection.</td></tr>`;
+                }
             });
     }
 
@@ -4982,6 +5173,14 @@ window.startSmartInstall = async function() {
     }
 
     function handleTileClick(e, destination, tileEl) {
+        if (window.isTileDragActive || window.tileDragJustEnded) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            return;
+        }
+
         const isDev = currentAuthUser && (currentAuthUser.role === 'developer' || currentAuthUser.role === 'super_admin' || currentAuthUser.code === '41764' || (currentAuthUser.name && currentAuthUser.name.toLowerCase().includes('majeed')));
         
         if (e.ctrlKey && isDev) {
@@ -5042,9 +5241,498 @@ window.startSmartInstall = async function() {
         showToast('Module configuration saved', 'success');
     }
 
+    /* ──────────────────────────────────────
+       GOOGLE DRIVE PWA.JSON CLOUD SYNC SYSTEM
+       - Centralized cloud storage for Module Arrangements & User Settings
+       - File ID: 1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX
+       - Allows seamless cross-device synchronization on login
+    ────────────────────────────────────── */
+    const PWA_DRIVE_FILE_ID = "1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX";
+
+    const PWACloudSync = {
+        fileId: PWA_DRIVE_FILE_ID,
+        isSyncing: false,
+        cache: {
+            moduleOrders: {},
+            userSettings: {},
+            globalSettings: {}
+        },
+
+        async loadPreferences() {
+            try {
+                let localCounter = 0;
+                try {
+                    const localPrefs = JSON.parse(localStorage.getItem('tabreed_pwa_preferences') || '{}');
+                    localCounter = Number(localPrefs.syncCounter) || 0;
+                } catch(e) {}
+
+                const res = await fetch('/api/pwa-preferences?t=' + Date.now());
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json && json.status === 'success' && json.data) {
+                        const serverCounter = Number(json.data.syncCounter) || 0;
+                        if (serverCounter >= localCounter) {
+                            this.cache = json.data;
+                            this.applyToLocalStorage();
+                        } else {
+                            // If local has higher counter, sync local copy back to server
+                            const localPrefs = JSON.parse(localStorage.getItem('tabreed_pwa_preferences') || '{}');
+                            this.cache = { ...json.data, ...localPrefs };
+                            this.applyToLocalStorage();
+                            fetch('/api/pwa-preferences', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    fileId: this.fileId,
+                                    syncCounter: localCounter,
+                                    moduleOrders: this.cache.moduleOrders,
+                                    userSettings: this.cache.userSettings,
+                                    defaultSettings: this.cache.defaultSettings,
+                                    user: (window.currentAuthUser && (window.currentAuthUser.short || window.currentAuthUser.code)) || 'User'
+                                })
+                            }).catch(() => {});
+                        }
+                        
+                        // Apply module order if user is logged in
+                        if (typeof applyAutomationTileOrder === 'function') {
+                            applyAutomationTileOrder();
+                        }
+                        // Apply settings if user is logged in
+                        if (window.currentAuthUser && typeof loadUserSettings === 'function') {
+                            loadUserSettings(window.currentAuthUser.code);
+                        }
+                        return this.cache;
+                    }
+                }
+            } catch(err) {
+                console.warn('[PWACloudSync] Fetch failed:', err);
+            }
+            return null;
+        },
+
+        applyToLocalStorage() {
+            if (!this.cache) return;
+            try {
+                localStorage.setItem('tabreed_pwa_preferences', JSON.stringify(this.cache));
+            } catch(e) {}
+
+            // 1. Module orders
+            if (this.cache.moduleOrders && typeof this.cache.moduleOrders === 'object') {
+                Object.keys(this.cache.moduleOrders).forEach(uKey => {
+                    const order = this.cache.moduleOrders[uKey];
+                    if (Array.isArray(order) && order.length > 0) {
+                        try {
+                            localStorage.setItem(`tabreed_module_order_${uKey}`, JSON.stringify(order));
+                        } catch(e) {}
+                    }
+                });
+            }
+            // 2. User settings
+            if (this.cache.userSettings && typeof this.cache.userSettings === 'object') {
+                Object.keys(this.cache.userSettings).forEach(code => {
+                    const settings = this.cache.userSettings[code];
+                    if (settings && typeof settings === 'object') {
+                        try {
+                            localStorage.setItem(`tabreed_settings_${code}`, JSON.stringify(settings));
+                        } catch(e) {}
+                    }
+                });
+            }
+            // 3. Global settings
+            if (this.cache.globalSettings && typeof this.cache.globalSettings === 'object') {
+                if (this.cache.globalSettings.theme) {
+                    try {
+                        localStorage.setItem('tabreed_selected_theme', this.cache.globalSettings.theme);
+                    } catch(e) {}
+                }
+                if (this.cache.globalSettings.moduleConfigs) {
+                    try {
+                        localStorage.setItem('tabreed_module_configs', JSON.stringify(this.cache.globalSettings.moduleConfigs));
+                    } catch(e) {}
+                }
+            }
+        },
+
+        async saveModuleOrder(userKey, order) {
+            if (!userKey || !order) return false;
+            if (!this.cache.moduleOrders) this.cache.moduleOrders = {};
+            this.cache.moduleOrders[userKey] = order;
+
+            const nextCounter = (Number(this.cache.syncCounter) || 0) + 1;
+            this.cache.syncCounter = nextCounter;
+
+            try {
+                localStorage.setItem(`tabreed_module_order_${userKey}`, JSON.stringify(order));
+                localStorage.setItem('tabreed_pwa_preferences', JSON.stringify(this.cache));
+            } catch(e) {}
+
+            try {
+                const res = await fetch('/api/pwa-preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileId: this.fileId,
+                        syncCounter: nextCounter,
+                        user: (window.currentAuthUser && (window.currentAuthUser.short || window.currentAuthUser.code)) || 'User',
+                        moduleOrders: { [userKey]: order }
+                    })
+                });
+                return res.ok;
+            } catch(err) {
+                console.warn('[PWACloudSync] Order save failed:', err);
+            }
+            return false;
+        },
+
+        async saveUserSettings(userCode, settings) {
+            if (!userCode || !settings) return false;
+            if (!this.cache.userSettings) this.cache.userSettings = {};
+            this.cache.userSettings[userCode] = settings;
+
+            const nextCounter = (Number(this.cache.syncCounter) || 0) + 1;
+            this.cache.syncCounter = nextCounter;
+
+            try {
+                localStorage.setItem(`tabreed_settings_${userCode}`, JSON.stringify(settings));
+                localStorage.setItem('tabreed_pwa_preferences', JSON.stringify(this.cache));
+            } catch(e) {}
+
+            try {
+                const res = await fetch('/api/pwa-preferences', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fileId: this.fileId,
+                        syncCounter: nextCounter,
+                        user: (window.currentAuthUser && (window.currentAuthUser.short || window.currentAuthUser.code)) || 'User',
+                        userSettings: { [userCode]: settings }
+                    })
+                });
+                return res.ok;
+            } catch(err) {
+                console.warn('[PWACloudSync] Settings save failed:', err);
+            }
+            return false;
+        },
+
+        updateUIStatus(msg, isSpinning) {
+            const statusEl = document.getElementById('pwaSyncStatus');
+            const iconEl = document.getElementById('pwaSyncIcon');
+            if (statusEl) statusEl.textContent = msg;
+            if (iconEl) {
+                if (isSpinning) iconEl.classList.add('fa-spin');
+                else iconEl.classList.remove('fa-spin');
+            }
+        }
+    };
+
+    window.PWACloudSync = PWACloudSync;
+
+    window.triggerPwaCloudSyncNow = async function() {
+        if (!window.PWACloudSync) return;
+        showToast('Syncing with Google Drive PWA.json...', 'info');
+        const res = await window.PWACloudSync.loadPreferences();
+        if (res) {
+            showToast('Google Drive PWA.json sync complete!', 'success');
+        } else {
+            showToast('Synced with server cache', 'info');
+        }
+    };
+
+    /* ──────────────────────────────────────
+       AUTOMATION TILES HOLD & REORDER SYSTEM
+       - Hold to reorder modules
+       - Only active for Automation & Control section (#automationTileGrid)
+       - Only allowed when user is logged in
+       - Saves custom order per-user in Google Drive PWA.json & localStorage
+    ────────────────────────────────────── */
+    let defaultAutomationTileOrder = [];
+    window.isTileDragActive = false;
+    window.tileDragJustEnded = false;
+    let activeDraggedTile = null;
+    let tileHoldTimer = null;
+    let holdStartX = 0;
+    let holdStartY = 0;
+
+    function getAutomationUserKey() {
+        if (!currentAuthUser) return null;
+        return currentAuthUser.code || currentAuthUser.email || currentAuthUser.short || 'user';
+    }
+
+    function saveCurrentAutomationTileOrder() {
+        const userKey = getAutomationUserKey();
+        if (!userKey) return;
+        const grid = document.getElementById('automationTileGrid');
+        if (!grid) return;
+        const tiles = grid.querySelectorAll('.tile[data-tile-id]');
+        const order = Array.from(tiles).map(t => t.getAttribute('data-tile-id')).filter(Boolean);
+        try {
+            localStorage.setItem(`tabreed_module_order_${userKey}`, JSON.stringify(order));
+            // Completely silent background save - user requested NO toast notifications
+        } catch(e) {}
+
+        if (window.PWACloudSync) {
+            window.PWACloudSync.saveModuleOrder(userKey, order);
+        }
+    }
+
+    function applyAutomationTileOrder() {
+        const grid = document.getElementById('automationTileGrid');
+        if (!grid) return;
+
+        // Cache initial DOM order once
+        if (defaultAutomationTileOrder.length === 0) {
+            defaultAutomationTileOrder = Array.from(grid.querySelectorAll('.tile[data-tile-id]'))
+                .map(t => t.getAttribute('data-tile-id'));
+        }
+
+        const userKey = getAutomationUserKey();
+        const hintEl = document.getElementById('reorder-hint');
+        if (hintEl) {
+            hintEl.style.display = userKey ? 'inline-flex' : 'none';
+        }
+
+        if (!userKey) {
+            restoreDefaultAutomationTileOrder();
+            return;
+        }
+
+        let order = null;
+        try {
+            const saved = localStorage.getItem(`tabreed_module_order_${userKey}`);
+            if (saved) order = JSON.parse(saved);
+        } catch(e) {}
+
+        if (!order || !Array.isArray(order) || order.length === 0) return;
+
+        const tileMap = {};
+        const tiles = Array.from(grid.querySelectorAll('.tile[data-tile-id]'));
+        tiles.forEach(t => {
+            tileMap[t.getAttribute('data-tile-id')] = t;
+        });
+
+        order.forEach(id => {
+            if (tileMap[id]) {
+                grid.appendChild(tileMap[id]);
+            }
+        });
+    }
+
+    const DEVELOPER_DEFAULT_TILE_ORDER = [
+        'NATIVE_INSTRUMENT',
+        'DocumentFolder.html',
+        'PM_Checklist_Generator.html',
+        'ETS_Locator.html',
+        'Operation_Request.html',
+        'Team_Contacts.html'
+    ];
+
+    function restoreDefaultAutomationTileOrder() {
+        const grid = document.getElementById('automationTileGrid');
+        if (!grid) return;
+        const targetOrder = defaultAutomationTileOrder.length ? defaultAutomationTileOrder : DEVELOPER_DEFAULT_TILE_ORDER;
+        const tileMap = {};
+        Array.from(grid.querySelectorAll('.tile[data-tile-id]')).forEach(t => {
+            tileMap[t.getAttribute('data-tile-id')] = t;
+        });
+        targetOrder.forEach(id => {
+            if (tileMap[id]) grid.appendChild(tileMap[id]);
+        });
+    }
+
+    function setupAutomationTileReordering() {
+        const grid = document.getElementById('automationTileGrid');
+        if (!grid) return;
+
+        if (defaultAutomationTileOrder.length === 0) {
+            defaultAutomationTileOrder = Array.from(grid.querySelectorAll('.tile[data-tile-id]'))
+                .map(t => t.getAttribute('data-tile-id'));
+        }
+
+        // Attach Hold to Reset Sequence on "#reorder-hint"
+        const hintEl = document.getElementById('reorder-hint');
+        if (hintEl) {
+            hintEl.style.cursor = 'pointer';
+            hintEl.title = 'Hold to reset module sequence to Developer Default';
+
+            let hintHoldTimer = null;
+            const resetToDeveloperSequence = () => {
+                defaultAutomationTileOrder = [...DEVELOPER_DEFAULT_TILE_ORDER];
+                restoreDefaultAutomationTileOrder();
+                saveCurrentAutomationTileOrder();
+                if (navigator.vibrate) {
+                    try { navigator.vibrate([40, 60, 40]); } catch(e) {}
+                }
+                hintEl.innerHTML = '<i class="fas fa-check-circle" style="margin-right:4px;color:var(--secondary);"></i>Default Sequence Restored!';
+                setTimeout(() => {
+                    hintEl.innerHTML = '<i class="fas fa-hand-pointer" style="margin-right:4px;color:var(--primary);"></i>Hold to reorder';
+                }, 2500);
+            };
+
+            const startHintHold = () => {
+                cancelHintHold();
+                hintHoldTimer = setTimeout(resetToDeveloperSequence, 700);
+            };
+
+            const cancelHintHold = () => {
+                if (hintHoldTimer) {
+                    clearTimeout(hintHoldTimer);
+                    hintHoldTimer = null;
+                }
+            };
+
+            hintEl.oncontextmenu = (e) => { e.preventDefault(); };
+            hintEl.addEventListener('touchstart', startHintHold, { passive: true });
+            hintEl.addEventListener('touchend', cancelHintHold);
+            hintEl.addEventListener('touchcancel', cancelHintHold);
+
+            hintEl.addEventListener('mousedown', startHintHold);
+            hintEl.addEventListener('mouseup', cancelHintHold);
+            hintEl.addEventListener('mouseleave', cancelHintHold);
+        }
+
+        const tiles = grid.querySelectorAll('.tile[data-tile-id]');
+        tiles.forEach(tile => {
+            tile.removeEventListener('touchstart', onTileTouchStart);
+            tile.addEventListener('touchstart', onTileTouchStart, { passive: false });
+
+            tile.removeEventListener('touchmove', onTileTouchMove);
+            tile.addEventListener('touchmove', onTileTouchMove, { passive: false });
+
+            tile.removeEventListener('touchend', onTileTouchEnd);
+            tile.addEventListener('touchend', onTileTouchEnd);
+
+            tile.removeEventListener('touchcancel', onTileTouchEnd);
+            tile.addEventListener('touchcancel', onTileTouchEnd);
+
+            tile.removeEventListener('mousedown', onTileMouseDown);
+            tile.addEventListener('mousedown', onTileMouseDown);
+        });
+
+        document.removeEventListener('mousemove', onTileMouseMove);
+        document.addEventListener('mousemove', onTileMouseMove);
+
+        document.removeEventListener('mouseup', onTileMouseUp);
+        document.addEventListener('mouseup', onTileMouseUp);
+    }
+
+    function onTileTouchStart(e) {
+        if (!currentAuthUser) return;
+        if (e.touches.length !== 1) return;
+        const touch = e.touches[0];
+        holdStartX = touch.clientX;
+        holdStartY = touch.clientY;
+        const targetTile = e.currentTarget;
+
+        if (tileHoldTimer) clearTimeout(tileHoldTimer);
+        tileHoldTimer = setTimeout(() => {
+            startTileDrag(targetTile);
+        }, 360);
+    }
+
+    function onTileTouchMove(e) {
+        if (!currentAuthUser) return;
+        const touch = e.touches[0];
+        if (!window.isTileDragActive) {
+            const dist = Math.hypot(touch.clientX - holdStartX, touch.clientY - holdStartY);
+            if (dist > 10) {
+                if (tileHoldTimer) clearTimeout(tileHoldTimer);
+            }
+            return;
+        }
+
+        e.preventDefault();
+        reorderOverPoint(touch.clientX, touch.clientY);
+    }
+
+    function onTileTouchEnd() {
+        if (tileHoldTimer) clearTimeout(tileHoldTimer);
+        if (window.isTileDragActive) {
+            finishTileDrag();
+        }
+    }
+
+    function onTileMouseDown(e) {
+        if (e.button !== 0) return;
+        if (!currentAuthUser) return;
+        holdStartX = e.clientX;
+        holdStartY = e.clientY;
+        const targetTile = e.currentTarget;
+
+        if (tileHoldTimer) clearTimeout(tileHoldTimer);
+        tileHoldTimer = setTimeout(() => {
+            startTileDrag(targetTile);
+        }, 360);
+    }
+
+    function onTileMouseMove(e) {
+        if (!window.isTileDragActive) {
+            const dist = Math.hypot(e.clientX - holdStartX, e.clientY - holdStartY);
+            if (dist > 8 && tileHoldTimer) {
+                clearTimeout(tileHoldTimer);
+            }
+            return;
+        }
+        reorderOverPoint(e.clientX, e.clientY);
+    }
+
+    function onTileMouseUp() {
+        if (tileHoldTimer) clearTimeout(tileHoldTimer);
+        if (window.isTileDragActive) {
+            finishTileDrag();
+        }
+    }
+
+    function startTileDrag(tile) {
+        window.isTileDragActive = true;
+        activeDraggedTile = tile;
+        tile.classList.add('tile-hold-active');
+        if (navigator.vibrate) navigator.vibrate(40);
+        document.body.style.userSelect = 'none';
+        document.body.style.webkitUserSelect = 'none';
+    }
+
+    function reorderOverPoint(x, y) {
+        if (!activeDraggedTile) return;
+        const grid = document.getElementById('automationTileGrid');
+        if (!grid) return;
+
+        const elem = document.elementFromPoint(x, y);
+        if (!elem) return;
+        const targetTile = elem.closest('#automationTileGrid .tile[data-tile-id]');
+        if (targetTile && targetTile !== activeDraggedTile) {
+            const tiles = Array.from(grid.querySelectorAll('.tile[data-tile-id]'));
+            const draggedIdx = tiles.indexOf(activeDraggedTile);
+            const targetIdx = tiles.indexOf(targetTile);
+            if (draggedIdx > -1 && targetIdx > -1) {
+                if (draggedIdx < targetIdx) {
+                    grid.insertBefore(activeDraggedTile, targetTile.nextSibling);
+                } else {
+                    grid.insertBefore(activeDraggedTile, targetTile);
+                }
+                if (navigator.vibrate) navigator.vibrate(25);
+            }
+        }
+    }
+
+    function finishTileDrag() {
+        window.isTileDragActive = false;
+        window.tileDragJustEnded = true;
+        setTimeout(() => { window.tileDragJustEnded = false; }, 350);
+
+        if (activeDraggedTile) {
+            activeDraggedTile.classList.remove('tile-hold-active');
+            activeDraggedTile = null;
+        }
+        document.body.style.userSelect = '';
+        document.body.style.webkitUserSelect = '';
+        saveCurrentAutomationTileOrder();
+    }
+
     // Call initTiles after DOM and auth loads
     window.renderUserProfile = function() {
         if (typeof initTiles === 'function') initTiles();
+        if (typeof applyAutomationTileOrder === 'function') applyAutomationTileOrder();
     };
 
     if (typeof applyUserLogin === 'function') {
@@ -5052,6 +5740,7 @@ window.startSmartInstall = async function() {
         applyUserLogin = function(user, showPopup) {
             _origApply(user, showPopup);
             if (typeof initTiles === 'function') initTiles();
+            if (typeof applyAutomationTileOrder === 'function') applyAutomationTileOrder();
         };
     }
     if (typeof logoutUser === 'function') {
@@ -5059,11 +5748,17 @@ window.startSmartInstall = async function() {
         logoutUser = function() {
             _origLogout();
             if (typeof initTiles === 'function') initTiles();
+            if (typeof restoreDefaultAutomationTileOrder === 'function') restoreDefaultAutomationTileOrder();
         };
     }
     
     document.addEventListener("DOMContentLoaded", () => {
-        setTimeout(initTiles, 500); // ensure tiles are processed
+        initTiles();
+        applyAutomationTileOrder();
+        setupAutomationTileReordering();
+        if (window.PWACloudSync) {
+            window.PWACloudSync.loadPreferences();
+        }
     });
 </script>
 

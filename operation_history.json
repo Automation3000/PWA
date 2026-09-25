@@ -1,5 +1,42 @@
 [
   {
+    "id": "hist_1790331891201_868",
+    "timestamp": "2026-09-25T10:24:51.201Z",
+    "displayTime": "25.09.2026 10:24",
+    "action": "create",
+    "actionLabel": "Created",
+    "workOrder": "TEST_9999",
+    "plant": "ST-01",
+    "description": "Created operation request for ST-01 (WO #TEST_9999)",
+    "details": "",
+    "user": "Tester",
+    "badgeColor": "#1a73e8"
+  },
+  {
+    "id": "cloud_hist_2",
+    "timestamp": "2026-09-24T19:55:09.000Z",
+    "displayTime": "24.09.2026 19:55",
+    "action": "sync",
+    "workOrder": "",
+    "plant": "",
+    "description": "Updated live records: 1 new",
+    "user": "Technician",
+    "details": "",
+    "actionLabel": "Synced"
+  },
+  {
+    "id": "cloud_hist_1",
+    "timestamp": "2026-09-24T14:46:49.000Z",
+    "displayTime": "24.09.2026 14:46",
+    "action": "sync",
+    "workOrder": "",
+    "plant": "AD-032",
+    "description": "Updated live records: 1 new",
+    "user": "Technician",
+    "details": "Urgent",
+    "actionLabel": "Synced"
+  },
+  {
     "id": "cloud_hist_61",
     "timestamp": "2026-09-21T18:38:30.000Z",
     "displayTime": "21.09.2026 18:38",
@@ -277,17 +314,5 @@
     "user": "Supervisor",
     "details": "",
     "actionLabel": "Status"
-  },
-  {
-    "id": "cloud_hist_1",
-    "timestamp": "2026-09-20T18:05:45.000Z",
-    "displayTime": "20.09.2026 18:05",
-    "action": "create",
-    "workOrder": "12345",
-    "plant": "AD-032",
-    "description": "testing",
-    "user": "Technician",
-    "details": "Urgent",
-    "actionLabel": "Created"
   }
 ]
