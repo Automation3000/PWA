@@ -1249,10 +1249,16 @@
 
         async function initApp() {
             try {
-                const res = await fetch('employees.json');
+                // Load employee credentials & permissions from centralized data/ directory
+                const res = await fetch('data/employees.json');
                 EMPLOYEES = await res.json();
             } catch(e) {
-                console.error("Failed to load employees data");
+                try {
+                    const fb = await fetch('employees.json');
+                    EMPLOYEES = await fb.json();
+                } catch(e2) {
+                    console.error("Failed to load employees data from data/employees.json", e);
+                }
             }
             if (localStorage.getItem('tabreed_theme') === 'dark') {
                 document.body.classList.add('dark-mode');

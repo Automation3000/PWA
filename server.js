@@ -5,16 +5,27 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DATA_FILE = path.join(__dirname, 'operation_requests.json');
-const DELETED_FILE = path.join(__dirname, 'deleted_requests.json');
-const OVERRIDES_FILE = path.join(__dirname, 'status_overrides.json');
-const HISTORY_FILE = path.join(__dirname, 'operation_history.json');
-const TEAM_CONTACTS_FILE = path.join(__dirname, 'team_contacts.json');
-const EMPLOYEES_FILE = path.join(__dirname, 'employees.json');
-const PWA_PREFERENCES_FILE = path.join(__dirname, 'pwa_preferences.json');
+// Centralized Data Directory: /data (supports /Data via symlink)
+const DATA_DIR = path.join(__dirname, 'data');
+if (!fs.existsSync(DATA_DIR)) {
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  } catch (e) {
+    console.error("Error creating data directory:", e);
+  }
+}
+
+// JSON Data Storage locations in /data/
+const DATA_FILE = path.join(DATA_DIR, 'operation_requests.json');
+const DELETED_FILE = path.join(DATA_DIR, 'deleted_requests.json');
+const OVERRIDES_FILE = path.join(DATA_DIR, 'status_overrides.json');
+const HISTORY_FILE = path.join(DATA_DIR, 'operation_history.json');
+const TEAM_CONTACTS_FILE = path.join(DATA_DIR, 'team_contacts.json');
+const EMPLOYEES_FILE = path.join(DATA_DIR, 'employees.json');
+const PWA_PREFERENCES_FILE = path.join(DATA_DIR, 'pwa_preferences.json');
 const DRIVE_PWA_FILE_ID = '1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX';
-const INVENTORY_CACHE_FILE = path.join(__dirname, 'inventory_cache.json');
-const INVENTORY_HISTORY_FILE = path.join(__dirname, 'inventory_history_cache.json');
+const INVENTORY_CACHE_FILE = path.join(DATA_DIR, 'inventory_cache.json');
+const INVENTORY_HISTORY_FILE = path.join(DATA_DIR, 'inventory_history_cache.json');
 const INVENTORY_GAS_URL = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
 
 function loadInventoryCache() {
@@ -416,20 +427,15 @@ const INITIAL_FALLBACK_REQUESTS = [
   }
 ];
 
-// Proxy endpoint: fetches live cloud data on refresh or if no cache
+// Proxy endpoint: fetches live cloud data from Google Sheet with resilient local cache fallback
 app.get('/api/operation-requests', async (req, res) => {
   const forceRefresh = req.query.refresh === 'true';
   let cached = loadLocalData();
 
-  // If we already have local cache and not a force-refresh, return immediately for instant mobile loading
-  if (cached && Array.isArray(cached) && cached.length > 0 && !forceRefresh) {
-    return res.json({ status: 'success', data: cached, source: 'cache' });
-  }
-
-  // If force refresh requested or cache is empty, fetch live from cloud backend with timeout
+  // Always attempt live fetch from Google Apps Script with 5.5s timeout
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6500);
+    const timeoutId = setTimeout(() => controller.abort(), 5500);
     const response = await fetch(APPS_SCRIPT_URL + '?t=' + Date.now(), {
       redirect: 'follow',
       signal: controller.signal
@@ -445,18 +451,22 @@ app.get('/api/operation-requests', async (req, res) => {
     }
 
     if (data && data.status === 'success' && Array.isArray(data.data)) {
-      // Filter out ghost empty rows
-      const cleaned = data.data.filter(r => (r['Work Order'] || r.wo) && String(r['Work Order'] || r.wo).trim() !== '');
-      cached = cleaned.length > 0 ? cleaned : cached;
+      // Filter out invalid ghost empty rows (keep valid entries with Work Order, Description, or Plant)
+      const cleaned = data.data.filter(r => {
+        const wo = String(r['Work Order'] || r.wo || '').trim();
+        const desc = String(r['Description'] || r.desc || '').trim();
+        const plant = String(r['Plant'] || r.plant || '').trim();
+        return Boolean(wo || desc || plant);
+      });
       if (cleaned.length > 0) {
+        cached = cleaned;
         saveLocalData(cached);
       }
-      // Clear deleted and overrides on fresh pull so user cloud changes take immediate effect
       if (forceRefresh) {
         saveDeletedIds([]);
         saveStatusOverrides({});
       }
-      return res.json({ status: 'success', data: cached || cleaned, source: 'cloud' });
+      return res.json({ status: 'success', data: cached, source: 'cloud' });
     }
   } catch (error) {
     console.warn('Proxy GET error or timeout from Apps Script:', error.message || error);
@@ -1048,6 +1058,50 @@ app.get('/api/inventory', async (req, res) => {
     console.warn(`Action ${action} proxy error:`, err.message);
   }
 
+  // Synchronize local inventory cache for update, add, and delete actions
+  const cachedInv = loadInventoryCache();
+  if (cachedInv && Array.isArray(cachedInv.data)) {
+    if (action === 'update') {
+      const targetName = query.itemName || query.name;
+      if (targetName) {
+        const item = cachedInv.data.find(it => it.name === targetName);
+        if (item) {
+          if (query.newLocation || query.location) item.location = query.newLocation || query.location;
+          if (query.newExpiry || query.expiry) item.expiry = query.newExpiry || query.expiry;
+          if (query.user || query.updatedBy) item.updatedBy = query.user || query.updatedBy;
+          if (query.remark !== undefined || query.comment !== undefined) item.remark = query.remark || query.comment || '';
+          saveInventoryCache(cachedInv);
+        }
+      }
+    } else if (action === 'add') {
+      const targetName = query.name || query.itemName;
+      if (targetName) {
+        const existing = cachedInv.data.find(it => it.name === targetName);
+        if (existing) {
+          if (query.newLocation || query.location) existing.location = query.newLocation || query.location;
+          if (query.newExpiry || query.expiry) existing.expiry = query.newExpiry || query.expiry;
+          if (query.user || query.updatedBy) existing.updatedBy = query.user || query.updatedBy;
+          if (query.remark !== undefined || query.comment !== undefined) existing.remark = query.remark || query.comment || '';
+        } else {
+          cachedInv.data.push({
+            name: targetName,
+            location: query.newLocation || query.location || '',
+            expiry: query.newExpiry || query.expiry || '',
+            updatedBy: query.user || query.updatedBy || '',
+            remark: query.remark || query.comment || ''
+          });
+        }
+        saveInventoryCache(cachedInv);
+      }
+    } else if (action === 'delete') {
+      const targetName = query.itemName || query.name;
+      if (targetName) {
+        cachedInv.data = cachedInv.data.filter(it => it.name !== targetName);
+        saveInventoryCache(cachedInv);
+      }
+    }
+  }
+
   // If updateLocations was requested and remote failed, update local cache
   if (action === 'updateLocations' && query.updates) {
     try {
@@ -1069,11 +1123,56 @@ app.get('/api/inventory', async (req, res) => {
 
 // POST Inventory Proxy
 app.post('/api/inventory', async (req, res) => {
-  const query = { ...req.query };
+  const query = { ...req.query, ...req.body };
   if (!query.key) query.key = 'AI1';
   const body = req.body || {};
+  const action = query.action || body.action;
   const qs = new URLSearchParams(query).toString();
   const targetUrl = `${INVENTORY_GAS_URL}?${qs}`;
+
+  // Synchronize local inventory cache for update, add, and delete actions
+  const cachedInv = loadInventoryCache();
+  if (cachedInv && Array.isArray(cachedInv.data)) {
+    if (action === 'update') {
+      const targetName = body.itemName || body.name || query.itemName || query.name;
+      if (targetName) {
+        const item = cachedInv.data.find(it => it.name === targetName);
+        if (item) {
+          if (body.newLocation || body.location || query.newLocation || query.location) item.location = body.newLocation || body.location || query.newLocation || query.location;
+          if (body.newExpiry || body.expiry || query.newExpiry || query.expiry) item.expiry = body.newExpiry || body.expiry || query.newExpiry || query.expiry;
+          if (body.user || body.updatedBy || query.user || query.updatedBy) item.updatedBy = body.user || body.updatedBy || query.user || query.updatedBy;
+          if (body.remark !== undefined || body.comment !== undefined) item.remark = body.remark || body.comment || '';
+          saveInventoryCache(cachedInv);
+        }
+      }
+    } else if (action === 'add') {
+      const targetName = body.name || body.itemName || query.name || query.itemName;
+      if (targetName) {
+        const existing = cachedInv.data.find(it => it.name === targetName);
+        if (existing) {
+          if (body.newLocation || body.location) existing.location = body.newLocation || body.location;
+          if (body.newExpiry || body.expiry) existing.expiry = body.newExpiry || body.expiry;
+          if (body.user || body.updatedBy) existing.updatedBy = body.user || body.updatedBy;
+          if (body.remark !== undefined || body.comment !== undefined) existing.remark = body.remark || body.comment || '';
+        } else {
+          cachedInv.data.push({
+            name: targetName,
+            location: body.newLocation || body.location || query.newLocation || query.location || '',
+            expiry: body.newExpiry || body.expiry || query.newExpiry || query.expiry || '',
+            updatedBy: body.user || body.updatedBy || query.user || query.updatedBy || '',
+            remark: body.remark || body.comment || query.remark || query.comment || ''
+          });
+        }
+        saveInventoryCache(cachedInv);
+      }
+    } else if (action === 'delete') {
+      const targetName = body.itemName || body.name || query.itemName || query.name;
+      if (targetName) {
+        cachedInv.data = cachedInv.data.filter(it => it.name !== targetName);
+        saveInventoryCache(cachedInv);
+      }
+    }
+  }
 
   try {
     const controller = new AbortController();
@@ -1427,6 +1526,36 @@ app.post('/api/pwa-preferences/factory-reset', async (req, res) => {
 app.get(['/Index.html', '/index.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
+
+// Backward Compatibility & Static Data Routing:
+// Maps requests for root JSON files (e.g. /employees.json) seamlessly to /data/
+const DATA_JSON_FILES = new Set([
+  'employees.json',
+  'documents.json',
+  'operation_requests.json',
+  'operation_history.json',
+  'deleted_requests.json',
+  'status_overrides.json',
+  'team_contacts.json',
+  'pwa_preferences.json',
+  'inventory_cache.json',
+  'inventory_history_cache.json'
+]);
+
+app.use((req, res, next) => {
+  const reqFile = req.path.replace(/^\//, '');
+  if (DATA_JSON_FILES.has(reqFile)) {
+    const targetPath = path.join(DATA_DIR, reqFile);
+    if (fs.existsSync(targetPath)) {
+      return res.sendFile(targetPath);
+    }
+  }
+  next();
+});
+
+// Explicitly serve /data and /Data directory
+app.use('/data', express.static(DATA_DIR));
+app.use('/Data', express.static(DATA_DIR));
 
 // Serve static files from root directory
 app.use(express.static(__dirname, {

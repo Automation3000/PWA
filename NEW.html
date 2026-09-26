@@ -63,7 +63,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('documents.json')
+            // Load technical document catalog from centralized data/ directory
+            fetch('data/documents.json')
+                .catch(() => fetch('documents.json'))
                 .then(response => {
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);

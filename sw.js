@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tabreed-pro-v18'; // v18: Precache app-documentation.html offline architecture docs
+const CACHE_NAME = 'tabreed-pro-v19'; // v19: Centralized data/ directory support for JSON data files
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -8,6 +8,7 @@ const STATIC_ASSETS = [
   '/DocumentFolder.html',
   '/PM_Checklist_Generator.html',
   '/ETS_Locator.html',
+  '/data/employees.json',
   '/employees.json',
   '/manifest.json',
   '/icon-72.png',
@@ -16,6 +17,7 @@ const STATIC_ASSETS = [
   '/icon-144.png',
   '/icon-192.png',
   '/icon-512.png',
+  '/data/documents.json',
   '/documents.json',
   '/config.js',
   '/storage.js',

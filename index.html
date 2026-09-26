@@ -1751,10 +1751,17 @@ input:checked + .slider:before { transform: translateX(20px); }
     ────────────────────────────────────── */
     document.addEventListener('DOMContentLoaded', async () => {
         try {
-            const res = await fetch('employees.json');
+            // Load base employee credentials & roles from centralized /data/ directory
+            const res = await fetch('data/employees.json');
             EMPLOYEES = await res.json();
         } catch(e) {
-            addDebugLog("Failed to load employees.json");
+            // Fallback attempt to root path in case of legacy cache
+            try {
+                const fb = await fetch('employees.json');
+                EMPLOYEES = await fb.json();
+            } catch(e2) {
+                addDebugLog("Failed to load data/employees.json");
+            }
         }
         
         // Restore theme
@@ -3871,7 +3878,10 @@ window.startSmartInstall = async function() {
             return;
         }
         if (navigator.onLine) {
-            const query = Object.entries(params).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+            const query = Object.entries(params)
+                .filter(([k, v]) => k !== 'changes' && k !== '_queued' && v !== undefined && v !== null)
+                .map(([k, v]) => `${k}=${encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v)}`)
+                .join('&');
             fetchWithTimeout(`${GAS_API_URL}?key=AI1&${query}`)
                 .then(r => r.json())
                 .then(res => {
@@ -4067,11 +4077,12 @@ window.startSmartInstall = async function() {
 
             let successes = 0;
             let failures = 0;
+            const syncedBatchItems = [];
 
             // Process sequentially, updating stored queue atomically upon each item's success
             while (queue.length > 0) {
                 const task = queue[0];
-                const { _queued, ...params } = task;
+                const { _queued, changes, ...params } = task;
 
                 try {
                     let res = null;
@@ -4082,7 +4093,10 @@ window.startSmartInstall = async function() {
                             body: JSON.stringify(task.payload || params)
                         }).then(r => r.json());
                     } else {
-                        const query = Object.entries(params).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+                        const query = Object.entries(params)
+                            .filter(([k, v]) => k !== 'changes' && k !== '_queued' && v !== undefined && v !== null)
+                            .map(([k, v]) => `${k}=${encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v)}`)
+                            .join('&');
                         res = await fetchWithTimeout(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json());
                     }
 

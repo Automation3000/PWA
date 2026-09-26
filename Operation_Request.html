@@ -2087,10 +2087,16 @@ input[type="date"] {
 
         window.onload = async () => {
             try {
-                const res = await fetch('employees.json');
+                // Load authorized employee list and roles from centralized data/ directory
+                const res = await fetch('data/employees.json');
                 EMPLOYEES = await res.json();
             } catch(e) {
-                console.error("Failed to load employees data");
+                try {
+                    const fb = await fetch('employees.json');
+                    EMPLOYEES = await fb.json();
+                } catch(e2) {
+                    console.error("Failed to load employees data from data/employees.json", e);
+                }
             }
 
             document.addEventListener('keydown', e => {
@@ -3021,7 +3027,7 @@ input[type="date"] {
             // Attempt 1: Fast Backend Proxy
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 6000);
+                const timeoutId = setTimeout(() => controller.abort(), 8500);
                 const res = await fetch('/api/operation-requests?refresh=true&t=' + Date.now(), { signal: controller.signal }).then(r => r.json());
                 clearTimeout(timeoutId);
                 if (res && res.status === "success" && Array.isArray(res.data)) {

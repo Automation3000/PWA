@@ -398,13 +398,18 @@
                 }
             }
 
-            // 3. Fallback to employees.json if both empty and EMPLOYEES empty
+            // 3. Fallback to employees.json in centralized data/ directory if both empty and EMPLOYEES empty
             if (!fetchedData && EMPLOYEES.length === 0) {
                 try {
-                    const res = await fetch('employees.json');
+                    const res = await fetch('data/employees.json');
                     fetchedData = await res.json();
                 } catch(e) {
-                    console.error("Failed to load base employees.json", e);
+                    try {
+                        const fb = await fetch('employees.json');
+                        fetchedData = await fb.json();
+                    } catch(e2) {
+                        console.error("Failed to load base data/employees.json", e);
+                    }
                 }
             }
 

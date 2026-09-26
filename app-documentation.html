@@ -976,7 +976,7 @@
                             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
                                 <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
                                     <b>/api/operation-requests</b><br>
-                                    <span style="font-size:0.75rem; color:var(--text-muted);">• <b>15s Window Deduplication</b> prevents double rows<br>• Automatically logs create activity to history<br>• Writes to <code>operation_requests.json</code></span>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• <b>15s Window Deduplication</b> prevents double rows<br>• Automatically logs create activity to history<br>• Writes to <code>data/operation_requests.json</code></span>
                                 </div>
                                 <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
                                     <b>/api/operation-history</b><br>
@@ -1167,7 +1167,7 @@
                                         <span class="arch-block-title">Local Persistence</span>
                                         <span class="arch-block-badge">JSON &amp; LocalStorage</span>
                                     </div>
-                                    <div class="arch-block-desc">Instant offline availability: operation_requests.json, operation_history.json, sync queues.</div>
+                                    <div class="arch-block-desc">Instant offline availability: data/operation_requests.json, data/operation_history.json, sync queues.</div>
                                 </div>
                             </div>
                         </div>
@@ -1219,7 +1219,7 @@
                             <div class="pipeline-step">
                                 <span class="step-number">Step 03: Server 15s Deduplication</span>
                                 <span class="step-title">POST /api/operation-requests</span>
-                                <span class="step-body">Server checks cached entries matching WO, Plant, Description, Date &amp; Time. Drops duplicates created within 15s. Records creation in <span class="code-tag">operation_history.json</span>.</span>
+                                <span class="step-body">Server checks cached entries matching WO, Plant, Description, Date &amp; Time. Drops duplicates created within 15s. Records creation in <span class="code-tag">data/operation_history.json</span>.</span>
                             </div>
                             <div class="pipeline-step">
                                 <span class="step-number">Step 04: GAS Last-Row Verification</span>
@@ -1252,8 +1252,8 @@
                             </div>
                             <div class="pipeline-step">
                                 <span class="step-number">Step 04: History Persistence</span>
-                                <span class="step-title">operation_history.json &amp; Sheet</span>
-                                <span class="step-body">Persists capped 200 entries locally and synchronizes bidirectionally with the Google Sheets 'History' tab.</span>
+                                <span class="step-title">data/operation_history.json &amp; Sheet</span>
+                                <span class="step-body">Persists capped 200 entries locally in data/ and synchronizes bidirectionally with the Google Sheets 'History' tab.</span>
                             </div>
                         </div>
                     </div>
@@ -1398,7 +1398,7 @@
                             <div class="pipeline-step">
                                 <span class="step-number">Step 04: System-Wide Rollout</span>
                                 <span class="step-title">POST /api/pwa-preferences/factory-reset</span>
-                                <span class="step-body">Resets module orders and user settings in <span class="code-tag">pwa_preferences.json</span> and Google Drive <span class="code-tag">PWA.json</span> to Developer Defaults for all staff.</span>
+                                <span class="step-body">Resets module orders and user settings in <span class="code-tag">data/pwa_preferences.json</span> and Google Drive <span class="code-tag">PWA.json</span> to Developer Defaults for all staff.</span>
                             </div>
                         </div>
                     </div>
@@ -1463,12 +1463,12 @@
                                 <tr>
                                     <td><span class="code-tag">loadHistoryData() / saveHistoryData()</span></td>
                                     <td>Persistence</td>
-                                    <td>Maintains local disk cache in <span class="code-tag">operation_history.json</span> with thread-safe atomic file writes.</td>
+                                    <td>Maintains local disk cache in <span class="code-tag">data/operation_history.json</span> with thread-safe atomic file writes.</td>
                                 </tr>
                                 <tr>
                                     <td><span class="code-tag">loadPwaPreferences() / savePwaPreferences()</span></td>
                                     <td>Persistence</td>
-                                    <td>Manages <span class="code-tag">pwa_preferences.json</span> containing moduleOrders, userSettings, defaultSettings, userDefaultSettings, and syncCounter.</td>
+                                    <td>Manages <span class="code-tag">data/pwa_preferences.json</span> containing moduleOrders, userSettings, defaultSettings, userDefaultSettings, and syncCounter.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1657,7 +1657,7 @@
 
                 <div class="card">
                     <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:16px;">
-                        The application uses a lightweight, resilient authentication system defined in <span class="code-tag">employees.json</span> with three functional privilege tiers:
+                        The application uses a lightweight, resilient authentication system defined in <span class="code-tag">data/employees.json</span> with three functional privilege tiers:
                     </p>
 
                     <div class="table-wrap">
@@ -1750,7 +1750,7 @@
                                 <td><span class="code-tag" style="color:var(--brand-success); font-weight:700;">GET</span></td>
                                 <td><span class="code-tag">/api/operation-requests</span></td>
                                 <td>None</td>
-                                <td>Returns all current requests from Google Sheet or fallback <span class="code-tag">operation_requests.json</span>.</td>
+                                <td>Returns all current requests from Google Sheet or fallback <span class="code-tag">data/operation_requests.json</span>.</td>
                             </tr>
                             <tr>
                                 <td><span class="code-tag" style="color:var(--brand-primary); font-weight:700;">POST</span></td>
@@ -1768,7 +1768,7 @@
                                 <td><span class="code-tag" style="color:var(--brand-primary); font-weight:700;">POST</span></td>
                                 <td><span class="code-tag">/api/operation-history</span></td>
                                 <td>Activity log object</td>
-                                <td>Appends new audit entry, executes deduplication filter, and updates <span class="code-tag">operation_history.json</span>.</td>
+                                <td>Appends new audit entry, executes deduplication filter, and updates <span class="code-tag">data/operation_history.json</span>.</td>
                             </tr>
                             <tr>
                                 <td><span class="code-tag" style="color:var(--brand-success); font-weight:700;">GET</span></td>
@@ -1904,7 +1904,7 @@
                 desc: 'Consolidates triple/duplicate edit entries, parses epoch timestamps into 24-hr format (DD.MM.YYYY HH:mm), and replaces generic supervisor tags with named user IDs.',
                 role: 'Audit Quality Assurance',
                 funcs: 'parseHistoryEpoch(), format24HourDateTime(), deduplicateHistoryList()',
-                target: '/operation_history.json & Cloud Sheet'
+                target: '/data/operation_history.json & Cloud Sheet'
             },
             'gemini-engine': {
                 title: 'Server-Side Gemini AI Gateway',
@@ -1932,11 +1932,11 @@
             },
             'local-storage': {
                 title: 'Local Fallback Storage & Queues',
-                file: '/operation_requests.json, /operation_history.json',
-                desc: 'File-based persistence on disk and LocalStorage in browser ensuring fast boot times and offline data availability.',
+                file: '/data/operation_requests.json, /data/operation_history.json',
+                desc: 'File-based persistence in data/ on disk and LocalStorage in browser ensuring fast boot times and offline data availability.',
                 role: 'High Availability Storage',
                 funcs: 'localStorage.setItem(), fs.writeFileSync()',
-                target: 'Local File System & Browser Memory'
+                target: 'Local File System (/data) & Browser Memory'
             }
         };
 
