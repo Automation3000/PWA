@@ -2417,6 +2417,13 @@ input[type="date"] {
         const LS_OVERRIDES  = "localTabreedStatusOverrides";
         const LS_QUEUE      = "tabreed_sync_queue";
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_XKC1cV1VaeqKB2MbQgmRSOYmcxQI0v-5qcAAKhFczNOwU3GsindACIkuawzQZN4/exec";
+        const GAS_DIRECT_URL   = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
+        const isLocalNodeHost  = (typeof window !== 'undefined' && window.location && (
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.hostname === '0.0.0.0' ||
+            window.location.hostname.endsWith('.run.app')
+        ));
 
         function getLocalDeletedIds() {
             try { return JSON.parse(localStorage.getItem(LS_DELETED) || '[]'); } catch { return []; }
@@ -2435,28 +2442,58 @@ input[type="date"] {
 
         // Universal Cloud Sync Router (Supports Node Server, Static GitHub Pages, and Direct Apps Script)
         async function sendToCloudBackend(payload) {
-            // 1. Try local server proxy first (/api/operation-requests)
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 12000);
-                const res = await fetch('/api/operation-requests', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && data.status === 'success') {
-                        return { success: true, data };
+            // 1. Try local server proxy first (/api/operation-requests) ONLY IF on local node host
+            if (isLocalNodeHost) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 8000);
+                    const res = await fetch('/api/operation-requests', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && (data.status === 'success' || data.success)) {
+                            return { success: true, data };
+                        }
                     }
+                } catch (proxyErr) {
+                    // Fall back to direct Apps Script
                 }
-            } catch (proxyErr) {
-                // Expected when hosted on GitHub Pages or static host where /api is not present
             }
 
-            // 2. Direct Cloud Apps Script POST (Works on GitHub Pages & Static Hosts)
+            // 2. Direct Cloud Apps Script GET (Universal cross-origin compatibility on GitHub Pages / tabreed.automation3000.com)
+            try {
+                const params = new URLSearchParams();
+                Object.keys(payload).forEach(k => {
+                    if (payload[k] !== undefined && payload[k] !== null) {
+                        params.append(k, typeof payload[k] === 'object' ? JSON.stringify(payload[k]) : String(payload[k]));
+                    }
+                });
+                params.append('t', Date.now());
+                const getUrl = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + params.toString();
+                const getController = new AbortController();
+                const getTimeoutId = setTimeout(() => getController.abort(), 9000);
+                const getRes = await fetch(getUrl, {
+                    method: 'GET',
+                    redirect: 'follow',
+                    signal: getController.signal
+                });
+                clearTimeout(getTimeoutId);
+                if (getRes.ok) {
+                    const getData = await getRes.json();
+                    if (getData && (getData.status === 'success' || getData.success)) {
+                        return { success: true, data: getData };
+                    }
+                }
+            } catch (getFallbackErr) {
+                console.warn("Direct GET to Apps Script failed, trying POST fallback:", getFallbackErr);
+            }
+
+            // 3. Direct Cloud Apps Script POST fallback
             try {
                 const directController = new AbortController();
                 const directTimeout = setTimeout(() => directController.abort(), 7000);
@@ -2470,37 +2507,12 @@ input[type="date"] {
                 clearTimeout(directTimeout);
                 if (directRes.ok) {
                     const directData = await directRes.json();
-                    if (directData && directData.status === 'success') {
+                    if (directData && (directData.status === 'success' || directData.success)) {
                         return { success: true, data: directData };
                     }
                 }
             } catch (directPostErr) {
-                console.warn("Direct POST to Apps Script failed, trying GET fallback:", directPostErr);
-            }
-
-            // 3. Direct Cloud Apps Script GET fallback (Universal cross-origin compatibility)
-            try {
-                const params = new URLSearchParams();
-                Object.keys(payload).forEach(k => {
-                    if (payload[k] !== undefined && payload[k] !== null) {
-                        params.append(k, String(payload[k]));
-                    }
-                });
-                params.append('t', Date.now());
-                const getUrl = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + params.toString();
-                const getRes = await fetch(getUrl, {
-                    method: 'GET',
-                    redirect: 'follow',
-                    signal: AbortSignal.timeout(7000)
-                });
-                if (getRes.ok) {
-                    const getData = await getRes.json();
-                    if (getData && getData.status === 'success') {
-                        return { success: true, data: getData };
-                    }
-                }
-            } catch (getFallbackErr) {
-                console.warn("Direct GET fallback to Apps Script failed:", getFallbackErr);
+                console.warn("Direct POST to Apps Script failed:", directPostErr);
             }
 
             return { success: false };
@@ -2626,7 +2638,33 @@ input[type="date"] {
                         remaining.push(item);
                     }
                 } else {
-                    remaining.push(item);
+                    // Sync pending Master Instrument updates in shared queue
+                    try {
+                        const { _queued, changes, module: mod, ...params } = item;
+                        const query = Object.entries(params)
+                            .filter(([k, v]) => k !== 'changes' && k !== '_queued' && k !== 'module' && v !== undefined && v !== null)
+                            .map(([k, v]) => `${k}=${encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v)}`)
+                            .join('&');
+                        const directUrl = `${GAS_DIRECT_URL}?key=AI1&${query}&t=${Date.now()}`;
+                        const res = await fetch(directUrl, { redirect: 'follow' }).then(r => r.json());
+                        if (res && res.success) {
+                            syncedCount++;
+                            syncedBatchItems.push({
+                                name: item.name || item.itemName || 'Instrument Update',
+                                module: 'instrument',
+                                action: item.action || 'update',
+                                user: item.updatedBy || currentUser.short || 'User',
+                                status: 'success',
+                                summary: 'Master Instrument synced to cloud',
+                                changes: [],
+                                cloudTarget: 'GAS Master Instrument Sheet'
+                            });
+                        } else {
+                            remaining.push(item);
+                        }
+                    } catch(instErr) {
+                        remaining.push(item);
+                    }
                 }
             }
 
@@ -3024,16 +3062,18 @@ input[type="date"] {
             let deletedSet = new Set(getLocalDeletedIds().map(String));
             let overrides = getLocalStatusOverrides();
 
-            // Attempt 1: Fast Backend Proxy
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 8500);
-                const res = await fetch('/api/operation-requests?refresh=true&t=' + Date.now(), { signal: controller.signal }).then(r => r.json());
-                clearTimeout(timeoutId);
-                if (res && res.status === "success" && Array.isArray(res.data)) {
-                    rawData = res.data;
-                }
-            } catch(e) {}
+            // Attempt 1: Fast Backend Proxy (Only if running on local Node server)
+            if (isLocalNodeHost) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 8000);
+                    const res = await fetch('/api/operation-requests?refresh=true&t=' + Date.now(), { signal: controller.signal }).then(r => r.json());
+                    clearTimeout(timeoutId);
+                    if (res && res.status === "success" && Array.isArray(res.data)) {
+                        rawData = res.data;
+                    }
+                } catch(e) {}
+            }
 
             // Attempt 2: Direct Google Apps Script Endpoint
             if (!rawData) {
@@ -3582,13 +3622,22 @@ input[type="date"] {
         let cachedTeamContacts = [];
 
         async function loadTeamContactsList() {
-            try {
-                const res = await fetch('/api/team-contacts');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data && Array.isArray(data.data)) {
-                        cachedTeamContacts = data.data;
+            if (isLocalNodeHost) {
+                try {
+                    const res = await fetch('/api/team-contacts');
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && Array.isArray(data.data)) {
+                            cachedTeamContacts = data.data;
+                            return;
+                        }
                     }
+                } catch(e) {}
+            }
+            try {
+                const res = await fetch(APPS_SCRIPT_URL + '?action=getTeamContacts&t=' + Date.now()).then(r => r.json());
+                if (res && res.status === 'success' && Array.isArray(res.data)) {
+                    cachedTeamContacts = res.data;
                 }
             } catch(e) {}
         }

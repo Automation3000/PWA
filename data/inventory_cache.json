@@ -4,8 +4,8 @@
     {
       "name": "Pump-01 (1179)",
       "location": "Akbarsha",
-      "expiry": "23.03.2027",
-      "updatedBy": "Akbarsha",
+      "expiry": "",
+      "updatedBy": "System",
       "remark": ""
     },
     {
@@ -521,7 +521,7 @@
     },
     {
       "name": "Testing Entry",
-      "location": "JIBIN TEST",
+      "location": "TM-005",
       "expiry": "",
       "updatedBy": "Majeed",
       "remark": "Okay okay okay okay"
@@ -545,7 +545,6 @@
     "Carwheel",
     "David Team",
     "Dubai",
-    "JIBIN TEST",
     "Jerlin",
     "Manikandan",
     "Need to Update",

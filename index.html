@@ -1475,7 +1475,14 @@ input:checked + .slider:before { transform: translateX(20px); }
     ────────────────────────────────────── */
     const APP_VERSION      = "v2.1.2";
     const GAS_DIRECT_URL   = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
-    const GAS_API_URL      = (typeof window !== 'undefined' && window.location && window.location.protocol.startsWith('http')) ? "/api/inventory" : GAS_DIRECT_URL;
+    const OP_REQUEST_GAS_URL = "https://script.google.com/macros/s/AKfycby_XKC1cV1VaeqKB2MbQgmRSOYmcxQI0v-5qcAAKhFczNOwU3GsindACIkuawzQZN4/exec";
+    const isLocalNodeHost  = (typeof window !== 'undefined' && window.location && (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.hostname === '0.0.0.0' ||
+        window.location.hostname.endsWith('.run.app')
+    ));
+    const GAS_API_URL      = isLocalNodeHost ? "/api/inventory" : GAS_DIRECT_URL;
     const LS_INVENTORY  = "localTabreedInventory";
     const LS_HISTORY    = "localTabreedHistory";
     const LS_QUEUE      = "tabreed_sync_queue";
@@ -3872,6 +3879,56 @@ window.startSmartInstall = async function() {
         updateAllDiffsButtonState();
     };
 
+    async function sendInstrumentToCloud(params, queryString) {
+        const query = queryString || Object.entries(params)
+            .filter(([k, v]) => k !== 'changes' && k !== '_queued' && v !== undefined && v !== null)
+            .map(([k, v]) => `${k}=${encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v)}`)
+            .join('&');
+
+        // 1. If on local node host, attempt /api/inventory first
+        if (isLocalNodeHost) {
+            try {
+                const proxyRes = await fetchWithTimeout(`/api/inventory?key=AI1&${query}`, {}, 8000).then(r => r.json());
+                if (proxyRes && proxyRes.success) return proxyRes;
+            } catch (proxyErr) {
+                console.warn("Local inventory proxy failed, falling back to direct GAS:", proxyErr);
+            }
+        }
+
+        // 2. Direct Google Apps Script URL (Works universally on GitHub Pages / tabreed.automation3000.com)
+        const directUrl = `${GAS_DIRECT_URL}?key=AI1&${query}&t=${Date.now()}`;
+        return await fetchWithTimeout(directUrl, {}, 10000).then(r => r.json());
+    }
+
+    async function sendOperationRequestToCloud(payload) {
+        // 1. If on local node host, attempt /api/operation-requests first
+        if (isLocalNodeHost) {
+            try {
+                const proxyRes = await fetchWithTimeout('/api/operation-requests', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }, 8000).then(r => r.json());
+                if (proxyRes && (proxyRes.status === 'success' || proxyRes.success)) {
+                    return proxyRes;
+                }
+            } catch (proxyErr) {
+                console.warn("Local operation request proxy failed, falling back to Apps Script:", proxyErr);
+            }
+        }
+
+        // 2. Direct Apps Script GET (Universal cross-origin compatibility on GitHub Pages / tabreed.automation3000.com)
+        const params = new URLSearchParams();
+        Object.keys(payload).forEach(k => {
+            if (payload[k] !== undefined && payload[k] !== null) {
+                params.append(k, typeof payload[k] === 'object' ? JSON.stringify(payload[k]) : String(payload[k]));
+            }
+        });
+        params.append('t', Date.now());
+        const getUrl = OP_REQUEST_GAS_URL + (OP_REQUEST_GAS_URL.includes('?') ? '&' : '?') + params.toString();
+        return await fetchWithTimeout(getUrl, { redirect: 'follow' }, 10000).then(r => r.json());
+    }
+
     function submitActionToQueue(params) {
         if (isDemoMode) {
             showToast("[DEMO MODE] Request blocked — data not saved.", "warning");
@@ -3882,8 +3939,7 @@ window.startSmartInstall = async function() {
                 .filter(([k, v]) => k !== 'changes' && k !== '_queued' && v !== undefined && v !== null)
                 .map(([k, v]) => `${k}=${encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v)}`)
                 .join('&');
-            fetchWithTimeout(`${GAS_API_URL}?key=AI1&${query}`)
-                .then(r => r.json())
+            sendInstrumentToCloud(params, query)
                 .then(res => {
                     if (res && res.success) {
                         recordSyncedItem(params);
@@ -4087,17 +4143,9 @@ window.startSmartInstall = async function() {
                 try {
                     let res = null;
                     if (task.module === 'operation_request') {
-                        res = await fetch('/api/operation-requests', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(task.payload || params)
-                        }).then(r => r.json());
+                        res = await sendOperationRequestToCloud(task.payload || params);
                     } else {
-                        const query = Object.entries(params)
-                            .filter(([k, v]) => k !== 'changes' && k !== '_queued' && v !== undefined && v !== null)
-                            .map(([k, v]) => `${k}=${encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v)}`)
-                            .join('&');
-                        res = await fetchWithTimeout(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json());
+                        res = await sendInstrumentToCloud(params);
                     }
 
                     if (res && (res.success || res.status === 'success')) {
