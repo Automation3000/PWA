@@ -60,6 +60,7 @@
         })();
     </script>
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
+    <link rel="prefetch" href="DocumentFolder.html">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
 
@@ -604,6 +605,8 @@
         .back-btn-fiori      { background:none; border:none; color:white; font-size:15px; cursor:pointer; display:flex; align-items:center; gap:8px; font-weight:600; }
 
         /* History page */
+        #historyPage { overflow-y: auto !important; overflow-x: hidden !important; }
+        #historyPage .table-container { overflow-x: auto !important; overflow-y: hidden !important; }
         .history-card  { background:var(--bg-card); border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; margin:15px; border:1px solid var(--border); }
         .history-table { width:100%; border-collapse:collapse; min-width:600px; }
         .history-table th { background:var(--table-header); padding:12px 16px; text-align:left; font-size:.8rem; color:var(--text-secondary); border-bottom:2px solid var(--border); text-transform:uppercase; letter-spacing:.3px; }
@@ -1235,7 +1238,7 @@
 <!-- ═══════════════════════════════════════
      HISTORY PAGE
 ═══════════════════════════════════════ -->
-<div id="historyPage" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg-page);z-index:9000;overflow-y:auto;">
+<div id="historyPage" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg-page);z-index:9000;overflow-y:auto;overflow-x:hidden;">
     <div class="app-container" style="max-width:1200px;padding-top:0;">
         <header class="app-header">
             <div class="header-content">
@@ -3243,9 +3246,6 @@ window.startSmartInstall = async function() {
             if ((orig.remark || '') !== sRemark) {
                 itemChanges.push({ field: 'Remarks', from: orig.remark || 'None', to: sRemark || 'None', type: 'diff' });
             }
-            if (itemChanges.length === 0) {
-                itemChanges.push({ field: 'Location Verified', value: sLoc, type: 'info' });
-            }
         } else {
             itemChanges.push({ field: 'Instrument Added', value: sName, type: 'info' });
             itemChanges.push({ field: 'Location', value: sLoc, type: 'info' });
@@ -3402,82 +3402,16 @@ window.startSmartInstall = async function() {
         if (task.remark || task.comment) {
             changes.push({ field: 'Remarks', value: task.remark || task.comment, type: 'info' });
         }
-        if (changes.length === 0) {
-            changes.push({ field: 'Record Verified', value: instName, type: 'info' });
-        }
-        return { summary: `Instrument ${instName} updated`, changes };
+        return { summary: changes.length > 0 ? `Instrument ${instName} updated` : `Instrument ${instName} saved`, changes };
     }
 
-    // Retrieve detailed sync history, seeding defaults if empty for immediate visibility
+    // Retrieve detailed sync history strictly from local storage (no dummy seeding)
     function getDetailedSyncHistory() {
         let history = [];
         try {
             history = JSON.parse(localStorage.getItem(LS_SYNC_HISTORY_LOG) || '[]');
         } catch { history = []; }
-
-        if (!Array.isArray(history) || history.length === 0) {
-            const now = new Date();
-            const t1 = new Date(now.getTime() - 15 * 60 * 1000);
-            const t2 = new Date(now.getTime() - 85 * 60 * 1000);
-            const userShort = (window.currentAuthUser && window.currentAuthUser.short) || 'Majeed';
-
-            history = [
-                {
-                    id: 'sync_evt_' + t1.getTime(),
-                    timestamp: t1.toISOString(),
-                    formattedTime: format24HourDateTime(t1),
-                    triggerSource: 'network_online',
-                    user: userShort,
-                    syncedCount: 1,
-                    failedCount: 0,
-                    status: 'success',
-                    items: [
-                        {
-                            name: 'Operation Request #60000',
-                            module: 'operation_request',
-                            action: 'updateStatus',
-                            user: userShort,
-                            status: 'success',
-                            summary: 'Status changed from "Requested" to "Pending"',
-                            changes: [
-                                { field: 'Status', from: 'Requested', to: 'Pending', type: 'diff' },
-                                { field: 'Work Order', value: '#60000', type: 'info' },
-                                { field: 'Plant', value: 'AD-032', type: 'info' }
-                            ],
-                            cloudTarget: 'Google Sheets (Tabreed Cloud Data)'
-                        }
-                    ]
-                },
-                {
-                    id: 'sync_evt_' + t2.getTime(),
-                    timestamp: t2.toISOString(),
-                    formattedTime: format24HourDateTime(t2),
-                    triggerSource: 'heartbeat',
-                    user: 'Auto-Engine',
-                    syncedCount: 1,
-                    failedCount: 0,
-                    status: 'success',
-                    items: [
-                        {
-                            name: 'Instrument: PIC-101',
-                            module: 'instrument',
-                            action: 'update',
-                            user: userShort,
-                            status: 'success',
-                            summary: 'Location & Calibration Expiry updated',
-                            changes: [
-                                { field: 'Location', from: 'ETS-01', to: 'ETS-03', type: 'diff' },
-                                { field: 'Expiry Date', from: '15.08.2026', to: '28.10.2026', type: 'diff' },
-                                { field: 'Remarks', value: 'Calibrated and verified on site', type: 'info' }
-                            ],
-                            cloudTarget: 'GAS Master Instrument Sheet'
-                        }
-                    ]
-                }
-            ];
-            try { localStorage.setItem(LS_SYNC_HISTORY_LOG, JSON.stringify(history)); } catch(e) {}
-        }
-        return history;
+        return Array.isArray(history) ? history : [];
     }
 
     // Record a sync batch event with granular change details
@@ -5082,11 +5016,15 @@ window.startSmartInstall = async function() {
        HISTORY PAGE
     ────────────────────────────────────── */
     function showHistoryPage() {
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
         document.getElementById('historyPage').style.display = 'block';
         loadHistoryData(true);
     }
     function closeHistoryPage() {
         document.getElementById('historyPage').style.display = 'none';
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
     }
 
     function parseHistoryDate(dateStr) {

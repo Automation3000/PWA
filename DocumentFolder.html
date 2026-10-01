@@ -42,6 +42,8 @@
         })();
     </script>
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
+    <link rel="preconnect" href="https://drive.google.com" crossorigin>
+    <link rel="dns-prefetch" href="https://drive.google.com">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="themes.css">
     <style>
@@ -374,10 +376,19 @@
             box-shadow: var(--shadow-sm);
             border: 1px solid var(--border);
             overflow: hidden;
-            display: none; /* Hidden until clicked */
+            display: flex;
             flex-direction: column;
             flex: 1;
             animation: fadeInViewer .25s ease-out;
+        }
+        .viewer-card.is-preloading {
+            position: absolute;
+            left: -99999px;
+            top: -99999px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
         }
         @keyframes fadeInViewer {
             from { opacity: 0; transform: translateY(6px); }
@@ -460,12 +471,15 @@
                 height: 1050px;
             }
         }
-        .drive-iframe {
+        .drive-iframe, .drive-iframe-pane {
             width: 100%;
             height: 100%;
             border: none;
-            display: block;
+            display: none;
             overflow: hidden !important;
+        }
+        .drive-iframe-pane.active {
+            display: block;
         }
         .iframe-loading {
             position: absolute;
@@ -766,9 +780,9 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════
-             CLEAN DOCUMENT VIEWER WORKSTATION (Shown on click)
+             CLEAN DOCUMENT VIEWER WORKSTATION (Preloaded in background)
         ═══════════════════════════════════════════════════ -->
-        <div class="viewer-card" id="viewerCard">
+        <div class="viewer-card is-preloading" id="viewerCard">
             <!-- Minimal Header Toolbar -->
             <div class="viewer-header">
                 <div class="viewer-info">
@@ -790,13 +804,17 @@
                 </div>
             </div>
 
-            <!-- Embedded Iframe Stage -->
-            <div class="iframe-stage">
+            <!-- Embedded Iframe Stage with 4 Preloaded Folders -->
+            <div class="iframe-stage" style="position:relative;">
                 <div class="iframe-loading" id="iframeLoading">
                     <i class="fas fa-circle-notch fa-spin fa-2x" style="color:var(--primary);"></i>
                     <span style="font-size:0.85rem;color:var(--text-secondary);font-weight:600;">Loading Document Vault...</span>
                 </div>
-                <iframe id="docViewerIframe" class="drive-iframe" src="https://drive.google.com/embeddedfolderview?id=1KUQpoKUJHbr9GjPwfpOIqSBmQZ1TrKSN#grid" scrolling="no" frameborder="0" loading="lazy" onload="onIframeReady()"></iframe>
+                <!-- 4 Preloaded Category Iframes: Load in background so content appears immediately upon click -->
+                <iframe id="iframe-drawings" class="drive-iframe-pane active" data-cat="drawings" src="https://drive.google.com/embeddedfolderview?id=1KUQpoKUJHbr9GjPwfpOIqSBmQZ1TrKSN#grid" scrolling="no" frameborder="0" onload="onCategoryIframeReady('drawings')"></iframe>
+                <iframe id="iframe-pdf" class="drive-iframe-pane" data-cat="pdf" src="https://drive.google.com/embeddedfolderview?id=1CZIU9gxrpYA3gO1Kf6trVfkpilt7aOMJ#grid" scrolling="no" frameborder="0" onload="onCategoryIframeReady('pdf')"></iframe>
+                <iframe id="iframe-images" class="drive-iframe-pane" data-cat="images" src="https://drive.google.com/embeddedfolderview?id=1_4z-Gyuvpm42SYBKwcEXsBvGzLWtUJAt#grid" scrolling="no" frameborder="0" onload="onCategoryIframeReady('images')"></iframe>
+                <iframe id="iframe-videos" class="drive-iframe-pane" data-cat="videos" src="https://drive.google.com/embeddedfolderview?id=1Ome7auV6yg2jCzZaJPs4kmPj_E3UZJpp#grid" scrolling="no" frameborder="0" onload="onCategoryIframeReady('videos')"></iframe>
             </div>
         </div>
     </div>
@@ -921,8 +939,30 @@
         const THEME_KEY = 'tabreed_selected_theme';
         const LS_DARK = 'tabreed_dark_mode';
 
+        // Preload status tracking for all 4 categories
+        const catLoaded = {
+            drawings: false,
+            pdf: false,
+            images: false,
+            videos: false
+        };
+
+        function onCategoryIframeReady(catKey) {
+            catLoaded[catKey] = true;
+            // If the user is currently viewing this category, dismiss the loading spinner
+            if (activeCategory === catKey) {
+                const loading = document.getElementById('iframeLoading');
+                if (loading) loading.classList.add('hidden');
+            }
+        }
+
+        // Backward compatibility shim
+        function onIframeReady() {
+            onCategoryIframeReady(activeCategory);
+        }
+
         // ═══════════════════════════════════════════════════
-        // TAB SELECTION & VIEWER EXPAND
+        // TAB SELECTION & INSTANT VIEWER DISPLAY
         // ═══════════════════════════════════════════════════
         function selectCategory(catKey) {
             if (!CATEGORIES[catKey]) return;
@@ -934,12 +974,13 @@
                 btn.classList.toggle('active', btn.getAttribute('data-cat') === catKey);
             });
 
-            // Hide prompt card and show document viewer
+            // Hide initial prompt card and reveal preloaded document workstation
             const promptCard = document.getElementById('selectPromptCard');
             if (promptCard) promptCard.style.display = 'none';
 
             const cardEl = document.getElementById('viewerCard');
             if (cardEl) {
+                cardEl.classList.remove('is-preloading');
                 cardEl.style.display = 'flex';
             }
 
@@ -957,17 +998,19 @@
             if (badgeEl) badgeEl.textContent = cat.badge;
             if (cardEl) cardEl.style.setProperty('--active-cat-color', cat.color);
 
-            // Load iframe
-            const iframe = document.getElementById('docViewerIframe');
-            const loading = document.getElementById('iframeLoading');
-            if (loading) loading.classList.remove('hidden');
+            // Switch to this category's preloaded iframe immediately
+            document.querySelectorAll('.drive-iframe-pane').forEach(iframe => {
+                const isTarget = iframe.getAttribute('data-cat') === catKey;
+                iframe.classList.toggle('active', isTarget);
+            });
 
-            const newSrc = `https://drive.google.com/embeddedfolderview?id=${cat.id}#grid`;
-            if (iframe) {
-                if (iframe.src !== newSrc) {
-                    iframe.src = newSrc;
+            // If the content is already loaded in the background, hide the loading spinner instantly!
+            const loading = document.getElementById('iframeLoading');
+            if (loading) {
+                if (catLoaded[catKey]) {
+                    loading.classList.add('hidden');
                 } else {
-                    iframe.src = iframe.src;
+                    loading.classList.remove('hidden');
                 }
             }
         }
@@ -977,18 +1020,17 @@
             selectCategory(catKey);
         }
 
-        function onIframeReady() {
-            const loading = document.getElementById('iframeLoading');
-            if (loading) {
-                setTimeout(() => loading.classList.add('hidden'), 250);
-            }
-        }
-
         function refreshViewer() {
             const icon = document.getElementById('refreshIcon');
             if (icon) icon.classList.add('fa-spin');
-            const iframe = document.getElementById('docViewerIframe');
-            if (iframe) iframe.src = iframe.src;
+            
+            const targetIframe = document.querySelector(`.drive-iframe-pane[data-cat="${activeCategory}"]`);
+            if (targetIframe) {
+                catLoaded[activeCategory] = false;
+                const loading = document.getElementById('iframeLoading');
+                if (loading) loading.classList.remove('hidden');
+                targetIframe.src = targetIframe.src;
+            }
             showToast('Refreshing folder...', 'info');
             setTimeout(() => {
                 if (icon) icon.classList.remove('fa-spin');

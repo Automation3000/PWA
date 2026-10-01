@@ -5,8 +5,8 @@
       "name": "Pump-01 (1179)",
       "location": "Akbarsha",
       "expiry": "",
-      "updatedBy": "Majeed",
-      "remark": "Online Verified"
+      "updatedBy": "Akbarsha",
+      "remark": ""
     },
     {
       "name": "Pump-02 (8085)",
@@ -520,28 +520,14 @@
       "remark": ""
     },
     {
-      "name": "Testing Entry",
-      "location": "Dubai",
-      "expiry": "",
-      "updatedBy": "Majeed",
-      "remark": ""
-    },
-    {
       "name": "ABB SRV500 Tab",
       "location": "Carwheel",
       "expiry": "",
       "updatedBy": "Jibin",
       "remark": ""
-    },
-    {
-      "name": "TestAddDevice999",
-      "location": "AD-007",
-      "expiry": "15.12.2026",
-      "updatedBy": "Majeed",
-      "remark": ""
     }
   ],
-  "totalItems": 77,
+  "totalItems": 76,
   "locations": [
     "AD-001",
     "AD-007",
@@ -562,6 +548,6 @@
     "Thomas"
   ],
   "stats": {
-    "warningItems": 17
+    "warningItems": 22
   }
 }

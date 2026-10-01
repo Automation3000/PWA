@@ -571,35 +571,27 @@ app.get('/api/operation-requests', async (req, res) => {
     }
 
     if (data && data.status === 'success' && Array.isArray(data.data)) {
-      // Filter out invalid ghost empty rows (keep valid entries with Work Order, Description, or Plant)
       const cleaned = data.data.filter(r => {
         const wo = String(r['Work Order'] || r.wo || '').trim();
         const desc = String(r['Description'] || r.desc || '').trim();
         const plant = String(r['Plant'] || r.plant || '').trim();
         return Boolean(wo || desc || plant);
       });
-      if (cleaned.length > 0) {
-        cached = cleaned;
-        saveLocalData(cached);
-      }
-      if (forceRefresh) {
-        saveDeletedIds([]);
-        saveStatusOverrides({});
-      }
+      cached = cleaned;
+      saveLocalData(cached);
       return res.json({ status: 'success', data: cached, source: 'cloud' });
     }
   } catch (error) {
     console.warn('Proxy GET error or timeout from Apps Script:', error.message || error);
   }
 
-  // Resilient fallback: return existing cache or initial fallback
-  if (Array.isArray(cached) && cached.length > 0) {
+  // Resilient fallback: return existing cache
+  if (Array.isArray(cached)) {
     return res.json({ status: 'success', data: cached, source: 'fallback_cache' });
   }
 
-  // Safe fallback to prevent mobile client from breaking
-  saveLocalData(INITIAL_FALLBACK_REQUESTS);
-  return res.json({ status: 'success', data: INITIAL_FALLBACK_REQUESTS, source: 'fallback_init' });
+  saveLocalData([]);
+  return res.json({ status: 'success', data: [], source: 'fallback_init' });
 });
 
 // Operation History Endpoints
@@ -723,7 +715,11 @@ app.post('/api/operation-requests', async (req, res) => {
 
   if (action === 'delete') {
     const idToDelete = String(body.id || '');
-    const wo = body.workOrder || '';
+    const wo = String(body.workOrder || '').trim();
+    const rowIdx = Number(body.rowIdx || 0);
+    const desc = String(body.description || body.desc || '').trim();
+    const plant = String(body.plant || '').trim();
+
     if (idToDelete) {
       if (!deletedList.includes(idToDelete)) {
         deletedList.push(idToDelete);
@@ -737,15 +733,30 @@ app.post('/api/operation-requests', async (req, res) => {
 
     cached = cached.filter(item => {
       const itemId = String(item.ID || item.id || '');
-      return itemId !== idToDelete;
+      const itemWo = String(item['Work Order'] || item.wo || '').trim();
+      const itemDesc = String(item['Description'] || item.desc || '').trim();
+      const itemPlant = String(item['Plant'] || item.plant || '').trim();
+      const itemRowIdx = Number(item.rowIdx || 0);
+
+      if (idToDelete && itemId === idToDelete) return false;
+      if (wo && itemWo && itemWo.toLowerCase() === wo.toLowerCase()) return false;
+      if (!wo && rowIdx && itemRowIdx && itemRowIdx === rowIdx) return false;
+      if (!wo && desc && plant && itemDesc.toLowerCase() === desc.toLowerCase() && itemPlant.toLowerCase() === plant.toLowerCase()) return false;
+      return true;
     });
     saveLocalData(cached);
 
     // Forward to Apps Script asynchronously
+    const appsScriptPayload = { ...body, skipAutoHistory: true, skipHistoryLog: true };
+    // If no work order, pass compatible row ID for Apps Script findRow ("row_" + (rowIdx - 1))
+    if (!wo && rowIdx >= 2) {
+      appsScriptPayload.id = "row_" + (rowIdx - 1);
+    }
+
     fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ ...body, skipAutoHistory: true, skipHistoryLog: true }),
+      body: JSON.stringify(appsScriptPayload),
       redirect: 'follow'
     }).catch(err => console.error("Apps Script delete error:", err));
 

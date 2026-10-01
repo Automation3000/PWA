@@ -319,7 +319,7 @@ function doGet(e) {
       // CRITICAL FIX: Only Column I (index 8) is the ID. NEVER use r[7] (Remarks) as an ID!
       var stableId = (r[8] && String(r[8]).trim() && String(r[8]).trim().toLowerCase() !== 'urgent') 
         ? String(r[8]).trim() 
-        : ("row_" + (i + 1) + "_" + (r[0] ? String(r[0]).trim() : Date.now()));
+        : ("row_" + (i + 1) + "_" + (r[0] ? String(r[0]).trim() : (desc ? desc.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10) : 'entry')));
       
       rows.push({
         "rowIdx": i + 1,
@@ -383,6 +383,15 @@ function handleAction(data, sheet) {
         if (data.workOrder && String(rVal[0] || '').trim().toLowerCase() === String(data.workOrder).trim().toLowerCase()) {
           return rIdx;
         }
+        if (!data.workOrder && (!rVal[0] || String(rVal[0]).trim() === '')) {
+          if (data.description && String(rVal[1] || '').trim().toLowerCase() === String(data.description).trim().toLowerCase()) {
+            return rIdx;
+          }
+          if (data.plant && String(rVal[2] || '').trim().toLowerCase() === String(data.plant).trim().toLowerCase()) {
+            return rIdx;
+          }
+          return rIdx;
+        }
         if (data.id && (String(rVal[8] || '').trim() === String(data.id).trim() || String(rVal[7] || '').trim() === String(data.id).trim())) {
           return rIdx;
         }
@@ -391,16 +400,23 @@ function handleAction(data, sheet) {
     
     var targetId = data.id ? String(data.id).trim() : '';
     var targetWo = data.workOrder ? String(data.workOrder).trim().toLowerCase() : '';
+    var targetDesc = (data.description || data.desc) ? String(data.description || data.desc).trim().toLowerCase() : '';
+    var targetPlant = data.plant ? String(data.plant).trim().toLowerCase() : '';
 
     for (var i = 1; i < allData.length; i++) {
       var rowIdCol9 = String(allData[i][8] || '').trim();
       var rowIdCol8 = String(allData[i][7] || '').trim();
       var rowWo = String(allData[i][0] || '').trim().toLowerCase();
+      var rowDesc = String(allData[i][1] || '').trim().toLowerCase();
+      var rowPlant = String(allData[i][2] || '').trim().toLowerCase();
       
-      if (targetId && (rowIdCol9 === targetId || rowIdCol8 === targetId || ("row_" + i) === targetId)) {
+      if (targetId && (rowIdCol9 === targetId || rowIdCol8 === targetId || ("row_" + i) === targetId || ("row_" + (i + 1)) === targetId || targetId.indexOf("row_" + (i + 1) + "_") === 0)) {
         return i + 1;
       }
       if (targetWo && rowWo === targetWo) {
+        return i + 1;
+      }
+      if (!targetWo && targetDesc && rowDesc === targetDesc && (!targetPlant || rowPlant === targetPlant)) {
         return i + 1;
       }
     }

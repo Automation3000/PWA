@@ -324,6 +324,28 @@ input[type="date"] {
 .export-dropdown-card {
     animation: popIn .18s ease;
 }
+.win-close-btn {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all .15s ease;
+    padding: 0;
+    margin-left: 2px;
+}
+.win-close-btn:hover {
+    background: #e81123 !important;
+    border-color: #e81123 !important;
+    color: #ffffff !important;
+    transform: none;
+}
 </style>
     <link rel="stylesheet" href="themes.css">
 </head>
@@ -386,69 +408,6 @@ input[type="date"] {
                 <button class="action-btn" onclick="refreshTable()">
                     <i class="fas fa-sync-alt" id="refreshBtnIcon" style="color:var(--secondary);margin-bottom:4px;font-size:1.2rem;"></i><span>Refresh</span>
                 </button>
-                
-                <!-- Unified Simplified Export Dropdown Button -->
-                <div class="dropdown-wrapper" style="position:relative; display:inline-block;">
-                    <button class="action-btn" id="exportMenuBtn" onclick="toggleExportDropdown(event)" title="Export Options (Supervisor &amp; Developer Only)" style="display: none;">
-                        <i class="fas fa-file-export" style="color:#0284c7;margin-bottom:4px;font-size:1.2rem;"></i>
-                        <span>Export <i class="fas fa-chevron-down" style="font-size:0.7rem;margin-left:3px;opacity:0.8;"></i></span>
-                    </button>
-                    <div id="exportDropdownMenu" class="export-dropdown-card" style="display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:2000; min-width:290px; background:var(--bg-card); border:1.5px solid var(--border); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.2); padding:8px 0; text-align:left;">
-                        <div style="padding:8px 14px 6px; border-bottom:1px solid var(--border); font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
-                            <span>Export Data</span>
-                            <span id="exportMenuSelCountBadge" style="background:var(--primary); color:white; font-size:0.68rem; padding:1px 7px; border-radius:10px; font-weight:800; display:none;">0 Selected</span>
-                        </div>
-
-                        <!-- 1. Current Page View -->
-                        <div style="padding:8px 12px 4px;">
-                            <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
-                                <i class="fas fa-table" style="color:var(--primary);"></i> 1. Current Page View
-                            </div>
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-                                <button type="button" class="export-opt-btn" onclick="exportRequestsToExcel(false, 'current'); closeExportDropdown();" title="Export Current Page to Excel">
-                                    <i class="fas fa-file-excel" style="color:#16a34a; font-size:1.1rem;"></i> <span>Excel (.xlsx)</span>
-                                </button>
-                                <button type="button" class="export-opt-btn" onclick="exportRequestsToPDF(false, 'current'); closeExportDropdown();" title="Export Current Page to PDF">
-                                    <i class="fas fa-file-pdf" style="color:#dc2626; font-size:1.1rem;"></i> <span>PDF (.pdf)</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- 2. Export All (Include Archive) -->
-                        <div style="padding:6px 12px 4px; border-top:1px dashed var(--border); margin-top:4px;">
-                            <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
-                                <i class="fas fa-archive" style="color:#d97706;"></i> 2. Export All (Include Archive)
-                            </div>
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-                                <button type="button" class="export-opt-btn" onclick="exportRequestsToExcel(false, 'all_archive'); closeExportDropdown();" title="Export All including Archived to Excel">
-                                    <i class="fas fa-file-excel" style="color:#16a34a; font-size:1.1rem;"></i> <span>Excel (.xlsx)</span>
-                                </button>
-                                <button type="button" class="export-opt-btn" onclick="exportRequestsToPDF(false, 'all_archive'); closeExportDropdown();" title="Export All including Archived to PDF">
-                                    <i class="fas fa-file-pdf" style="color:#dc2626; font-size:1.1rem;"></i> <span>PDF (.pdf)</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- 3. Export Selected -->
-                        <div style="padding:6px 12px 8px; border-top:1px dashed var(--border); margin-top:4px; background:rgba(2,132,199,0.03);">
-                            <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between;">
-                                <span style="display:flex; align-items:center; gap:5px;"><i class="fas fa-check-square" style="color:var(--primary);"></i> 3. Export Selected</span>
-                            </div>
-                            <button type="button" id="btnToggleSelectionMode" class="export-opt-btn" onclick="activateSelectionMode(); closeExportDropdown();" style="width:100%; margin-bottom:6px; justify-content:center; background:var(--bg-surface); font-weight:700; border-color:var(--primary); color:var(--primary);">
-                                <i class="fas fa-check-double"></i> <span id="toggleSelectionModeText">Show Selection Checkboxes</span>
-                            </button>
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
-                                <button type="button" class="export-opt-btn" onclick="exportRequestsToExcel(true, 'selected'); closeExportDropdown();" title="Export Selected Rows to Excel">
-                                    <i class="fas fa-file-excel" style="color:#16a34a; font-size:1.1rem;"></i> <span>Selected Excel</span>
-                                </button>
-                                <button type="button" class="export-opt-btn" onclick="exportRequestsToPDF(true, 'selected'); closeExportDropdown();" title="Export Selected Rows to PDF">
-                                    <i class="fas fa-file-pdf" style="color:#dc2626; font-size:1.1rem;"></i> <span>Selected PDF</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <button class="action-btn" id="showAllToggleBtn" onclick="toggleShowAllArchived()" title="Show completed jobs older than 15 days (Supervisor &amp; Developer Only)" style="display: none;">
                     <i class="fas fa-archive" id="showAllArchiveIcon" style="color:#64748b;margin-bottom:4px;font-size:1.2rem;"></i>
                     <span id="showAllToggleText">Show All</span>
@@ -461,15 +420,68 @@ input[type="date"] {
                     <i class="fas fa-broom" style="color:#e11d48;margin-bottom:4px;font-size:1.2rem;"></i>
                     <span>Clean Cloud</span>
                 </button>
+
+                <!-- Unified Simplified Export Dropdown Button: Sequence LAST & Same Size as other action buttons -->
+                <div class="dropdown-wrapper" id="exportDropdownWrapper" style="display:none; position:relative; flex:1; min-width:70px;">
+                    <button class="action-btn" id="exportMenuBtn" onclick="toggleExportDropdown(event)" title="Export Options (Supervisor &amp; Developer Only)" style="width:100%; height:100%; margin:0;">
+                        <i class="fas fa-file-export" style="color:#0284c7;margin-bottom:4px;font-size:1.2rem;"></i>
+                        <span>Export <i class="fas fa-chevron-down" style="font-size:0.7rem;margin-left:2px;opacity:0.8;"></i></span>
+                    </button>
+                    <div id="exportDropdownMenu" class="export-dropdown-card" style="display:none; position:absolute; top:calc(100% + 6px); right:0; z-index:2000; width:300px; max-width:92vw; background:var(--bg-card); border:1.5px solid var(--border); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.2); overflow:hidden; text-align:left;">
+                        <!-- Header -->
+                        <div style="padding:10px 14px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface);">
+                            <span style="font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-primary); display:flex; align-items:center; gap:6px;">
+                                <i class="fas fa-file-export" style="color:#0284c7;"></i> EXPORT DATA
+                            </span>
+                            <button type="button" onclick="closeExportDropdown()" style="background:none; border:none; color:var(--text-muted); font-size:1.15rem; cursor:pointer; line-height:1; padding:0 4px;" title="Close">&times;</button>
+                        </div>
+
+                        <!-- Body with Simplified 3 Options -->
+                        <div style="padding:12px 14px;">
+                            <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px; letter-spacing:0.3px;">
+                                Select Data:
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:12px;">
+                                <label style="display:flex; align-items:center; gap:10px; font-size:0.84rem; font-weight:600; color:var(--text-primary); cursor:pointer; padding:6px 8px; border-radius:6px; transition:background .15s;" onmouseover="this.style.background='var(--bg-surface)'" onmouseout="this.style.background='transparent'">
+                                    <input type="radio" name="exportDataOption" value="current" checked onchange="onExportRadioChanged(this)" style="accent-color:var(--primary); width:16px; height:16px; cursor:pointer;">
+                                    <span>Current Page View</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:10px; font-size:0.84rem; font-weight:600; color:var(--text-primary); cursor:pointer; padding:6px 8px; border-radius:6px; transition:background .15s;" onmouseover="this.style.background='var(--bg-surface)'" onmouseout="this.style.background='transparent'">
+                                    <input type="radio" name="exportDataOption" value="all_archive" onchange="onExportRadioChanged(this)" style="accent-color:var(--primary); width:16px; height:16px; cursor:pointer;">
+                                    <span>All Data (Includes Archive)</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:10px; font-size:0.84rem; font-weight:600; color:var(--text-primary); cursor:pointer; padding:6px 8px; border-radius:6px; transition:background .15s;" onmouseover="this.style.background='var(--bg-surface)'" onmouseout="this.style.background='transparent'" onclick="selectDataOnlyOption(event)">
+                                    <input type="radio" name="exportDataOption" value="selected" id="exportRadioSelected" onchange="onExportRadioChanged(this)" style="accent-color:var(--primary); width:16px; height:16px; cursor:pointer;">
+                                    <span style="display:flex; align-items:center; justify-content:space-between; width:100%;">
+                                        <span>Selected Data Only</span>
+                                        <span id="exportMenuSelCountBadge" style="display:none; font-size:0.7rem; background:var(--primary); color:white; padding:1px 7px; border-radius:10px; font-weight:800;">0</span>
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- Divider -->
+                            <hr style="border:none; border-top:1px solid var(--border); margin:12px 0;">
+
+                            <!-- Download Buttons (Icon + 'Download') -->
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                                <button type="button" onclick="executeExportFromModal('excel')" style="background:#16a34a; color:white; border:none; border-radius:8px; padding:9px 10px; font-size:0.82rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition:background .15s;" onmouseover="this.style.background='#15803d'" onmouseout="this.style.background='#16a34a'" title="Download Excel">
+                                    <i class="fas fa-file-excel" style="font-size:1.05rem;"></i> <span>Download</span>
+                                </button>
+                                <button type="button" onclick="executeExportFromModal('pdf')" style="background:#dc2626; color:white; border:none; border-radius:8px; padding:9px 10px; font-size:0.82rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 1px 3px rgba(0,0,0,0.1); transition:background .15s;" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'" title="Download PDF">
+                                    <i class="fas fa-file-pdf" style="font-size:1.05rem;"></i> <span>Download</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="card-container">
                 <!-- Selection Export Toolbar -->
-                <div id="selectionBar" style="display:none; align-items:center; justify-content:space-between; background:var(--bg-surface); border:1.5px solid var(--primary); padding:10px 16px; border-radius:10px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); gap:12px; flex-wrap:wrap;">
-                    <div style="display:flex; align-items:center; gap:8px;">
+                <div id="selectionBar" style="display:none; align-items:center; justify-content:space-between; background:var(--bg-surface); border:1.5px solid var(--primary); padding:8px 14px; border-radius:10px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); gap:10px; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
                         <span style="background:var(--primary); color:white; font-weight:800; padding:2px 9px; border-radius:12px; font-size:0.8rem;" id="selectedCountText">0</span>
-                        <span style="font-weight:700; font-size:0.88rem; color:var(--text-primary);">Selected Request(s)</span>
-                        <span style="font-size:0.8rem; color:var(--text-muted);">(Selection Mode Active)</span>
+                        <span style="font-weight:700; font-size:0.88rem; color:var(--text-primary); white-space:nowrap;">Selected Request(s)</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                         <button type="button" class="btn-action" onclick="exportRequestsToExcel(true, 'selected')" style="background:#16a34a; color:white; border:none; border-radius:6px; padding:6px 12px; font-size:0.82rem; font-weight:700; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
@@ -481,8 +493,10 @@ input[type="date"] {
                         <button type="button" class="btn-action" onclick="clearSelection()" style="background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:0.82rem; font-weight:600; cursor:pointer;">
                             <i class="fas fa-times"></i> <span>Clear</span>
                         </button>
-                        <button type="button" class="btn-action" onclick="toggleSelectionMode(false)" title="Hide selection checkboxes" style="background:transparent; color:var(--text-primary); border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:0.82rem; font-weight:600; cursor:pointer;">
-                            <i class="fas fa-eye-slash"></i> <span>Hide Checkboxes</span>
+                    </div>
+                    <div style="margin-left:auto; display:flex; align-items:center;">
+                        <button type="button" class="btn-action" onclick="toggleSelectionMode(false)" style="background:rgba(239,68,68,0.1); color:#dc2626; border:1px solid rgba(239,68,68,0.3); border-radius:6px; padding:6px 14px; font-size:0.82rem; font-weight:700; display:inline-flex; align-items:center; gap:6px; cursor:pointer; transition:all .15s ease;" onmouseover="this.style.background='#dc2626';this.style.color='#ffffff';" onmouseout="this.style.background='rgba(239,68,68,0.1)';this.style.color='#dc2626';" title="Close Selection Mode">
+                            <i class="fas fa-times" style="font-size:0.88rem;"></i> <span>Close</span>
                         </button>
                     </div>
                 </div>
@@ -491,16 +505,16 @@ input[type="date"] {
                     <table>
                         <thead>
                             <tr>
-                                <th id="thSelectCol" style="width:36px; text-align:center; display:none;">
+                                <th id="thSelectCol" style="width:36px; min-width:36px; max-width:36px; text-align:center; display:none;">
                                     <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAllRequests(this.checked)" title="Select All Visible Requests" style="cursor:pointer; width:16px; height:16px; accent-color:var(--primary);">
                                 </th>
-                                <th>Work Order</th>
-                                <th>Description</th>
-                                <th>Plant</th>
-                                <th>Date &amp; Time</th>
-                                <th>Team</th>
-                                <th>Status</th>
-                                <th id="actionThHeader" style="text-align:right;">Actions</th>
+                                <th style="width:125px; min-width:115px; white-space:nowrap;">Work Order</th>
+                                <th style="min-width:180px;">Description</th>
+                                <th style="width:105px; min-width:95px; white-space:nowrap;">Plant</th>
+                                <th style="width:125px; min-width:115px; white-space:nowrap;">Date &amp; Time</th>
+                                <th style="width:150px; min-width:135px; white-space:nowrap;">Team</th>
+                                <th style="width:165px; min-width:165px; white-space:nowrap;">Status</th>
+                                <th id="actionThHeader" style="width:135px; min-width:125px; text-align:right; white-space:nowrap;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="requestTableBody">
@@ -693,7 +707,7 @@ input[type="date"] {
                 </div>
                 <div class="form-group">
                     <label>Numbers of Attendees</label>
-                    <input type="text" id="reqRemarks" placeholder="Enter numbers of attendees (e.g. 2 Attendees, or notes)">
+                    <input type="text" id="reqRemarks" placeholder="Enter numbers of attendees (e.g. Names or Note)">
                     <div id="reqAuditHistoryBlock" style="display:none; margin-top:8px; font-size:0.75rem; color:var(--text-muted); background:rgba(0,0,0,0.02); padding:8px 10px; border-radius:6px; border:1px dashed var(--border); line-height:1.4;">
                         <div style="font-weight:700; color:#d97706; display:flex; align-items:center; gap:5px; margin-bottom:4px;">
                             <i class="fas fa-lock"></i> Permanent Edit Audit Trail (Read-Only):
@@ -1051,8 +1065,12 @@ input[type="date"] {
             }
             if (!isSelectionModeActive) {
                 selectedRequestIds.clear();
+                const curRadio = document.querySelector('input[name="exportDataOption"][value="current"]');
+                if (curRadio) curRadio.checked = true;
             } else {
-                showToast("Selection column active: Select rows using checkboxes to export.", "info");
+                const selRadio = document.getElementById('exportRadioSelected');
+                if (selRadio) selRadio.checked = true;
+                showToast("Selection mode active: Select rows using checkboxes to export.", "info");
             }
             updateSelectionUI();
         }
@@ -1075,6 +1093,54 @@ input[type="date"] {
         function closeExportDropdown() {
             const menu = document.getElementById('exportDropdownMenu');
             if (menu) menu.style.display = 'none';
+        }
+
+        function executeExportFromModal(type) {
+            const selectedRadio = document.querySelector('input[name="exportDataOption"]:checked');
+            const mode = selectedRadio ? selectedRadio.value : 'current';
+            
+            if (mode === 'selected') {
+                if (!selectedRequestIds || selectedRequestIds.size === 0) {
+                    closeExportDropdown();
+                    toggleSelectionMode(true);
+                    showToast("Selection mode active. Please check the rows you want to export.", "warning");
+                    return;
+                }
+                if (type === 'excel') exportRequestsToExcel(true, 'selected');
+                else exportRequestsToPDF(true, 'selected');
+            } else if (mode === 'all_archive') {
+                if (type === 'excel') exportRequestsToExcel(false, 'all_archive');
+                else exportRequestsToPDF(false, 'all_archive');
+            } else {
+                // current page view
+                if (type === 'excel') exportRequestsToExcel(false, 'current');
+                else exportRequestsToPDF(false, 'current');
+            }
+            closeExportDropdown();
+        }
+
+        function onExportRadioChanged(radio) {
+            if (!radio) return;
+            if (radio.value === 'selected') {
+                closeExportDropdown();
+                if (!isSelectionModeActive) {
+                    toggleSelectionMode(true);
+                }
+            } else {
+                // When any other radio option is clicked, selection mode automatically closes
+                if (isSelectionModeActive) {
+                    toggleSelectionMode(false);
+                }
+            }
+        }
+
+        function selectDataOnlyOption(e) {
+            const selRadio = document.getElementById('exportRadioSelected');
+            if (selRadio) selRadio.checked = true;
+            closeExportDropdown();
+            if (!isSelectionModeActive) {
+                toggleSelectionMode(true);
+            }
         }
 
         // Close export dropdown on outside click
@@ -2396,8 +2462,10 @@ input[type="date"] {
             const isSupOrDev = hasAccess || isDev;
 
             // Unified Simplified Export Button & Menu: strictly Supervisor & Developer only
+            const exportDropdownWrapper = document.getElementById('exportDropdownWrapper');
+            if (exportDropdownWrapper) exportDropdownWrapper.style.display = isSupOrDev ? 'flex' : 'none';
             const exportMenuBtn = document.getElementById('exportMenuBtn');
-            if (exportMenuBtn) exportMenuBtn.style.display = isSupOrDev ? 'inline-flex' : 'none';
+            if (exportMenuBtn) exportMenuBtn.style.display = isSupOrDev ? 'flex' : 'none';
 
             // Show All toggle for archived: strictly Supervisor & Developer only
             const showAllToggleBtn = document.getElementById('showAllToggleBtn');
@@ -2634,7 +2702,7 @@ input[type="date"] {
         function updateRemarksPlaceholder() {
             const remarksInput = document.getElementById('reqRemarks');
             if (!remarksInput) return;
-            remarksInput.placeholder = "Numbers of Attendees (e.g. 2 Attendees, or notes)";
+            remarksInput.placeholder = "Numbers of Attendees (e.g. Names or Note)";
         }
 
         function openRequestModal(id = null) {
@@ -3291,8 +3359,15 @@ input[type="date"] {
             const deletedList = getLocalDeletedIds();
             if (!deletedList.includes(id)) {
                 deletedList.push(id);
-                saveLocalDeletedIds(deletedList);
             }
+            if (targetWo && !deletedList.includes('wo_' + targetWo.toLowerCase())) {
+                deletedList.push('wo_' + targetWo.toLowerCase());
+            }
+            if (!targetWo && targetReq && targetReq.desc && targetReq.plant) {
+                const entryKey = 'entry_' + targetReq.desc.toLowerCase().trim() + '_' + targetReq.plant.toLowerCase().trim();
+                if (!deletedList.includes(entryKey)) deletedList.push(entryKey);
+            }
+            saveLocalDeletedIds(deletedList);
 
             // Remove override if present
             const overrides = getLocalStatusOverrides();
@@ -3326,9 +3401,13 @@ input[type="date"] {
             const userName = curUser.short || curUser.full || curUser.name || curUser.code || 'Supervisor';
             const payload = {
                 action: 'delete',
-                id: id,
+                id: (!targetWo && targetRowIdx && targetRowIdx >= 2) ? ("row_" + (targetRowIdx - 1)) : id,
+                rawId: id,
                 workOrder: targetWo,
+                description: targetReq ? targetReq.desc : '',
                 plant: targetReq ? targetReq.plant : '',
+                date: targetReq ? targetReq.date : '',
+                team: targetReq ? targetReq.team : '',
                 rowIdx: targetRowIdx,
                 user: userName,
                 skipAutoHistory: true,
@@ -3463,7 +3542,10 @@ input[type="date"] {
                     const plant = String(row['Plant'] || row['plant'] || '').trim();
                     if (!wo && !desc && !plant) return false;
                     const idStr = String(row['ID'] || row['id'] || '');
-                    return !deletedSet.has(idStr);
+                    if (deletedSet.has(idStr)) return false;
+                    if (wo && deletedSet.has('wo_' + wo.toLowerCase())) return false;
+                    if (!wo && desc && plant && deletedSet.has('entry_' + desc.toLowerCase() + '_' + plant.toLowerCase())) return false;
+                    return true;
                 })
                 .map((row, index) => {
                     let idStr = String(row['ID'] || row['id'] || ('row_' + (index + 2)));
@@ -3504,7 +3586,16 @@ input[type="date"] {
                     let parsed = JSON.parse(cached);
                     if (Array.isArray(parsed) && parsed.length > 0) {
                         requests = parsed
-                            .filter(r => !deletedSet.has(String(r.id)))
+                            .filter(r => {
+                                const idStr = String(r.id);
+                                const woStr = String(r.wo || '').trim();
+                                const descStr = String(r.desc || '').trim();
+                                const plantStr = String(r.plant || '').trim();
+                                if (deletedSet.has(idStr)) return false;
+                                if (woStr && deletedSet.has('wo_' + woStr.toLowerCase())) return false;
+                                if (!woStr && descStr && plantStr && deletedSet.has('entry_' + descStr.toLowerCase() + '_' + plantStr.toLowerCase())) return false;
+                                return true;
+                            })
                             .map(r => {
                                 const idStr = String(r.id);
                                 if (overrides[idStr]) r.status = overrides[idStr];
@@ -3642,15 +3733,19 @@ input[type="date"] {
             const original = selectEl.getAttribute('data-original');
             const newVal = selectEl.value;
             // Dynamically update colors to match custom status config
-            selectEl.setAttribute('style', getStatusStyle(newVal));
+            selectEl.setAttribute('style', getStatusStyle(newVal) + ';flex:1;min-width:110px;');
 
             const saveBtn = document.getElementById('save-status-btn-' + id);
             if (!saveBtn) return;
 
             if (newVal !== original) {
-                saveBtn.style.display = 'inline-flex';
+                saveBtn.style.visibility = 'visible';
+                saveBtn.style.opacity = '1';
+                saveBtn.style.pointerEvents = 'auto';
             } else {
-                saveBtn.style.display = 'none';
+                saveBtn.style.visibility = 'hidden';
+                saveBtn.style.opacity = '0';
+                saveBtn.style.pointerEvents = 'none';
             }
         }
 
@@ -3668,12 +3763,20 @@ input[type="date"] {
 
             const oldStatus = req.status;
             if (oldStatus === newStatus) {
-                if (saveBtn) saveBtn.style.display = 'none';
+                if (saveBtn) {
+                    saveBtn.style.visibility = 'hidden';
+                    saveBtn.style.opacity = '0';
+                    saveBtn.style.pointerEvents = 'none';
+                }
                 return;
             }
             req.status = newStatus;
             selectEl.setAttribute('data-original', newStatus);
-            if (saveBtn) saveBtn.style.display = 'none';
+            if (saveBtn) {
+                saveBtn.style.visibility = 'hidden';
+                saveBtn.style.opacity = '0';
+                saveBtn.style.pointerEvents = 'none';
+            }
 
             // 1. Record in persistent status overrides
             const overrides = getLocalStatusOverrides();
@@ -3791,20 +3894,19 @@ input[type="date"] {
                 });
 
                 const dateStr = formatDisplayDateWithDots(new Date().toISOString().slice(0, 10));
-                let filenamePrefix = 'Tabreed_Current_Requests';
+                let modeTag = '[Current]';
                 if (mode === 'selected' || isSelection) {
-                    filenamePrefix = `Tabreed_Selected_Requests_${items.length}`;
+                    modeTag = '[Selected]';
                 } else if (mode === 'all_archive') {
-                    filenamePrefix = `Tabreed_All_Requests_Incl_Archive_${items.length}`;
-                } else {
-                    filenamePrefix = `Tabreed_Current_Page_Requests_${items.length}`;
+                    modeTag = '[All]';
                 }
+                const filename = `Tabreed Operation Request ${modeTag} ${dateStr}`;
 
                 if (window.XLSX) {
                     const worksheet = XLSX.utils.json_to_sheet(exportData);
                     const workbook = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(workbook, worksheet, "Operation_Requests");
-                    XLSX.writeFile(workbook, `${filenamePrefix}_${dateStr}.xlsx`);
+                    XLSX.writeFile(workbook, `${filename}.xlsx`);
                     showToast(`Excel export (${items.length} ${isSelection ? 'selected ' : ''}records) downloaded successfully`, "success");
                 } else {
                     let csv = "S.No,Work Order,Description,Plant,Date,Time,Team,Status,Archive Status,Numbers of Attendees\n";
@@ -3815,7 +3917,7 @@ input[type="date"] {
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement("a");
                     a.href = url;
-                    a.download = `${filenamePrefix}_${dateStr}.csv`;
+                    a.download = `${filename}.csv`;
                     a.click();
                     URL.revokeObjectURL(url);
                     showToast(`CSV export (${items.length} ${isSelection ? 'selected ' : ''}records) downloaded successfully`, "success");
@@ -3896,19 +3998,18 @@ input[type="date"] {
                     </table>
                 `;
 
-                let filenamePrefix = 'Tabreed_Current_Requests';
+                let modeTag = '[Current]';
                 if (mode === 'selected' || isSelection) {
-                    filenamePrefix = `Tabreed_Selected_Requests_${items.length}`;
+                    modeTag = '[Selected]';
                 } else if (mode === 'all_archive') {
-                    filenamePrefix = `Tabreed_All_Requests_Incl_Archive_${items.length}`;
-                } else {
-                    filenamePrefix = `Tabreed_Current_Page_Requests_${items.length}`;
+                    modeTag = '[All]';
                 }
+                const filename = `Tabreed Operation Request ${modeTag} ${todayStr}`;
 
                 if (window.html2pdf) {
                     const opt = {
                         margin: 8,
-                        filename: `${filenamePrefix}_${todayStr}.pdf`,
+                        filename: `${filename}.pdf`,
                         image: { type: 'jpeg', quality: 0.98 },
                         html2canvas: { scale: 2, useCORS: true },
                         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
@@ -4261,9 +4362,9 @@ input[type="date"] {
                 let statusHtml = `<span class="status-tag" style="${statusStyle}">${sanitizeInput(req.status || DEFAULT_STATUS)}</span>`;
                 if (userIsSupervisor) {
                     statusHtml = `
-                    <div style="display:inline-flex;align-items:center;gap:6px;">
+                    <div style="display:inline-flex;align-items:center;gap:6px;width:100%;max-width:150px;">
                         <select class="status-tag inline-select" 
-                                style="${statusStyle}"
+                                style="${statusStyle};flex:1;min-width:110px;"
                                 id="inline-status-${sanitizeInput(req.id)}" 
                                 data-original="${sanitizeInput(req.status)}" 
                                 onchange="onInlineStatusChange('${sanitizeInput(req.id)}', this)">
@@ -4272,7 +4373,7 @@ input[type="date"] {
                         <button id="save-status-btn-${sanitizeInput(req.id)}" 
                                 onclick="saveInlineStatus('${sanitizeInput(req.id)}')" 
                                 title="Click to Save Status" 
-                                style="display:none;background:#16a34a;color:white;border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:0.85rem;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(22,163,74,0.35);">
+                                style="visibility:hidden;opacity:0;pointer-events:none;background:#16a34a;color:white;border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:0.85rem;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(22,163,74,0.35);flex-shrink:0;transition:opacity 0.15s ease;">
                             <i class="fas fa-check"></i>
                         </button>
                     </div>`;
