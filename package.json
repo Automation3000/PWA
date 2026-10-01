@@ -13,5 +13,9 @@
   "dependencies": {
     "express": "^4.21.2",
     "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "acorn": "^8.18.0",
+    "acorn-walk": "^8.3.5"
   }
 }

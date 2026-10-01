@@ -337,8 +337,8 @@
         .col-actions {
             text-align: right;
             white-space: nowrap;
-            min-width: 165px;
-            width: 175px;
+            min-width: 175px;
+            width: auto;
         }
         .action-btn-group {
             display: inline-flex;
@@ -346,6 +346,35 @@
             justify-content: flex-end;
             gap: 6px;
             flex-shrink: 0;
+        }
+        .btn-2gis {
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            border-radius: 6px;
+            gap: 5px;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 179, 65, 0.35);
+            background: #00b341;
+            color: #ffffff !important;
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s ease, background 0.2s ease;
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        .btn-2gis:hover {
+            background: #009637;
+            transform: translateY(-1px);
+        }
+        .btn-2gis span {
+            display: inline;
+            font-weight: 700;
+        }
+        .btn-2gis i {
+            font-size: 0.82rem;
         }
         .ets-mobile-line {
             display: flex;
@@ -360,9 +389,10 @@
             color: var(--primary);
         }
 
-        /* Plant Mobile Badge Default */
-        .badge-plant-mobile {
-            display: none;
+        /* Plant Mobile Badge Default: Hidden on Desktop */
+        .badge-plant-mobile,
+        .badge-plant-mobile-hidden {
+            display: none !important;
             font-size: 0.68rem;
             font-weight: 700;
             background: var(--primary-light, #e0f2fe);
@@ -410,24 +440,24 @@
                 text-align: right !important;
             }
             body.is-dev-user .col-actions {
-                width: 172px !important;
-                min-width: 172px !important;
-                max-width: 172px !important;
+                width: 215px !important;
+                min-width: 215px !important;
+                max-width: 215px !important;
             }
             .action-btn-group {
                 display: inline-flex !important;
                 width: 100% !important;
-                gap: 5px !important;
+                gap: 4px !important;
                 justify-content: flex-end !important;
                 align-items: center !important;
                 flex-shrink: 0 !important;
                 white-space: nowrap !important;
             }
             .btn-dir {
-                padding: 6px 10px !important;
-                font-size: 0.78rem !important;
+                padding: 6px 8px !important;
+                font-size: 0.76rem !important;
                 border-radius: 6px !important;
-                gap: 5px !important;
+                gap: 4px !important;
                 flex-shrink: 0 !important;
                 display: inline-flex !important;
                 align-items: center !important;
@@ -441,14 +471,22 @@
                 font-weight: 600 !important;
             }
             .btn-dir i {
-                font-size: 0.82rem !important;
+                font-size: 0.8rem !important;
             }
-            .btn-edit, .btn-delete {
+            .btn-2gis {
                 padding: 6px 8px !important;
-                font-size: 0.78rem !important;
+                font-size: 0.76rem !important;
+                border-radius: 6px !important;
+                gap: 4px !important;
                 flex-shrink: 0 !important;
             }
-            .badge-plant-mobile {
+            .btn-edit, .btn-delete {
+                padding: 6px 7px !important;
+                font-size: 0.76rem !important;
+                flex-shrink: 0 !important;
+            }
+            .badge-plant-mobile,
+            .badge-plant-mobile-hidden {
                 display: inline-flex !important;
                 white-space: nowrap !important;
                 flex-shrink: 0 !important;
@@ -641,15 +679,85 @@
         .status-dot.loading { animation:pulse-dot 1.5s infinite; }
         @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.35} }
         
-        .toast {
-            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
-            background: var(--dark); color: #fff; padding: 12px 24px; border-radius: 8px;
-            font-size: 0.9rem; font-weight: 500; box-shadow: var(--shadow-md); z-index: 9999;
-            opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            display: flex; align-items: center; gap: 8px;
+        .toast-container {
+            position: fixed;
+            z-index: 10000;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.3s ease;
+            max-width: calc(100vw - 32px);
+            box-sizing: border-box;
         }
-        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast-container.pos-top { top: 24px; left: 50%; transform: translateX(-50%); align-items: center; }
+        .toast-container.pos-bottom { bottom: 24px; left: 50%; transform: translateX(-50%); align-items: center; }
+        .toast-container.pos-top-right { top: 24px; right: 20px; align-items: flex-end; }
+        .toast-container.pos-bottom-right { bottom: 24px; right: 20px; align-items: flex-end; }
+        .toast-container.pos-top-left { top: 24px; left: 20px; align-items: flex-start; }
+        .toast-container.pos-bottom-left { bottom: 24px; left: 20px; align-items: flex-start; }
 
+        .toast {
+            position: relative;
+            pointer-events: auto;
+            background: var(--bg-card);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.22), 0 4px 12px -2px rgba(0, 0, 0, 0.12);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: toastFadeIn .32s cubic-bezier(.175, .885, .32, 1.275);
+            font-weight: 600;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            font-size: 0.92rem;
+            line-height: 1.45;
+            min-width: 280px;
+            max-width: min(92vw, 560px);
+            width: auto;
+            word-break: break-word;
+            box-sizing: border-box;
+        }
+        .toast span { flex: 1; }
+        .toast i { font-size: 1.15rem; flex-shrink: 0; }
+        @keyframes toastFadeIn { from{transform:translateY(10px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+        /* Hidden Developer ETS Row & Badge Styles */
+        .ets-row-hidden {
+            background: rgba(245, 158, 11, 0.08) !important;
+            border-left: 4px solid #f59e0b !important;
+        }
+        body.dark-mode .ets-row-hidden {
+            background: rgba(245, 158, 11, 0.14) !important;
+            border-left: 4px solid #fbbf24 !important;
+        }
+        .badge-hidden-top {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #000;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.2px;
+            box-shadow: 0 1px 3px rgba(245, 158, 11, 0.35);
+            vertical-align: middle;
+            white-space: nowrap;
+            max-width: 140px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+        .badge-hidden-top span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     </style>
     <link rel="stylesheet" href="themes.css">
 </head>
@@ -677,8 +785,20 @@
                         </div>
                     </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <button class="action-btn" onclick="toggleDarkMode()" style="min-width: 44px; max-width: 50px; background: none; box-shadow: none; border-color: var(--border);" title="Toggle Dark Mode"><i class="fas fa-moon" id="darkModeToggleBtn" style="color:var(--text-muted);"></i></button>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <i class="fas fa-moon" id="darkModeToggleBtn" style="cursor:pointer;font-size:17px;color:var(--text-muted);padding:6px;" onclick="toggleDarkMode()" title="Toggle Dark/Light Mode"></i>
+                    
+                    <!-- Login Button (Matching Home Screen & Other Modules) -->
+                    <button id="header-login-btn" onclick="promptLogin()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;padding:6px 14px;font-size:11px;font-weight:700;border-radius:20px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;box-shadow:0 3px 10px rgba(37,99,235,.35);">
+                        <i class="fas fa-sign-in-alt"></i> <span>LOGIN</span>
+                    </button>
+                    
+                    <!-- User Profile Button -->
+                    <div id="header-user-btn" onclick="openUserProfileModal()" style="display:none;align-items:center;gap:7px;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);color:var(--primary);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;" title="User Profile">
+                        <i class="fas fa-user-circle" style="font-size:14px;color:var(--primary);"></i>
+                        <span id="header-user-name">User</span>
+                        <span id="header-user-role-badge" style="display:none;font-size:9px;color:white;padding:1px 6px;border-radius:6px;text-transform:uppercase;font-weight:800;"></span>
+                    </div>
                 </div>
             </div>
         </header>
@@ -694,6 +814,10 @@
             <button class="action-btn" onclick="openAddModal()">
                 <i class="fas fa-plus-circle" style="color:#7c3aed;margin-bottom:4px;"></i><span>Add ETS</span>
             </button>
+            <!-- Developer Only: Add Hidden Location Button -->
+            <button id="btn-add-hidden-ets" class="action-btn pop-anim" onclick="openAddModal(true)" style="display:none; border-color:rgba(245,158,11,0.5); background:rgba(245,158,11,0.08);" title="Add Hidden Location (Pinned to TOP)">
+                <i class="fas fa-user-secret" style="color:#f59e0b;margin-bottom:4px;"></i><span style="color:#d97706;font-weight:700;">Hidden Location</span>
+            </button>
             <button id="btn-refresh" class="action-btn" onclick="refreshTable(true)">
                 <i class="fas fa-sync-alt" style="color:var(--primary);margin-bottom:4px;"></i><span>Refresh</span>
             </button>
@@ -706,11 +830,6 @@
             </div>
             <button class="action-btn" onclick="showStats()">
                 <i class="fas fa-chart-pie" style="color:var(--warning);margin-bottom:4px;"></i><span>Stats</span>
-            </button>
-            <!-- Advance Control Option (Contains Excel & PDF Export - Developer Only) -->
-            <button id="btn-admin-control" class="action-btn" onclick="handleAdminControlClick()" title="Advance Control" style="display:none;">
-                <i class="fas fa-sliders-h" id="admin-icon" style="color:var(--primary);margin-bottom:4px;"></i>
-                <span id="admin-label">Advance</span>
             </button>
             <!-- Unlocked Advance Actions (Excel & PDF Export for Dev) -->
             <div id="admin-unlocked-actions" style="display:none;contents;">
@@ -799,6 +918,18 @@
                     <label>Comment / Landmark Note (Optional)</label>
                     <textarea id="etsComment" placeholder="Any specific location hints or notes..." rows="3"></textarea>
                 </div>
+                <!-- Developer Only: Hidden Location Option -->
+                <div id="devHiddenToggleGroup" class="form-group" style="display:none; margin-top: 12px; margin-bottom: 8px; padding: 12px 14px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 8px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin:0; user-select:none;">
+                        <input type="checkbox" id="isDevHiddenCb" style="width: 18px; height: 18px; accent-color: #f59e0b; cursor:pointer;">
+                        <span style="font-weight:700; color:#d97706; display:flex; align-items:center; gap:6px;">
+                            <i class="fas fa-user-secret" style="font-size:0.95rem;"></i> Hidden Location (Developer Only & Pinned to TOP)
+                        </span>
+                    </label>
+                    <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px; padding-left:26px; line-height:1.4;">
+                        Only visible to Developers. This entry will always stay pinned at the very TOP of the ETS list.
+                    </div>
+                </div>
             </div>
             <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
                 <div id="modalDevActions"></div>
@@ -869,8 +1000,15 @@
                         <i class="fas fa-check-circle"></i> Advance Control Active
                     </div>
                     <div id="adminUserDisplay" style="font-size:0.8rem;color:var(--text-secondary);">Logged in as: Majeed (41764)</div>
+                <div id="adminDevHiddenSection" style="display:none;margin-bottom:16px;">
+                    <h4 style="font-size:0.8rem;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.5px;margin:0 0 10px;text-align:left;">
+                        <i class="fas fa-user-secret" style="color:#f59e0b;"></i> Developer Only Functions
+                    </h4>
+                    <button class="action-btn" style="width:100%;padding:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.35);color:#d97706;border-radius:8px;cursor:pointer;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="closeAdminModal(); openAddModal(true);">
+                        <i class="fas fa-plus-circle" style="color:#f59e0b;"></i> Add Hidden Location (Pinned to TOP)
+                    </button>
                 </div>
-                
+
                 <div id="adminExportSection" style="display:none;">
                     <h4 style="font-size:0.8rem;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.5px;margin:0 0 10px;text-align:left;">
                         <i class="fas fa-download"></i> Data Export Options
@@ -897,9 +1035,45 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toastMsg" class="toast"><i class="fas fa-info-circle"></i> <span>Action completed</span></div>
+    <!-- USER PROFILE MODAL (Matching Home Page & Other Modules Exactly) -->
+    <div class="modal-overlay" id="userProfileModal" style="display:none;" onclick="if(event.target===this)closeUserProfileModal()">
+        <div class="profile-popup-box" style="background:var(--bg-card);width:90%;max-width:340px;border-radius:18px;border:1.5px solid var(--border);box-shadow:0 25px 60px rgba(0,0,0,0.45);overflow:hidden;position:relative;animation:popIn .25s ease;">
+            <div style="padding:14px 18px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:space-between;">
+                <span style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:0.95rem;">
+                    <i class="fas fa-id-badge"></i> Employee Profile
+                </span>
+                <button onclick="closeUserProfileModal()" style="background:none;border:none;color:white;font-size:1.3rem;cursor:pointer;line-height:1;" title="Close">&times;</button>
+            </div>
+            <div style="padding:22px;text-align:center;background:var(--bg-card);">
+                <div style="width:64px;height:64px;border-radius:50%;background:rgba(37,99,235,0.12);color:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:28px;border:2px solid rgba(37,99,235,0.3);box-shadow:0 4px 14px rgba(37,99,235,0.18);">
+                    <i class="fas fa-user" id="profileModalAvatarIcon"></i>
+                </div>
+                <h3 id="profileModalFullName" style="margin:0 0 4px;font-size:1.05rem;color:var(--text-primary);font-weight:700;text-transform:capitalize;">-</h3>
+                <p id="profileModalEmpId" style="margin:0 0 4px;font-size:0.85rem;color:var(--text-muted);font-weight:600;">-</p>
+                <p id="profileModalEmail" style="margin:0 0 12px;font-size:0.8rem;color:var(--primary);font-weight:500;">-</p>
+                <div id="profileModalRoleBadge" style="display:none;padding:4px 14px;border-radius:20px;font-size:0.75rem;font-weight:800;letter-spacing:0.5px;margin-bottom:14px;">
+                </div>
+                
+                <div id="profileAdminInfo" style="display:none;margin-bottom:16px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;font-size:0.78rem;color:var(--text-secondary);text-align:left;line-height:1.4;">
+                    <i class="fas fa-check-circle" style="color:#16a34a;margin-right:4px;"></i> Access Active
+                </div>
 
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                    <button id="profileUpgradeBtn" onclick="closeUserProfileModal(); promptLogin();" style="width:100%;padding:10px;background:var(--bg-surface);color:var(--primary);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-weight:700;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <i class="fas fa-user-friends"></i> Switch User
+                    </button>
+                    <button onclick="logoutUser(); closeUserProfileModal();" style="width:100%;padding:10px;background:rgba(239,68,68,0.08);color:var(--danger);border:1px solid rgba(239,68,68,0.25);border-radius:8px;cursor:pointer;font-weight:600;font-size:0.85rem;display:flex;align-items:center;justify-content:center;gap:6px;">
+                        <i class="fas fa-sign-out-alt"></i> Logout / Lock
+                    </button>
+                </div>
+            </div>
+            <div style="padding:10px 16px;background:var(--bg-surface);border-top:1px solid var(--border);display:flex;justify-content:flex-end;">
+                <button class="btn-cancel" onclick="closeUserProfileModal()" style="padding:6px 16px;font-size:0.85rem;border-radius:6px;background:var(--bg-page);border:1px solid var(--border);color:var(--text-primary);cursor:pointer;font-weight:600;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic Toast Container handled via toastContainer -->
     <script>
 
         const THEME_KEY = 'tabreed_selected_theme';
@@ -944,9 +1118,14 @@
             const colors = { success:'var(--secondary)', error:'var(--danger)', warning:'var(--warning)', info:'var(--primary)' };
             const icons  = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
             const safeMsg = msg ? String(msg).replace(/[<>"'&]/g, c => ({ '<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;' }[c])) : '';
-            t.innerHTML  = `<i class="fas ${icons[type]||icons.info}" style="color:${colors[type]||colors.info};font-size:1.1rem;flex-shrink:0;"></i><span>${safeMsg}</span>`;
+            t.innerHTML  = `<i class="fas ${icons[type]||icons.info}" style="color:${colors[type]||colors.info};font-size:1.15rem;flex-shrink:0;"></i><span>${safeMsg}</span>`;
             container.appendChild(t);
-            setTimeout(() => { t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(),320); }, 2600);
+            setTimeout(() => { 
+                t.style.transition = 'opacity .3s ease, transform .3s ease'; 
+                t.style.opacity = '0'; 
+                t.style.transform = 'scale(0.96)'; 
+                setTimeout(() => t.remove(), 320); 
+            }, 3200);
         }
     
         const ALL_THEME_CLASSES = [
@@ -985,6 +1164,13 @@
         }
 
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwtbDjkB35lpSHZAN40I6voWUbQHHGVZo9LHtfah_y3IZO149gJgeY33K-98MqxBeGc1g/exec";
+        const isLocalNodeHost = (typeof window !== 'undefined' && window.location && (
+            window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.hostname === '0.0.0.0' ||
+            window.location.hostname.endsWith('.run.app')
+        ));
+        const ETS_API_URL = isLocalNodeHost ? "/api/ets" : GAS_API_URL;
         
         let EMPLOYEES = [];
 
@@ -998,12 +1184,32 @@
         }
 
         function isDeveloper(user = currentAdminUser) {
+            if (!user) {
+                try {
+                    const u = JSON.parse(localStorage.getItem('tabreed_ets_admin_user') || localStorage.getItem('tabreed_admin_user') || localStorage.getItem('tabreed_currentUser'));
+                    if (u) user = u;
+                } catch(e){}
+            }
             if (!user) return false;
             const role = (user.role || '').toLowerCase();
             const code = (user.code || user.id || user.empId || '').toString();
             const name = (user.name || user.short || user.full || '').toLowerCase();
             const isMajeed = code === SUPER_ADMIN_CODE || name.includes('majeed');
             return isMajeed && (role === 'developer' || role === 'super_admin');
+        }
+
+        function isItemHidden(item) {
+            if (!item) return false;
+            if (item.hidden === true || item.hidden === 'true' || item.isHidden === true || item.isHidden === 'true') return true;
+            const c = (item.comment || '').toString();
+            if (c.includes('[DEV_ONLY]') || c.includes('[HIDDEN]')) return true;
+            try {
+                const devHiddenKeys = JSON.parse(localStorage.getItem('tabreed_dev_hidden_ets') || '[]');
+                if (Array.isArray(devHiddenKeys) && (devHiddenKeys.includes(item.name) || devHiddenKeys.includes(item.rowIdx))) {
+                    return true;
+                }
+            } catch(e) {}
+            return false;
         }
 
         function isUserAdmin(user = currentAdminUser) {
@@ -1115,63 +1321,119 @@
             overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
         }
 
-        let devClickCount = 0, devClickTimer;
-        function handleDevClick() {
-            devClickCount++;
-            clearTimeout(devClickTimer);
-            if (devClickCount >= 3) {
-                devClickCount = 0;
-                if (currentAdminUser) {
-                    showToast("Advance Control is active (" + currentAdminUser.short + ")");
-                    showAdminModal();
-                } else {
-                    requestAdminPassword(pass => {
-                        const user = verifyAdminPassword(pass);
-                        if (user) {
-                            activateAdminMode(user);
-                            showAdminModal();
-                        } else if (pass && pass.trim()) {
-                            showToast("Access Denied: Invalid Code", "error");
+        function toTitleCase(str) {
+            if (!str) return '';
+            return str.toLowerCase().replace(/(?:^|\s|-)\S/g, function(a) { return a.toUpperCase(); });
+        }
+
+        function promptLogin() {
+            requestAdminPassword(pass => {
+                if(pass && pass.trim()) {
+                    const user = verifyAdminPassword(pass.trim());
+                    if(user) {
+                        activateAdminMode(user, true);
+                        const isSuper = (user.role === 'super_admin' || user.role === 'developer' || user.code === '41764');
+                        const isSup = (user.role === 'supervisor' || user.role === 'admin');
+                        if (isSuper) {
+                            showToast(`Welcome, ${user.short || 'Majeed'}! Developer Access active.`, 'success');
+                        } else if (isSup) {
+                            showToast(`Welcome, ${user.short}! Supervisor Access active.`, 'success');
+                        } else {
+                            showToast(`Welcome, ${user.short || user.full || 'User'}!`, 'info');
                         }
-                    });
+                    } else {
+                        showToast("Access Denied: Invalid Employee Code", 'error');
+                    }
                 }
+            });
+        }
+
+        function openUserProfileModal() {
+            if (!currentAdminUser) {
+                promptLogin();
                 return;
             }
-            devClickTimer = setTimeout(() => { devClickCount = 0; }, 1000);
-        }
-
-        function handleAdminControlClick() {
-            if (currentAdminUser) {
-                showAdminModal();
-            } else {
-                requestAdminPassword(pass => {
-                    const user = verifyAdminPassword(pass);
-                    if (user) {
-                        activateAdminMode(user);
-                        showAdminModal();
-                    } else if (pass && pass.trim()) {
-                        showToast("Access Denied: Invalid Code", "error");
-                    }
-                });
+            const modal = document.getElementById('userProfileModal');
+            if (!modal) return;
+            const fullNameEl = document.getElementById('profileModalFullName');
+            if (fullNameEl) {
+                fullNameEl.innerText = toTitleCase(currentAdminUser.full || currentAdminUser.short || 'User');
             }
+            const empIdEl = document.getElementById('profileModalEmpId');
+            if (empIdEl) empIdEl.innerText = `Employee ID: ${currentAdminUser.code || 'N/A'}`;
+            
+            const emailEl = document.getElementById('profileModalEmail');
+            if (emailEl) {
+                emailEl.innerText = currentAdminUser.email || '';
+                emailEl.style.display = currentAdminUser.email ? 'block' : 'none';
+            }
+            
+            const roleEl = document.getElementById('profileModalRoleBadge');
+            const isDev = isDeveloper(currentAdminUser);
+            const isSup = isUserAdmin(currentAdminUser);
+            if (roleEl) {
+                if (isDev) {
+                    roleEl.innerText = 'DEVELOPER / SUPER ADMIN';
+                    roleEl.style.background = 'var(--danger)';
+                    roleEl.style.color = '#ffffff';
+                    roleEl.style.display = 'inline-block';
+                } else if (isSup) {
+                    roleEl.innerText = 'SUPERVISOR';
+                    roleEl.style.background = '#ea580c';
+                    roleEl.style.color = '#ffffff';
+                    roleEl.style.display = 'inline-block';
+                } else {
+                    roleEl.innerText = 'USER';
+                    roleEl.style.background = 'var(--primary)';
+                    roleEl.style.color = '#ffffff';
+                    roleEl.style.display = 'inline-block';
+                }
+            }
+            
+            const adminInfoEl = document.getElementById('profileAdminInfo');
+            if (adminInfoEl) {
+                if (isDev) {
+                    adminInfoEl.innerHTML = `<i class="fas fa-shield-alt" style="color:#16a34a;margin-right:5px;"></i><strong>Developer Access Active</strong><br><span style="font-size:0.72rem;color:var(--text-muted);">Hidden Locations, 2GIS Navigation & Excel/PDF export unlocked.</span>`;
+                    adminInfoEl.style.display = "block";
+                } else {
+                    adminInfoEl.style.display = "none";
+                }
+            }
+            
+            modal.style.display = 'flex';
         }
 
-        function activateAdminMode(user) {
+        function closeUserProfileModal() {
+            const modal = document.getElementById('userProfileModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function logoutUser() {
+            lockAdminMode();
+            closeUserProfileModal();
+        }
+
+        function activateAdminMode(user, showToastMsg = false) {
             if (!user) return;
             currentAdminUser = user;
             isAdminModeActive = isUserAdmin(user);
             try {
                 localStorage.setItem('tabreed_ets_admin_unlocked', isAdminModeActive ? 'true' : 'false');
                 localStorage.setItem('tabreed_ets_admin_user', JSON.stringify(currentAdminUser));
+                localStorage.setItem('tabreed_currentUser', JSON.stringify(currentAdminUser));
+                localStorage.setItem('tabreed_admin_user', JSON.stringify(currentAdminUser));
+                localStorage.setItem('tabreed_admin_unlocked', isAdminModeActive ? 'true' : 'false');
             } catch(e) {}
             updateAdminUI();
             if (typeof filterETS === 'function') filterETS();
-            if (isSuperAdmin(user)) {
-                showToast("Welcome, " + currentAdminUser.short + "! Developer Access Active.");
-            } else if (isUserAdmin(user)) {
-                showToast("Welcome, " + currentAdminUser.short + "! Advance Control Active.");
-            } else {
-                showToast("Welcome, " + currentAdminUser.short + "! User Level Access.");
+            if (showToastMsg) {
+                if (isSuperAdmin(user)) {
+                    showToast("Welcome, " + (currentAdminUser.short || 'Majeed') + "! Developer Access Active.");
+                } else if (isUserAdmin(user)) {
+                    showToast("Welcome, " + currentAdminUser.short + "! Advance Control Active.");
+                } else {
+                    showToast("Welcome, " + (currentAdminUser.short || 'User') + "!");
+                }
             }
         }
 
@@ -1188,50 +1450,59 @@
             updateAdminUI();
             if (typeof filterETS === 'function') filterETS();
             closeAdminModal();
-            showToast("Advance Controls Locked / Logged Out.");
+            showToast("Logged out successfully.");
         }
 
         function updateAdminUI() {
-            const btnAdminControl = document.getElementById('btn-admin-control');
-            const unlockedActions = document.getElementById('admin-unlocked-actions');
-            const adminIcon = document.getElementById('admin-icon');
-            const adminLabel = document.getElementById('admin-label');
-            const adminUserDisplay = document.getElementById('adminUserDisplay');
-            const exportSection = document.getElementById('adminExportSection');
             const isDev = isDeveloper(currentAdminUser);
-
             document.body.classList.toggle('is-dev-user', isDev);
 
-            if (isDev) {
-                // Developer Majeed only (Advance button, Excel, PDF, delete rights, coordinates column)
-                if (btnAdminControl) btnAdminControl.style.display = 'flex';
-                if (unlockedActions) unlockedActions.style.display = 'contents';
-                if (adminIcon) {
-                    adminIcon.className = 'fas fa-sliders-h';
-                    adminIcon.style.color = '#16a34a';
+            // Sync header Login & User profile buttons
+            const headerLoginBtn = document.getElementById('header-login-btn');
+            const headerUserBtn = document.getElementById('header-user-btn');
+            const headerUserName = document.getElementById('header-user-name');
+            const headerUserRoleBadge = document.getElementById('header-user-role-badge');
+            
+            if (currentAdminUser) {
+                if (headerLoginBtn) headerLoginBtn.style.display = 'none';
+                if (headerUserBtn) headerUserBtn.style.display = 'inline-flex';
+                if (headerUserName) headerUserName.innerText = toTitleCase(currentAdminUser.short || currentAdminUser.full || 'User');
+                if (headerUserRoleBadge) {
+                    if (isDev) {
+                        headerUserRoleBadge.innerText = 'DEV';
+                        headerUserRoleBadge.style.background = 'var(--danger)';
+                        headerUserRoleBadge.style.display = 'inline-block';
+                    } else if (isUserAdmin(currentAdminUser)) {
+                        headerUserRoleBadge.innerText = 'SUPERVISOR';
+                        headerUserRoleBadge.style.background = '#ea580c';
+                        headerUserRoleBadge.style.display = 'inline-block';
+                    } else {
+                        headerUserRoleBadge.style.display = 'none';
+                    }
                 }
-                if (adminLabel) {
-                    adminLabel.innerText = currentAdminUser.short || 'Majeed';
-                    adminLabel.style.color = '#16a34a';
-                    adminLabel.style.fontWeight = '700';
-                }
-                if (adminUserDisplay) {
-                    adminUserDisplay.innerText = `Logged in as: ${currentAdminUser.full || currentAdminUser.short} (${currentAdminUser.code}) - Developer`;
-                }
-                if (exportSection) exportSection.style.display = 'block';
             } else {
-                // Completely hide Advance button, Excel, PDF, and export section for non-developers
-                if (btnAdminControl) btnAdminControl.style.display = 'none';
-                if (unlockedActions) unlockedActions.style.display = 'none';
-                if (exportSection) exportSection.style.display = 'none';
-                if (adminLabel) {
-                    adminLabel.innerText = 'Advance';
-                    adminLabel.style.color = '';
-                    adminLabel.style.fontWeight = '';
-                }
+                if (headerLoginBtn) headerLoginBtn.style.display = 'inline-flex';
+                if (headerUserBtn) headerUserBtn.style.display = 'none';
+            }
+
+            // Hidden Location button (Dev only)
+            const btnAddHidden = document.getElementById('btn-add-hidden-ets');
+            if (btnAddHidden) btnAddHidden.style.display = isDev ? 'flex' : 'none';
+            const devHiddenSection = document.getElementById('adminDevHiddenSection');
+            if (devHiddenSection) devHiddenSection.style.display = isDev ? 'block' : 'none';
+
+            // Unlocked Excel / PDF actions
+            const unlockedActions = document.getElementById('admin-unlocked-actions');
+            if (unlockedActions) unlockedActions.style.display = isDev ? 'contents' : 'none';
+
+            const adminUserDisplay = document.getElementById('adminUserDisplay');
+            if (adminUserDisplay && currentAdminUser) {
+                adminUserDisplay.innerText = `Logged in as: ${currentAdminUser.full || currentAdminUser.short} (${currentAdminUser.code}) - ${isDev ? 'Developer' : 'User'}`;
             }
 
             applyCoordsState();
+            if (typeof populateLocationFilter === 'function') populateLocationFilter();
+            if (typeof filterETS === 'function') filterETS();
         }
 
         function showAdminModal() {
@@ -1247,7 +1518,35 @@
         let etsList = [];
         let syncQueue = JSON.parse(localStorage.getItem('tabreed_ets_queue')) || [];
 
+        async function loadOfflineCachedData() {
+            const cached = localStorage.getItem('tabreed_ets_cache');
+            if (cached) {
+                try {
+                    const list = JSON.parse(cached);
+                    if (Array.isArray(list) && list.length > 0) return list;
+                } catch(e) {}
+            }
+            try {
+                const res = await fetch('data/ets_cache.json');
+                if (res.ok) {
+                    const list = await res.json();
+                    if (Array.isArray(list) && list.length > 0) {
+                        try { localStorage.setItem('tabreed_ets_cache', JSON.stringify(list)); } catch(e) {}
+                        return list;
+                    }
+                }
+            } catch(e) {}
+            return [];
+        }
+
         async function initApp() {
+            // 1. Service Worker for full Offline PWA capability (same as Master Instrument list)
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('[ETS] Service Worker registered:', reg.scope))
+                    .catch(err => console.warn('[ETS] SW registration:', err.message));
+            }
+
             try {
                 // Load employee credentials & permissions from centralized data/ directory
                 const res = await fetch('data/employees.json');
@@ -1263,27 +1562,19 @@
             if (localStorage.getItem('tabreed_theme') === 'dark') {
                 document.body.classList.add('dark-mode');
             }
+            
+            // Check existing login from localStorage (synced with Home screen & all modules)
             try {
-                const savedStr = localStorage.getItem('tabreed_ets_admin_user') || localStorage.getItem('tabreed_admin_user');
+                const savedStr = localStorage.getItem('tabreed_currentUser') || localStorage.getItem('tabreed_admin_user') || localStorage.getItem('tabreed_ets_admin_user');
                 if (savedStr) {
                     const saved = JSON.parse(savedStr);
-                    if (saved && (saved.role === 'developer' || saved.role === 'super_admin' || saved.role === 'admin' || saved.code === '41764')) {
-                        activateAdminMode(saved);
-                    } else {
-                        currentAdminUser = null;
-                        isAdminModeActive = false;
-                        updateAdminUI();
+                    if (saved && (saved.code || saved.empId)) {
+                        currentAdminUser = saved;
+                        isAdminModeActive = isUserAdmin(saved);
                     }
-                } else {
-                    currentAdminUser = null;
-                    isAdminModeActive = false;
-                    updateAdminUI();
                 }
-            } catch(e) {
-                currentAdminUser = null;
-                isAdminModeActive = false;
-                updateAdminUI();
-            }
+            } catch(e) {}
+            updateAdminUI();
 
             const locSelect = document.getElementById('locationFilter');
             if (locSelect) {
@@ -1291,7 +1582,18 @@
                 locSelect.addEventListener('input', filterETS);
             }
 
-            updateStatus(navigator.onLine ? 'loading' : 'offline');
+            // Instant offline load from cache (No blank screen, same as Master Instrument list)
+            const initialData = await loadOfflineCachedData();
+            if (initialData.length > 0) {
+                etsList = initialData;
+                populateLocationFilter();
+                renderTable(etsList);
+                updateStatus(navigator.onLine ? 'online' : 'cached');
+            } else {
+                updateStatus(navigator.onLine ? 'loading' : 'offline');
+            }
+
+            // Background refresh if online
             refreshTable(false);
             if (navigator.onLine) processSyncQueue();
         }
@@ -1346,35 +1648,47 @@
             }
         }
 
+        let isSyncingQueue = false;
         function processSyncQueue() {
-            if (!navigator.onLine || syncQueue.length === 0) return;
+            if (!navigator.onLine || syncQueue.length === 0 || isSyncingQueue) return;
+            isSyncingQueue = true;
             updateStatus('loading');
             
             const payload = syncQueue[0];
-            fetch(GAS_API_URL, {
+            const postUrl = isLocalNodeHost ? "/api/ets" : GAS_API_URL;
+            fetch(postUrl, {
                 method: "POST",
                 redirect: "follow", 
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                headers: { "Content-Type": isLocalNodeHost ? "application/json" : "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             })
             .then(res => res.json())
             .then(result => {
-                if(result.status === 'success') {
+                if(result && (result.status === 'success' || result.success)) {
                     syncQueue.shift();
                     localStorage.setItem('tabreed_ets_queue', JSON.stringify(syncQueue));
+                    updateQueueBadge();
                     if(syncQueue.length > 0) {
-                        setTimeout(processSyncQueue, 1000);
+                        setTimeout(() => {
+                            isSyncingQueue = false;
+                            processSyncQueue();
+                        }, 1000);
                     } else {
+                        isSyncingQueue = false;
                         updateStatus('online');
                         showToast("Offline data synced successfully!");
                         refreshTable(false);
                     }
                 } else {
+                    isSyncingQueue = false;
+                    updateQueueBadge();
                     updateStatus('offline');
                 }
             })
             .catch(err => {
-                console.error("Sync error:", err);
+                console.warn("ETS sync note:", err && err.message ? err.message : err);
+                isSyncingQueue = false;
+                updateQueueBadge();
                 updateStatus('offline');
             });
         }
@@ -1388,7 +1702,7 @@
             }
         }
 
-        function refreshTable(showAnim = true) {
+        function refreshTable(showAnim = false) {
             if(showAnim) {
                 const btn = document.getElementById('btn-refresh');
                 if (btn) {
@@ -1399,9 +1713,11 @@
             
             const cachedData = localStorage.getItem('tabreed_ets_cache');
             if (cachedData) {
-                etsList = JSON.parse(cachedData);
-                populateLocationFilter();
-                renderTable(etsList);
+                try {
+                    etsList = JSON.parse(cachedData);
+                    populateLocationFilter();
+                    renderTable(etsList);
+                } catch(e) {}
                 if (!navigator.onLine) {
                     updateStatus('cached');
                     if(showAnim) showToast('Loaded from offline cache');
@@ -1414,25 +1730,47 @@
             if (!navigator.onLine) return;
             updateStatus('loading');
 
-            fetch(GAS_API_URL + "?action=read", { redirect: "follow" })
-                .then(response => response.json())
+            const readUrl = isLocalNodeHost ? "/api/ets?action=read" : (GAS_API_URL + "?action=read");
+            fetch(readUrl, { redirect: "follow" })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
                 .then(result => {
-                    if(result.status === 'success') {
-                        etsList = result.data;
+                    if(result && (result.status === 'success' || Array.isArray(result.data))) {
+                        etsList = Array.isArray(result.data) ? result.data : [];
                         localStorage.setItem('tabreed_ets_cache', JSON.stringify(etsList));
                         document.getElementById('searchInput').value = '';
                         populateLocationFilter();
                         renderTable(etsList);
                         updateStatus('online');
-                        if(showAnim) showToast('Data refreshed successfully');
+                        if(showAnim) showToast('Data refreshed successfully', 'success');
                     } else {
-                        throw new Error(result.message);
+                        throw new Error(result ? result.message : 'Invalid response');
                     }
                 })
-                .catch(error => {
-                    console.error("Fetch error:", error);
+                .catch(async error => {
+                    // Fallback to direct Google Apps Script URL if node proxy failed
+                    if (isLocalNodeHost && GAS_API_URL) {
+                        try {
+                            const fallbackResp = await fetch(GAS_API_URL + "?action=read", { redirect: "follow" });
+                            if (fallbackResp.ok) {
+                                const fallbackResult = await fallbackResp.json();
+                                if (fallbackResult && (fallbackResult.status === 'success' || Array.isArray(fallbackResult.data))) {
+                                    etsList = Array.isArray(fallbackResult.data) ? fallbackResult.data : [];
+                                    localStorage.setItem('tabreed_ets_cache', JSON.stringify(etsList));
+                                    populateLocationFilter();
+                                    renderTable(etsList);
+                                    updateStatus('online');
+                                    if(showAnim) showToast('Data refreshed via cloud backup', 'success');
+                                    return;
+                                }
+                            }
+                        } catch(e) {}
+                    }
+                    console.warn("ETS fetch note:", error && error.message ? error.message : error);
                     updateStatus(cachedData ? 'cached' : 'offline');
-                    if(showAnim) showToast('Failed to load live data. Working offline.');
+                    if(showAnim) showToast('Using offline cache.');
                 });
         }
 
@@ -1440,10 +1778,12 @@
             const select = document.getElementById('locationFilter');
             if (!select) return;
             const currentSelected = select.value || 'ALL';
+            const isDev = isDeveloper();
             
             const plantSet = new Set();
             (etsList || []).forEach(item => {
                 if (item && item.plant) {
+                    if (isItemHidden(item) && !isDev) return;
                     const p = item.plant.toString().trim();
                     if (p) plantSet.add(p);
                 }
@@ -1566,14 +1906,38 @@
 
             const isDev = isDeveloper();
 
-            tbody.innerHTML = data.map((item, idx) => {
-                const commentText = (item.comment || '').trim();
-                const hasComment = commentText.length > 0;
+            // Filter out hidden entries if user is not developer
+            let listToRender = (data || []).filter(item => {
+                if (!item) return false;
+                if (isItemHidden(item) && !isDev) return false;
+                return true;
+            });
+
+            // Ensure Hidden Entries are ALWAYS at the VERY TOP of the list
+            listToRender.sort((a, b) => {
+                const aHidden = isItemHidden(a) ? 1 : 0;
+                const bHidden = isItemHidden(b) ? 1 : 0;
+                if (aHidden !== bHidden) return bHidden - aHidden;
+                return 0;
+            });
+
+            if (listToRender.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted);">No ETS locations found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = listToRender.map((item, idx) => {
+                const isHidden = isItemHidden(item);
+                const rawComment = (item.comment || '').trim();
+                const displayComment = rawComment.replace(/\[DEV_ONLY\]\s*/g, '').replace(/\[HIDDEN\]\s*/g, '').trim();
+                const hasComment = displayComment.length > 0;
                 
                 // If there's a comment, make the name clickable and add a small icon. Otherwise just show the name.
+                const noteColor = isHidden ? '#f59e0b' : '#FFC107';
+                const hiddenLockIcon = isHidden ? `<i class="fas fa-lock" style="color:#f59e0b; font-size:0.75rem; margin-right:4px;" title="Developer Secret / Hidden ETS"></i>` : '';
                 const nameDisplay = hasComment 
-                    ? `<span class="ets-name-text" style="cursor:pointer;" onclick="showComment(${item.rowIdx})">${escapeHtml(item.name)} <i class="fas fa-sticky-note" style="color:#FFC107; margin-left:3px; font-size:0.85rem;" title="View Note"></i></span>` 
-                    : `<span class="ets-name-text">${escapeHtml(item.name)}</span>`;
+                    ? `<span class="ets-name-text" style="cursor:pointer;" onclick="showComment(${item.rowIdx})">${hiddenLockIcon}${escapeHtml(item.name)} <i class="fas fa-sticky-note" style="color:${noteColor}; margin-left:3px; font-size:0.85rem;" title="View Note"></i></span>` 
+                    : `<span class="ets-name-text">${hiddenLockIcon}${escapeHtml(item.name)}</span>`;
                 
                 // Ensure plantName doesn't default to N/A if it just happens to be a falsy string, checking against undefined/null
                 const plantName = (item.plant !== undefined && item.plant !== null && item.plant !== "") ? item.plant.toString().trim() : "N/A";
@@ -1586,22 +1950,46 @@
                 const dirUrl = hasValidCoords ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(item.lat + ',' + item.lng)}` : '#';
                 const dirOnClick = hasValidCoords ? '' : `onclick="showToast('GPS coordinates not available', 'error'); return false;"`;
 
+                const twoGisUrl = hasValidCoords ? `https://2gis.ae/routeSearch/rsType/car/to/${encodeURIComponent(item.lng + ',' + item.lat)}` : '#';
+                const twoGisOnClick = hasValidCoords ? '' : `onclick="showToast('GPS coordinates not available', 'error'); return false;"`;
+
+                const safeName = escapeHtml(item.name).replace(/'/g, "\\'");
                 const deleteBtn = isDev ? `
-                    <button onclick="deleteETS(${item.rowIdx}, '${escapeHtml(item.name).replace(/'/g, "\\'")}')" class="btn-delete" title="Delete Entry (Developer Only)">
+                    <button onclick="deleteETS(${item.rowIdx}, '${safeName}')" class="btn-delete" title="Delete Entry (Developer Only)">
                         <i class="fas fa-trash-alt"></i>
                     </button>
                 ` : '';
 
-                return `<tr class="ets-row" onmousedown="handlePressStart(this)" onmouseup="handlePressEnd()" onmouseleave="handlePressEnd()" ontouchstart="handlePressStart(this)" ontouchend="handlePressEnd()" ontouchcancel="handlePressEnd()" ontouchmove="handlePressEnd()">
+                const hiddenRowClass = isHidden ? 'ets-row-hidden' : '';
+                
+                // For hidden entries: badge with icon shows the Plant Name (replacing "TOP")
+                const hiddenPlantBadge = isHidden ? `
+                    <span class="badge-hidden-top" title="${escapeHtml(plantName)}">
+                        <i class="fas fa-user-secret"></i> <span>${escapeHtml(plantName)}</span>
+                    </span>
+                ` : '';
+
+                // For hidden entries: badge with icon shows the ETS Name (replacing "DEV")
+                const hiddenEtsBadge = isHidden ? `
+                    <span class="badge-hidden-top" style="${hasComment ? 'cursor:pointer;' : ''}" ${hasComment ? `onclick="showComment(${item.rowIdx})"` : ''} title="${escapeHtml(item.name)}">
+                        <i class="fas fa-lock"></i> <span>${escapeHtml(item.name)}</span>${hasComment ? ` <i class="fas fa-sticky-note" style="color:#000; margin-left:3px; font-size:0.75rem;" title="View Note"></i>` : ''}
+                    </span>
+                ` : '';
+
+                return `<tr class="ets-row ${hiddenRowClass}" onmousedown="handlePressStart(this)" onmouseup="handlePressEnd()" onmouseleave="handlePressEnd()" ontouchstart="handlePressStart(this)" ontouchend="handlePressEnd()" ontouchcancel="handlePressEnd()" ontouchmove="handlePressEnd()">
                     <td class="col-plant">
-                        <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px;">${escapeHtml(plantName)}</div>
+                        <div style="font-weight:600; color:var(--text-primary); margin-bottom:4px; display:flex; align-items:center; flex-wrap:wrap; gap:4px;">
+                            ${isHidden ? hiddenPlantBadge : `<span>${escapeHtml(plantName)}</span>`}
+                        </div>
                     </td>
                     <td class="col-ets">
                         <div class="ets-mobile-line">
-                            <span class="badge-plant-mobile" title="${escapeHtml(plantName)}">${escapeHtml(plantName)}</span>
-                            <div class="ets-name-box" title="${escapeHtml(item.name)}">
-                                ${nameDisplay}
-                            </div>
+                            ${isHidden 
+                                ? `<span class="badge-plant-mobile-hidden badge-hidden-top" style="border:none;" title="${escapeHtml(plantName)}"><i class="fas fa-user-secret"></i> <span>${escapeHtml(plantName)}</span></span>
+                                   <div class="ets-name-box" title="${escapeHtml(item.name)}">${hiddenEtsBadge}</div>`
+                                : `<span class="badge-plant-mobile" title="${escapeHtml(plantName)}">${escapeHtml(plantName)}</span>
+                                   <div class="ets-name-box" title="${escapeHtml(item.name)}">${nameDisplay}</div>`
+                            }
                         </div>
                     </td>
                     <td class="col-coords" style="text-align:center; white-space:nowrap; display:${isDev ? '' : 'none'};">
@@ -1619,6 +2007,11 @@
                             <a href="${dirUrl}" ${dirOnClick} target="_blank" class="btn-dir" title="Direction on Google Maps">
                                 <i class="fas fa-directions"></i> <span>Direction</span>
                             </a>
+                            ${isHidden ? `
+                                <a href="${twoGisUrl}" ${twoGisOnClick} target="_blank" class="btn-2gis" title="Open Direction in 2GIS Maps">
+                                    <i class="fas fa-map-marked-alt"></i> <span>2GIS</span>
+                                </a>
+                            ` : ''}
                             <button onclick="openUpdateModal(${item.rowIdx})" class="btn-edit" title="Edit ETS">
                                 <i class="fas fa-edit"></i>
                             </button>
@@ -1654,8 +2047,13 @@
                     }
                 }
 
+                const isDev = isDeveloper();
+
                 const filtered = etsList.filter(item => {
                     if (!item) return false;
+                    const isHidden = isItemHidden(item);
+                    if (isHidden && !isDev) return false;
+
                     const nameStr = (item.name || '').toString().toLowerCase();
                     const plantStr = (item.plant || '').toString().toLowerCase();
                     const latStr = (item.lat !== undefined && item.lat !== null) ? item.lat.toString() : '';
@@ -1676,6 +2074,14 @@
                     return matchesQuery && matchesLoc;
                 });
                 
+                // Sort so hidden entries are ALWAYS on top
+                filtered.sort((a, b) => {
+                    const aHidden = isItemHidden(a) ? 1 : 0;
+                    const bHidden = isItemHidden(b) ? 1 : 0;
+                    if (aHidden !== bHidden) return bHidden - aHidden;
+                    return 0;
+                });
+
                 renderTable(filtered);
                 
                 const btn = document.getElementById('btn-location-wrapper');
@@ -1700,6 +2106,10 @@
                 if (!currentAdminUser) handleAdminControlClick();
                 return;
             }
+            if (typeof XLSX === 'undefined') {
+                showToast("Excel library not loaded.", "error");
+                return;
+            }
             if (etsList.length === 0) { showToast("No data to export."); return; }
             const wsData = etsList.map(item => ({
                 "ETS Name": item.name,
@@ -1721,8 +2131,12 @@
                 return;
             }
             if (etsList.length === 0) { showToast("No data to export."); return; }
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const jsPDFClass = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+            if (!jsPDFClass) {
+                showToast("PDF library not loaded.", "error");
+                return;
+            }
+            const doc = new jsPDFClass();
             
             doc.setFontSize(18);
             doc.text("TABREED ETS Locations", 14, 20);
@@ -1731,13 +2145,15 @@
                 item.name, item.plant, `${item.lat}, ${item.lng}`, item.comment || ''
             ]);
             
-            doc.autoTable({
-                head: [['ETS Name', 'Plant', 'Coordinates', 'Comment']],
-                body: tableData,
-                startY: 25,
-                theme: 'grid',
-                headStyles: { fillColor: [26, 115, 232] }
-            });
+            if (typeof doc.autoTable === 'function') {
+                doc.autoTable({
+                    head: [['ETS Name', 'Plant', 'Coordinates', 'Comment']],
+                    body: tableData,
+                    startY: 25,
+                    theme: 'grid',
+                    headStyles: { fillColor: [26, 115, 232] }
+                });
+            }
             
             doc.save("ETS_Locations.pdf");
             showToast("PDF downloaded successfully");
@@ -1745,8 +2161,14 @@
 
         // --- Stats Functions ---
         function showStats() {
-            document.getElementById('statTotalEts').innerText = etsList.length;
-            const uniquePlants = new Set(etsList.map(item => item.plant).filter(p => p));
+            const isDev = isDeveloper();
+            const visible = (etsList || []).filter(item => {
+                if (!item) return false;
+                if (isItemHidden(item) && !isDev) return false;
+                return true;
+            });
+            document.getElementById('statTotalEts').innerText = visible.length;
+            const uniquePlants = new Set(visible.map(item => item.plant).filter(p => p));
             document.getElementById('statTotalPlants').innerText = uniquePlants.size;
             document.getElementById('statsModal').style.display = 'flex';
         }
@@ -1926,6 +2348,13 @@
             } catch(e) {}
             populateLocationFilter();
             filterETS();
+            try {
+                let devHiddenKeys = JSON.parse(localStorage.getItem('tabreed_dev_hidden_ets') || '[]');
+                if (Array.isArray(devHiddenKeys)) {
+                    devHiddenKeys = devHiddenKeys.filter(k => k !== targetName && k !== rowIdx);
+                    localStorage.setItem('tabreed_dev_hidden_ets', JSON.stringify(devHiddenKeys));
+                }
+            } catch(e) {}
 
             const payload = {
                 action: 'delete',
@@ -1947,14 +2376,15 @@
             }
 
             try {
-                const response = await fetch(GAS_API_URL, {
+                const delUrl = isLocalNodeHost ? "/api/ets" : GAS_API_URL;
+                const response = await fetch(delUrl, {
                     method: "POST",
                     redirect: "follow", 
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    headers: { "Content-Type": isLocalNodeHost ? "application/json" : "text/plain;charset=utf-8" },
                     body: JSON.stringify(payload)
                 });
                 const result = await response.json();
-                if (result && result.status === 'success') {
+                if (result && (result.status === 'success' || result.success)) {
                     showToast(`"${targetName}" deleted successfully!`);
                 } else {
                     // Fallback to blank row update
@@ -1968,16 +2398,16 @@
                             comment: ""
                         }
                     };
-                    await fetch(GAS_API_URL, {
+                    await fetch(delUrl, {
                         method: "POST",
                         redirect: "follow", 
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
+                        headers: { "Content-Type": isLocalNodeHost ? "application/json" : "text/plain;charset=utf-8" },
                         body: JSON.stringify(fallbackPayload)
                     });
                     showToast(`"${targetName}" deleted from Sheet!`);
                 }
             } catch(err) {
-                console.error("Delete error:", err);
+                console.warn("Delete note:", err && err.message ? err.message : err);
                 syncQueue.push(payload);
                 localStorage.setItem('tabreed_ets_queue', JSON.stringify(syncQueue));
                 updateQueueBadge();
@@ -1992,8 +2422,11 @@
             deleteETS(rowIdx, etsName);
         }
 
-        function openAddModal() {
-            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-map-marked-alt"></i> Add New ETS';
+        function openAddModal(isHidden = false) {
+            const isDev = isDeveloper();
+            document.getElementById('modalTitle').innerHTML = isHidden 
+                ? '<i class="fas fa-user-secret" style="color:#f59e0b;"></i> Add Hidden Location (Developer Only)'
+                : '<i class="fas fa-map-marked-alt"></i> Add New ETS';
             document.getElementById('editRowIdx').value = '-1';
             document.getElementById('etsPlant').value = '';
             document.getElementById('etsName').value = '';
@@ -2007,18 +2440,30 @@
             const modalDevActions = document.getElementById('modalDevActions');
             if (modalDevActions) modalDevActions.innerHTML = '';
 
+            const devHiddenGroup = document.getElementById('devHiddenToggleGroup');
+            const devHiddenCb = document.getElementById('isDevHiddenCb');
+            if (devHiddenGroup) devHiddenGroup.style.display = isDev ? 'block' : 'none';
+            if (devHiddenCb) devHiddenCb.checked = Boolean(isDev && isHidden);
+
             document.getElementById('hasContactCb').checked = false;
             toggleContactField();
             
             document.getElementById('etsComment').value = '';
-            document.getElementById('saveBtn').innerHTML = '<i class="fas fa-save"></i> Save ETS';
+            document.getElementById('saveBtn').innerHTML = isHidden 
+                ? '<i class="fas fa-shield-alt"></i> Save Hidden Location'
+                : '<i class="fas fa-save"></i> Save ETS';
             document.getElementById('etsModal').style.display = 'flex';
         }
 
         function openUpdateModal(rowIdx) {
             const item = etsList.find(e => e.rowIdx === rowIdx);
             if (!item) return;
-            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit ETS Location';
+            const isDev = isDeveloper();
+            const isHidden = isItemHidden(item);
+
+            document.getElementById('modalTitle').innerHTML = isHidden 
+                ? '<i class="fas fa-user-secret" style="color:#f59e0b;"></i> Edit Hidden Location (Developer Only)'
+                : '<i class="fas fa-edit"></i> Edit ETS Location';
             document.getElementById('editRowIdx').value = rowIdx;
             document.getElementById('etsPlant').value = item.plant || '';
             document.getElementById('etsName').value = item.name || '';
@@ -2030,9 +2475,14 @@
                 badge.innerHTML = '';
             }
 
+            const devHiddenGroup = document.getElementById('devHiddenToggleGroup');
+            const devHiddenCb = document.getElementById('isDevHiddenCb');
+            if (devHiddenGroup) devHiddenGroup.style.display = isDev ? 'block' : 'none';
+            if (devHiddenCb) devHiddenCb.checked = Boolean(isHidden);
+
             const modalDevActions = document.getElementById('modalDevActions');
             if (modalDevActions) {
-                if (isDeveloper() && rowIdx > 0) {
+                if (isDev && rowIdx !== null && rowIdx !== undefined && !isNaN(rowIdx)) {
                     modalDevActions.innerHTML = `
                         <button type="button" onclick="deleteFromModal()" style="padding:7px 12px; border-radius:var(--radius); border:1px solid rgba(239,68,68,0.4); background:rgba(239,68,68,0.1); color:#ef4444; font-weight:700; font-size:0.75rem; cursor:pointer; display:inline-flex; align-items:center; gap:5px;" title="Delete this ETS (Developer Only)">
                             <i class="fas fa-trash-alt"></i> Delete Entry
@@ -2107,9 +2557,21 @@
             const combinedContacts = contactList.join(', ');
             const rawComment = document.getElementById('etsComment').value.trim();
             
+            const isDev = isDeveloper();
+            const devHiddenCb = document.getElementById('isDevHiddenCb');
+            const isHidden = Boolean(isDev && devHiddenCb && devHiddenCb.checked);
+
             let finalComment = rawComment;
             if (document.getElementById('hasContactCb').checked && combinedContacts) {
                 finalComment = "Contact: " + combinedContacts + (rawComment ? "\n---\n" + rawComment : "");
+            }
+
+            if (isHidden) {
+                if (!finalComment.includes('[DEV_ONLY]')) {
+                    finalComment = "[DEV_ONLY] " + finalComment;
+                }
+            } else {
+                finalComment = finalComment.replace(/\[DEV_ONLY\]\s*/g, '').replace(/\[HIDDEN\]\s*/g, '').trim();
             }
             
             // Parse coords
@@ -2126,26 +2588,54 @@
 
             const payload = { 
                 action: rowIdx >= 0 ? 'update' : 'add', 
-                data: { rowIdx: rowIdx >= 0 ? rowIdx : null, name: name, plant: plant, coords: coordsString, lat: lat, lng: lng, comment: finalComment } 
+                data: { 
+                    rowIdx: rowIdx >= 0 ? rowIdx : null, 
+                    name: name, 
+                    plant: plant, 
+                    coords: coordsString, 
+                    lat: lat, 
+                    lng: lng, 
+                    comment: finalComment,
+                    hidden: isHidden,
+                    isHidden: isHidden
+                } 
+            };
+
+            const trackDevHidden = () => {
+                try {
+                    let devHiddenKeys = JSON.parse(localStorage.getItem('tabreed_dev_hidden_ets') || '[]');
+                    if (!Array.isArray(devHiddenKeys)) devHiddenKeys = [];
+                    if (isHidden) {
+                        if (!devHiddenKeys.includes(name)) devHiddenKeys.push(name);
+                    } else {
+                        devHiddenKeys = devHiddenKeys.filter(k => k !== name && k !== rowIdx);
+                    }
+                    localStorage.setItem('tabreed_dev_hidden_ets', JSON.stringify(devHiddenKeys));
+                } catch(e) {}
             };
             
             if (!navigator.onLine) {
                 syncQueue.push(payload);
                 localStorage.setItem('tabreed_ets_queue', JSON.stringify(syncQueue));
                 updateQueueBadge();
+                trackDevHidden();
                 
                 if(rowIdx >= 0) {
                     const idx = etsList.findIndex(e => e.rowIdx === rowIdx);
                     if(idx > -1) etsList[idx] = payload.data;
                 } else {
                     payload.data.rowIdx = -Date.now(); 
-                    etsList.push(payload.data);
+                    if (isHidden) {
+                        etsList.unshift(payload.data);
+                    } else {
+                        etsList.push(payload.data);
+                    }
                 }
                 localStorage.setItem('tabreed_ets_cache', JSON.stringify(etsList));
                 renderTable(etsList);
                 populateLocationFilter();
                 
-                showToast("Saved offline. Will sync when connection is restored.");
+                showToast(isHidden ? "Hidden Location saved offline. Will sync when online." : "Saved offline. Will sync when connection is restored.");
                 closeModal();
                 return;
             }
@@ -2153,25 +2643,48 @@
             document.getElementById('saveBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             document.getElementById('saveBtn').disabled = true;
 
-            fetch(GAS_API_URL, {
+            const postUrl = isLocalNodeHost ? "/api/ets" : GAS_API_URL;
+            fetch(postUrl, {
                 method: "POST",
                 redirect: "follow", 
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                headers: { "Content-Type": isLocalNodeHost ? "application/json" : "text/plain;charset=utf-8" },
                 body: JSON.stringify(payload)
             })
             .then(res => res.json())
             .then(result => {
-                if(result.status === 'success') {
-                    showToast(rowIdx >= 0 ? "ETS Updated Successfully!" : "New ETS Added!");
+                if(result && (result.status === 'success' || result.success)) {
+                    trackDevHidden();
+                    showToast(rowIdx >= 0 ? (isHidden ? "Hidden Location Updated!" : "ETS Updated Successfully!") : (isHidden ? "New Hidden Location Added (Pinned to TOP)!" : "New ETS Added!"));
                     closeModal();
-                    refreshTable(false); // reload data from server
+                    refreshTable(false);
                 } else {
-                    throw new Error(result.message);
+                    throw new Error(result ? result.message : 'Save error');
                 }
             })
             .catch(err => {
-                console.error("Save error:", err);
-                showToast("Error saving data: " + err.message);
+                console.warn("Save note:", err && err.message ? err.message : err);
+                syncQueue.push(payload);
+                localStorage.setItem('tabreed_ets_queue', JSON.stringify(syncQueue));
+                updateQueueBadge();
+                trackDevHidden();
+                
+                if(rowIdx >= 0) {
+                    const idx = etsList.findIndex(e => e.rowIdx === rowIdx);
+                    if(idx > -1) etsList[idx] = payload.data;
+                } else {
+                    payload.data.rowIdx = -Date.now(); 
+                    if (isHidden) {
+                        etsList.unshift(payload.data);
+                    } else {
+                        etsList.push(payload.data);
+                    }
+                }
+                localStorage.setItem('tabreed_ets_cache', JSON.stringify(etsList));
+                renderTable(etsList);
+                populateLocationFilter();
+                
+                showToast(isHidden ? "Hidden Location saved offline. Will sync when cloud responds." : "Saved offline. Will sync when cloud responds.");
+                closeModal();
             })
             .finally(() => {
                 document.getElementById('saveBtn').disabled = false;
@@ -2182,19 +2695,24 @@
         function showComment(rowIdx) {
             const item = etsList.find(e => e.rowIdx === rowIdx);
             if (!item) return;
-            let fullComment = item.comment || '';
+            const isHidden = isItemHidden(item);
+            let fullComment = (item.comment || '').replace(/\[DEV_ONLY\]\s*/g, '').replace(/\[HIDDEN\]\s*/g, '').trim();
             let contact = '';
             let note = fullComment;
             
             if (fullComment.startsWith("Contact: ")) {
                 const splitParts = fullComment.split("\n---\n");
                 contact = splitParts[0].replace("Contact: ", "").trim();
-                note = splitParts.length > 1 ? splitParts.slice(1).join("\n---\n") : "";
+                note = splitParts.length > 1 ? splitParts.slice(1).join("\n---\n").trim() : '';
             }
 
             let html = '';
+            if (isHidden) {
+                html += `<div style="margin-bottom:12px; display:inline-flex; align-items:center; gap:6px; background:#f59e0b; color:#000; padding:4px 10px; border-radius:12px; font-size:0.75rem; font-weight:800; box-shadow:0 0 8px rgba(245,158,11,0.3);">
+                            <i class="fas fa-user-secret"></i> DEVELOPER HIDDEN LOCATION (PINNED TO TOP)
+                         </div>`;
+            }
             if (contact) {
-                // Split multi contacts by comma, newline or pipe
                 const contactEntries = contact.split(/\s*(?:,|\n|\|)\s*(?=[A-Za-z0-9\+\(])/).map(s => s.trim()).filter(Boolean);
                 if (contactEntries.length === 0) contactEntries.push(contact);
 
@@ -2259,6 +2777,11 @@
                 const adminModal = document.getElementById('adminModal');
                 if (adminModal && adminModal.style.display === 'flex') {
                     closeAdminModal();
+                    return;
+                }
+                const userProfileModal = document.getElementById('userProfileModal');
+                if (userProfileModal && userProfileModal.style.display === 'flex') {
+                    closeUserProfileModal();
                     return;
                 }
             }

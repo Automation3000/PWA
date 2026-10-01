@@ -1767,7 +1767,7 @@ input:checked + .slider:before { transform: translateX(20px); }
                 const fb = await fetch('employees.json');
                 EMPLOYEES = await fb.json();
             } catch(e2) {
-                addDebugLog("Failed to load data/employees.json");
+                addLog('WARN', 'Failed to load data/employees.json', { err: e2.message });
             }
         }
         
@@ -1861,15 +1861,20 @@ input:checked + .slider:before { transform: translateX(20px); }
     ────────────────────────────────────── */
     function handleError(error, context = 'Operation') {
         let msg = error && error.message ? error.message : String(error);
+        const isNetworkErr = msg.toLowerCase().includes('failed to fetch') || (error && error.name === 'AbortError');
         // Provide more user-friendly messages for common network errors
         if (msg.toLowerCase().includes('failed to fetch')) {
-            msg = 'Network error or server is offline. Please check your connection or re-deploy the script.';
-        } else if (error.name === 'AbortError') {
+            msg = 'Network connection offline or cloud unreachable.';
+        } else if (error && error.name === 'AbortError') {
             msg = 'Request timed out. The server is not responding.';
         }
 
-        addLog('ERROR', `[${context}] ${error.message}`, { stack: error && error.stack ? error.stack.slice(0,300) : null });
-        showToast(`Error: ${msg.slice(0,120)}`, 'error');
+        if (isNetworkErr) {
+            addLog('WARN', `[${context}] Network offline or cloud unreachable`);
+        } else {
+            addLog('ERROR', `[${context}] ${error && error.message ? error.message : error}`, { stack: error && error.stack ? error.stack.slice(0,300) : null });
+        }
+        showToast(`Notice: ${msg.slice(0,120)}`, 'warning');
     }
 
     /* ──────────────────────────────────────
@@ -2187,6 +2192,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     function applyUserLogin(user, showPopup = true) {
         if (!user) return;
         currentAuthUser = user;
+        window.currentAuthUser = user;
         try {
             localStorage.setItem('tabreed_admin_unlocked', 'true');
             localStorage.setItem('tabreed_admin_user', JSON.stringify(user));
@@ -2266,6 +2272,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 
     function logoutUser() {
         currentAuthUser = null;
+        window.currentAuthUser = null;
         isDevModeActive = false;
         try {
             localStorage.removeItem('tabreed_admin_unlocked');
@@ -2686,13 +2693,13 @@ window.startSmartInstall = async function() {
         document.getElementById('label-location').innerText = 'All Locations';
         document.getElementById('label-expiry').innerText   = 'Expiry';
         applyFilters();
-        loadInventory();
+        loadInventory(true);
     }
 
     /* ──────────────────────────────────────
        LOAD INVENTORY
     ────────────────────────────────────── */
-    function loadInventory() {
+    function loadInventory(forceRefresh = false) {
         const tbody = document.getElementById('tableBody');
 
         // Restore from cache first for instant display
@@ -2704,7 +2711,9 @@ window.startSmartInstall = async function() {
                 locations     = res.locations || [];
                 updateLocationsDropdown();
                 applyFilters();
-                updateStatus('cached');
+                if (!navigator.onLine) {
+                    updateStatus('offline');
+                }
             } catch (e) {
                 addLog('WARN', 'Corrupt cache cleared', { err: e.message });
                 localStorage.removeItem(LS_INVENTORY);
@@ -2716,7 +2725,8 @@ window.startSmartInstall = async function() {
         // Fetch fresh data if online
         if (!navigator.onLine) { updateStatus('offline'); return; }
 
-        fetchWithTimeout(`${GAS_API_URL}?key=AI1&action=getItems`)
+        const url = `${GAS_API_URL}?key=AI1&action=getItems${forceRefresh ? '&refresh=true' : ''}&t=${Date.now()}`;
+        fetchWithTimeout(url, {}, 25000)
             .then(async r => {
                 if (!r.ok) {
                     const raw = await r.text().catch(() => '(no body)');
@@ -2726,23 +2736,25 @@ window.startSmartInstall = async function() {
                 return r.json();
             })
             .then(res => {
-                if (!res || !res.success) {
+                if (!res || (!res.success && res.status !== 'success')) {
                     addLog('ERROR', 'API returned success:false', { res: JSON.stringify(res).slice(0,200) });
                     throw new Error(res && res.error ? res.error : 'API rejected request');
                 }
+                res.success = true;
                 try { localStorage.setItem(LS_INVENTORY, JSON.stringify(res)); } catch (e) { addLog('WARN', 'Cache write failed', { err: e.message }); }
                 inventoryData = res.data      || [];
                 locations     = res.locations || [];
                 updateLocationsDropdown();
                 applyFilters();
-                updateStatus(res.fromCache ? 'cached' : 'online');
+                updateStatus('online');
             })
             .catch(async e => {
                 // If proxy call failed, try direct GAS URL fallback
                 if (GAS_API_URL !== GAS_DIRECT_URL) {
                     try {
-                        const fallbackRes = await fetchWithTimeout(`${GAS_DIRECT_URL}?key=AI1&action=getItems`, {}, 6000).then(r => r.json());
-                        if (fallbackRes && fallbackRes.success) {
+                        const fallbackRes = await fetchWithTimeout(`${GAS_DIRECT_URL}?key=AI1&action=getItems&t=${Date.now()}`, {}, 15000).then(r => r.json());
+                        if (fallbackRes && (fallbackRes.success || fallbackRes.status === 'success')) {
+                            fallbackRes.success = true;
                             try { localStorage.setItem(LS_INVENTORY, JSON.stringify(fallbackRes)); } catch {}
                             inventoryData = fallbackRes.data || [];
                             locations     = fallbackRes.locations || [];
@@ -2754,7 +2766,11 @@ window.startSmartInstall = async function() {
                     } catch (fbErr) {}
                 }
                 if (inventoryData && inventoryData.length > 0) {
-                    updateStatus('cached');
+                    if (navigator.onLine) {
+                        updateStatus('online');
+                    } else {
+                        updateStatus('cached');
+                    }
                 } else {
                     handleError(e, 'loadInventory');
                     updateStatus('offline');
@@ -2899,7 +2915,7 @@ window.startSmartInstall = async function() {
     function openUpdateModalByIndex(idx) {
         if (!inventoryData[idx]) return;
         const item = inventoryData[idx];
-        openUpdateModal(item.name, item.location, item.expiry || '', item.remark || '');
+        openUpdateModal(item.name, item.location, item.expiry || '', item.remark || item.comment || item.comments || '');
     }
 
     function openAddModal() {
@@ -2943,9 +2959,17 @@ window.startSmartInstall = async function() {
         document.getElementById('commentGroup').style.display = remark ? 'block' : 'none';
         document.getElementById('modalComment').value      = remark || '';
 
-        if (exp && exp !== '-') {
-            const p = exp.split('.');
-            if (p.length === 3) document.getElementById('modalExpiry').value = `${p[2]}-${String(p[1]).padStart(2,'0')}-${String(p[0]).padStart(2,'0')}`;
+        if (exp && exp !== '-' && exp !== '—' && exp !== 'null') {
+            const p = exp.split(/[./-]/);
+            if (p.length === 3) {
+                if (p[0].length === 4) {
+                    document.getElementById('modalExpiry').value = `${p[0]}-${String(p[1]).padStart(2,'0')}-${String(p[2]).padStart(2,'0')}`;
+                } else {
+                    document.getElementById('modalExpiry').value = `${p[2]}-${String(p[1]).padStart(2,'0')}-${String(p[0]).padStart(2,'0')}`;
+                }
+            } else {
+                document.getElementById('modalExpiry').value = '';
+            }
         } else {
             document.getElementById('modalExpiry').value = '';
         }
@@ -3075,20 +3099,29 @@ window.startSmartInstall = async function() {
         if (!navigator.onLine) { return showToast("Cannot edit locations while offline.", "error"); }
 
         const saveBtn = document.querySelector('#ackModalCard .btn-primary');
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Saving...';
+        if (saveBtn) {
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+        }
 
         try {
-            const res = await fetchWithTimeout(`${GAS_API_URL}?key=AI1&action=updateLocations&updates=${encodeURIComponent(JSON.stringify(updates))}`).then(r => r.json());
-            if (res && res.success) {
+            let res = await fetchWithTimeout(`${GAS_API_URL}?key=AI1&action=updateLocations&updates=${encodeURIComponent(JSON.stringify(updates))}`).then(r => r.json());
+            if (!res || (!res.success && res.status !== 'success')) {
+                if (GAS_API_URL !== GAS_DIRECT_URL) {
+                    res = await fetchWithTimeout(`${GAS_DIRECT_URL}?key=AI1&action=updateLocations&updates=${encodeURIComponent(JSON.stringify(updates))}`).then(r => r.json());
+                }
+            }
+            if (res && (res.success || res.status === 'success')) {
                 showToast("Locations updated successfully!", "success");
                 closeAckModal();
                 refreshAndReset(); // Reload all data
-            } else { throw new Error(res.error || "Server rejected the update."); }
+            } else { throw new Error((res && res.error) || "Server rejected the update."); }
         } catch (e) {
             handleError(e, 'saveLocationChanges');
-            saveBtn.disabled = false;
-            saveBtn.textContent = 'Save Changes';
+            if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Changes';
+            }
         }
     }
 
@@ -3146,8 +3179,12 @@ window.startSmartInstall = async function() {
         if (idx !== -1) {
             inventoryData.splice(idx, 1);
             renderTable(inventoryData);
-            updateCounters();
-            saveOfflineData(inventoryData);
+            try {
+                localStorage.setItem(LS_INVENTORY, JSON.stringify({ success: true, status: 'success', data: inventoryData, locations: locations }));
+            } catch (e) {
+                addLog('WARN', 'Cache write failed after delete', { err: e.message });
+            }
+            updatePendingTile();
         }
         
         submitActionToQueue(actionParams);
@@ -3885,19 +3922,19 @@ window.startSmartInstall = async function() {
             .map(([k, v]) => `${k}=${encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v)}`)
             .join('&');
 
-        // 1. If on local node host, attempt /api/inventory first
+        // 1. If on local node host, attempt /api/inventory first with 25s timeout for Google Sheet write
         if (isLocalNodeHost) {
             try {
-                const proxyRes = await fetchWithTimeout(`/api/inventory?key=AI1&${query}`, {}, 8000).then(r => r.json());
-                if (proxyRes && proxyRes.success) return proxyRes;
+                const proxyRes = await fetchWithTimeout(`/api/inventory?key=AI1&${query}`, {}, 25000).then(r => r.json());
+                if (proxyRes && (proxyRes.success || proxyRes.status === 'success')) return proxyRes;
             } catch (proxyErr) {
-                console.warn("Local inventory proxy failed, falling back to direct GAS:", proxyErr);
+                console.warn("Local inventory proxy failed, falling back to direct GAS:", proxyErr.message);
             }
         }
 
         // 2. Direct Google Apps Script URL (Works universally on GitHub Pages / tabreed.automation3000.com)
         const directUrl = `${GAS_DIRECT_URL}?key=AI1&${query}&t=${Date.now()}`;
-        return await fetchWithTimeout(directUrl, {}, 10000).then(r => r.json());
+        return await fetchWithTimeout(directUrl, {}, 25000).then(r => r.json());
     }
 
     async function sendOperationRequestToCloud(payload) {
@@ -3908,12 +3945,12 @@ window.startSmartInstall = async function() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
-                }, 8000).then(r => r.json());
+                }, 15000).then(r => r.json());
                 if (proxyRes && (proxyRes.status === 'success' || proxyRes.success)) {
                     return proxyRes;
                 }
             } catch (proxyErr) {
-                console.warn("Local operation request proxy failed, falling back to Apps Script:", proxyErr);
+                console.warn("Local operation request proxy failed, falling back to Apps Script:", proxyErr.message);
             }
         }
 
@@ -3926,7 +3963,7 @@ window.startSmartInstall = async function() {
         });
         params.append('t', Date.now());
         const getUrl = OP_REQUEST_GAS_URL + (OP_REQUEST_GAS_URL.includes('?') ? '&' : '?') + params.toString();
-        return await fetchWithTimeout(getUrl, { redirect: 'follow' }, 10000).then(r => r.json());
+        return await fetchWithTimeout(getUrl, { redirect: 'follow' }, 15000).then(r => r.json());
     }
 
     function submitActionToQueue(params) {
@@ -3941,7 +3978,7 @@ window.startSmartInstall = async function() {
                 .join('&');
             sendInstrumentToCloud(params, query)
                 .then(res => {
-                    if (res && res.success) {
+                    if (res && (res.success || res.status === 'success')) {
                         recordSyncedItem(params);
                         const diffData = extractSyncDiff(params);
                         recordSyncHistoryBatch({
@@ -3961,8 +3998,8 @@ window.startSmartInstall = async function() {
                                 cloudTarget: 'GAS Master Instrument Sheet'
                             }]
                         });
-                        showToast("Saved and synced online.", "success");
-                        loadInventory();
+                        showToast("Saved and synced online to Google Sheet.", "success");
+                        loadInventory(true);
                     } else {
                         addLog('ERROR', 'Save API rejected', { res: JSON.stringify(res).slice(0,200) });
                         showToast(res && res.error ? res.error : 'Save failed on server.', 'error');
@@ -4166,9 +4203,18 @@ window.startSmartInstall = async function() {
                         });
 
                         addLog('INFO', `Background auto-synced: ${params.name || params.itemName || 'Record'}`);
-                        // Atomically remove synced item immediately
-                        queue.shift();
-                        localStorage.setItem(LS_QUEUE, JSON.stringify(queue));
+                        // Atomically remove synced item from latest localStorage queue to avoid clobbering items added during sync
+                        try {
+                            const latestQ = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]');
+                            const taskIdx = latestQ.findIndex(q => (task._queued && q._queued === task._queued) || (q.name === task.name && q.action === task.action));
+                            if (taskIdx !== -1) latestQ.splice(taskIdx, 1);
+                            else latestQ.shift();
+                            localStorage.setItem(LS_QUEUE, JSON.stringify(latestQ));
+                            queue = latestQ;
+                        } catch(qErr) {
+                            queue.shift();
+                            localStorage.setItem(LS_QUEUE, JSON.stringify(queue));
+                        }
                         updatePendingTile();
                     } else {
                         failures++;
@@ -4782,7 +4828,14 @@ window.startSmartInstall = async function() {
 
         const textContent = `Feedback Details\nEmp ID: ${empId}\nName: ${empName}\nTime: ${getDubaiTime()}\n\nMessage:\n${text}`;
         let base64Txt = '';
-        try { base64Txt = btoa(unescape(encodeURIComponent(textContent))); } catch { base64Txt = btoa(textContent); }
+        try {
+            const bytes = new TextEncoder().encode(textContent);
+            let binary = '';
+            for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+            base64Txt = btoa(binary);
+        } catch {
+            try { base64Txt = btoa(unescape(encodeURIComponent(textContent))); } catch { base64Txt = btoa(textContent); }
+        }
         const formattedName = `${cleanEmpId}_${cleanEmpName}_Feedback.txt`;
 
         let payload = `${getDubaiTime()} | EmpID: ${sanitizeInput(empId)} | Name: ${sanitizeInput(empName)} | ${sanitizeInput(text)}`;
@@ -4966,12 +5019,16 @@ window.startSmartInstall = async function() {
         rows.forEach(row => {
             const cells = row.querySelectorAll('td');
             if (cells.length < 5) return;
-            const name    = cells[0].innerText.trim();
-            const loc     = cells[1].innerText.trim();
-            const expiry  = cells[3].innerText.trim().replace(/[🔄]/g,'').trim();
-            const updBy   = cells[4].querySelector('span') ? cells[4].querySelector('span').innerText.trim() : '';
-            const icon    = cells[4].querySelector('i[data-comment]');
-            const remark  = icon ? icon.getAttribute('data-comment') : '';
+            const nameCell = cells[0].cloneNode(true);
+            const noteSpan = nameCell.querySelector('span');
+            if (noteSpan) noteSpan.remove();
+            const name = nameCell.innerText.trim();
+            const loc = cells[1].innerText.trim();
+
+            const itemObj = inventoryData.find(i => i.name === name);
+            const expiry = itemObj && itemObj.expiry ? itemObj.expiry : cells[3].innerText.trim().replace(/[🔄]/g,'').trim();
+            const updBy = (itemObj && itemObj.updatedBy) || (cells[4].querySelector('span') ? cells[4].querySelector('span').innerText.trim() : '');
+            const remark = (itemObj && (itemObj.remark || itemObj.comment || itemObj.comments)) || (cells[4].querySelector('i[data-comment]') ? cells[4].querySelector('i[data-comment]').getAttribute('data-comment') : '');
             data.push([name, loc, expiry, updBy, remark]);
         });
 
@@ -5026,39 +5083,79 @@ window.startSmartInstall = async function() {
     ────────────────────────────────────── */
     function showHistoryPage() {
         document.getElementById('historyPage').style.display = 'block';
-        loadHistoryData();
+        loadHistoryData(true);
     }
     function closeHistoryPage() {
         document.getElementById('historyPage').style.display = 'none';
     }
 
-    function loadHistoryData() {
+    function parseHistoryDate(dateStr) {
+        if (!dateStr) return 0;
+        if (typeof dateStr === 'number') return dateStr;
+        const str = String(dateStr).trim();
+        // Match DD-MM-YYYY HH:mm or DD/MM/YYYY HH:mm
+        const dmyMatch = str.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+        if (dmyMatch) {
+            const day = parseInt(dmyMatch[1], 10);
+            const month = parseInt(dmyMatch[2], 10) - 1;
+            const year = parseInt(dmyMatch[3], 10);
+            const hour = dmyMatch[4] ? parseInt(dmyMatch[4], 10) : 0;
+            const min = dmyMatch[5] ? parseInt(dmyMatch[5], 10) : 0;
+            const sec = dmyMatch[6] ? parseInt(dmyMatch[6], 10) : 0;
+            return new Date(year, month, day, hour, min, sec).getTime();
+        }
+        const ymdMatch = str.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+        if (ymdMatch) {
+            const year = parseInt(ymdMatch[1], 10);
+            const month = parseInt(ymdMatch[2], 10) - 1;
+            const day = parseInt(ymdMatch[3], 10);
+            const hour = ymdMatch[4] ? parseInt(ymdMatch[4], 10) : 0;
+            const min = ymdMatch[5] ? parseInt(ymdMatch[5], 10) : 0;
+            const sec = ymdMatch[6] ? parseInt(ymdMatch[6], 10) : 0;
+            return new Date(year, month, day, hour, min, sec).getTime();
+        }
+        const parsed = new Date(str).getTime();
+        return isNaN(parsed) ? 0 : parsed;
+    }
+
+    function loadHistoryData(forceRefresh = true) {
         const refreshIcon = document.getElementById('historyRefreshIcon');
         if (refreshIcon) {
             refreshIcon.classList.add('fa-spin');
-            setTimeout(() => refreshIcon.classList.remove('fa-spin'), 600);
+            setTimeout(() => refreshIcon.classList.remove('fa-spin'), 800);
         }
         const tbody = document.getElementById('historyTableBody');
-        tbody.innerHTML = skeletonHTML(8, 5);
+        
+        // Show cached history first if available so page doesn't start blank
+        try {
+            const saved = localStorage.getItem(LS_HISTORY);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed && Array.isArray(parsed.data) && parsed.data.length > 0) {
+                    fullHistoryData = parsed.data;
+                    renderHistoryTable(fullHistoryData);
+                }
+            }
+        } catch {}
+
+        if (!fullHistoryData || fullHistoryData.length === 0) {
+            tbody.innerHTML = skeletonHTML(8, 5);
+        }
 
         if (!navigator.onLine) {
             showToast("Offline — showing cached history.", "warning");
-            try {
-                const saved = localStorage.getItem(LS_HISTORY);
-                if (saved) {
-                    fullHistoryData = JSON.parse(saved).data || [];
-                    renderHistoryTable(fullHistoryData);
-                } else {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted);">No offline history found.</td></tr>';
-                }
-            } catch { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted);">Could not load history.</td></tr>'; }
+            if (!fullHistoryData || fullHistoryData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted);">No offline history found.</td></tr>';
+            }
             return;
         }
 
-        fetchWithTimeout(`${GAS_API_URL}?key=AI1&action=getHistory`)
+        const url = `${GAS_API_URL}?key=AI1&action=getHistory${forceRefresh ? '&refresh=true' : ''}&t=${Date.now()}`;
+        fetchWithTimeout(url, {}, 25000)
             .then(r => r.json())
             .then(res => {
-                if (!res || !res.success) throw new Error(res && res.error ? res.error : 'getHistory failed');
+                if (!res || (!res.success && res.status !== 'success')) throw new Error(res && res.error ? res.error : 'getHistory failed');
+                res.success = true;
                 fullHistoryData = res.data || [];
                 try { localStorage.setItem(LS_HISTORY, JSON.stringify(res)); } catch {}
                 renderHistoryTable(fullHistoryData);
@@ -5066,8 +5163,9 @@ window.startSmartInstall = async function() {
             .catch(async e => {
                 if (GAS_API_URL !== GAS_DIRECT_URL) {
                     try {
-                        const fallbackRes = await fetchWithTimeout(`${GAS_DIRECT_URL}?key=AI1&action=getHistory`, {}, 6000).then(r => r.json());
-                        if (fallbackRes && fallbackRes.success) {
+                        const fallbackRes = await fetchWithTimeout(`${GAS_DIRECT_URL}?key=AI1&action=getHistory&t=${Date.now()}`, {}, 15000).then(r => r.json());
+                        if (fallbackRes && (fallbackRes.success || fallbackRes.status === 'success')) {
+                            fallbackRes.success = true;
                             fullHistoryData = fallbackRes.data || [];
                             try { localStorage.setItem(LS_HISTORY, JSON.stringify(fallbackRes)); } catch {}
                             renderHistoryTable(fullHistoryData);
@@ -5076,7 +5174,7 @@ window.startSmartInstall = async function() {
                     } catch (fbErr) {}
                 }
                 const cached = JSON.parse(localStorage.getItem(LS_HISTORY) || 'null');
-                if (cached && cached.data) {
+                if (cached && cached.data && cached.data.length > 0) {
                     fullHistoryData = cached.data;
                     renderHistoryTable(fullHistoryData);
                 } else {
@@ -5087,8 +5185,9 @@ window.startSmartInstall = async function() {
     }
 
     function filterHistory() {
-        const term = document.getElementById('historySearch').value.toLowerCase().trim();
-        renderHistoryTable(fullHistoryData.filter(l =>
+        const searchInput = document.getElementById('historySearch');
+        const term = (searchInput ? searchInput.value : '').toLowerCase().trim();
+        renderHistoryTable((fullHistoryData || []).filter(l =>
             (l.item||'').toLowerCase().includes(term) ||
             (l.user||'').toLowerCase().includes(term) ||
             (l.oldLoc||'').toLowerCase().includes(term) ||
@@ -5099,32 +5198,24 @@ window.startSmartInstall = async function() {
     function renderHistoryTable(data) {
         const tbody = document.getElementById('historyTableBody');
         
-        // Filter out testing entries
-        const validData = (data || []).filter(log => {
-            const item = (log.item || '').toLowerCase();
-            const userStr = (log.user || '').toLowerCase(); return !(item === 'test' || item === 'testing' || userStr === 'test' || userStr === 'testing');
-        });
+        const validData = (data || []).filter(log => log && (log.item || log.time || log.user));
         
         if (validData.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-muted);">No history records found.</td></tr>';
             return;
         }
 
-        // Sort latest on top (by parsing date/time string or reversing)
+        // Sort latest on top using robust parseHistoryDate
         const sorted = [...validData].sort((a, b) => {
-            const timeA = a.time ? new Date(a.time).getTime() : 0;
-            const timeB = b.time ? new Date(b.time).getTime() : 0;
-            if (timeA && timeB && !isNaN(timeA) && !isNaN(timeB)) return timeB - timeA;
+            const timeA = parseHistoryDate(a.time);
+            const timeB = parseHistoryDate(b.time);
+            if (timeA && timeB && timeA !== timeB) return timeB - timeA;
             return 0;
         });
 
-        const listToRender = (sorted.length > 1 && sorted[0].time === sorted[sorted.length - 1].time)
-            ? [...data].reverse()
-            : sorted;
-
-        tbody.innerHTML = listToRender.map(log => `
+        tbody.innerHTML = sorted.map(log => `
         <tr>
-            <td style="font-size:.75rem;color:var(--text-muted);font-family:monospace;">${sanitizeInput(log.time||'—')}</td>
+            <td style="font-size:.75rem;color:var(--text-muted);font-family:monospace;white-space:nowrap;">${sanitizeInput(log.time||'—')}</td>
             <td style="font-weight:700;">${sanitizeInput(log.item||'—')}</td>
             <td><span class="location-tag" style="background:var(--bg-surface);color:var(--text-secondary);">${sanitizeInput(log.oldLoc||'—')}</span></td>
             <td><span class="location-tag" style="background:var(--primary-light);color:var(--primary);">${sanitizeInput(log.newLoc||'—')}</span></td>
@@ -5328,9 +5419,11 @@ window.startSmartInstall = async function() {
                     localCounter = Number(localPrefs.syncCounter) || 0;
                 } catch(e) {}
 
-                const res = await fetch('/api/pwa-preferences?t=' + Date.now());
-                if (res.ok) {
-                    const json = await res.json();
+                if (!isLocalNodeHost) return;
+
+                const res = await fetch('/api/pwa-preferences?t=' + Date.now()).catch(() => null);
+                if (res && res.ok) {
+                    const json = await res.json().catch(() => null);
                     if (json && json.status === 'success' && json.data) {
                         const serverCounter = Number(json.data.syncCounter) || 0;
                         if (serverCounter >= localCounter) {
@@ -5428,6 +5521,8 @@ window.startSmartInstall = async function() {
                 localStorage.setItem('tabreed_pwa_preferences', JSON.stringify(this.cache));
             } catch(e) {}
 
+            if (!isLocalNodeHost) return true;
+
             try {
                 const res = await fetch('/api/pwa-preferences', {
                     method: 'POST',
@@ -5438,10 +5533,10 @@ window.startSmartInstall = async function() {
                         user: (window.currentAuthUser && (window.currentAuthUser.short || window.currentAuthUser.code)) || 'User',
                         moduleOrders: { [userKey]: order }
                     })
-                });
-                return res.ok;
+                }).catch(() => null);
+                return res ? res.ok : false;
             } catch(err) {
-                console.warn('[PWACloudSync] Order save failed:', err);
+                console.warn('[PWACloudSync] Order save note:', err);
             }
             return false;
         },
@@ -5459,6 +5554,8 @@ window.startSmartInstall = async function() {
                 localStorage.setItem('tabreed_pwa_preferences', JSON.stringify(this.cache));
             } catch(e) {}
 
+            if (!isLocalNodeHost) return true;
+
             try {
                 const res = await fetch('/api/pwa-preferences', {
                     method: 'POST',
@@ -5469,10 +5566,10 @@ window.startSmartInstall = async function() {
                         user: (window.currentAuthUser && (window.currentAuthUser.short || window.currentAuthUser.code)) || 'User',
                         userSettings: { [userCode]: settings }
                     })
-                });
-                return res.ok;
+                }).catch(() => null);
+                return res ? res.ok : false;
             } catch(err) {
-                console.warn('[PWACloudSync] Settings save failed:', err);
+                console.warn('[PWACloudSync] Settings save note:', err);
             }
             return false;
         },

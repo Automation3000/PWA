@@ -180,18 +180,19 @@
         }
         .tabs-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
         }
-        @media (max-width: 900px) {
+        @media (max-width: 1080px) {
             .tabs-grid {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
             }
         }
-        @media (max-width: 500px) {
+        @media (max-width: 600px) {
             .tabs-grid {
                 grid-template-columns: 1fr;
-                gap: 8px;
+                gap: 10px;
             }
         }
 
@@ -199,7 +200,7 @@
             background: var(--bg-card);
             border: 1.5px solid var(--border);
             border-radius: var(--radius);
-            padding: 14px 16px;
+            padding: 12px 14px;
             color: var(--text-primary);
             cursor: pointer;
             display: flex;
@@ -211,6 +212,10 @@
             text-align: left;
             position: relative;
             outline: none;
+            box-sizing: border-box;
+            min-width: 0;
+            width: 100%;
+            min-height: 70px;
         }
         .tab-card-btn:hover {
             transform: translateY(-2px);
@@ -228,13 +233,13 @@
         .tab-card-btn[data-cat="videos"]   { --card-accent: #2563eb; }
 
         .tab-card-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             flex-shrink: 0;
             transition: transform .2s ease;
         }
@@ -245,27 +250,25 @@
         .tab-card-content {
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 3px;
             min-width: 0;
             flex: 1;
         }
         .tab-card-title {
-            font-size: 0.92rem;
+            font-size: 0.88rem;
             font-weight: 700;
             color: var(--text-primary);
-            line-height: 1.25;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.3;
+            white-space: normal;
+            word-break: break-word;
         }
         .tab-card-sub {
             font-size: 0.72rem;
-            font-weight: 600;
+            font-weight: 500;
             color: var(--text-muted);
-            line-height: 1.2;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.25;
+            white-space: normal;
+            word-break: break-word;
         }
         .tab-card-arrow {
             font-size: 0.85rem;
@@ -967,13 +970,6 @@
                     iframe.src = iframe.src;
                 }
             }
-
-            // Smooth scroll into viewer card so user sees it right below
-            setTimeout(() => {
-                if (cardEl) {
-                    cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            }, 100);
         }
 
         // Backward compatibility
@@ -1072,7 +1068,27 @@
             if (box) box.style.display = 'block';
         }
 
+        function updateConnectionStatus() {
+            const dot = document.getElementById('statusDot');
+            if (!dot) return;
+            if (navigator.onLine) {
+                dot.className = 'status-dot online';
+                dot.style.background = '#16a34a';
+                dot.title = 'Connection: Online (Cloud Synced)';
+            } else {
+                dot.className = 'status-dot offline';
+                dot.style.background = '#ef4444';
+                dot.title = 'Connection: Offline';
+            }
+        }
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
         function uploadFileToDrive() {
+            if (!navigator.onLine) {
+                showToast('Cannot upload files while offline. Please connect to internet.', 'warning');
+                return;
+            }
             const fileInput = document.getElementById('fileUploadInput');
             const file = fileInput.files ? fileInput.files[0] : null;
 
@@ -1090,6 +1106,11 @@
             if (btn) btn.disabled = true;
 
             const reader = new FileReader();
+            reader.onerror = () => {
+                if (status) status.style.display = 'none';
+                if (btn) btn.disabled = false;
+                showToast('Failed to read file.', 'error');
+            };
             reader.onload = (e) => {
                 const fileData = e.target.result.split(',')[1];
                 const payload = {
@@ -1102,6 +1123,8 @@
 
                 fetch(GAS_API_URL, {
                     method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    redirect: 'follow',
                     body: JSON.stringify(payload)
                 })
                 .then(r => r.json())
@@ -1177,6 +1200,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            updateConnectionStatus();
             applyTheme();
             // Preload iframe in background without displaying viewer until user clicks a category card
             const iframe = document.getElementById('docViewerIframe');

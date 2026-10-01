@@ -298,6 +298,32 @@ input[type="date"] {
 .history-table tr:hover td {
     background: rgba(0,0,0,0.015);
 }
+.export-opt-btn {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all .15s ease;
+    text-align: left;
+    box-sizing: border-box;
+}
+.export-opt-btn:hover {
+    background: var(--bg-card);
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.export-dropdown-card {
+    animation: popIn .18s ease;
+}
 </style>
     <link rel="stylesheet" href="themes.css">
 </head>
@@ -360,14 +386,69 @@ input[type="date"] {
                 <button class="action-btn" onclick="refreshTable()">
                     <i class="fas fa-sync-alt" id="refreshBtnIcon" style="color:var(--secondary);margin-bottom:4px;font-size:1.2rem;"></i><span>Refresh</span>
                 </button>
-                <button class="action-btn" id="exportExcelBtn" onclick="exportRequestsToExcel()" title="Export to Excel / CSV (Supervisor &amp; Developer Only)" style="display: none;">
-                    <i class="fas fa-file-excel" style="color:#16a34a;margin-bottom:4px;font-size:1.2rem;"></i>
-                    <span>Export to Excel</span>
-                </button>
-                <button class="action-btn" id="exportPdfBtn" onclick="exportRequestsToPDF()" title="Export to PDF (Supervisor &amp; Developer Only)" style="display: none;">
-                    <i class="fas fa-file-pdf" style="color:#dc2626;margin-bottom:4px;font-size:1.2rem;"></i>
-                    <span>Export to PDF</span>
-                </button>
+                
+                <!-- Unified Simplified Export Dropdown Button -->
+                <div class="dropdown-wrapper" style="position:relative; display:inline-block;">
+                    <button class="action-btn" id="exportMenuBtn" onclick="toggleExportDropdown(event)" title="Export Options (Supervisor &amp; Developer Only)" style="display: none;">
+                        <i class="fas fa-file-export" style="color:#0284c7;margin-bottom:4px;font-size:1.2rem;"></i>
+                        <span>Export <i class="fas fa-chevron-down" style="font-size:0.7rem;margin-left:3px;opacity:0.8;"></i></span>
+                    </button>
+                    <div id="exportDropdownMenu" class="export-dropdown-card" style="display:none; position:absolute; top:calc(100% + 6px); left:0; z-index:2000; min-width:290px; background:var(--bg-card); border:1.5px solid var(--border); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,0.2); padding:8px 0; text-align:left;">
+                        <div style="padding:8px 14px 6px; border-bottom:1px solid var(--border); font-size:0.75rem; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); display:flex; justify-content:space-between; align-items:center;">
+                            <span>Export Data</span>
+                            <span id="exportMenuSelCountBadge" style="background:var(--primary); color:white; font-size:0.68rem; padding:1px 7px; border-radius:10px; font-weight:800; display:none;">0 Selected</span>
+                        </div>
+
+                        <!-- 1. Current Page View -->
+                        <div style="padding:8px 12px 4px;">
+                            <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+                                <i class="fas fa-table" style="color:var(--primary);"></i> 1. Current Page View
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                                <button type="button" class="export-opt-btn" onclick="exportRequestsToExcel(false, 'current'); closeExportDropdown();" title="Export Current Page to Excel">
+                                    <i class="fas fa-file-excel" style="color:#16a34a; font-size:1.1rem;"></i> <span>Excel (.xlsx)</span>
+                                </button>
+                                <button type="button" class="export-opt-btn" onclick="exportRequestsToPDF(false, 'current'); closeExportDropdown();" title="Export Current Page to PDF">
+                                    <i class="fas fa-file-pdf" style="color:#dc2626; font-size:1.1rem;"></i> <span>PDF (.pdf)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 2. Export All (Include Archive) -->
+                        <div style="padding:6px 12px 4px; border-top:1px dashed var(--border); margin-top:4px;">
+                            <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:5px;">
+                                <i class="fas fa-archive" style="color:#d97706;"></i> 2. Export All (Include Archive)
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                                <button type="button" class="export-opt-btn" onclick="exportRequestsToExcel(false, 'all_archive'); closeExportDropdown();" title="Export All including Archived to Excel">
+                                    <i class="fas fa-file-excel" style="color:#16a34a; font-size:1.1rem;"></i> <span>Excel (.xlsx)</span>
+                                </button>
+                                <button type="button" class="export-opt-btn" onclick="exportRequestsToPDF(false, 'all_archive'); closeExportDropdown();" title="Export All including Archived to PDF">
+                                    <i class="fas fa-file-pdf" style="color:#dc2626; font-size:1.1rem;"></i> <span>PDF (.pdf)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 3. Export Selected -->
+                        <div style="padding:6px 12px 8px; border-top:1px dashed var(--border); margin-top:4px; background:rgba(2,132,199,0.03);">
+                            <div style="font-size:0.72rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between;">
+                                <span style="display:flex; align-items:center; gap:5px;"><i class="fas fa-check-square" style="color:var(--primary);"></i> 3. Export Selected</span>
+                            </div>
+                            <button type="button" id="btnToggleSelectionMode" class="export-opt-btn" onclick="activateSelectionMode(); closeExportDropdown();" style="width:100%; margin-bottom:6px; justify-content:center; background:var(--bg-surface); font-weight:700; border-color:var(--primary); color:var(--primary);">
+                                <i class="fas fa-check-double"></i> <span id="toggleSelectionModeText">Show Selection Checkboxes</span>
+                            </button>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">
+                                <button type="button" class="export-opt-btn" onclick="exportRequestsToExcel(true, 'selected'); closeExportDropdown();" title="Export Selected Rows to Excel">
+                                    <i class="fas fa-file-excel" style="color:#16a34a; font-size:1.1rem;"></i> <span>Selected Excel</span>
+                                </button>
+                                <button type="button" class="export-opt-btn" onclick="exportRequestsToPDF(true, 'selected'); closeExportDropdown();" title="Export Selected Rows to PDF">
+                                    <i class="fas fa-file-pdf" style="color:#dc2626; font-size:1.1rem;"></i> <span>Selected PDF</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <button class="action-btn" id="showAllToggleBtn" onclick="toggleShowAllArchived()" title="Show completed jobs older than 15 days (Supervisor &amp; Developer Only)" style="display: none;">
                     <i class="fas fa-archive" id="showAllArchiveIcon" style="color:#64748b;margin-bottom:4px;font-size:1.2rem;"></i>
                     <span id="showAllToggleText">Show All</span>
@@ -383,10 +464,36 @@ input[type="date"] {
             </div>
 
             <div class="card-container">
+                <!-- Selection Export Toolbar -->
+                <div id="selectionBar" style="display:none; align-items:center; justify-content:space-between; background:var(--bg-surface); border:1.5px solid var(--primary); padding:10px 16px; border-radius:10px; margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,0.06); gap:12px; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="background:var(--primary); color:white; font-weight:800; padding:2px 9px; border-radius:12px; font-size:0.8rem;" id="selectedCountText">0</span>
+                        <span style="font-weight:700; font-size:0.88rem; color:var(--text-primary);">Selected Request(s)</span>
+                        <span style="font-size:0.8rem; color:var(--text-muted);">(Selection Mode Active)</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <button type="button" class="btn-action" onclick="exportRequestsToExcel(true, 'selected')" style="background:#16a34a; color:white; border:none; border-radius:6px; padding:6px 12px; font-size:0.82rem; font-weight:700; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                            <i class="fas fa-file-excel"></i> <span>Export Selected (Excel)</span>
+                        </button>
+                        <button type="button" class="btn-action" onclick="exportRequestsToPDF(true, 'selected')" style="background:#dc2626; color:white; border:none; border-radius:6px; padding:6px 12px; font-size:0.82rem; font-weight:700; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                            <i class="fas fa-file-pdf"></i> <span>Export Selected (PDF)</span>
+                        </button>
+                        <button type="button" class="btn-action" onclick="clearSelection()" style="background:transparent; color:var(--text-muted); border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:0.82rem; font-weight:600; cursor:pointer;">
+                            <i class="fas fa-times"></i> <span>Clear</span>
+                        </button>
+                        <button type="button" class="btn-action" onclick="toggleSelectionMode(false)" title="Hide selection checkboxes" style="background:transparent; color:var(--text-primary); border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:0.82rem; font-weight:600; cursor:pointer;">
+                            <i class="fas fa-eye-slash"></i> <span>Hide Checkboxes</span>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
+                                <th id="thSelectCol" style="width:36px; text-align:center; display:none;">
+                                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAllRequests(this.checked)" title="Select All Visible Requests" style="cursor:pointer; width:16px; height:16px; accent-color:var(--primary);">
+                                </th>
                                 <th>Work Order</th>
                                 <th>Description</th>
                                 <th>Plant</th>
@@ -585,8 +692,8 @@ input[type="date"] {
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Remarks / Notes (Optional)</label>
-                    <input type="text" id="reqRemarks" placeholder="Any additional note for Supervisor Bibin">
+                    <label>Numbers of Attendees</label>
+                    <input type="text" id="reqRemarks" placeholder="Enter numbers of attendees (e.g. 2 Attendees, or notes)">
                     <div id="reqAuditHistoryBlock" style="display:none; margin-top:8px; font-size:0.75rem; color:var(--text-muted); background:rgba(0,0,0,0.02); padding:8px 10px; border-radius:6px; border:1px dashed var(--border); line-height:1.4;">
                         <div style="font-weight:700; color:#d97706; display:flex; align-items:center; gap:5px; margin-bottom:4px;">
                             <i class="fas fa-lock"></i> Permanent Edit Audit Trail (Read-Only):
@@ -720,7 +827,7 @@ input[type="date"] {
             </div>
             <div class="modal-body" style="padding:18px; max-height:60vh; overflow-y:auto;">
                 <label style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-muted); display:block; margin-bottom:8px;">
-                    <i class="fas fa-sticky-note" style="color:var(--primary); margin-right:4px;"></i> Remarks / Comment:
+                    <i class="fas fa-users" style="color:var(--primary); margin-right:4px;"></i> Numbers of Attendees / Notes:
                 </label>
                 <div id="commentModalBody" style="font-size:0.9rem; line-height:1.6; color:var(--text-primary); background:var(--bg-surface); padding:14px; border-radius:10px; border:1px solid var(--border); word-break:break-word;">
                     <!-- Injected comment text -->
@@ -897,8 +1004,147 @@ input[type="date"] {
         // Data & State
         const LS_REQUESTS = "localTabreedOperationRequests";
         let requests = [];
+        let currentVisibleRequests = [];
+        let selectedRequestIds = new Set();
+        let isSelectionModeActive = false;
         let currentUser = null;
+        function getCurrentUser() {
+            if (!currentUser) {
+                try {
+                    const saved = localStorage.getItem('tabreed_currentUser') || localStorage.getItem('tabreed_admin_user');
+                    if (saved) currentUser = JSON.parse(saved);
+                } catch(e) {}
+            }
+            return currentUser;
+        }
         let EMPLOYEES = [];
+
+        function toggleSelectAllRequests(checked) {
+            if (checked) {
+                currentVisibleRequests.forEach(r => selectedRequestIds.add(String(r.id)));
+            } else {
+                currentVisibleRequests.forEach(r => selectedRequestIds.delete(String(r.id)));
+            }
+            updateSelectionUI();
+        }
+
+        function onRowSelectChange(id, checked) {
+            const idStr = String(id);
+            if (checked) {
+                selectedRequestIds.add(idStr);
+            } else {
+                selectedRequestIds.delete(idStr);
+            }
+            updateSelectionUI();
+        }
+
+        function clearSelection() {
+            selectedRequestIds.clear();
+            updateSelectionUI();
+        }
+
+        function toggleSelectionMode(forceState = null) {
+            if (forceState !== null) {
+                isSelectionModeActive = Boolean(forceState);
+            } else {
+                isSelectionModeActive = !isSelectionModeActive;
+            }
+            if (!isSelectionModeActive) {
+                selectedRequestIds.clear();
+            } else {
+                showToast("Selection column active: Select rows using checkboxes to export.", "info");
+            }
+            updateSelectionUI();
+        }
+
+        function activateSelectionMode() {
+            toggleSelectionMode(true);
+        }
+
+        function toggleExportDropdown(e) {
+            if (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            const menu = document.getElementById('exportDropdownMenu');
+            if (!menu) return;
+            const isHidden = menu.style.display === 'none' || menu.style.display === '';
+            menu.style.display = isHidden ? 'block' : 'none';
+        }
+
+        function closeExportDropdown() {
+            const menu = document.getElementById('exportDropdownMenu');
+            if (menu) menu.style.display = 'none';
+        }
+
+        // Close export dropdown on outside click
+        window.addEventListener('click', function(e) {
+            const menu = document.getElementById('exportDropdownMenu');
+            const btn = document.getElementById('exportMenuBtn');
+            if (menu && menu.style.display === 'block') {
+                if (!menu.contains(e.target) && (!btn || !btn.contains(e.target))) {
+                    closeExportDropdown();
+                }
+            }
+        });
+
+        function updateSelectionUI() {
+            const thSelect = document.getElementById('thSelectCol');
+            if (thSelect) {
+                thSelect.style.display = isSelectionModeActive ? '' : 'none';
+            }
+
+            const tdSelects = document.querySelectorAll('.td-select-col');
+            tdSelects.forEach(td => {
+                td.style.display = isSelectionModeActive ? '' : 'none';
+            });
+
+            const toggleBtnText = document.getElementById('toggleSelectionModeText');
+            if (toggleBtnText) {
+                toggleBtnText.textContent = isSelectionModeActive ? 'Hide Selection Checkboxes' : 'Show Selection Checkboxes';
+            }
+
+            const checkboxes = document.querySelectorAll('.row-select-checkbox');
+            checkboxes.forEach(cb => {
+                const id = cb.getAttribute('data-id');
+                cb.checked = selectedRequestIds.has(String(id));
+            });
+
+            const selectAllCb = document.getElementById('selectAllCheckbox');
+            if (selectAllCb) {
+                if (!currentVisibleRequests || currentVisibleRequests.length === 0) {
+                    selectAllCb.checked = false;
+                    selectAllCb.indeterminate = false;
+                } else {
+                    const allSelected = currentVisibleRequests.every(r => selectedRequestIds.has(String(r.id)));
+                    const someSelected = currentVisibleRequests.some(r => selectedRequestIds.has(String(r.id)));
+                    selectAllCb.checked = allSelected;
+                    selectAllCb.indeterminate = !allSelected && someSelected;
+                }
+            }
+
+            const selCount = selectedRequestIds.size;
+            const badge = document.getElementById('exportMenuSelCountBadge');
+            if (badge) {
+                if (selCount > 0) {
+                    badge.style.display = 'inline-block';
+                    badge.textContent = `${selCount} Selected`;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+
+            const selBar = document.getElementById('selectionBar');
+            const countText = document.getElementById('selectedCountText');
+            if (selBar && countText) {
+                if (isSelectionModeActive || selCount > 0) {
+                    selBar.style.display = 'flex';
+                    countText.textContent = selCount;
+                } else {
+                    selBar.style.display = 'none';
+                }
+            }
+        }
 
         function saveRequests() {
             try {
@@ -1142,21 +1388,73 @@ input[type="date"] {
                 'update': 'Edited',
                 'status': 'Status',
                 'delete': 'Deleted',
-                'clean': 'Cleaned',
-                'sync': 'Synced'
+                'clean': 'Cleaned'
             };
 
             // 1. Prepare items with parsed epoch, normalized action and 24h displayTime
             const prepared = hist.map((item, idx) => {
                 if (!item) return null;
-                const wo = String(item.workOrder || '').replace(/^#/, '').trim();
-                const desc = String(item.description || '').trim();
-                const plant = String(item.plant || '').trim();
-                const details = String(item.details || '').trim();
+                let wo = String(item.workOrder || '').replace(/^#+/, '').trim();
+                if (wo === 'undefined' || wo === 'null' || wo === 'N/A') wo = '';
+                
+                let desc = String(item.description || '').trim();
+                let plant = String(item.plant || '').trim();
+                if (plant === 'undefined' || plant === 'null') plant = '';
+                
+                let details = String(item.details || '').trim();
+                if (details === 'undefined' || details === 'null') details = '';
+
+                // Filter out empty / ghost entries
                 if (!wo && !desc && !plant && !details) return null;
 
+                // Filter out non-operation request items (contacts, instruments, sync logs)
+                const lowerDesc = desc.toLowerCase();
+                const lowerDetails = details.toLowerCase();
+                if (
+                    lowerDesc.includes('team contact') || 
+                    lowerDesc.includes('instrument update') || 
+                    lowerDesc.includes('pwa preference') || 
+                    lowerDetails.includes('phone:') || 
+                    lowerDetails.includes('wa:')
+                ) {
+                    return null;
+                }
+
+                // Filter out improper status changes where oldStatus === newStatus
+                const statusSelfMatch = desc.match(/Status changed from ["']?([^"']+)["']? to ["']?([^"']+)["']?/i);
+                if (statusSelfMatch && statusSelfMatch[1].trim().toLowerCase() === statusSelfMatch[2].trim().toLowerCase()) {
+                    return null;
+                }
+
+                const rawAction = normalizeHistoryAction(item.action || item.actionLabel);
+                
+                // Normalize action correctly from description if miscategorized
+                let normAction = rawAction;
+                if (lowerDesc.includes('status changed from') || lowerDesc.startsWith('status changed')) {
+                    normAction = 'status';
+                } else if (lowerDesc.includes('created operation request') || lowerDesc.includes('new request')) {
+                    normAction = 'create';
+                } else if (lowerDesc.includes('edited wo') || lowerDesc.includes('edited request')) {
+                    normAction = 'update';
+                } else if (lowerDesc.includes('deleted work order') || lowerDesc.includes('deleted wo')) {
+                    normAction = 'delete';
+                }
+
+                // Exclude sync actions as user requested
+                if (normAction === 'sync' || rawAction === 'sync') return null;
+
+                // Extract real user name if generic
+                let userName = String(item.user || '').trim();
+                if (isGenericHistoryUser(userName)) {
+                    const byMatch = (details + ' ' + desc).match(/\bby\s+([A-Za-z]+)\b/i);
+                    if (byMatch && byMatch[1] && !['the', 'and', 'or', 'a'].includes(byMatch[1].toLowerCase())) {
+                        userName = byMatch[1].charAt(0).toUpperCase() + byMatch[1].slice(1).toLowerCase();
+                    } else {
+                        userName = 'Technician';
+                    }
+                }
+
                 const epoch = parseHistoryEpoch(item.timestamp, item.displayTime) || (Date.now() - idx * 1000);
-                const normAction = normalizeHistoryAction(item.action || item.actionLabel);
                 const normWo = wo.toLowerCase();
                 const display24 = format24HourDateTime(epoch);
 
@@ -1168,6 +1466,9 @@ input[type="date"] {
                     workOrder: wo,
                     normWo,
                     plant: plant,
+                    description: desc,
+                    details: details,
+                    user: userName,
                     displayTime: display24,
                     timestamp: new Date(epoch).toISOString()
                 };
@@ -1181,15 +1482,54 @@ input[type="date"] {
             for (const item of prepared) {
                 const existingIdx = result.findIndex(r => {
                     if (r.id && item.id && r.id === item.id) return true;
-                    if (r.action !== item.action) return false;
-                    
-                    const sameWo = r.normWo === item.normWo;
-                    const timeDiff = Math.abs(r.epoch - item.epoch);
-                    
-                    // Same work order within 5 mins, or both empty WO within 20s
-                    if (sameWo && (r.normWo ? timeDiff < 300000 : timeDiff < 20000)) {
-                        return true;
+
+                    const dateA = String(r.displayTime || '').split(' ')[0];
+                    const dateB = String(item.displayTime || '').split(' ')[0];
+                    const sameDay = Boolean(dateA && dateB && dateA === dateB);
+                    const timeDiffMs = Math.abs(r.epoch - item.epoch);
+                    const within24Hours = timeDiffMs <= 86400000;
+
+                    // A. Both have matching Work Orders
+                    if (r.normWo && item.normWo && r.normWo === item.normWo) {
+                        // Create action: a Work Order is created only once in history
+                        if (r.action === 'create' && item.action === 'create') {
+                            return true;
+                        }
+                        // Delete action: a Work Order is deleted only once
+                        if (r.action === 'delete' && item.action === 'delete') {
+                            return true;
+                        }
+                        // Status action: collapse duplicate status changes within 24 hours
+                        if (r.action === 'status' && item.action === 'status' && within24Hours) {
+                            return true;
+                        }
+                        // Update action: collapse duplicate edits within 12 hours
+                        if (r.action === 'update' && item.action === 'update' && timeDiffMs < 43200000) {
+                            return true;
+                        }
+                        // Same action within same day or 24 hours
+                        if (r.action === item.action && (within24Hours || sameDay)) {
+                            return true;
+                        }
+                        // Identical description on same WO
+                        if (r.description && item.description && r.description.toLowerCase().trim() === item.description.toLowerCase().trim()) {
+                            return true;
+                        }
                     }
+
+                    // B. Work Order is empty
+                    if (!r.normWo && !item.normWo) {
+                        if (r.action === item.action) {
+                            if (r.action === 'clean' && (sameDay || timeDiffMs < 7200000)) return true;
+                            if (r.plant && item.plant && r.plant.toLowerCase() === item.plant.toLowerCase() && within24Hours) {
+                                return true;
+                            }
+                            if (r.description && item.description && r.description.toLowerCase().trim() === item.description.toLowerCase().trim() && within24Hours) {
+                                return true;
+                            }
+                        }
+                    }
+
                     return false;
                 });
 
@@ -1208,6 +1548,10 @@ input[type="date"] {
                     }
                     if (item.plant && !existing.plant) {
                         existing.plant = item.plant;
+                    }
+                    if (item.workOrder && !existing.workOrder) {
+                        existing.workOrder = item.workOrder;
+                        existing.normWo = item.normWo;
                     }
                 }
             }
@@ -2051,11 +2395,9 @@ input[type="date"] {
 
             const isSupOrDev = hasAccess || isDev;
 
-            // Export to Excel & PDF: strictly Supervisor & Developer only
-            const exportExcelBtn = document.getElementById('exportExcelBtn');
-            if (exportExcelBtn) exportExcelBtn.style.display = isSupOrDev ? 'inline-flex' : 'none';
-            const exportPdfBtn = document.getElementById('exportPdfBtn');
-            if (exportPdfBtn) exportPdfBtn.style.display = isSupOrDev ? 'inline-flex' : 'none';
+            // Unified Simplified Export Button & Menu: strictly Supervisor & Developer only
+            const exportMenuBtn = document.getElementById('exportMenuBtn');
+            if (exportMenuBtn) exportMenuBtn.style.display = isSupOrDev ? 'inline-flex' : 'none';
 
             // Show All toggle for archived: strictly Supervisor & Developer only
             const showAllToggleBtn = document.getElementById('showAllToggleBtn');
@@ -2081,9 +2423,37 @@ input[type="date"] {
         }
 
         // ──────────────────────────────────────────
-        // APP LOGIC
+        // APP LOGIC & GLOBAL MODAL ESCAPE LISTENER
         // ──────────────────────────────────────────
-        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+                const cModal = document.getElementById('commentDetailsModal');
+                if (cModal && (cModal.style.display === 'flex' || cModal.style.display === 'block' || (cModal.style.display !== 'none' && cModal.style.display !== ''))) {
+                    closeCommentPopup();
+                    return;
+                }
+                const uModal = document.getElementById('userProfileModal');
+                if (uModal && uModal.style.display === 'flex') {
+                    closeUserProfileModal();
+                    return;
+                }
+                const rModal = document.getElementById('requestModal');
+                if (rModal && rModal.style.display === 'flex') {
+                    closeModal();
+                    return;
+                }
+                const wModal = document.getElementById('whatsAppModal');
+                if (wModal && wModal.style.display === 'flex') {
+                    closeWhatsAppModal();
+                    return;
+                }
+                const hModal = document.getElementById('historyModal');
+                if (hModal && hModal.style.display === 'flex') {
+                    closeHistoryModal();
+                    return;
+                }
+            }
+        });
 
         window.onload = async () => {
             try {
@@ -2098,16 +2468,6 @@ input[type="date"] {
                     console.error("Failed to load employees data from data/employees.json", e);
                 }
             }
-
-            document.addEventListener('keydown', e => {
-                if (e.key === 'Escape') {
-                    const uModal = document.getElementById('userProfileModal');
-                    if (uModal && uModal.style.display === 'flex') closeUserProfileModal();
-                    
-                    const rModal = document.getElementById('requestModal');
-                    if (rModal && rModal.style.display === 'flex') closeModal();
-                }
-            });
 
             if (localStorage.getItem('tabreed_dark_mode') === 'true') {
                 document.body.classList.add('dark-mode');
@@ -2274,11 +2634,7 @@ input[type="date"] {
         function updateRemarksPlaceholder() {
             const remarksInput = document.getElementById('reqRemarks');
             if (!remarksInput) return;
-            if (isBibinLoggedIn()) {
-                remarksInput.placeholder = "Any Additional Note for ME";
-            } else {
-                remarksInput.placeholder = "Any additional note for Supervisor Bibin";
-            }
+            remarksInput.placeholder = "Numbers of Attendees (e.g. 2 Attendees, or notes)";
         }
 
         function openRequestModal(id = null) {
@@ -2382,7 +2738,7 @@ input[type="date"] {
                 document.getElementById('reqTimeTo').value = '';
                 
                 // Select current user by default
-                let userVal = currentUser.short || currentUser.full || '';
+                let userVal = (currentUser && (currentUser.short || currentUser.full)) || '';
                 if (userVal) {
                     let found = false;
                     for (let i = 0; i < teamSelect.options.length; i++) {
@@ -2562,7 +2918,7 @@ input[type="date"] {
                     module: 'operation_request',
                     action: action,
                     name: `Operation Request: ${payload.workOrder || payload.wo || payload.id || 'Record'} (${action})`,
-                    updatedBy: currentUser.short || currentUser.full || 'User',
+                    updatedBy: (currentUser && (currentUser.short || currentUser.full)) || 'User',
                     payload: payload,
                     _queued: new Date().toISOString()
                 });
@@ -2574,7 +2930,9 @@ input[type="date"] {
             }
         }
 
+        let isSyncingOperationQueue = false;
         async function processSyncQueue(manual = false) {
+            if (isSyncingOperationQueue) return;
             let queue = [];
             try { queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]'); } catch { queue = []; }
 
@@ -2589,6 +2947,7 @@ input[type="date"] {
                 return;
             }
 
+            isSyncingOperationQueue = true;
             if (manual) showToast(`Syncing ${queue.length} pending items…`, "info");
             updateStatusIndicator('syncing');
 
@@ -2596,116 +2955,120 @@ input[type="date"] {
             let syncedCount = 0;
             const syncedBatchItems = [];
 
-            for (let i = 0; i < queue.length; i++) {
-                const item = queue[i];
-                if (item.module === 'operation_request') {
-                    try {
-                        const payload = item.payload || item;
-                        const res = await sendToCloudBackend(payload);
-                        if (res.success) {
-                            syncedCount++;
-                            // Build granular diff for sync history log
-                            const changes = [];
-                            const wo = payload.workOrder || payload.wo || '—';
-                            const act = item.action || payload.action || 'update';
-                            if (act === 'updateStatus') {
-                                changes.push({ field: 'Status', from: payload.oldStatus || 'Requested', to: payload.status || 'Updated', type: 'diff' });
-                                changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
-                                if (payload.plant) changes.push({ field: 'Plant', value: payload.plant, type: 'info' });
-                            } else if (act === 'delete') {
-                                changes.push({ field: 'Action', value: 'Deleted from Cloud', type: 'danger' });
-                                changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
-                            } else {
-                                changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
-                                if (payload.plant) changes.push({ field: 'Plant', value: payload.plant, type: 'info' });
-                                if (payload.description) changes.push({ field: 'Description', value: payload.description, type: 'info' });
-                            }
+            try {
+                for (let i = 0; i < queue.length; i++) {
+                    const item = queue[i];
+                    if (item.module === 'operation_request') {
+                        try {
+                            const payload = item.payload || item;
+                            const res = await sendToCloudBackend(payload);
+                            if (res.success) {
+                                syncedCount++;
+                                // Build granular diff for sync history log
+                                const changes = [];
+                                const wo = payload.workOrder || payload.wo || '—';
+                                const act = item.action || payload.action || 'update';
+                                if (act === 'updateStatus') {
+                                    changes.push({ field: 'Status', from: payload.oldStatus || 'Requested', to: payload.status || 'Updated', type: 'diff' });
+                                    changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
+                                    if (payload.plant) changes.push({ field: 'Plant', value: payload.plant, type: 'info' });
+                                } else if (act === 'delete') {
+                                    changes.push({ field: 'Action', value: 'Deleted from Cloud', type: 'danger' });
+                                    changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
+                                } else {
+                                    changes.push({ field: 'Work Order', value: '#' + wo, type: 'info' });
+                                    if (payload.plant) changes.push({ field: 'Plant', value: payload.plant, type: 'info' });
+                                    if (payload.description) changes.push({ field: 'Description', value: payload.description, type: 'info' });
+                                }
 
-                            syncedBatchItems.push({
-                                name: `Operation Request #${wo}`,
-                                module: 'operation_request',
-                                action: act,
-                                user: item.updatedBy || currentUser.short || 'User',
-                                status: 'success',
-                                summary: act === 'updateStatus' ? `Status updated to "${payload.status}"` : `Work Order #${wo} updated`,
-                                changes: changes,
-                                cloudTarget: 'Google Sheets (Tabreed Cloud Data)'
-                            });
-                        } else {
+                                syncedBatchItems.push({
+                                    name: `Operation Request #${wo}`,
+                                    module: 'operation_request',
+                                    action: act,
+                                    user: item.updatedBy || (currentUser && (currentUser.short || currentUser.full)) || 'User',
+                                    status: 'success',
+                                    summary: act === 'updateStatus' ? `Status updated to "${payload.status}"` : `Work Order #${wo} updated`,
+                                    changes: changes,
+                                    cloudTarget: 'Google Sheets (Tabreed Cloud Data)'
+                                });
+                            } else {
+                                remaining.push(item);
+                            }
+                        } catch (err) {
                             remaining.push(item);
                         }
-                    } catch (err) {
-                        remaining.push(item);
-                    }
-                } else {
-                    // Sync pending Master Instrument updates in shared queue
-                    try {
-                        const { _queued, changes, module: mod, ...params } = item;
-                        const query = Object.entries(params)
-                            .filter(([k, v]) => k !== 'changes' && k !== '_queued' && k !== 'module' && v !== undefined && v !== null)
-                            .map(([k, v]) => `${k}=${encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v)}`)
-                            .join('&');
-                        const directUrl = `${GAS_DIRECT_URL}?key=AI1&${query}&t=${Date.now()}`;
-                        const res = await fetch(directUrl, { redirect: 'follow' }).then(r => r.json());
-                        if (res && res.success) {
-                            syncedCount++;
-                            syncedBatchItems.push({
-                                name: item.name || item.itemName || 'Instrument Update',
-                                module: 'instrument',
-                                action: item.action || 'update',
-                                user: item.updatedBy || currentUser.short || 'User',
-                                status: 'success',
-                                summary: 'Master Instrument synced to cloud',
-                                changes: [],
-                                cloudTarget: 'GAS Master Instrument Sheet'
-                            });
-                        } else {
+                    } else {
+                        // Sync pending Master Instrument updates in shared queue
+                        try {
+                            const { _queued, changes, module: mod, ...params } = item;
+                            const query = Object.entries(params)
+                                .filter(([k, v]) => k !== 'changes' && k !== '_queued' && k !== 'module' && v !== undefined && v !== null)
+                                .map(([k, v]) => `${k}=${encodeURIComponent(typeof v === 'object' ? JSON.stringify(v) : v)}`)
+                                .join('&');
+                            const directUrl = `${GAS_DIRECT_URL}?key=AI1&${query}&t=${Date.now()}`;
+                            const res = await fetch(directUrl, { redirect: 'follow' }).then(r => r.json());
+                            if (res && res.success) {
+                                syncedCount++;
+                                syncedBatchItems.push({
+                                    name: item.name || item.itemName || 'Instrument Update',
+                                    module: 'instrument',
+                                    action: item.action || 'update',
+                                    user: item.updatedBy || (currentUser && (currentUser.short || currentUser.full)) || 'User',
+                                    status: 'success',
+                                    summary: 'Master Instrument synced to cloud',
+                                    changes: [],
+                                    cloudTarget: 'GAS Master Instrument Sheet'
+                                });
+                            } else {
+                                remaining.push(item);
+                            }
+                        } catch(instErr) {
                             remaining.push(item);
                         }
-                    } catch(instErr) {
-                        remaining.push(item);
                     }
                 }
-            }
 
-            // Save to tabreed_detailed_sync_history if items were synced
-            if (syncedBatchItems.length > 0) {
-                try {
-                    const LS_LOG = 'tabreed_detailed_sync_history';
-                    const history = JSON.parse(localStorage.getItem(LS_LOG) || '[]');
-                    const now = new Date();
-                    const day = String(now.getDate()).padStart(2, '0');
-                    const mon = String(now.getMonth() + 1).padStart(2, '0');
-                    const yr = now.getFullYear();
-                    const hrs = String(now.getHours()).padStart(2, '0');
-                    const mins = String(now.getMinutes()).padStart(2, '0');
-                    const secs = String(now.getSeconds()).padStart(2, '0');
-                    const fmtTime = `${day}.${mon}.${yr} ${hrs}:${mins}:${secs}`;
+                // Save to tabreed_detailed_sync_history if items were synced
+                if (syncedBatchItems.length > 0) {
+                    try {
+                        const LS_LOG = 'tabreed_detailed_sync_history';
+                        const history = JSON.parse(localStorage.getItem(LS_LOG) || '[]');
+                        const now = new Date();
+                        const day = String(now.getDate()).padStart(2, '0');
+                        const mon = String(now.getMonth() + 1).padStart(2, '0');
+                        const yr = now.getFullYear();
+                        const hrs = String(now.getHours()).padStart(2, '0');
+                        const mins = String(now.getMinutes()).padStart(2, '0');
+                        const secs = String(now.getSeconds()).padStart(2, '0');
+                        const fmtTime = `${day}.${mon}.${yr} ${hrs}:${mins}:${secs}`;
 
-                    history.unshift({
-                        id: 'sync_evt_' + now.getTime(),
-                        timestamp: now.toISOString(),
-                        formattedTime: fmtTime,
-                        triggerSource: manual ? 'manual' : 'network_online',
-                        user: currentUser.short || 'User',
-                        syncedCount: syncedCount,
-                        failedCount: remaining.length,
-                        status: 'success',
-                        items: syncedBatchItems
-                    });
-                    localStorage.setItem(LS_LOG, JSON.stringify(history.slice(0, 100)));
-                } catch(e) {}
-            }
+                        history.unshift({
+                            id: 'sync_evt_' + now.getTime(),
+                            timestamp: now.toISOString(),
+                            formattedTime: fmtTime,
+                            triggerSource: manual ? 'manual' : 'network_online',
+                            user: (currentUser && (currentUser.short || currentUser.full)) || 'User',
+                            syncedCount: syncedCount,
+                            failedCount: remaining.length,
+                            status: 'success',
+                            items: syncedBatchItems
+                        });
+                        localStorage.setItem(LS_LOG, JSON.stringify(history.slice(0, 100)));
+                    } catch(e) {}
+                }
 
-            localStorage.setItem(LS_QUEUE, JSON.stringify(remaining));
-            updateQueueBadge();
-            updateStatusIndicator(navigator.onLine ? 'online' : 'offline');
+                localStorage.setItem(LS_QUEUE, JSON.stringify(remaining));
+                updateQueueBadge();
+                updateStatusIndicator(navigator.onLine ? 'online' : 'offline');
 
-            if (syncedCount > 0) {
-                showToast(`${syncedCount} item(s) synced to cloud successfully!`, "success");
-                loadDummyData(true);
-            } else if (remaining.length > 0 && manual) {
-                showToast("Some items could not sync. Will retry automatically.", "warning");
+                if (syncedCount > 0) {
+                    showToast(`${syncedCount} item(s) synced to cloud successfully!`, "success");
+                    loadDummyData(true);
+                } else if (remaining.length > 0 && manual) {
+                    showToast("Some items could not sync. Will retry automatically.", "warning");
+                }
+            } finally {
+                isSyncingOperationQueue = false;
             }
         }
 
@@ -3304,6 +3667,10 @@ input[type="date"] {
             if (!req) return;
 
             const oldStatus = req.status;
+            if (oldStatus === newStatus) {
+                if (saveBtn) saveBtn.style.display = 'none';
+                return;
+            }
             req.status = newStatus;
             selectEl.setAttribute('data-original', newStatus);
             if (saveBtn) saveBtn.style.display = 'none';
@@ -3362,49 +3729,96 @@ input[type="date"] {
         // ──────────────────────────────────────────
         // EXPORT TO EXCEL & PDF (Supervisor & Developer Only)
         // ──────────────────────────────────────────
-        function exportRequestsToExcel() {
+        function getRequestsToExport(forceSelectionOnly = false, mode = 'current') {
+            let listToExport = [];
+            let isSelectionExport = false;
+
+            if (mode === 'selected' || forceSelectionOnly) {
+                if (!selectedRequestIds || selectedRequestIds.size === 0) {
+                    toggleSelectionMode(true);
+                    showToast("Selection mode active. Please check the rows you want to export.", "info");
+                    return null;
+                }
+                listToExport = requests.filter(r => selectedRequestIds.has(String(r.id)));
+                isSelectionExport = true;
+            } else if (mode === 'all_archive') {
+                listToExport = [...requests];
+            } else {
+                // 'current' mode: strictly what is currently visible on the page
+                if (currentVisibleRequests && currentVisibleRequests.length > 0) {
+                    listToExport = [...currentVisibleRequests];
+                } else {
+                    listToExport = requests.filter(r => showAllArchived || !isRequestArchived(r));
+                }
+            }
+
+            if (!listToExport || listToExport.length === 0) {
+                showToast("No requests data available to export.", "info");
+                return null;
+            }
+
+            return {
+                items: listToExport,
+                isSelection: isSelectionExport,
+                mode: mode
+            };
+        }
+
+        function exportRequestsToExcel(forceSelectionOnly = false, mode = 'current') {
             if (!isSupervisor() && !isDeveloper()) {
                 showToast("Export is restricted to Supervisors & Developers only", "warning");
                 return;
             }
-            if (!requests || requests.length === 0) {
-                showToast("No requests data available to export", "info");
-                return;
-            }
+            const res = getRequestsToExport(forceSelectionOnly, mode);
+            if (!res) return;
+            const { items, isSelection } = res;
+
             try {
-                const exportData = requests.map((r, i) => ({
-                    "S.No": i + 1,
-                    "Work Order": r.wo || "",
-                    "Description": r.desc || "",
-                    "Plant": r.plant || "",
-                    "Date": formatDisplayDateWithDots(r.date),
-                    "Time": r.time || "",
-                    "Team": r.team || "",
-                    "Status": r.status || "Requested",
-                    "Remarks / Audit": r.remarks || ""
-                }));
+                const exportData = items.map((r, i) => {
+                    const isArch = isRequestArchived(r);
+                    return {
+                        "S.No": i + 1,
+                        "Work Order": r.wo || "",
+                        "Description": r.desc || "",
+                        "Plant": r.plant || "",
+                        "Date": formatDisplayDateWithDots(r.date),
+                        "Time": r.time || "",
+                        "Team": r.team || "",
+                        "Status": r.status || "Requested",
+                        "Archive Status": isArch ? "ARCHIVED" : "ACTIVE",
+                        "Numbers of Attendees": r.remarks || r.comment || ""
+                    };
+                });
 
                 const dateStr = formatDisplayDateWithDots(new Date().toISOString().slice(0, 10));
+                let filenamePrefix = 'Tabreed_Current_Requests';
+                if (mode === 'selected' || isSelection) {
+                    filenamePrefix = `Tabreed_Selected_Requests_${items.length}`;
+                } else if (mode === 'all_archive') {
+                    filenamePrefix = `Tabreed_All_Requests_Incl_Archive_${items.length}`;
+                } else {
+                    filenamePrefix = `Tabreed_Current_Page_Requests_${items.length}`;
+                }
 
                 if (window.XLSX) {
                     const worksheet = XLSX.utils.json_to_sheet(exportData);
                     const workbook = XLSX.utils.book_new();
                     XLSX.utils.book_append_sheet(workbook, worksheet, "Operation_Requests");
-                    XLSX.writeFile(workbook, `Tabreed_Operation_Requests_${dateStr}.xlsx`);
-                    showToast("Excel export downloaded successfully", "success");
+                    XLSX.writeFile(workbook, `${filenamePrefix}_${dateStr}.xlsx`);
+                    showToast(`Excel export (${items.length} ${isSelection ? 'selected ' : ''}records) downloaded successfully`, "success");
                 } else {
-                    let csv = "S.No,Work Order,Description,Plant,Date,Time,Team,Status,Remarks\n";
+                    let csv = "S.No,Work Order,Description,Plant,Date,Time,Team,Status,Archive Status,Numbers of Attendees\n";
                     exportData.forEach(row => {
-                        csv += `"${row['S.No']}","${(row['Work Order'] || '').replace(/"/g, '""')}","${(row['Description'] || '').replace(/"/g, '""')}","${(row['Plant'] || '').replace(/"/g, '""')}","${row['Date']}","${row['Time']}","${row['Team']}","${row['Status']}","${(row['Remarks / Audit'] || '').replace(/"/g, '""')}"\n`;
+                        csv += `"${row['S.No']}","${(row['Work Order'] || '').replace(/"/g, '""')}","${(row['Description'] || '').replace(/"/g, '""')}","${(row['Plant'] || '').replace(/"/g, '""')}","${row['Date']}","${row['Time']}","${row['Team']}","${row['Status']}","${row['Archive Status']}","${(row['Numbers of Attendees'] || '').replace(/"/g, '""')}"\n`;
                     });
                     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement("a");
                     a.href = url;
-                    a.download = `Tabreed_Operation_Requests_${dateStr}.csv`;
+                    a.download = `${filenamePrefix}_${dateStr}.csv`;
                     a.click();
                     URL.revokeObjectURL(url);
-                    showToast("CSV export downloaded successfully", "success");
+                    showToast(`CSV export (${items.length} ${isSelection ? 'selected ' : ''}records) downloaded successfully`, "success");
                 }
             } catch(e) {
                 console.error("Export Excel error:", e);
@@ -3412,15 +3826,14 @@ input[type="date"] {
             }
         }
 
-        function exportRequestsToPDF() {
+        function exportRequestsToPDF(forceSelectionOnly = false, mode = 'current') {
             if (!isSupervisor() && !isDeveloper()) {
                 showToast("Export is restricted to Supervisors & Developers only", "warning");
                 return;
             }
-            if (!requests || requests.length === 0) {
-                showToast("No requests data available to export", "info");
-                return;
-            }
+            const res = getRequestsToExport(forceSelectionOnly, mode);
+            if (!res) return;
+            const { items, isSelection } = res;
 
             try {
                 const container = document.createElement('div');
@@ -3431,36 +3844,50 @@ input[type="date"] {
                 const todayStr = formatDisplayDateWithDots(new Date().toISOString().slice(0, 10));
 
                 let rowsHtml = '';
-                requests.forEach((r, idx) => {
+                items.forEach((r, idx) => {
                     const statusColor = r.status === 'Completed' ? '#16a34a' : (r.status === 'Pending' ? '#dc2626' : '#2563eb');
+                    const isArch = isRequestArchived(r);
+                    const archiveBadge = isArch ? `<span style="background:#fef3c7; color:#b45309; padding:2px 6px; border-radius:4px; font-weight:700; font-size:9px; border:1px solid #fde68a;">ARCHIVED</span>` : `<span style="background:#f0fdf4; color:#15803d; padding:2px 6px; border-radius:4px; font-weight:600; font-size:9px;">ACTIVE</span>`;
+                    const attendeesVal = sanitizeInput(r.remarks || r.comment || '-');
+
                     rowsHtml += `
-                        <tr style="border-bottom:1px solid #e2e8f0; font-size:11px;">
-                            <td style="padding:8px 6px; font-weight:700;">${r.wo || '-'}</td>
-                            <td style="padding:8px 6px;">${r.desc || '-'}</td>
-                            <td style="padding:8px 6px; font-weight:600;">${r.plant || '-'}</td>
-                            <td style="padding:8px 6px; white-space:nowrap;">${formatDisplayDateWithDots(r.date)}<br><span style="font-size:10px; color:#64748b;">${r.time || ''}</span></td>
-                            <td style="padding:8px 6px;">${r.team || '-'}</td>
-                            <td style="padding:8px 6px; font-weight:700; color:${statusColor};">${r.status || 'Requested'}</td>
+                        <tr style="border-bottom:1px solid #e2e8f0; font-size:11px; ${isArch ? 'background:#fafaf9;' : ''}">
+                            <td style="padding:7px 5px; font-weight:700;">${r.wo || '-'}</td>
+                            <td style="padding:7px 5px;">${r.desc || '-'}</td>
+                            <td style="padding:7px 5px; font-weight:600;">${r.plant || '-'}</td>
+                            <td style="padding:7px 5px; white-space:nowrap;">${formatDisplayDateWithDots(r.date)}<br><span style="font-size:10px; color:#64748b;">${r.time || ''}</span></td>
+                            <td style="padding:7px 5px;">${r.team || '-'}</td>
+                            <td style="padding:7px 5px; font-weight:700; color:${statusColor};">${r.status || 'Requested'}</td>
+                            <td style="padding:7px 5px; text-align:center;">${archiveBadge}</td>
+                            <td style="padding:7px 5px; font-size:10px; color:#475569;">${attendeesVal}</td>
                         </tr>
                     `;
                 });
 
+                const titleScope = (mode === 'selected' || isSelection)
+                    ? `Selected Requests (${items.length} Selected)`
+                    : (mode === 'all_archive'
+                        ? `All Requests Incl. Archive (${items.length} Records)`
+                        : `Current Page View (${items.length} Records)`);
+
                 container.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:2px solid #0284c7; padding-bottom:10px;">
                         <div>
-                            <h2 style="margin:0; font-size:18px; color:#0f172a;">TABREED - Operation Requests Report</h2>
-                            <div style="font-size:11px; color:#64748b; margin-top:3px;">Generated on: ${todayStr} | Total Records: ${requests.length}</div>
+                            <h2 style="margin:0; font-size:17px; color:#0f172a;">TABREED - Operation Requests Report</h2>
+                            <div style="font-size:11px; color:#64748b; margin-top:3px;">Scope: <strong>${titleScope}</strong> | Generated: ${todayStr}</div>
                         </div>
                     </div>
                     <table style="width:100%; border-collapse:collapse; text-align:left;">
                         <thead>
-                            <tr style="background:#f1f5f9; font-size:11px; text-transform:uppercase; color:#475569; border-bottom:2px solid #cbd5e1;">
-                                <th style="padding:8px 6px;">Work Order</th>
-                                <th style="padding:8px 6px;">Description</th>
-                                <th style="padding:8px 6px;">Plant</th>
-                                <th style="padding:8px 6px;">Date & Time</th>
-                                <th style="padding:8px 6px;">Team</th>
-                                <th style="padding:8px 6px;">Status</th>
+                            <tr style="background:#f1f5f9; font-size:10px; text-transform:uppercase; color:#475569; border-bottom:2px solid #cbd5e1;">
+                                <th style="padding:7px 5px;">Work Order</th>
+                                <th style="padding:7px 5px;">Description</th>
+                                <th style="padding:7px 5px;">Plant</th>
+                                <th style="padding:7px 5px;">Date & Time</th>
+                                <th style="padding:7px 5px;">Team</th>
+                                <th style="padding:7px 5px;">Status</th>
+                                <th style="padding:7px 5px; text-align:center;">Archive</th>
+                                <th style="padding:7px 5px;">Numbers of Attendees</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -3469,17 +3896,26 @@ input[type="date"] {
                     </table>
                 `;
 
+                let filenamePrefix = 'Tabreed_Current_Requests';
+                if (mode === 'selected' || isSelection) {
+                    filenamePrefix = `Tabreed_Selected_Requests_${items.length}`;
+                } else if (mode === 'all_archive') {
+                    filenamePrefix = `Tabreed_All_Requests_Incl_Archive_${items.length}`;
+                } else {
+                    filenamePrefix = `Tabreed_Current_Page_Requests_${items.length}`;
+                }
+
                 if (window.html2pdf) {
                     const opt = {
-                        margin: 10,
-                        filename: `Tabreed_Operation_Requests_${todayStr}.pdf`,
+                        margin: 8,
+                        filename: `${filenamePrefix}_${todayStr}.pdf`,
                         image: { type: 'jpeg', quality: 0.98 },
                         html2canvas: { scale: 2, useCORS: true },
                         jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
                     };
                     showToast("Generating PDF document...", "info");
                     window.html2pdf().from(container).set(opt).save().then(() => {
-                        showToast("PDF downloaded successfully", "success");
+                        showToast(`PDF export (${items.length} ${isSelection ? 'selected ' : ''}records) downloaded successfully`, "success");
                     }).catch(err => {
                         console.error("PDF generation failed", err);
                         showToast("PDF generation error: " + err.message, "error");
@@ -3662,15 +4098,20 @@ input[type="date"] {
             let recipientShort = targetMember;
             let recipientFull = targetMember;
 
-            const match = cachedTeamContacts.find(c => 
-                (targetMember && (c.short === targetMember || c.full === targetMember || c.code === targetMember)) ||
-                (teamName && (c.short === teamName || c.full === teamName || c.code === teamName)) ||
-                (creator && (c.short === creator || c.full === creator || c.code === creator))
-            ) || (typeof EMPLOYEES !== 'undefined' ? EMPLOYEES.find(e => 
-                (targetMember && (e.short === targetMember || e.full === targetMember || e.code === targetMember)) ||
-                (teamName && (e.short === teamName || e.full === teamName || e.code === teamName)) ||
-                (creator && (e.short === creator || e.full === creator || e.code === creator))
-            ) : null);
+            const tLower = targetMember.toLowerCase();
+            const tmLower = teamName.toLowerCase();
+            const cLower = creator.toLowerCase();
+            const isMatch = c => {
+                if (!c) return false;
+                const cs = String(c.short || '').toLowerCase();
+                const cf = String(c.full || '').toLowerCase();
+                const cc = String(c.code || '').toLowerCase();
+                return (tLower && (cs === tLower || cf === tLower || cc === tLower)) ||
+                       (tmLower && (cs === tmLower || cf === tmLower || cc === tmLower)) ||
+                       (cLower && (cs === cLower || cf === cLower || cc === cLower));
+            };
+            const match = (cachedTeamContacts && cachedTeamContacts.find(isMatch)) ||
+                          (typeof EMPLOYEES !== 'undefined' && Array.isArray(EMPLOYEES) ? EMPLOYEES.find(isMatch) : null);
 
             if (match) {
                 recipientPhone = match.whatsapp || match.phone || '';
@@ -3740,6 +4181,7 @@ input[type="date"] {
             const tbody = document.getElementById('requestTableBody');
             if(!tbody) return;
             tbody.innerHTML = '';
+            currentVisibleRequests = [];
             
             const lowerFilter = (filterText || "").toLowerCase().trim();
             const userIsSupervisor = isSupervisor();
@@ -3768,7 +4210,12 @@ input[type="date"] {
                 
                 const woStr = String(req.wo || '').toLowerCase();
                 const plantStr = String(req.plant || '').toLowerCase();
-                if(lowerFilter && !woStr.includes(lowerFilter) && !plantStr.includes(lowerFilter)) return;
+                const descStr = String(req.desc || '').toLowerCase();
+                const teamStr = String(req.team || '').toLowerCase();
+                if(lowerFilter && !woStr.includes(lowerFilter) && !plantStr.includes(lowerFilter) && !descStr.includes(lowerFilter) && !teamStr.includes(lowerFilter)) return;
+
+                // Push to current visible requests for current page export & select all
+                currentVisibleRequests.push(req);
 
                 // Only count items currently visible on this page
                 const s = req.status || DEFAULT_STATUS;
@@ -3831,6 +4278,7 @@ input[type="date"] {
                     </div>`;
                 }
                 
+                const isSelected = selectedRequestIds.has(String(req.id));
                 const safeWo = sanitizeInput(req.wo || '');
                 const safeWoDisplay = req.wo ? safeWo : `<span style="color:var(--text-muted);font-style:italic;font-weight:normal;">N/A</span>`;
                 const woCopyClick = req.wo ? `data-copy-wo="${safeWo}" onclick="navigator.clipboard.writeText(this.getAttribute('data-copy-wo')); showToast('Copied: ' + this.getAttribute('data-copy-wo'))" title="Click to copy"` : '';
@@ -3860,6 +4308,9 @@ input[type="date"] {
                 }
 
                 tr.innerHTML = `
+                    <td class="td-select-col" style="text-align:center; width:36px; display:${isSelectionModeActive ? '' : 'none'};" onclick="event.stopPropagation()">
+                        <input type="checkbox" class="row-select-checkbox" data-id="${sanitizeInput(req.id)}" ${isSelected ? 'checked' : ''} onchange="onRowSelectChange('${sanitizeInput(req.id)}', this.checked)" style="cursor:pointer; width:16px; height:16px; accent-color:var(--primary);">
+                    </td>
                     <td style="font-weight:700; color:var(--primary); cursor:${req.wo ? 'pointer' : 'default'};" ${woCopyClick}>${safeWoDisplay}</td>
                     <td>${safeDesc}</td>
                     <td><span style="background:var(--bg-surface);padding:3px 8px;border-radius:4px;font-size:.8rem;border:1px solid var(--border);">${safePlant}</span></td>
@@ -3907,9 +4358,11 @@ input[type="date"] {
             }
 
             if(tbody.innerHTML === '') {
-                const colSpan = canAccessActions ? 7 : 6;
+                const colSpan = (canAccessActions ? 8 : 7) + (isSelectionModeActive ? 1 : 0);
                 tbody.innerHTML = `<tr><td colspan="${colSpan}" style="text-align:center;color:var(--text-muted);padding:20px;">No requests found.</td></tr>`;
             }
+
+            updateSelectionUI();
         }
 
         function updateStatusSummary() {

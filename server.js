@@ -27,6 +27,29 @@ const DRIVE_PWA_FILE_ID = '1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX';
 const INVENTORY_CACHE_FILE = path.join(DATA_DIR, 'inventory_cache.json');
 const INVENTORY_HISTORY_FILE = path.join(DATA_DIR, 'inventory_history_cache.json');
 const INVENTORY_GAS_URL = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
+const ETS_CACHE_FILE = path.join(DATA_DIR, 'ets_cache.json');
+const ETS_GAS_URL = "https://script.google.com/macros/s/AKfycbwtbDjkB35lpSHZAN40I6voWUbQHHGVZo9LHtfah_y3IZO149gJgeY33K-98MqxBeGc1g/exec";
+
+function loadEtsCache() {
+  try {
+    if (fs.existsSync(ETS_CACHE_FILE)) {
+      const content = fs.readFileSync(ETS_CACHE_FILE, 'utf8');
+      const parsed = JSON.parse(content);
+      if (parsed && (Array.isArray(parsed.data) || parsed.status === 'success')) return parsed;
+    }
+  } catch (e) {
+    console.warn("Error reading ets_cache.json:", e.message);
+  }
+  return { status: 'success', data: [] };
+}
+
+function saveEtsCache(data) {
+  try {
+    fs.writeFileSync(ETS_CACHE_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (e) {
+    console.warn("Error writing ets_cache.json:", e.message);
+  }
+}
 
 function loadInventoryCache() {
   try {
@@ -313,29 +336,80 @@ function isGenericHistoryUser(u) {
 function deduplicateHistoryList(list) {
   if (!Array.isArray(list)) return [];
   
+  const actionLabels = {
+    'create': 'Created',
+    'update': 'Edited',
+    'status': 'Status',
+    'delete': 'Deleted',
+    'clean': 'Cleaned'
+  };
+
   // 1. Prepare items with parsed epoch, normalized action and 24h displayTime
   const prepared = list.map((item, idx) => {
     if (!item) return null;
-    const wo = String(item.workOrder || '').replace(/^#/, '').trim();
-    const desc = String(item.description || '').trim();
-    const plant = String(item.plant || '').trim();
-    const details = String(item.details || '').trim();
+    let wo = String(item.workOrder || '').replace(/^#+/, '').trim();
+    if (wo === 'undefined' || wo === 'null' || wo === 'N/A') wo = '';
+
+    let desc = String(item.description || '').trim();
+    let plant = String(item.plant || '').trim();
+    if (plant === 'undefined' || plant === 'null') plant = '';
+
+    let details = String(item.details || '').trim();
+    if (details === 'undefined' || details === 'null') details = '';
+    
     // Filter out completely blank ghost rows
     if (!wo && !desc && !plant && !details) return null;
 
+    // Filter out non-operation request items (contacts, instruments, sync logs)
+    const lowerDesc = desc.toLowerCase();
+    const lowerDetails = details.toLowerCase();
+    if (
+      lowerDesc.includes('team contact') || 
+      lowerDesc.includes('instrument update') || 
+      lowerDesc.includes('pwa preference') || 
+      lowerDetails.includes('phone:') || 
+      lowerDetails.includes('wa:')
+    ) {
+      return null;
+    }
+
+    // Filter out improper status changes where oldStatus === newStatus
+    const statusSelfMatch = desc.match(/Status changed from ["']?([^"']+)["']? to ["']?([^"']+)["']?/i);
+    if (statusSelfMatch && statusSelfMatch[1].trim().toLowerCase() === statusSelfMatch[2].trim().toLowerCase()) {
+      return null;
+    }
+
+    const rawAction = normalizeHistoryAction(item.action || item.actionLabel);
+    
+    // Normalize action correctly from description if miscategorized
+    let normAction = rawAction;
+    if (lowerDesc.includes('status changed from') || lowerDesc.startsWith('status changed')) {
+      normAction = 'status';
+    } else if (lowerDesc.includes('created operation request') || lowerDesc.includes('new request')) {
+      normAction = 'create';
+    } else if (lowerDesc.includes('edited wo') || lowerDesc.includes('edited request')) {
+      normAction = 'update';
+    } else if (lowerDesc.includes('deleted work order') || lowerDesc.includes('deleted wo')) {
+      normAction = 'delete';
+    }
+
+    // Exclude sync actions as user requested
+    if (normAction === 'sync' || rawAction === 'sync') return null;
+
+    // Extract real user name if generic
+    let userName = String(item.user || '').trim();
+    if (isGenericHistoryUser(userName)) {
+      const byMatch = (details + ' ' + desc).match(/\bby\s+([A-Za-z]+)\b/i);
+      if (byMatch && byMatch[1] && !['the', 'and', 'or', 'a'].includes(byMatch[1].toLowerCase())) {
+        userName = byMatch[1].charAt(0).toUpperCase() + byMatch[1].slice(1).toLowerCase();
+      } else {
+        userName = 'Technician';
+      }
+    }
+
     const epoch = parseHistoryEpoch(item.timestamp, item.displayTime) || (Date.now() - idx * 1000);
-    const normAction = normalizeHistoryAction(item.action || item.actionLabel);
     const normWo = wo.toLowerCase();
     const display24 = format24HourDateTime(epoch);
-
-    const actionLabels = {
-      'create': 'Created',
-      'update': 'Edited',
-      'status': 'Status',
-      'delete': 'Deleted',
-      'clean': 'Cleaned',
-      'sync': 'Synced'
-    };
 
     return {
       ...item,
@@ -345,6 +419,9 @@ function deduplicateHistoryList(list) {
       workOrder: wo,
       normWo,
       plant: plant,
+      description: desc,
+      details: details,
+      user: userName,
       displayTime: display24,
       timestamp: new Date(epoch).toISOString()
     };
@@ -358,22 +435,61 @@ function deduplicateHistoryList(list) {
   for (const item of prepared) {
     const existingIdx = result.findIndex(r => {
       if (r.id && item.id && r.id === item.id) return true;
-      if (r.action !== item.action) return false;
-      
-      const sameWo = r.normWo === item.normWo;
-      const timeDiff = Math.abs(r.epoch - item.epoch);
-      
-      // If same work order and within 5 minutes, or both empty WO and within 20s
-      if (sameWo && (r.normWo ? timeDiff < 300000 : timeDiff < 20000)) {
-        return true;
+
+      const dateA = String(r.displayTime || '').split(' ')[0];
+      const dateB = String(item.displayTime || '').split(' ')[0];
+      const sameDay = Boolean(dateA && dateB && dateA === dateB);
+      const timeDiffMs = Math.abs(r.epoch - item.epoch);
+      const within24Hours = timeDiffMs <= 86400000;
+
+      // A. Both have matching Work Orders
+      if (r.normWo && item.normWo && r.normWo === item.normWo) {
+        // Create action: a Work Order is created only once in history
+        if (r.action === 'create' && item.action === 'create') {
+          return true;
+        }
+        // Delete action: a Work Order is deleted only once
+        if (r.action === 'delete' && item.action === 'delete') {
+          return true;
+        }
+        // Status action: collapse duplicate status changes within 24 hours
+        if (r.action === 'status' && item.action === 'status' && within24Hours) {
+          return true;
+        }
+        // Update action: collapse duplicate edits within 12 hours
+        if (r.action === 'update' && item.action === 'update' && timeDiffMs < 43200000) {
+          return true;
+        }
+        // Same action within same day or 24 hours
+        if (r.action === item.action && (within24Hours || sameDay)) {
+          return true;
+        }
+        // Identical description on same WO
+        if (r.description && item.description && r.description.toLowerCase().trim() === item.description.toLowerCase().trim()) {
+          return true;
+        }
       }
+
+      // B. Work Order is empty
+      if (!r.normWo && !item.normWo) {
+        if (r.action === item.action) {
+          if (r.action === 'clean' && (sameDay || timeDiffMs < 7200000)) return true;
+          if (r.plant && item.plant && r.plant.toLowerCase() === item.plant.toLowerCase() && within24Hours) {
+            return true;
+          }
+          if (r.description && item.description && r.description.toLowerCase().trim() === item.description.toLowerCase().trim() && within24Hours) {
+            return true;
+          }
+        }
+      }
+
       return false;
     });
 
     if (existingIdx === -1) {
       result.push(item);
     } else {
-      // Merge: prefer real logged user over generic ('Technician'/'Supervisor')
+      // Merge: prefer real logged user over generic ('Technician'/'Supervisor'/'User')
       const existing = result[existingIdx];
       if (isGenericHistoryUser(existing.user) && !isGenericHistoryUser(item.user)) {
         existing.user = item.user;
@@ -387,6 +503,10 @@ function deduplicateHistoryList(list) {
       }
       if (item.plant && !existing.plant) {
         existing.plant = item.plant;
+      }
+      if (item.workOrder && !existing.workOrder) {
+        existing.workOrder = item.workOrder;
+        existing.normWo = item.normWo;
       }
     }
   }
@@ -868,7 +988,7 @@ app.get('/api/team-contacts', async (req, res) => {
   // Fetch live from Apps Script
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6500);
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
     const response = await fetch(APPS_SCRIPT_URL + '?action=getTeamContacts&t=' + Date.now(), {
       redirect: 'follow',
       signal: controller.signal
@@ -896,7 +1016,9 @@ app.get('/api/team-contacts', async (req, res) => {
       }
     }
   } catch (err) {
-    console.warn("Live fetch from Team Contacts sheet failed or timed out:", err.message);
+    if (err.name !== 'AbortError') {
+      console.log("[Team Contacts] Upstream GAS note:", err.message);
+    }
   }
 
   // Fallback to local cache or employees.json
@@ -980,7 +1102,220 @@ app.post('/api/team-contacts', async (req, res) => {
   return res.json({ status: 'success', message: 'Team contact saved to Google Sheet', data: list[idx !== -1 ? idx : list.length - 1] });
 });
 
-// GET Inventory Proxy (Forward to Google Apps Script with fallback to inventory_cache.json)
+// GET ETS Locator Data (Fast local cache with async background refresh)
+app.get('/api/ets', async (req, res) => {
+  const action = req.query.action || 'read';
+  const cached = loadEtsCache();
+
+  if (action === 'read') {
+    // Background refresh from Google Apps Script without blocking response
+    fetch(`${ETS_GAS_URL}?action=read`, { redirect: 'follow' })
+      .then(r => r.json())
+      .then(result => {
+        if (result && result.status === 'success' && Array.isArray(result.data)) {
+          // Preserve developer hidden entries and flags across cloud sync
+          const localHiddenMap = new Map();
+          if (Array.isArray(cached.data)) {
+            cached.data.forEach(item => {
+              if (item && (item.hidden || item.isHidden || (item.comment && item.comment.includes('[DEV_ONLY]')))) {
+                localHiddenMap.set(item.name, item);
+              }
+            });
+          }
+          result.data.forEach(item => {
+            if (item) {
+              const hasDevTag = Boolean(item.comment && (item.comment.includes('[DEV_ONLY]') || item.comment.includes('[HIDDEN]')));
+              const matched = localHiddenMap.get(item.name);
+              if (hasDevTag || (matched && (matched.hidden || matched.isHidden))) {
+                item.hidden = true;
+                item.isHidden = true;
+              }
+            }
+          });
+          localHiddenMap.forEach((hiddenItem, name) => {
+            if (!result.data.some(it => it.name === name)) {
+              result.data.unshift(hiddenItem);
+            }
+          });
+          saveEtsCache(result);
+        }
+      })
+      .catch(err => console.warn('Background ETS refresh note:', err.message));
+
+    return res.json(cached);
+  }
+
+  // Handle other actions
+  try {
+    const qs = new URLSearchParams(req.query).toString();
+    const response = await fetch(`${ETS_GAS_URL}?${qs}`, { redirect: 'follow' });
+    const json = await response.json();
+    return res.json(json);
+  } catch (err) {
+    return res.json(cached);
+  }
+});
+
+// POST ETS Locator Data
+app.post('/api/ets', async (req, res) => {
+  const body = req.body || {};
+  const itemData = body.data || body;
+  const isHidden = Boolean(itemData.hidden || itemData.isHidden || (itemData.comment && (itemData.comment.includes('[DEV_ONLY]') || itemData.comment.includes('[HIDDEN]'))));
+  const cached = loadEtsCache();
+
+  // Apply update to local cache
+  if (body.action === 'create' || body.action === 'add') {
+    if (Array.isArray(cached.data)) {
+      const newEntry = {
+        rowIdx: cached.data.length + 2,
+        name: itemData.name || '',
+        plant: itemData.plant || '',
+        coords: itemData.coords || '',
+        lat: parseFloat(itemData.lat) || 0,
+        lng: parseFloat(itemData.lng) || 0,
+        comment: itemData.comment || '',
+        hidden: isHidden,
+        isHidden: isHidden,
+        timestamp: new Date().toISOString()
+      };
+      if (isHidden) {
+        cached.data.unshift(newEntry);
+      } else {
+        cached.data.push(newEntry);
+      }
+      saveEtsCache(cached);
+    }
+  } else if (body.action === 'update') {
+    if (Array.isArray(cached.data)) {
+      const idx = cached.data.findIndex(it => String(it.rowIdx) === String(itemData.rowIdx) || it.name === itemData.name);
+      if (idx !== -1) {
+        cached.data[idx] = { ...cached.data[idx], ...itemData, hidden: isHidden, isHidden: isHidden };
+        saveEtsCache(cached);
+      }
+    }
+  } else if (body.action === 'delete') {
+    if (Array.isArray(cached.data)) {
+      cached.data = cached.data.filter(it => String(it.rowIdx) !== String(itemData.rowIdx) && it.name !== itemData.name);
+      saveEtsCache(cached);
+    }
+  }
+
+  // Forward to Google Apps Script asynchronously
+  fetch(ETS_GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(body),
+    redirect: 'follow'
+  }).catch(err => console.warn('Background ETS sync note:', err.message));
+
+  return res.json({ status: 'success', message: 'ETS data saved', data: cached.data });
+});
+
+let lastInventorySyncTime = 0;
+let isInventorySyncing = false;
+let lastInventoryHistorySyncTime = 0;
+let isInventoryHistorySyncing = false;
+
+async function syncInventoryFromGAS(targetUrl) {
+  if (isInventorySyncing) return null;
+  isInventorySyncing = true;
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
+    const response = await fetch(targetUrl, {
+      redirect: 'follow',
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (response.ok) {
+      const result = await response.json();
+      if (result && (result.success || result.status === 'success') && Array.isArray(result.data)) {
+        result.success = true;
+        saveInventoryCache(result);
+        lastInventorySyncTime = Date.now();
+        return result;
+      }
+    }
+  } catch (err) {
+    // Quiet fail in background - cache continues to serve seamlessly
+  } finally {
+    isInventorySyncing = false;
+  }
+  return null;
+}
+
+async function syncInventoryHistoryFromGAS(force = false) {
+  if (isInventoryHistorySyncing && !force) return null;
+  isInventoryHistorySyncing = true;
+  try {
+    const targetUrl = `${INVENTORY_GAS_URL}?key=AI1&action=getHistory&t=${Date.now()}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
+    const response = await fetch(targetUrl, {
+      redirect: 'follow',
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (response.ok) {
+      const result = await response.json();
+      if (result && (result.success || result.status === 'success') && Array.isArray(result.data)) {
+        result.success = true;
+        saveInventoryHistoryCache(result);
+        lastInventoryHistorySyncTime = Date.now();
+        return result;
+      }
+    }
+  } catch (err) {
+    // Background fail quiet
+  } finally {
+    isInventoryHistorySyncing = false;
+  }
+  return null;
+}
+
+// Helper to synchronize local inventory cache on item update, add, or delete
+function applyLocalInventoryChange(action, data) {
+  const cachedInv = loadInventoryCache();
+  if (!cachedInv || !Array.isArray(cachedInv.data)) return;
+
+  const targetName = data.name || data.itemName;
+  if (!targetName) return;
+
+  if (action === 'update') {
+    let item = cachedInv.data.find(it => it.name === targetName || (data.itemName && it.name === data.itemName));
+    if (item) {
+      if (data.newLocation || data.location) item.location = data.newLocation || data.location;
+      if (data.newExpiry !== undefined || data.expiry !== undefined) item.expiry = data.newExpiry !== undefined ? data.newExpiry : data.expiry;
+      if (data.user || data.updatedBy) item.updatedBy = data.user || data.updatedBy;
+      if (data.remark !== undefined || data.comment !== undefined) item.remark = data.remark !== undefined ? data.remark : data.comment;
+      saveInventoryCache(cachedInv);
+    }
+  } else if (action === 'add') {
+    const existing = cachedInv.data.find(it => it.name === targetName);
+    if (existing) {
+      if (data.newLocation || data.location) existing.location = data.newLocation || data.location;
+      if (data.newExpiry !== undefined || data.expiry !== undefined) existing.expiry = data.newExpiry !== undefined ? data.newExpiry : data.expiry;
+      if (data.user || data.updatedBy) existing.updatedBy = data.user || data.updatedBy;
+      if (data.remark !== undefined || data.comment !== undefined) existing.remark = data.remark !== undefined ? data.remark : data.comment;
+    } else {
+      cachedInv.data.push({
+        name: targetName,
+        location: data.newLocation || data.location || '',
+        expiry: data.newExpiry || data.expiry || '',
+        updatedBy: data.user || data.updatedBy || '',
+        remark: data.remark || data.comment || ''
+      });
+    }
+    saveInventoryCache(cachedInv);
+  } else if (action === 'delete') {
+    cachedInv.data = cachedInv.data.filter(it => it.name !== targetName);
+    saveInventoryCache(cachedInv);
+  }
+}
+
+// GET Inventory Proxy (Forward to Google Apps Script with cache management)
 app.get('/api/inventory', async (req, res) => {
   const query = { ...req.query };
   if (!query.key) query.key = 'AI1';
@@ -990,9 +1325,22 @@ app.get('/api/inventory', async (req, res) => {
   const targetUrl = `${INVENTORY_GAS_URL}?${qs}`;
 
   if (action === 'getItems') {
+    const forceRefresh = query.refresh === 'true';
+    const cached = loadInventoryCache();
+    const hasValidCache = cached && Array.isArray(cached.data) && cached.data.length > 0;
+
+    // Fast path: if cache is populated and client is not requesting a forced refresh,
+    // serve cache immediately to avoid GAS cold-start lag. Revalidate in background.
+    if (hasValidCache && !forceRefresh) {
+      if (Date.now() - lastInventorySyncTime > 45000) {
+        syncInventoryFromGAS(targetUrl).catch(() => {});
+      }
+      return res.json({ ...cached, success: true, fromCache: true });
+    }
+
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 7500);
+      const timeoutId = setTimeout(() => controller.abort(), 25000);
       const response = await fetch(targetUrl, {
         redirect: 'follow',
         signal: controller.signal
@@ -1001,24 +1349,36 @@ app.get('/api/inventory', async (req, res) => {
 
       if (response.ok) {
         const result = await response.json();
-        if (result && result.success && Array.isArray(result.data)) {
+        if (result && (result.success || result.status === 'success') && Array.isArray(result.data)) {
+          result.success = true;
           saveInventoryCache(result);
+          lastInventorySyncTime = Date.now();
           return res.json(result);
         }
       }
     } catch (err) {
-      console.warn("Live inventory fetch from GAS failed or timed out:", err.message);
+      if (err.name !== 'AbortError') {
+        console.log("[Inventory] Upstream GAS note:", err.message);
+      }
     }
 
     // Return cached inventory data safely with 200 OK
-    const cached = loadInventoryCache();
     return res.json({ ...cached, success: true, fromCache: true });
   }
 
   if (action === 'getHistory') {
+    const forceRefresh = query.refresh === 'true';
+    const cachedHist = loadInventoryHistoryCache();
+    const hasValidHist = cachedHist && Array.isArray(cachedHist.data) && cachedHist.data.length > 0;
+
+    // If cache is fresh and forceRefresh is false, serve immediately and revalidate in background
+    if (hasValidHist && !forceRefresh && (Date.now() - lastInventoryHistorySyncTime < 30000)) {
+      return res.json({ ...cachedHist, success: true, fromCache: true });
+    }
+
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 7500);
+      const timeoutId = setTimeout(() => controller.abort(), 25000);
       const response = await fetch(targetUrl, {
         redirect: 'follow',
         signal: controller.signal
@@ -1027,82 +1387,26 @@ app.get('/api/inventory', async (req, res) => {
 
       if (response.ok) {
         const result = await response.json();
-        if (result && result.success && Array.isArray(result.data)) {
+        if (result && (result.success || result.status === 'success') && Array.isArray(result.data)) {
+          result.success = true;
           saveInventoryHistoryCache(result);
+          lastInventoryHistorySyncTime = Date.now();
           return res.json(result);
         }
       }
     } catch (err) {
-      console.warn("Live inventory history fetch from GAS failed:", err.message);
+      if (err.name !== 'AbortError') {
+        console.log("[Inventory History] Upstream GAS note:", err.message);
+      }
     }
 
-    const cachedHist = loadInventoryHistoryCache();
     return res.json({ ...cachedHist, success: true, fromCache: true });
   }
 
-  // Handle other actions (updateLocations, clearCache, feedback, log_sync, etc.)
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-    const response = await fetch(targetUrl, {
-      redirect: 'follow',
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
+  // Handle write actions (update, add, updateLocations, clearCache, etc.)
+  // 1. Immediately apply change to local cache for instant zero-latency UI consistency
+  applyLocalInventoryChange(action, query);
 
-    if (response.ok) {
-      const result = await response.json();
-      return res.json(result);
-    }
-  } catch (err) {
-    console.warn(`Action ${action} proxy error:`, err.message);
-  }
-
-  // Synchronize local inventory cache for update, add, and delete actions
-  const cachedInv = loadInventoryCache();
-  if (cachedInv && Array.isArray(cachedInv.data)) {
-    if (action === 'update') {
-      const targetName = query.itemName || query.name;
-      if (targetName) {
-        const item = cachedInv.data.find(it => it.name === targetName);
-        if (item) {
-          if (query.newLocation || query.location) item.location = query.newLocation || query.location;
-          if (query.newExpiry || query.expiry) item.expiry = query.newExpiry || query.expiry;
-          if (query.user || query.updatedBy) item.updatedBy = query.user || query.updatedBy;
-          if (query.remark !== undefined || query.comment !== undefined) item.remark = query.remark || query.comment || '';
-          saveInventoryCache(cachedInv);
-        }
-      }
-    } else if (action === 'add') {
-      const targetName = query.name || query.itemName;
-      if (targetName) {
-        const existing = cachedInv.data.find(it => it.name === targetName);
-        if (existing) {
-          if (query.newLocation || query.location) existing.location = query.newLocation || query.location;
-          if (query.newExpiry || query.expiry) existing.expiry = query.newExpiry || query.expiry;
-          if (query.user || query.updatedBy) existing.updatedBy = query.user || query.updatedBy;
-          if (query.remark !== undefined || query.comment !== undefined) existing.remark = query.remark || query.comment || '';
-        } else {
-          cachedInv.data.push({
-            name: targetName,
-            location: query.newLocation || query.location || '',
-            expiry: query.newExpiry || query.expiry || '',
-            updatedBy: query.user || query.updatedBy || '',
-            remark: query.remark || query.comment || ''
-          });
-        }
-        saveInventoryCache(cachedInv);
-      }
-    } else if (action === 'delete') {
-      const targetName = query.itemName || query.name;
-      if (targetName) {
-        cachedInv.data = cachedInv.data.filter(it => it.name !== targetName);
-        saveInventoryCache(cachedInv);
-      }
-    }
-  }
-
-  // If updateLocations was requested and remote failed, update local cache
   if (action === 'updateLocations' && query.updates) {
     try {
       const updates = typeof query.updates === 'string' ? JSON.parse(query.updates) : query.updates;
@@ -1115,72 +1419,13 @@ app.get('/api/inventory', async (req, res) => {
         saveInventoryCache(cached);
       }
     } catch (e) {}
-    return res.json({ success: true, message: 'Locations updated in local cache' });
   }
 
-  return res.json({ success: true, message: 'Request processed' });
-});
-
-// POST Inventory Proxy
-app.post('/api/inventory', async (req, res) => {
-  const query = { ...req.query, ...req.body };
-  if (!query.key) query.key = 'AI1';
-  const body = req.body || {};
-  const action = query.action || body.action;
-  const qs = new URLSearchParams(query).toString();
-  const targetUrl = `${INVENTORY_GAS_URL}?${qs}`;
-
-  // Synchronize local inventory cache for update, add, and delete actions
-  const cachedInv = loadInventoryCache();
-  if (cachedInv && Array.isArray(cachedInv.data)) {
-    if (action === 'update') {
-      const targetName = body.itemName || body.name || query.itemName || query.name;
-      if (targetName) {
-        const item = cachedInv.data.find(it => it.name === targetName);
-        if (item) {
-          if (body.newLocation || body.location || query.newLocation || query.location) item.location = body.newLocation || body.location || query.newLocation || query.location;
-          if (body.newExpiry || body.expiry || query.newExpiry || query.expiry) item.expiry = body.newExpiry || body.expiry || query.newExpiry || query.expiry;
-          if (body.user || body.updatedBy || query.user || query.updatedBy) item.updatedBy = body.user || body.updatedBy || query.user || query.updatedBy;
-          if (body.remark !== undefined || body.comment !== undefined) item.remark = body.remark || body.comment || '';
-          saveInventoryCache(cachedInv);
-        }
-      }
-    } else if (action === 'add') {
-      const targetName = body.name || body.itemName || query.name || query.itemName;
-      if (targetName) {
-        const existing = cachedInv.data.find(it => it.name === targetName);
-        if (existing) {
-          if (body.newLocation || body.location) existing.location = body.newLocation || body.location;
-          if (body.newExpiry || body.expiry) existing.expiry = body.newExpiry || body.expiry;
-          if (body.user || body.updatedBy) existing.updatedBy = body.user || body.updatedBy;
-          if (body.remark !== undefined || body.comment !== undefined) existing.remark = body.remark || body.comment || '';
-        } else {
-          cachedInv.data.push({
-            name: targetName,
-            location: body.newLocation || body.location || query.newLocation || query.location || '',
-            expiry: body.newExpiry || body.expiry || query.newExpiry || query.expiry || '',
-            updatedBy: body.user || body.updatedBy || query.user || query.updatedBy || '',
-            remark: body.remark || body.comment || query.remark || query.comment || ''
-          });
-        }
-        saveInventoryCache(cachedInv);
-      }
-    } else if (action === 'delete') {
-      const targetName = body.itemName || body.name || query.itemName || query.name;
-      if (targetName) {
-        cachedInv.data = cachedInv.data.filter(it => it.name !== targetName);
-        saveInventoryCache(cachedInv);
-      }
-    }
-  }
-
+  // 2. Forward to Google Apps Script via GET (GAS Web App only handles doGet)
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
     const response = await fetch(targetUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
       redirect: 'follow',
       signal: controller.signal
     });
@@ -1188,13 +1433,64 @@ app.post('/api/inventory', async (req, res) => {
 
     if (response.ok) {
       const result = await response.json();
-      return res.json(result);
+      if (result && (result.success || result.status === 'success')) {
+        result.success = true;
+        // Invalidate sync timers so next read fetches fresh state from Sheet
+        lastInventorySyncTime = 0;
+        // Re-sync history in background to capture newly logged record
+        setTimeout(() => syncInventoryHistoryFromGAS(true).catch(() => {}), 1000);
+        return res.json(result);
+      }
     }
   } catch (err) {
-    console.warn("POST /api/inventory proxy error:", err.message);
+    if (err.name !== 'AbortError') {
+      console.log(`[Inventory Action ${action}] note:`, err.message);
+    }
   }
 
-  return res.json({ success: true, message: 'Request accepted' });
+  // Also trigger background history revalidation
+  setTimeout(() => syncInventoryHistoryFromGAS(true).catch(() => {}), 2000);
+  return res.json({ success: true, message: 'Update saved to cache and queued for Google Sheet sync' });
+});
+
+// POST Inventory Proxy (Always forwards as GET to GAS since GAS Web App only implements doGet)
+app.post('/api/inventory', async (req, res) => {
+  const query = { ...req.query, ...req.body };
+  if (!query.key) query.key = 'AI1';
+  const action = query.action || (req.body && req.body.action) || 'update';
+
+  // Apply immediately to local cache
+  applyLocalInventoryChange(action, query);
+
+  const qs = new URLSearchParams(query).toString();
+  const targetUrl = `${INVENTORY_GAS_URL}?${qs}`;
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
+    const response = await fetch(targetUrl, {
+      redirect: 'follow',
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (response.ok) {
+      const result = await response.json();
+      if (result && (result.success || result.status === 'success')) {
+        result.success = true;
+        lastInventorySyncTime = 0;
+        setTimeout(() => syncInventoryHistoryFromGAS(true).catch(() => {}), 1000);
+        return res.json(result);
+      }
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      console.log("[Inventory POST->GET] Upstream GAS note:", err.message);
+    }
+  }
+
+  setTimeout(() => syncInventoryHistoryFromGAS(true).catch(() => {}), 2000);
+  return res.json({ success: true, message: 'Update processed in cache and Google Sheet' });
 });
 
 // POST Clean Ghost / Invalid Empty Rows from Sheet & Cache

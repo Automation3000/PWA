@@ -1,53 +1,51 @@
 [
   {
-    "id": "hist_1790415119736_90",
-    "timestamp": "2026-09-26T09:31:59.736Z",
-    "displayTime": "26.09.2026 09:31",
+    "id": "cloud_hist_7",
+    "timestamp": "2026-09-26T13:32:01.000Z",
+    "displayTime": "26.09.2026 13:32",
     "action": "create",
-    "actionLabel": "Created",
     "workOrder": "TEST999",
     "plant": "AD-032",
     "description": "Created operation request for AD-032 (WO #TEST999)",
-    "details": "",
     "user": "Majeed",
-    "badgeColor": "#1a73e8"
+    "details": "",
+    "actionLabel": "Created"
   },
   {
-    "id": "hist_1790331891201_868",
-    "timestamp": "2026-09-25T10:24:51.201Z",
-    "displayTime": "25.09.2026 10:24",
+    "id": "cloud_hist_6",
+    "timestamp": "2026-09-26T11:10:04.000Z",
+    "displayTime": "26.09.2026 11:10",
+    "action": "status",
+    "workOrder": "",
+    "plant": "AD-033",
+    "description": "Status changed from Completed to Pending",
+    "user": "Yoosaf",
+    "details": "",
+    "actionLabel": "Status"
+  },
+  {
+    "id": "cloud_hist_5",
+    "timestamp": "2026-09-25T14:39:54.000Z",
+    "displayTime": "25.09.2026 14:39",
     "action": "create",
-    "actionLabel": "Created",
+    "workOrder": "12345",
+    "plant": "AD-032",
+    "description": "Created operation request for AD-032 (WO #12345)",
+    "user": "Majeed",
+    "details": "Urgent",
+    "actionLabel": "Created"
+  },
+  {
+    "id": "cloud_hist_3",
+    "timestamp": "2026-09-25T14:24:53.000Z",
+    "displayTime": "25.09.2026 14:24",
+    "action": "create",
     "workOrder": "TEST_9999",
     "plant": "ST-01",
     "description": "Created operation request for ST-01 (WO #TEST_9999)",
-    "details": "",
     "user": "Tester",
-    "badgeColor": "#1a73e8"
-  },
-  {
-    "id": "cloud_hist_2",
-    "timestamp": "2026-09-24T19:55:09.000Z",
-    "displayTime": "24.09.2026 19:55",
-    "action": "sync",
-    "workOrder": "",
-    "plant": "",
-    "description": "Updated live records: 1 new",
-    "user": "Technician",
     "details": "",
-    "actionLabel": "Synced"
-  },
-  {
-    "id": "cloud_hist_1",
-    "timestamp": "2026-09-24T14:46:49.000Z",
-    "displayTime": "24.09.2026 14:46",
-    "action": "sync",
-    "workOrder": "",
-    "plant": "AD-032",
-    "description": "Updated live records: 1 new",
-    "user": "Technician",
-    "details": "Urgent",
-    "actionLabel": "Synced"
+    "actionLabel": "Created"
   },
   {
     "id": "cloud_hist_61",
@@ -58,19 +56,7 @@
     "plant": "AD-027",
     "description": "Created operation request for AD-027 (WO #WO-991204)",
     "user": "Majeed",
-    "details": "",
-    "actionLabel": "Created"
-  },
-  {
-    "id": "cloud_hist_59",
-    "timestamp": "2026-09-21T18:36:09.000Z",
-    "displayTime": "21.09.2026 18:36",
-    "action": "create",
-    "workOrder": "12345",
-    "plant": "TM-001",
-    "description": "Created operation request for TM-001 (WO #12345)",
-    "user": "Majeed",
-    "details": "",
+    "details": "okay",
     "actionLabel": "Created"
   },
   {
@@ -93,7 +79,7 @@
     "workOrder": "WO-991204",
     "plant": "AD-032",
     "description": "Deleted Work Order #WO-991204",
-    "user": "Supervisor",
+    "user": "Bibin",
     "details": "",
     "actionLabel": "Deleted"
   },
@@ -110,42 +96,6 @@
     "actionLabel": "Edited"
   },
   {
-    "id": "cloud_hist_40",
-    "timestamp": "2026-09-21T16:05:22.000Z",
-    "displayTime": "21.09.2026 16:05",
-    "action": "update",
-    "workOrder": "",
-    "plant": "",
-    "description": "Updated Team Contact #40311 (Jerlin)",
-    "user": "User",
-    "details": "Phone: +971 567438964, WA: +971 561839559, Email: jcabral@tabreed.ae",
-    "actionLabel": "Edited"
-  },
-  {
-    "id": "cloud_hist_36",
-    "timestamp": "2026-09-21T16:03:47.000Z",
-    "displayTime": "21.09.2026 16:03",
-    "action": "update",
-    "workOrder": "",
-    "plant": "",
-    "description": "Updated Team Contact #40311 (Jerlin)",
-    "user": "User",
-    "details": "Phone: +971 999, WhatsApp: +971 561839559, Email: jcabral@tabreed.ae",
-    "actionLabel": "Edited"
-  },
-  {
-    "id": "cloud_hist_32",
-    "timestamp": "2026-09-21T15:49:41.000Z",
-    "displayTime": "21.09.2026 15:49",
-    "action": "sync",
-    "workOrder": "",
-    "plant": "",
-    "description": "Linked & populated Team Contacts and History tabs in Google Sheet",
-    "user": "Majeed",
-    "details": "",
-    "actionLabel": "Synced"
-  },
-  {
     "id": "cloud_hist_31",
     "timestamp": "2026-09-21T15:49:17.000Z",
     "displayTime": "21.09.2026 15:49",
@@ -156,66 +106,6 @@
     "user": "Majeed",
     "details": "",
     "actionLabel": "Cleaned"
-  },
-  {
-    "id": "cloud_hist_30",
-    "timestamp": "2026-09-21T15:48:46.000Z",
-    "displayTime": "21.09.2026 15:48",
-    "action": "sync",
-    "workOrder": "",
-    "plant": "",
-    "description": "Fetched 6 live records directly from Cloud",
-    "user": "Majeed",
-    "details": "",
-    "actionLabel": "Synced"
-  },
-  {
-    "id": "cloud_hist_29",
-    "timestamp": "2026-09-21T15:47:53.000Z",
-    "displayTime": "21.09.2026 15:47",
-    "action": "clean",
-    "workOrder": "",
-    "plant": "",
-    "description": "Removed empty ghost rows and fixed IDs in Google Sheet",
-    "user": "Majeed",
-    "details": "",
-    "actionLabel": "Cleaned"
-  },
-  {
-    "id": "cloud_hist_28",
-    "timestamp": "2026-09-21T15:36:40.000Z",
-    "displayTime": "21.09.2026 15:36",
-    "action": "clean",
-    "workOrder": "",
-    "plant": "",
-    "description": "Removed empty ghost rows and fixed IDs in Google Sheet",
-    "user": "Majeed",
-    "details": "",
-    "actionLabel": "Cleaned"
-  },
-  {
-    "id": "cloud_hist_22",
-    "timestamp": "2026-09-21T15:35:38.000Z",
-    "displayTime": "21.09.2026 15:35",
-    "action": "sync",
-    "workOrder": "",
-    "plant": "",
-    "description": "Linked & populated Team Contacts and History tabs in Google Sheet",
-    "user": "Majeed",
-    "details": "",
-    "actionLabel": "Synced"
-  },
-  {
-    "id": "cloud_hist_13",
-    "timestamp": "2026-09-21T15:32:58.000Z",
-    "displayTime": "21.09.2026 15:32",
-    "action": "sync",
-    "workOrder": "",
-    "plant": "",
-    "description": "Fetched 6 live records directly from Cloud",
-    "user": "Technician",
-    "details": "",
-    "actionLabel": "Synced"
   },
   {
     "id": "hist_1790002999911_620",
@@ -229,103 +119,5 @@
     "details": "",
     "user": "Bibin",
     "badgeColor": "#dc2626"
-  },
-  {
-    "id": "hist_1790002990731_805",
-    "timestamp": "2026-09-21T15:03:10.731Z",
-    "displayTime": "21.09.2026 15:03",
-    "action": "delete",
-    "actionLabel": "Deleted",
-    "workOrder": "WO-991204",
-    "plant": "AD-027",
-    "description": "Deleted Work Order #WO-991204",
-    "details": "",
-    "user": "Bibin",
-    "badgeColor": "#dc2626"
-  },
-  {
-    "id": "hist_1790002737857_93",
-    "timestamp": "2026-09-21T14:58:57.857Z",
-    "displayTime": "21.09.2026 14:58",
-    "action": "clean",
-    "actionLabel": "Cleaned",
-    "workOrder": "",
-    "plant": "",
-    "description": "Removed empty ghost rows and fixed IDs in Cloud",
-    "details": "",
-    "user": "Majeed",
-    "badgeColor": "#e11d48"
-  },
-  {
-    "id": "cloud_hist_12",
-    "timestamp": "2026-09-20T18:13:13.000Z",
-    "displayTime": "20.09.2026 18:13",
-    "action": "create",
-    "workOrder": "WO-991204",
-    "plant": "AD-032",
-    "description": "Created operation request for AD-032 (WO #WO-991204)",
-    "user": "Rajesh",
-    "details": "okay",
-    "actionLabel": "Created"
-  },
-  {
-    "id": "cloud_hist_10",
-    "timestamp": "2026-09-20T18:12:16.000Z",
-    "displayTime": "20.09.2026 18:12",
-    "action": "sync",
-    "workOrder": "",
-    "plant": "",
-    "description": "Fetched 5 live records directly from Cloud",
-    "user": "Majeed",
-    "details": "",
-    "actionLabel": "Synced"
-  },
-  {
-    "id": "cloud_hist_8",
-    "timestamp": "2026-09-20T18:09:56.000Z",
-    "displayTime": "20.09.2026 18:09",
-    "action": "sync",
-    "workOrder": "",
-    "plant": "",
-    "description": "Fetched 5 live records directly from Cloud",
-    "user": "Majeed",
-    "details": "",
-    "actionLabel": "Synced"
-  },
-  {
-    "id": "cloud_hist_6",
-    "timestamp": "2026-09-20T18:07:02.000Z",
-    "displayTime": "20.09.2026 18:07",
-    "action": "status",
-    "workOrder": "WO-991204",
-    "plant": "AD-032",
-    "description": "Status changed from Completed to Pending",
-    "user": "Supervisor",
-    "details": "",
-    "actionLabel": "Status"
-  },
-  {
-    "id": "cloud_hist_5",
-    "timestamp": "2026-09-20T18:06:51.000Z",
-    "displayTime": "20.09.2026 18:06",
-    "action": "update",
-    "workOrder": "WO-991204",
-    "plant": "AD-032",
-    "description": "ok niCe",
-    "user": "Technician",
-    "details": "Urgent",
-    "actionLabel": "Edited"
-  },
-  {
-    "id": "cloud_hist_3",
-    "timestamp": "2026-09-20T18:06:14.000Z",
-    "displayTime": "20.09.2026 18:06",
-    "action": "status",
-    "workOrder": "12345",
-    "plant": "AD-032",
-    "description": "Status changed from Requested to Completed",
-    "user": "Supervisor",
-    "details": "",
-    "actionLabel": "Status"
   }
 ]

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tabreed-pro-v19'; // v19: Centralized data/ directory support for JSON data files
+const CACHE_NAME = 'tabreed-pro-v20'; // v20: Offline ETS Locator & 2GIS direction support
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -8,8 +8,10 @@ const STATIC_ASSETS = [
   '/DocumentFolder.html',
   '/PM_Checklist_Generator.html',
   '/ETS_Locator.html',
+  '/themes.css',
   '/data/employees.json',
   '/employees.json',
+  '/data/ets_cache.json',
   '/manifest.json',
   '/icon-72.png',
   '/icon-96.png',
@@ -31,9 +33,15 @@ const STATIC_ASSETS = [
 // ==========================================
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
+    caches.open(CACHE_NAME).then(async cache => {
       console.log('[Service Worker] Caching Core Assets');
-      return cache.addAll(STATIC_ASSETS);
+      await Promise.allSettled(
+        STATIC_ASSETS.map(url =>
+          cache.add(url).catch(err => {
+            console.warn('[Service Worker] Optional asset cache skip:', url, err.message);
+          })
+        )
+      );
     })
   );
   self.skipWaiting();
@@ -65,8 +73,12 @@ self.addEventListener('fetch', event => {
   // Ignore non-GET requests
   if (event.request.method !== 'GET') return;
 
-  // Do NOT intercept /api/ routes or external Google Apps Script - let browser handle network natively
-  if (event.request.url.includes('/api/') || event.request.url.includes('script.google.com')) {
+  // Do NOT intercept /api/ routes, external Google Apps Script, or user content
+  if (
+    event.request.url.includes('/api/') ||
+    event.request.url.includes('script.google.com') ||
+    event.request.url.includes('googleusercontent.com')
+  ) {
     return;
   }
 
@@ -80,7 +92,7 @@ self.addEventListener('fetch', event => {
       fetch(event.request).then(networkResponse => {
         if (networkResponse && networkResponse.status === 200) {
           const cacheCopy = networkResponse.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, cacheCopy));
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, cacheCopy)).catch(() => {});
         }
         return networkResponse;
       }).catch(() => {
@@ -95,17 +107,19 @@ self.addEventListener('fetch', event => {
   // Static Assets (icons, styles, scripts): Cache-First with Network Fallback
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
-      const networkFetch = fetch(event.request).then(networkResponse => {
-        if (networkResponse && networkResponse.status === 200) {
-          const cacheCopy = networkResponse.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, cacheCopy));
-        }
-        return networkResponse;
-      }).catch(() => {
-        if (cachedResponse) return cachedResponse;
-        return Promise.reject('offline');
-      });
-      return cachedResponse || networkFetch;
+      if (cachedResponse) return cachedResponse;
+      return fetch(event.request)
+        .then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            const cacheCopy = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, cacheCopy)).catch(() => {});
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // Return a safe neutral response instead of Promise.reject to prevent unhandled Failed to fetch
+          return new Response('', { status: 503, statusText: 'Offline' });
+        });
     })
   );
 });

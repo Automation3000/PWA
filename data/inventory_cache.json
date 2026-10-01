@@ -5,8 +5,8 @@
       "name": "Pump-01 (1179)",
       "location": "Akbarsha",
       "expiry": "",
-      "updatedBy": "System",
-      "remark": ""
+      "updatedBy": "Majeed",
+      "remark": "Online Verified"
     },
     {
       "name": "Pump-02 (8085)",
@@ -73,17 +73,17 @@
     },
     {
       "name": "HotBox-04 (01239)",
-      "location": "AD-027",
+      "location": "AD-007",
       "expiry": "30.10.2026",
       "updatedBy": "Manikandan Subramanian",
       "remark": ""
     },
     {
       "name": "HotBox-05 (01422)",
-      "location": "AD-007",
+      "location": "Dubai",
       "expiry": "20.06.2027",
-      "updatedBy": "Jibin",
-      "remark": "Instrument faulty"
+      "updatedBy": "Manikandan Subramanian",
+      "remark": "Instrument faulty send to store"
     },
     {
       "name": "Jofra: carwheel team",
@@ -521,10 +521,10 @@
     },
     {
       "name": "Testing Entry",
-      "location": "TM-005",
+      "location": "Dubai",
       "expiry": "",
       "updatedBy": "Majeed",
-      "remark": "Okay okay okay okay"
+      "remark": ""
     },
     {
       "name": "ABB SRV500 Tab",
@@ -532,9 +532,16 @@
       "expiry": "",
       "updatedBy": "Jibin",
       "remark": ""
+    },
+    {
+      "name": "TestAddDevice999",
+      "location": "AD-007",
+      "expiry": "15.12.2026",
+      "updatedBy": "Majeed",
+      "remark": ""
     }
   ],
-  "totalItems": 76,
+  "totalItems": 77,
   "locations": [
     "AD-001",
     "AD-007",
@@ -555,6 +562,6 @@
     "Thomas"
   ],
   "stats": {
-    "warningItems": 16
+    "warningItems": 17
   }
 }

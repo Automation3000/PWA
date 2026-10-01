@@ -603,9 +603,13 @@
             const savedDataStr = localStorage.getItem("localTabreedInventory");
             
             if (savedDataStr) {
-                const res = JSON.parse(savedDataStr);
-                inventoryData = res.data; locations = res.locations;
-                updateLocationsDropdown(); renderTable(inventoryData); updateStatus(navigator.onLine);
+                try {
+                    const res = JSON.parse(savedDataStr);
+                    inventoryData = res.data || []; locations = res.locations || [];
+                    updateLocationsDropdown(); renderTable(inventoryData); updateStatus(navigator.onLine);
+                } catch(e) {
+                    localStorage.removeItem("localTabreedInventory");
+                }
             } else {
                 let skeletonHTML = '';
                 for(let i = 0; i < 6; i++) { skeletonHTML += `<tr class="skeleton-row"><td><div class="skeleton-cell" style="width: 85%;"></div></td><td><div class="skeleton-cell" style="width: 60%; border-radius: 12px;"></div></td><td><div class="skeleton-cell" style="width: 60px; height: 32px;"></div></td><td><div class="skeleton-cell" style="width: 70%;"></div></td><td><div class="skeleton-cell" style="width: 50%;"></div></td></tr>`; }
@@ -614,9 +618,10 @@
 
             if(navigator.onLine) {
                 fetch(`${GAS_API_URL}?key=AI1&action=getItems`).then(r => r.json()).then(res => {
-                    if(res.success) {
+                    if(res && (res.success || res.status === 'success')) {
+                        res.success = true;
                         localStorage.setItem("localTabreedInventory", JSON.stringify(res));
-                        inventoryData = res.data; locations = res.locations;
+                        inventoryData = res.data || []; locations = res.locations || [];
                         updateLocationsDropdown(); renderTable(inventoryData); updateStatus(true);
                     }
                 }).catch(e => { updateStatus(false); });
@@ -625,11 +630,11 @@
 
         function renderTable(data) {
             const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = data.map(item => `
+            tbody.innerHTML = (data || []).map(item => `
                 <tr>
                     <td style="font-weight:600;">${item.name}</td>
                     <td><span class="location-tag">${item.location}</span></td>
-                    <td><button onclick="openUpdateModal('${item.name}','${item.location}','${item.expiry}')" style="padding:6px 12px; background:var(--primary); color:white; border:none; border-radius:4px;">Update</button></td>
+                    <td><button onclick="openUpdateModal('${item.name}','${item.location}','${item.expiry || ''}')" style="padding:6px 12px; background:var(--primary); color:white; border:none; border-radius:4px;">Update</button></td>
                     <td style="font-size:0.8rem;">${item.expiry || '-'}</td>
                     <td style="font-size:0.8rem; color:var(--gray);">${item.updatedBy || '-'}</td>
                 </tr>
@@ -644,7 +649,16 @@
             if(loc === "NOT_LISTED") { if(!customLoc) return showToast('Please type the new location name', 'error'); loc = customLoc; }
             
             let exp = document.getElementById('modalExpiry').value; 
-            if (exp) { const d = new Date(exp); exp = `${String(d.getDate()).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${d.getFullYear()}`; }
+            if (exp) {
+                const parts = exp.split(/[./-]/);
+                if (parts.length === 3) {
+                    if (parts[0].length === 4) {
+                        exp = `${parts[2].padStart(2, '0')}.${parts[1].padStart(2, '0')}.${parts[0]}`;
+                    } else {
+                        exp = `${parts[0].padStart(2, '0')}.${parts[1].padStart(2, '0')}.${parts[2]}`;
+                    }
+                }
+            }
             const user = document.getElementById('modalUpdatedBy').value;
             if(!name || !user) return showToast('Name and Updated By are required!', 'error');
 
@@ -670,11 +684,12 @@
                 let query = Object.keys(actionParams).map(k => `${k}=${encodeURIComponent(actionParams[k])}`).join('&');
                 fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json()).then(res => {
                     btn.disabled = false; btn.textContent = 'SAVE CHANGES';
-                    if(res.success) { showToast('Saved Successfully!', 'success'); closeModal(); loadInventory(); } 
-                    else { showToast(res.error, 'error'); }
+                    if(res && (res.success || res.status === 'success')) { showToast('Saved Successfully!', 'success'); closeModal(); loadInventory(); } 
+                    else { showToast((res && res.error) || 'Save failed', 'error'); }
                 }).catch(e => { btn.disabled = false; btn.textContent = 'SAVE CHANGES'; showToast('Network Error', 'error'); });
             } else {
-                let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
+                let queue = [];
+                try { queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); } catch { queue = []; }
                 queue.push(actionParams);
                 localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue));
                 btn.disabled = false; btn.textContent = 'SAVE CHANGES';
@@ -685,22 +700,37 @@
         }
 
         async function processSyncQueue(manual = false) {
-            let queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
+            let queue = [];
+            try { queue = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]'); } catch { queue = []; }
             if (queue.length === 0) { if(manual) showToast("No pending syncs.", "success"); return; }
             if (!navigator.onLine) { if(manual) showToast("Still offline.", "error"); return; }
 
             showToast(`Syncing ${queue.length} offline changes...`, 'warning');
-            for (let i = 0; i < queue.length; i++) {
-                let task = queue[i];
+            while (queue.length > 0) {
+                let task = queue[0];
                 let query = Object.keys(task).map(k => `${k}=${encodeURIComponent(task[k])}`).join('&');
                 try {
                     let res = await fetch(`${GAS_API_URL}?key=AI1&${query}`).then(r => r.json());
-                    if(!res.success) console.error("Sync failed", task.name);
+                    if(res && (res.success || res.status === 'success')) {
+                        try {
+                            const latestQ = JSON.parse(localStorage.getItem('tabreed_sync_queue') || '[]');
+                            latestQ.shift();
+                            localStorage.setItem('tabreed_sync_queue', JSON.stringify(latestQ));
+                            queue = latestQ;
+                        } catch {
+                            queue.shift();
+                            localStorage.setItem('tabreed_sync_queue', JSON.stringify(queue));
+                        }
+                        updatePendingTile();
+                    } else {
+                        console.error("Sync failed", task.name);
+                        showToast("Sync interrupted.", "error");
+                        return;
+                    }
                 } catch(e) {
                     showToast("Sync interrupted.", "error"); return; 
                 }
             }
-            localStorage.removeItem('tabreed_sync_queue');
             updatePendingTile();
             showToast('All offline changes synced to Google!', 'success');
             loadInventory();
@@ -717,41 +747,71 @@
 
         // --- UI HELPER FUNCTIONS ---
         function updateStatus(online) {
-            const dot = document.querySelector('.status-dot'); dot.style.background = online ? '#34a853' : '#ea4335';
-            document.querySelector('.status-text').textContent = online ? 'Online' : 'Offline';
+            const dot = document.querySelector('.status-dot');
+            if (dot) dot.style.background = online ? '#34a853' : '#ea4335';
+            const text = document.querySelector('.status-text');
+            if (text) text.textContent = online ? 'Online' : 'Offline';
             if(online) processSyncQueue(); 
         }
         window.addEventListener('online', () => updateStatus(true)); 
         window.addEventListener('offline', () => updateStatus(false));
 
         function setupSearch() {
-            document.getElementById('searchInput').addEventListener('input', (e) => {
-                const term = e.target.value.toLowerCase(); const selectedLoc = document.getElementById('locationFilter').value;
-                const filtered = inventoryData.filter(i => {
-                    const matchSearch = i.name.toLowerCase().includes(term) || i.location.toLowerCase().includes(term);
-                    const matchLoc = selectedLoc === "ALL" || i.location === selectedLoc; return matchSearch && matchLoc;
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    const term = e.target.value.toLowerCase();
+                    const filterSelect = document.getElementById('locationFilter');
+                    const selectedLoc = filterSelect ? filterSelect.value : "ALL";
+                    const filtered = (inventoryData || []).filter(i => {
+                        const matchSearch = (i.name || '').toLowerCase().includes(term) || (i.location || '').toLowerCase().includes(term);
+                        const matchLoc = selectedLoc === "ALL" || i.location === selectedLoc;
+                        return matchSearch && matchLoc;
+                    });
+                    renderTable(filtered);
                 });
-                renderTable(filtered);
-            });
+            }
         }
         function filterByLocation(selectedLoc) {
-            if (selectedLoc === "ALL") renderTable(inventoryData); else renderTable(inventoryData.filter(item => item.location === selectedLoc));
+            const searchInput = document.getElementById('searchInput');
+            const term = (searchInput ? searchInput.value : '').toLowerCase().trim();
+            const filtered = (inventoryData || []).filter(item => {
+                const matchSearch = !term || (item.name || '').toLowerCase().includes(term) || (item.location || '').toLowerCase().includes(term);
+                const matchLoc = selectedLoc === "ALL" || item.location === selectedLoc;
+                return matchSearch && matchLoc;
+            });
+            renderTable(filtered);
         }
 
         function openAddModal() {
             isEditMode = false; currentItem = null;
-            document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-plus"></i> Add New Instrument';
+            const header = document.querySelector('.modal-header h3');
+            if (header) header.innerHTML = '<i class="fas fa-plus"></i> Add New Instrument';
             document.getElementById('modalItemName').value = ''; document.getElementById('modalItemName').readOnly = false; document.getElementById('modalItemName').style.background = 'white';
-            document.getElementById('modalLocation').value = locations[0] || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = '';
+            document.getElementById('modalLocation').value = (locations && locations[0]) || ''; document.getElementById('modalExpiry').value = ''; document.getElementById('modalUpdatedBy').value = '';
             document.getElementById('updateModal').classList.add('active');
         }
 
         function openUpdateModal(name, loc, exp) {
             isEditMode = true; currentItem = name;
-            document.querySelector('.modal-header h3').innerHTML = '<i class="fas fa-edit"></i> Update Instrument Location & Details';
+            const header = document.querySelector('.modal-header h3');
+            if (header) header.innerHTML = '<i class="fas fa-edit"></i> Update Instrument Location & Details';
             document.getElementById('modalItemName').value = name; document.getElementById('modalItemName').readOnly = true; document.getElementById('modalItemName').style.background = '#eee';
             document.getElementById('modalLocation').value = loc;
-            if (exp && exp !== 'null' && exp !== '-' && exp !== 'undefined') { const parts = exp.split('.'); if (parts.length === 3) { document.getElementById('modalExpiry').value = `${parts[2]}-${parts[1]}-${parts[0]}`; } } else { document.getElementById('modalExpiry').value = ''; }
+            if (exp && exp !== 'null' && exp !== '-' && exp !== 'undefined') {
+                const parts = exp.split(/[./-]/);
+                if (parts.length === 3) {
+                    if (parts[0].length === 4) {
+                        document.getElementById('modalExpiry').value = `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`;
+                    } else {
+                        document.getElementById('modalExpiry').value = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                    }
+                } else {
+                    document.getElementById('modalExpiry').value = '';
+                }
+            } else {
+                document.getElementById('modalExpiry').value = '';
+            }
             document.getElementById('modalUpdatedBy').value = ''; document.getElementById('updateModal').classList.add('active');
         }
 
@@ -762,9 +822,9 @@
 
         function updateLocationsDropdown() {
             const modalSelect = document.getElementById('modalLocation');
-            let modalOpts = locations.map(l => `<option value="${l}">${l}</option>`).join(''); modalOpts += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`; modalSelect.innerHTML = modalOpts;
+            let modalOpts = (locations || []).map(l => `<option value="${l}">${l}</option>`).join(''); modalOpts += `<option value="NOT_LISTED" style="font-weight:bold; color:var(--danger);">+ Not Listed (Add New)</option>`; modalSelect.innerHTML = modalOpts;
             const filterSelect = document.getElementById('locationFilter');
-            let filterOpts = `<option value="ALL">All Locations</option>`; filterOpts += locations.map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts;
+            let filterOpts = `<option value="ALL">All Locations</option>`; filterOpts += (locations || []).map(l => `<option value="${l}">${l}</option>`).join(''); filterSelect.innerHTML = filterOpts;
         }
 
         function handleLocationChange(value) {
@@ -774,14 +834,16 @@
         }
 
         function showToast(msg, type) {
-            const container = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = 'toast';
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const t = document.createElement('div'); t.className = 'toast';
             t.style.borderLeftColor = type === 'success' ? 'var(--secondary)' : 'var(--warning)';
             if(type==='error') t.style.borderLeftColor = 'var(--danger)';
             t.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> <span>${msg}</span>`;
             container.appendChild(t); setTimeout(() => t.remove(), 3000);
         }
 
-        function showStats() { showToast(`Current Inventory: ${inventoryData.length} items across ${locations.length} Locations.`, 'success'); }
+        function showStats() { showToast(`Current Inventory: ${(inventoryData || []).length} items across ${(locations || []).length} Locations.`, 'success'); }
         
         function exportData() {
             showToast('Preparing PDF Engine...', 'success');
@@ -798,7 +860,9 @@
 
         let isFullNameShowing = false; let logoClickCount = 0; let clickTimer;
         function toggleDevName() {
-            const subtitle = document.getElementById('dev-subtitle'); logoClickCount++; clearTimeout(clickTimer); 
+            const subtitle = document.getElementById('dev-subtitle');
+            if (!subtitle) return;
+            logoClickCount++; clearTimeout(clickTimer); 
             if (logoClickCount >= 6) { localStorage.removeItem("localTabreedInventory"); fetch(`${GAS_API_URL}?key=AI1&action=clearCache`).then(() => window.location.reload()); return; }
             clickTimer = setTimeout(() => { logoClickCount = 0; }, 500); subtitle.style.opacity = '0';
             setTimeout(() => { subtitle.innerHTML = !isFullNameShowing ? 'Developed by <strong>Abdul Majeed Ansari [ 41764 ]</strong>' : 'Automation & Control Department'; isFullNameShowing = !isFullNameShowing; subtitle.style.opacity = '1'; }, 150); 
@@ -810,14 +874,38 @@
         function loadHistoryData() {
             if(navigator.onLine) {
                 fetch(`${GAS_API_URL}?key=AI1&action=getHistory`).then(r => r.json()).then(res => {
-                    if(res.success) { localStorage.setItem("localTabreedHistory", JSON.stringify(res)); fullHistoryData = res.data; renderHistoryTable(res.data); }
+                    if(res && (res.success || res.status === 'success')) {
+                        res.success = true;
+                        try { localStorage.setItem("localTabreedHistory", JSON.stringify(res)); } catch {}
+                        fullHistoryData = res.data || [];
+                        renderHistoryTable(fullHistoryData);
+                    } else {
+                        throw new Error('getHistory failed');
+                    }
+                }).catch(() => {
+                    try {
+                        const saved = localStorage.getItem("localTabreedHistory");
+                        if (saved) { fullHistoryData = JSON.parse(saved).data || []; renderHistoryTable(fullHistoryData); }
+                    } catch {}
                 });
             } else {
-                const saved = localStorage.getItem("localTabreedHistory"); if (saved) { fullHistoryData = JSON.parse(saved).data; renderHistoryTable(fullHistoryData); }
+                try {
+                    const saved = localStorage.getItem("localTabreedHistory");
+                    if (saved) { fullHistoryData = JSON.parse(saved).data || []; renderHistoryTable(fullHistoryData); }
+                } catch {}
             }
         }
-        function renderHistoryTable(data) { document.getElementById('historyTableBody').innerHTML = data.map(log => `<tr><td style="font-size:0.7rem;">${log.time}</td><td style="font-weight:600;">${log.item}</td><td><span class="location-tag" style="background:#f0f0f0; color:#666;">${log.oldLoc}</span></td><td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${log.newLoc}</span></td><td style="font-size:0.8rem;">${log.user}</td></tr>`).join(''); }
-        function filterHistory() { const term = document.getElementById('historySearch').value.toLowerCase(); renderHistoryTable(fullHistoryData.filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term) || (log.oldLoc || "").toLowerCase().includes(term) || (log.newLoc || "").toLowerCase().includes(term))); }
+        function renderHistoryTable(data) {
+            const tbody = document.getElementById('historyTableBody');
+            if (tbody) {
+                tbody.innerHTML = (data || []).map(log => `<tr><td style="font-size:0.7rem;">${log.time || '—'}</td><td style="font-weight:600;">${log.item || '—'}</td><td><span class="location-tag" style="background:#f0f0f0; color:#666;">${log.oldLoc || '—'}</span></td><td><span class="location-tag" style="background:#e3f2fd; color:#1976d2;">${log.newLoc || '—'}</span></td><td style="font-size:0.8rem;">${log.user || '—'}</td></tr>`).join('');
+            }
+        }
+        function filterHistory() {
+            const searchInput = document.getElementById('historySearch');
+            const term = (searchInput ? searchInput.value : '').toLowerCase().trim();
+            renderHistoryTable((fullHistoryData || []).filter(log => (log.item || "").toLowerCase().includes(term) || (log.user || "").toLowerCase().includes(term) || (log.oldLoc || "").toLowerCase().includes(term) || (log.newLoc || "").toLowerCase().includes(term)));
+        }
 
         // --- PWA INSTALLATION ---
         let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
