@@ -1,5 +1,18 @@
 [
   {
+    "id": "hist_1790948302269_995",
+    "timestamp": "2026-10-02T13:38:22.269Z",
+    "displayTime": "02.10.2026 13:38",
+    "action": "create",
+    "actionLabel": "Created",
+    "workOrder": "WO-CHECK-01",
+    "plant": "AD-032",
+    "description": "Created operation request for AD-032 (WO #WO-CHECK-01)",
+    "details": "Verification test",
+    "user": "Technician",
+    "badgeColor": "#1a73e8"
+  },
+  {
     "id": "cloud_hist_7",
     "timestamp": "2026-09-26T13:32:01.000Z",
     "displayTime": "26.09.2026 13:32",

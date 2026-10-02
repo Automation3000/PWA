@@ -369,6 +369,7 @@ input[type="date"] {
                             <p style="font-size:.7rem;color:var(--text-muted);margin:0;">Automation App</p>
                             <!-- Single status indicator icon (Green = Online, Yellow = Syncing/Cached, Red = Offline) -->
                             <span class="status-dot online" id="statusDot" title="Connection: Online (Cloud Synced)" style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;box-shadow:0 0 0 2px rgba(22,163,74,0.25);cursor:help;"></span>
+                            <span id="queueBadge" onclick="processSyncQueue(true)" title="Pending sync items. Click to sync." style="display:none;background:#f59e0b;color:white;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;cursor:pointer;line-height:1.2;">0</span>
                         </div>
                     </div>
                 </div>
@@ -3294,13 +3295,12 @@ input[type="date"] {
             closeModal();
             renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
 
-            // 2. Sync to backend / Cloud or offline queue
-            const targetReq = id ? requests.find(r => String(r.id) === String(id)) : null;
             const payload = {
                 action: id ? 'update' : 'create',
                 id: newReq.id,
                 rowIdx: targetReq ? targetReq.rowIdx : null,
                 workOrder: wo,
+                oldWorkOrder: targetReq ? targetReq.wo : '',
                 description: desc,
                 plant: plant,
                 date: formattedDate,
@@ -3508,7 +3508,7 @@ input[type="date"] {
             if (isLocalNodeHost) {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 8000);
+                    const timeoutId = setTimeout(() => controller.abort(), 12000);
                     const res = await fetch('/api/operation-requests?refresh=true&t=' + Date.now(), { signal: controller.signal }).then(r => r.json());
                     clearTimeout(timeoutId);
                     if (res && res.status === "success" && Array.isArray(res.data)) {
@@ -3518,10 +3518,10 @@ input[type="date"] {
             }
 
             // Attempt 2: Direct Google Apps Script Endpoint
-            if (!rawData) {
+            if (rawData === null) {
                 try {
                     const directController = new AbortController();
-                    const directTimeout = setTimeout(() => directController.abort(), 7000);
+                    const directTimeout = setTimeout(() => directController.abort(), 12000);
                     const directRes = await fetch(APPS_SCRIPT_URL + '?t=' + Date.now(), {
                         redirect: 'follow',
                         signal: directController.signal
@@ -3626,18 +3626,18 @@ input[type="date"] {
                 }
 
                 const newRecords = await fetchLatestCloudRecords();
-                if (Array.isArray(newRecords) && newRecords.length > 0) {
+                if (Array.isArray(newRecords)) {
                     diffAndUpdateRequests(newRecords, false);
                     updateStatusIndicator('online');
                 } else if (requests && requests.length > 0) {
-                    updateStatusIndicator('cached');
+                    updateStatusIndicator(navigator.onLine ? 'online' : 'cached');
                 } else {
-                    updateStatusIndicator('offline');
+                    updateStatusIndicator(navigator.onLine ? 'online' : 'offline');
                     renderTable();
                 }
             } catch (error) {
                 console.warn("Load operation data encountered issue:", error);
-                updateStatusIndicator(hasCacheData ? 'cached' : 'offline');
+                updateStatusIndicator(navigator.onLine ? 'online' : (hasCacheData ? 'cached' : 'offline'));
             }
         }
 
@@ -3648,11 +3648,11 @@ input[type="date"] {
 
             try {
                 const newRecords = await fetchLatestCloudRecords();
-                if (Array.isArray(newRecords) && newRecords.length > 0) {
+                if (Array.isArray(newRecords)) {
                     diffAndUpdateRequests(newRecords, true);
                     updateStatusIndicator('online');
                 } else {
-                    updateStatusIndicator(navigator.onLine ? 'online' : 'offline');
+                    updateStatusIndicator(navigator.onLine ? 'online' : 'cached');
                     showToast("All records are up to date", "info");
                 }
             } catch(e) {

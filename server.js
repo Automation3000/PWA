@@ -552,10 +552,10 @@ app.get('/api/operation-requests', async (req, res) => {
   const forceRefresh = req.query.refresh === 'true';
   let cached = loadLocalData();
 
-  // Always attempt live fetch from Google Apps Script with 5.5s timeout
+  // Always attempt live fetch from Google Apps Script with 12s timeout
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5500);
+    const timeoutId = setTimeout(() => controller.abort(), 12000);
     const response = await fetch(APPS_SCRIPT_URL + '?t=' + Date.now(), {
       redirect: 'follow',
       signal: controller.signal
@@ -766,16 +766,24 @@ app.post('/api/operation-requests', async (req, res) => {
   if (action === 'updateStatus') {
     const idToUpdate = String(body.id || '');
     const newStatus = String(body.status || '');
-    const wo = body.workOrder || '';
+    const wo = String(body.workOrder || '').trim();
+    const rowIdx = Number(body.rowIdx || 0);
 
     if (idToUpdate && newStatus) {
       statusOverrides[idToUpdate] = newStatus;
       saveStatusOverrides(statusOverrides);
     }
 
-    cached = cached.map(item => {
+    cached = cached.map((item, idx) => {
       const itemId = String(item.ID || item.id || '');
-      if (itemId === idToUpdate) {
+      const itemWo = String(item['Work Order'] || item.wo || '').trim();
+      const itemRowIdx = Number(item.rowIdx || (idx + 2));
+      const match = (
+        (idToUpdate && itemId === idToUpdate) ||
+        (wo && itemWo && itemWo.toLowerCase() === wo.toLowerCase()) ||
+        (rowIdx && itemRowIdx && itemRowIdx === rowIdx)
+      );
+      if (match) {
         item.Status = newStatus;
         item.status = newStatus;
       }
@@ -795,15 +803,27 @@ app.post('/api/operation-requests', async (req, res) => {
 
   if (action === 'update') {
     const idToUpdate = String(body.id || '');
+    const wo = String(body.workOrder || '').trim();
+    const oldWo = String(body.oldWorkOrder || '').trim();
+    const rowIdx = Number(body.rowIdx || 0);
+
     if (idToUpdate && body.status) {
       statusOverrides[idToUpdate] = String(body.status);
       saveStatusOverrides(statusOverrides);
     }
 
     let updatedTarget = null;
-    cached = cached.map(item => {
+    cached = cached.map((item, idx) => {
       const itemId = String(item.ID || item.id || '');
-      if (itemId === idToUpdate) {
+      const itemWo = String(item['Work Order'] || item.wo || '').trim();
+      const itemRowIdx = Number(item.rowIdx || (idx + 2));
+      const match = (
+        (idToUpdate && itemId === idToUpdate) ||
+        (oldWo && itemWo && itemWo.toLowerCase() === oldWo.toLowerCase()) ||
+        (wo && itemWo && itemWo.toLowerCase() === wo.toLowerCase()) ||
+        (rowIdx && itemRowIdx && itemRowIdx === rowIdx)
+      );
+      if (match) {
         if (body.workOrder !== undefined && body.workOrder !== null) { item['Work Order'] = body.workOrder; item.wo = body.workOrder; }
         if (body.description !== undefined && body.description !== null) { item['Description'] = body.description; item.desc = body.description; }
         if (body.plant !== undefined && body.plant !== null) { item['Plant'] = body.plant; item.plant = body.plant; }
@@ -818,9 +838,10 @@ app.post('/api/operation-requests', async (req, res) => {
     });
     saveLocalData(cached);
 
-    // Only forward to Apps Script if workOrder or description or plant is present (prevent wiping sheet)
+    // Forward to Apps Script with full payload
     const appsScriptPayload = Object.assign({}, updatedTarget ? {
       workOrder: updatedTarget['Work Order'] || updatedTarget.wo || '',
+      oldWorkOrder: oldWo || '',
       description: updatedTarget['Description'] || updatedTarget.desc || '',
       plant: updatedTarget['Plant'] || updatedTarget.plant || '',
       date: updatedTarget['Date'] || updatedTarget.date || '',
