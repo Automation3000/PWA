@@ -1,5 +1,31 @@
 [
   {
+    "id": "hist_1791034770520_666",
+    "timestamp": "2026-10-03T13:39:30.520Z",
+    "displayTime": "03.10.2026 13:39",
+    "action": "create",
+    "actionLabel": "Created",
+    "workOrder": "TEST-901",
+    "plant": "AD-001",
+    "description": "Created operation request for AD-001 (WO #TEST-901)",
+    "details": "Unit test item",
+    "user": "Technician",
+    "badgeColor": "#1a73e8"
+  },
+  {
+    "id": "hist_1791034246276_124",
+    "timestamp": "2026-10-03T13:30:46.276Z",
+    "displayTime": "03.10.2026 13:30",
+    "action": "create",
+    "actionLabel": "Created",
+    "workOrder": "60000",
+    "plant": "AD-032",
+    "description": "Created operation request for AD-032 (WO #60000)",
+    "details": "",
+    "user": "Majeed",
+    "badgeColor": "#1a73e8"
+  },
+  {
     "id": "hist_1790948302269_995",
     "timestamp": "2026-10-02T13:38:22.269Z",
     "displayTime": "02.10.2026 13:38",

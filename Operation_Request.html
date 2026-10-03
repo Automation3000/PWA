@@ -252,6 +252,14 @@
 .inline-select:focus { border-color:var(--primary); background:var(--bg-surface); }
 .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); padding: 5px 12px; border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; font-weight: 700; transition: .2s; display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
 .btn-outline:hover { background: rgba(37,99,235,0.08); }
+@keyframes rowUpdateFlash {
+    0% { background-color: rgba(34, 197, 94, 0.35); }
+    50% { background-color: rgba(34, 197, 94, 0.18); }
+    100% { background-color: transparent; }
+}
+.row-updated-flash {
+    animation: rowUpdateFlash 2.5s ease-out forwards;
+}
 .history-item { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; transition: .2s; }
 .history-item:hover { border-color: var(--primary); }
 
@@ -2544,7 +2552,15 @@ input[type="date"] {
             
             setupFormNavigation();
             checkExistingLogin();
-            loadDummyData();
+            loadDummyData().finally(() => {
+                startBackgroundCrossVerification();
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    checkAndCrossVerifyCloudChanges();
+                }
+            });
         };
 
         function setupFormNavigation() {
@@ -3058,7 +3074,7 @@ input[type="date"] {
                                     status: 'success',
                                     summary: act === 'updateStatus' ? `Status updated to "${payload.status}"` : `Work Order #${wo} updated`,
                                     changes: changes,
-                                    cloudTarget: 'Google Sheets (Tabreed Cloud Data)'
+                                    cloudTarget: 'Cloud (Tabreed Cloud Data)'
                                 });
                             } else {
                                 remaining.push(item);
@@ -3151,16 +3167,22 @@ input[type="date"] {
             const id = document.getElementById('reqId').value;
             const wo = document.getElementById('reqWO').value.trim();
             const desc = document.getElementById('reqDesc').value.trim();
-            const plant = document.getElementById('reqPlant').value;
-            const dateVal = document.getElementById('reqDate').value;
+            const plant = document.getElementById('reqPlant').value.trim();
+            let dateVal = document.getElementById('reqDate').value.trim();
             const timeFrom = document.getElementById('reqTimeFrom').value;
             const timeTo = document.getElementById('reqTimeTo').value;
-            const team = document.getElementById('reqTeam').value;
+            let team = document.getElementById('reqTeam').value;
             const remarks = document.getElementById('reqRemarks').value.trim();
 
-            // Work Order is now OPTIONAL
-            if (!desc || !plant || !dateVal || !team) {
-                showToast("Please fill all required fields (Description, Plant, Date, Team)", "warning");
+            const curUser = (typeof getCurrentUser === 'function' ? getCurrentUser() : currentUser) || {};
+            const userName = curUser.short || curUser.full || curUser.code || 'Technician';
+
+            if (!team && userName) team = userName;
+            if (!dateVal) dateVal = formatDisplayDateWithDots(new Date().toISOString().slice(0, 10));
+
+            // Description and Plant are required
+            if (!desc || !plant) {
+                showToast("Please fill Description and Plant", "warning");
                 return;
             }
 
@@ -3177,16 +3199,13 @@ input[type="date"] {
 
             let status = 'Requested';
             if (isSupervisor()) {
-                const sVal = document.getElementById('reqStatus').value;
+                const sVal = document.getElementById('reqStatus') ? document.getElementById('reqStatus').value : 'Requested';
                 if (sVal === 'Custom') {
-                    status = document.getElementById('reqStatusCustom').value.trim() || 'Requested';
-                } else {
+                    status = (document.getElementById('reqStatusCustom') ? document.getElementById('reqStatusCustom').value.trim() : '') || 'Requested';
+                } else if (sVal) {
                     status = sVal;
                 }
             }
-
-            const curUser = (typeof getCurrentUser === 'function' ? getCurrentUser() : currentUser) || {};
-            const userName = curUser.short || curUser.full || curUser.code || 'Technician';
 
             let finalRemarks = remarks;
             let changeSummary = '';
@@ -3204,7 +3223,7 @@ input[type="date"] {
                 status: status,
                 createdBy: userName
             };
-
+            const targetReq = id ? requests.find(r => String(r.id) === String(id)) : null;
             if (id) {
                 const index = requests.findIndex(r => String(r.id) === String(id));
                 const oldReq = index > -1 ? requests[index] : null;
@@ -3434,75 +3453,129 @@ input[type="date"] {
             let changedCount = 0;
             let addedCount = 0;
 
+            const deletedSet = new Set(getLocalDeletedIds().map(String));
+            let queue = [];
+            try { queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]'); } catch { queue = []; }
+            const pendingIds = new Set();
+            const pendingWos = new Set();
+            queue.forEach(q => {
+                if (q && q.payload) {
+                    if (q.payload.id) pendingIds.add(String(q.payload.id));
+                    const w = String(q.payload.workOrder || q.payload.wo || '').trim().toLowerCase();
+                    if (w) pendingWos.add(w);
+                }
+            });
+
+            // Multi-key indexing for rock-solid matching between local cache and cloud
             const currentMap = new Map();
             requests.forEach((r, idx) => {
-                currentMap.set(String(r.id), { item: r, index: idx });
+                const info = { item: r, index: idx };
+                if (r.id) currentMap.set('id:' + String(r.id), info);
+                const w = String(r.wo || '').trim().toLowerCase();
+                if (w) currentMap.set('wo:' + w, info);
+                if (r.rowIdx) currentMap.set('row:' + r.rowIdx, info);
+                const d = String(r.desc || '').trim().toLowerCase();
+                const p = String(r.plant || '').trim().toLowerCase();
+                if (d && p) currentMap.set('dp:' + d + '_' + p, info);
             });
 
             const updatedList = [];
-            const newIds = new Set();
+            const cloudIds = new Set();
+            const cloudWos = new Set();
+            const cloudDps = new Set();
+            const matchedLocalIds = new Set();
 
-            newRecords.forEach(newItem => {
+            (newRecords || []).forEach(newItem => {
                 const idStr = String(newItem.id);
-                newIds.add(idStr);
-                if (currentMap.has(idStr)) {
-                    const existing = currentMap.get(idStr).item;
+                const woStr = String(newItem.wo || '').trim().toLowerCase();
+                const rowKey = newItem.rowIdx ? ('row:' + newItem.rowIdx) : '';
+                const dpKey = (newItem.desc && newItem.plant) ? ('dp:' + String(newItem.desc).trim().toLowerCase() + '_' + String(newItem.plant).trim().toLowerCase()) : '';
+
+                cloudIds.add(idStr);
+                if (woStr) cloudWos.add(woStr);
+                if (dpKey) cloudDps.add(dpKey);
+
+                if (deletedSet.has(idStr)) return;
+                if (woStr && deletedSet.has('wo_' + woStr)) return;
+
+                let match = currentMap.get('id:' + idStr);
+                if (!match && woStr) match = currentMap.get('wo:' + woStr);
+                if (!match && rowKey) match = currentMap.get(rowKey);
+                if (!match && dpKey) match = currentMap.get(dpKey);
+
+                if (match) {
+                    const existing = match.item;
+                    matchedLocalIds.add(String(existing.id));
+                    if (existing.wo) matchedLocalIds.add('wo_' + String(existing.wo).trim().toLowerCase());
+
                     const isDiff = (
-                        existing.status !== newItem.status ||
-                        existing.remarks !== newItem.remarks ||
-                        existing.desc !== newItem.desc ||
-                        existing.plant !== newItem.plant ||
-                        existing.wo !== newItem.wo ||
-                        existing.date !== newItem.date ||
-                        existing.time !== newItem.time ||
-                        existing.team !== newItem.team
+                        (existing.status || DEFAULT_STATUS).trim().toLowerCase() !== (newItem.status || DEFAULT_STATUS).trim().toLowerCase() ||
+                        (existing.remarks || '') !== (newItem.remarks || '') ||
+                        (existing.desc || '') !== (newItem.desc || '') ||
+                        (existing.plant || '') !== (newItem.plant || '') ||
+                        (existing.wo || '') !== (newItem.wo || '') ||
+                        (existing.date !== newItem.date) ||
+                        (existing.time !== newItem.time) ||
+                        (existing.team !== newItem.team)
                     );
                     if (isDiff) {
                         changedCount++;
-                        updatedList.push({ ...existing, ...newItem });
-                    } else {
-                        updatedList.push(existing);
                     }
+                    // Crucial: newItem contains the latest cloud status and ID directly from Google Sheet
+                    updatedList.push({ ...existing, ...newItem });
                 } else {
                     addedCount++;
                     updatedList.push(newItem);
                 }
             });
 
-            // Count deleted records
-            let deletedCount = 0;
+            // Retain un-synced local drafts/requests that have not yet reached the cloud
             requests.forEach(r => {
-                if (!newIds.has(String(r.id))) {
-                    deletedCount++;
+                const idStr = String(r.id);
+                const woStr = String(r.wo || '').trim().toLowerCase();
+                const dpKey = (r.desc && r.plant) ? ('dp:' + String(r.desc).trim().toLowerCase() + '_' + String(r.plant).trim().toLowerCase()) : '';
+
+                if (deletedSet.has(idStr)) return;
+                if (woStr && deletedSet.has('wo_' + woStr)) return;
+
+                // Skip if already matched or exists in cloud records
+                if (matchedLocalIds.has(idStr) || (woStr && matchedLocalIds.has('wo_' + woStr))) return;
+                if (cloudIds.has(idStr) || (woStr && cloudWos.has(woStr)) || (dpKey && cloudDps.has(dpKey))) return;
+
+                const isPending = pendingIds.has(idStr) || (woStr && pendingWos.has(woStr));
+                if (isPending || (!newRecords || newRecords.length === 0)) {
+                    updatedList.unshift(r);
                 }
             });
 
-            const hasDifferences = changedCount > 0 || addedCount > 0 || deletedCount > 0 || updatedList.length !== requests.length;
+            requests = updatedList;
+            localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
+            renderTable();
+            updateStatusSummary();
 
-            if (hasDifferences) {
-                requests = updatedList;
-                localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
-                renderTable();
-                updateStatusSummary();
-                if (isManual) {
-                    const summary = [];
-                    if (addedCount > 0) summary.push(`${addedCount} new`);
-                    if (changedCount > 0) summary.push(`${changedCount} updated`);
-                    if (deletedCount > 0) summary.push(`${deletedCount} removed`);
-                    showToast(`Cloud sync: ${summary.join(', ')}`, "success");
-                    logOperationActivity('sync', 'Cloud Synced', `Updated live records: ${summary.join(', ')}`, '', '', '#0284c7');
-                }
-            } else {
-                if (isManual) {
-                    showToast("All records are up to date", "info");
-                }
+            if (isManual) {
+                const summary = [];
+                if (addedCount > 0) summary.push(`${addedCount} new`);
+                if (changedCount > 0) summary.push(`${changedCount} updated from Cloud`);
+                showToast(summary.length > 0 ? `Synced with Cloud: ${summary.join(', ')}` : "All records & statuses are up to date with Cloud", "success");
             }
         }
 
         async function fetchLatestCloudRecords() {
             let rawData = null;
             let deletedSet = new Set(getLocalDeletedIds().map(String));
-            let overrides = getLocalStatusOverrides();
+
+            // Check if there are any un-synced offline updates in queue
+            let queue = [];
+            try { queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]'); } catch { queue = []; }
+            const pendingStatusMap = new Map();
+            queue.forEach(q => {
+                if (q && q.action === 'updateStatus' && q.payload) {
+                    if (q.payload.id) pendingStatusMap.set(String(q.payload.id), q.payload.status);
+                    const w = String(q.payload.workOrder || q.payload.wo || '').trim().toLowerCase();
+                    if (w) pendingStatusMap.set('wo_' + w, q.payload.status);
+                }
+            });
 
             // Attempt 1: Fast Backend Proxy (Only if running on local Node server)
             if (isLocalNodeHost) {
@@ -3553,30 +3626,32 @@ input[type="date"] {
                         const woVal = String(row['Work Order'] || row['Work order'] || row.wo || '').replace(/[^a-zA-Z0-9]/g, '');
                         idStr = 'row_' + (index + 2) + (woVal ? ('_' + woVal) : '');
                     }
-                    const baseStatus = String(row['Status'] || row['status'] || DEFAULT_STATUS);
+                    const rawStatus = String(row['Status'] || row['status'] || DEFAULT_STATUS).trim();
+                    const woVal = String(row['Work Order'] || row['Work order'] || row['work order'] || row['WORK ORDER'] || row.wo || '').trim();
+
+                    // Only use pending status if an offline update is currently queued in sync queue
+                    const pendingOfflineStatus = pendingStatusMap.get(idStr) || (woVal ? pendingStatusMap.get('wo_' + woVal.toLowerCase()) : null);
+                    const effectiveStatus = pendingOfflineStatus || rawStatus || DEFAULT_STATUS;
+
                     return {
                         id: idStr,
                         rowIdx: row.rowIdx || (index + 2),
-                        wo: String(row['Work Order'] || row['Work order'] || row['work order'] || row['WORK ORDER'] || row.wo || ''),
+                        wo: woVal,
                         desc: String(row['Description'] || row['description'] || row.desc || ''),
                         plant: String(row['Plant'] || row['plant'] || ''),
                         date: String(row['Date'] || row['date'] || ''),
                         time: String(row['Time'] || row['time'] || ''),
                         team: String(row['Team'] || row['team'] || ''),
                         remarks: String(row['Remarks'] || row['remarks'] || ''),
-                        status: overrides[idStr] || baseStatus
+                        status: effectiveStatus
                     };
                 });
         }
 
         async function loadDummyData(forceRefresh = false) {
             let deletedSet = new Set(getLocalDeletedIds().map(String));
-            let overrides = getLocalStatusOverrides();
-
-            if (forceRefresh) {
-                overrides = {};
-                saveLocalStatusOverrides({});
-            }
+            // Purge any legacy stale overrides
+            try { localStorage.removeItem(LS_OVERRIDES); } catch(e) {}
 
             // 1. Instant cache load from local storage
             const cached = localStorage.getItem(LS_REQUESTS);
@@ -3585,22 +3660,16 @@ input[type="date"] {
                 try {
                     let parsed = JSON.parse(cached);
                     if (Array.isArray(parsed) && parsed.length > 0) {
-                        requests = parsed
-                            .filter(r => {
-                                const idStr = String(r.id);
-                                const woStr = String(r.wo || '').trim();
-                                const descStr = String(r.desc || '').trim();
-                                const plantStr = String(r.plant || '').trim();
-                                if (deletedSet.has(idStr)) return false;
-                                if (woStr && deletedSet.has('wo_' + woStr.toLowerCase())) return false;
-                                if (!woStr && descStr && plantStr && deletedSet.has('entry_' + descStr.toLowerCase() + '_' + plantStr.toLowerCase())) return false;
-                                return true;
-                            })
-                            .map(r => {
-                                const idStr = String(r.id);
-                                if (overrides[idStr]) r.status = overrides[idStr];
-                                return r;
-                            });
+                        requests = parsed.filter(r => {
+                            const idStr = String(r.id);
+                            const woStr = String(r.wo || '').trim();
+                            const descStr = String(r.desc || '').trim();
+                            const plantStr = String(r.plant || '').trim();
+                            if (deletedSet.has(idStr)) return false;
+                            if (woStr && deletedSet.has('wo_' + woStr.toLowerCase())) return false;
+                            if (!woStr && descStr && plantStr && deletedSet.has('entry_' + descStr.toLowerCase() + '_' + plantStr.toLowerCase())) return false;
+                            return true;
+                        });
                         renderTable();
                         updateStatusIndicator('online');
                         hasCacheData = requests.length > 0;
@@ -3613,7 +3682,7 @@ input[type="date"] {
             updateQueueBadge();
             updateHistoryBadge();
 
-            // 2. Fetch fresh data non-disruptively
+            // 2. Fetch fresh live data from Google Sheet non-disruptively
             try {
                 if (!hasCacheData) {
                     const tbody = document.getElementById('requestTableBody');
@@ -3633,11 +3702,12 @@ input[type="date"] {
                     updateStatusIndicator(navigator.onLine ? 'online' : 'cached');
                 } else {
                     updateStatusIndicator(navigator.onLine ? 'online' : 'offline');
-                    renderTable();
                 }
             } catch (error) {
                 console.warn("Load operation data encountered issue:", error);
                 updateStatusIndicator(navigator.onLine ? 'online' : (hasCacheData ? 'cached' : 'offline'));
+            } finally {
+                renderTable();
             }
         }
 
@@ -3647,6 +3717,7 @@ input[type="date"] {
             updateStatusIndicator('syncing');
 
             try {
+                // Ensure fresh data from sheet
                 const newRecords = await fetchLatestCloudRecords();
                 if (Array.isArray(newRecords)) {
                     diffAndUpdateRequests(newRecords, true);
@@ -3729,6 +3800,7 @@ input[type="date"] {
             }
         }
 
+        let inlineStatusDebounceTimer = null;
         function onInlineStatusChange(id, selectEl) {
             const original = selectEl.getAttribute('data-original');
             const newVal = selectEl.value;
@@ -3742,6 +3814,13 @@ input[type="date"] {
                 saveBtn.style.visibility = 'visible';
                 saveBtn.style.opacity = '1';
                 saveBtn.style.pointerEvents = 'auto';
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                // Automatically save after short debounce so user doesn't need to manually click checkmark
+                clearTimeout(inlineStatusDebounceTimer);
+                inlineStatusDebounceTimer = setTimeout(() => {
+                    saveInlineStatus(id);
+                }, 350);
             } else {
                 saveBtn.style.visibility = 'hidden';
                 saveBtn.style.opacity = '0';
@@ -3758,11 +3837,11 @@ input[type="date"] {
 
             const newStatus = selectEl.value;
             const idStr = String(id);
-            const req = requests.find(r => String(r.id) === idStr);
+            const req = requests.find(r => String(r.id) === idStr || (r.wo && String(r.wo).trim() === idStr));
             if (!req) return;
 
             const oldStatus = req.status;
-            if (oldStatus === newStatus) {
+            if (oldStatus === newStatus && selectEl.getAttribute('data-original') === newStatus) {
                 if (saveBtn) {
                     saveBtn.style.visibility = 'hidden';
                     saveBtn.style.opacity = '0';
@@ -3772,16 +3851,12 @@ input[type="date"] {
             }
             req.status = newStatus;
             selectEl.setAttribute('data-original', newStatus);
-            if (saveBtn) {
-                saveBtn.style.visibility = 'hidden';
-                saveBtn.style.opacity = '0';
-                saveBtn.style.pointerEvents = 'none';
-            }
 
-            // 1. Record in persistent status overrides
-            const overrides = getLocalStatusOverrides();
-            overrides[idStr] = newStatus;
-            saveLocalStatusOverrides(overrides);
+            if (saveBtn) {
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                saveBtn.style.visibility = 'visible';
+                saveBtn.style.opacity = '1';
+            }
 
             // Log activity with current user
             const curUser = (typeof getCurrentUser === 'function' ? getCurrentUser() : currentUser) || {};
@@ -3796,14 +3871,11 @@ input[type="date"] {
                 `Status changed from "${oldStatus}" to "${newStatus}"`
             );
 
-            // 2. Immediately update local storage cache so it NEVER reverts on reload
+            // Immediately update local storage cache so it persists on reload
             localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
+            renderStatusSummaryCounts();
 
-            // 3. Re-render table counts & styling
-            renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
-            showToast(`Status saved: ${newStatus}`, "success");
-
-            // 4. Sync to backend or push to offline queue
+            // Sync to backend or push to offline queue
             const payload = {
                 action: 'updateStatus',
                 id: idStr,
@@ -3819,13 +3891,34 @@ input[type="date"] {
 
             if (!navigator.onLine) {
                 pushToSyncQueue('updateStatus', payload);
+                if (saveBtn) {
+                    saveBtn.innerHTML = '<i class="fas fa-check"></i>';
+                    setTimeout(() => {
+                        saveBtn.style.visibility = 'hidden';
+                        saveBtn.style.opacity = '0';
+                        saveBtn.style.pointerEvents = 'none';
+                    }, 1200);
+                }
+                showToast(`Saved offline: ${newStatus}`, "info");
                 return;
             }
 
             const result = await sendToCloudBackend(payload);
-            if (!result.success) {
+            if (saveBtn) {
+                saveBtn.innerHTML = '<i class="fas fa-check"></i>';
+                setTimeout(() => {
+                    saveBtn.style.visibility = 'hidden';
+                    saveBtn.style.opacity = '0';
+                    saveBtn.style.pointerEvents = 'none';
+                }, 1200);
+            }
+
+            if (result.success) {
+                showToast(`Status updated to ${newStatus} in Cloud`, "success");
+            } else {
                 console.warn("Status update failed to sync, queued offline:", payload);
                 pushToSyncQueue('updateStatus', payload);
+                showToast(`Status saved locally, queued for cloud sync`, "warning");
             }
         }
 
@@ -4278,6 +4371,328 @@ input[type="date"] {
             showToast("WhatsApp opened successfully", "success");
         }
 
+        function buildSingleRowHTML(req) {
+            const userIsSupervisor = isSupervisor();
+            const userIsDeveloper = isDeveloper();
+            const hasLoggedInUser = !!currentUser;
+            const canAccessActions = userIsSupervisor || userIsDeveloper || hasLoggedInUser;
+            const statusStyle = getStatusStyle(req.status);
+            
+            let actionsHtml = '';
+            if (canAccessActions) {
+                const isArch = isRequestArchived(req);
+                const archIcon = isArch ? 'fa-box-open' : 'fa-archive';
+                const archTitle = isArch ? 'Unarchive Request' : 'Archive Request';
+                const archColor = isArch ? '#d97706' : '#64748b';
+                const isSup = userIsSupervisor || userIsDeveloper;
+                const canEdit = canUserEditRequest(req);
+
+                let actionContent = '';
+                if (isSup) {
+                    actionContent = `
+                        <i class="fab fa-whatsapp icon-whatsapp" title="Send WhatsApp Message" onclick="openWhatsAppModal('${req.id}')" style="cursor:pointer; margin-right:10px; color:#25D366; font-size:15px;"></i>
+                        <i class="fas ${archIcon} icon-archive" title="${archTitle}" onclick="toggleArchiveRequest('${req.id}')" style="cursor:pointer; margin-right:10px; color:${archColor}; font-size:14px;"></i>
+                        <i class="fas fa-edit icon-edit" title="Edit" onclick="openRequestModal('${req.id}')" style="cursor:pointer; margin-right:10px; color:var(--primary); font-size:14px;"></i>
+                        <i class="fas fa-trash icon-delete" title="Delete" onclick="deleteRequest('${req.id}')" style="cursor:pointer; color:var(--danger); font-size:14px;"></i>
+                    `;
+                } else if (canEdit) {
+                    actionContent = `
+                        <button type="button" class="btn-action" title="Edit Request" onclick="openRequestModal('${req.id}')" style="background:rgba(26,115,232,0.1); color:var(--primary); border:1.5px solid rgba(26,115,232,0.35); border-radius:6px; padding:4px 10px; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s ease;" onmouseover="this.style.background='var(--primary)'; this.style.color='white';" onmouseout="this.style.background='rgba(26,115,232,0.1)'; this.style.color='var(--primary)';">
+                            <i class="fas fa-edit" style="font-size:12px;"></i> <span>Edit</span>
+                        </button>
+                    `;
+                } else {
+                    actionContent = `<span style="color:var(--text-muted); font-size:12px; opacity:0.4;">-</span>`;
+                }
+
+                actionsHtml = `
+                    <td class="action-icons" style="text-align:right; white-space:nowrap;">
+                        ${actionContent}
+                    </td>
+                `;
+            }
+            
+            let statusHtml = `<span class="status-tag" style="${statusStyle}">${sanitizeInput(req.status || DEFAULT_STATUS)}</span>`;
+            if (userIsSupervisor) {
+                statusHtml = `
+                <div style="display:inline-flex;align-items:center;gap:6px;width:100%;max-width:150px;">
+                    <select class="status-tag inline-select" 
+                            style="${statusStyle};flex:1;min-width:110px;"
+                            id="inline-status-${sanitizeInput(req.id)}" 
+                            data-original="${sanitizeInput(req.status)}" 
+                            onchange="onInlineStatusChange('${sanitizeInput(req.id)}', this)">
+                        ${getStatusOptionsHTML(req.status)}
+                    </select>
+                    <button id="save-status-btn-${sanitizeInput(req.id)}" 
+                            onclick="saveInlineStatus('${sanitizeInput(req.id)}')" 
+                            title="Click to Save Status" 
+                            style="visibility:hidden;opacity:0;pointer-events:none;background:#16a34a;color:white;border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:0.85rem;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(22,163,74,0.35);flex-shrink:0;transition:opacity 0.15s ease;">
+                        <i class="fas fa-check"></i>
+                    </button>
+                </div>`;
+            }
+            
+            const isSelected = selectedRequestIds.has(String(req.id));
+            const safeWo = sanitizeInput(req.wo || '');
+            const safeWoDisplay = req.wo ? safeWo : `<span style="color:var(--text-muted);font-style:italic;font-weight:normal;">N/A</span>`;
+            const woCopyClick = req.wo ? `data-copy-wo="${safeWo}" onclick="navigator.clipboard.writeText(this.getAttribute('data-copy-wo')); showToast('Copied: ' + this.getAttribute('data-copy-wo'))" title="Click to copy"` : '';
+            const safeDesc = sanitizeInput(req.desc || '-');
+            const safePlant = sanitizeInput(req.plant || '-');
+            const safeDate = sanitizeInput(formatDisplayDateWithDots(req.date));
+            const safeTime = sanitizeInput(req.time || '');
+            const safeTeam = sanitizeInput(req.team || '-');
+
+            const rawRemarks = (req.remarks || req.comment || '').trim();
+            const auditMatches = rawRemarks.match(/\[Edited:[^\]]+\]/g);
+            const userOnlyRemarks = rawRemarks.replace(/\[Edited:[^\]]+\]/g, '').trim();
+            const hasComment = Boolean(userOnlyRemarks && userOnlyRemarks !== '-' && userOnlyRemarks.toLowerCase() !== 'none');
+            const hasAudit = Boolean(auditMatches && auditMatches.length > 0);
+            const hasAnyNote = hasComment || hasAudit;
+
+            let commentIconHtml = '';
+            if (hasAnyNote) {
+                commentIconHtml = `<button type="button" onclick="event.stopPropagation(); showCommentPopup('${sanitizeInput(req.id)}')" title="View Comment &amp; Remarks" style="background:none; border:none; padding:2px 4px; margin-left:6px; cursor:pointer; vertical-align:middle; display:inline-flex; align-items:center; border-radius:4px; color:#d97706; transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
+                    <i class="fas fa-comment-dots" style="font-size:13px;"></i>
+                </button>`;
+            } else {
+                commentIconHtml = `<button type="button" onclick="event.stopPropagation(); showCommentPopup('${sanitizeInput(req.id)}')" title="Add / View Comment" style="background:none; border:none; padding:2px 4px; margin-left:6px; cursor:pointer; vertical-align:middle; display:inline-flex; align-items:center; border-radius:4px; color:var(--text-muted); opacity:0.38; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.38'">
+                    <i class="far fa-comment" style="font-size:12px;"></i>
+                </button>`;
+            }
+
+            return `
+                <td class="td-select-col" style="text-align:center; width:36px; display:${isSelectionModeActive ? '' : 'none'};" onclick="event.stopPropagation()">
+                    <input type="checkbox" class="row-select-checkbox" data-id="${sanitizeInput(req.id)}" ${isSelected ? 'checked' : ''} onchange="onRowSelectChange('${sanitizeInput(req.id)}', this.checked)" style="cursor:pointer; width:16px; height:16px; accent-color:var(--primary);">
+                </td>
+                <td style="font-weight:700; color:var(--primary); cursor:${req.wo ? 'pointer' : 'default'};" ${woCopyClick}>${safeWoDisplay}</td>
+                <td>${safeDesc}</td>
+                <td><span style="background:var(--bg-surface);padding:3px 8px;border-radius:4px;font-size:.8rem;border:1px solid var(--border);">${safePlant}</span></td>
+                <td>${safeDate}<br><span style="font-size:0.75rem;color:var(--text-muted);">${safeTime}</span></td>
+                <td style="white-space:nowrap;">
+                    <div style="display:inline-flex;align-items:center;">
+                        <span>${safeTeam}</span>
+                        ${commentIconHtml}
+                    </div>
+                </td>
+                <td>${statusHtml}</td>
+                ${actionsHtml}
+            `;
+        }
+
+        function renderStatusSummaryCounts(filterText = "") {
+            const sumDiv = document.getElementById('status-summary');
+            if (!sumDiv) return;
+
+            const lowerFilter = (filterText || (document.getElementById('searchInput') ? document.getElementById('searchInput').value : "")).toLowerCase().trim();
+            const counts = {};
+
+            requests.forEach(req => {
+                const isArch = isRequestArchived(req);
+                if (isArch && !showAllArchived) return;
+
+                const woStr = String(req.wo || '').toLowerCase();
+                const plantStr = String(req.plant || '').toLowerCase();
+                const descStr = String(req.desc || '').toLowerCase();
+                const teamStr = String(req.team || '').toLowerCase();
+                if (lowerFilter && !woStr.includes(lowerFilter) && !plantStr.includes(lowerFilter) && !descStr.includes(lowerFilter) && !teamStr.includes(lowerFilter)) return;
+
+                const s = req.status || DEFAULT_STATUS;
+                counts[s] = (counts[s] || 0) + 1;
+            });
+
+            const defaultStatuses = STATUS_CONFIG.map(sc => sc.value);
+            const allKeys = [...defaultStatuses];
+            Object.keys(counts).forEach(k => {
+                if (!allKeys.includes(k)) allKeys.push(k);
+            });
+            const visibleKeys = allKeys.filter(k => (counts[k] || 0) > 0);
+            if (visibleKeys.length === 0) {
+                sumDiv.innerHTML = '';
+            } else {
+                sumDiv.innerHTML = visibleKeys.map(k => {
+                    const v = counts[k];
+                    const st = getStatusItem(k);
+                    return `<div style="background:${st.bg}; border:1px solid ${st.border}; color:${st.color}; padding:5px 12px; border-radius:20px; font-size:0.85rem; font-weight:700;"><span style="opacity:0.85;">${k}:</span> <span style="font-weight:900;">${v}</span></div>`;
+                }).join('');
+            }
+        }
+
+        // Surgical single-entry refresh in DOM without re-rendering the whole table
+        function refreshSingleEntryInDOM(updatedReq, changesDescription = '') {
+            const tbody = document.getElementById('requestTableBody');
+            if (!tbody) return;
+
+            // Remove empty placeholder row if present
+            const emptyTr = tbody.querySelector('td[colspan]');
+            if (emptyTr && emptyTr.textContent.includes('No requests found')) {
+                tbody.innerHTML = '';
+            }
+
+            const targetId = String(updatedReq.id);
+            const targetWo = String(updatedReq.wo || '').trim().toLowerCase();
+
+            // Find specific row by ID or WO in current DOM
+            let row = document.getElementById("req-row-" + targetId) || tbody.querySelector(`tr[data-req-id="${targetId}"]`);
+            if (!row && targetWo) {
+                row = tbody.querySelector(`tr[data-req-wo="${targetWo}"]`);
+            }
+
+            if (row) {
+                // Update only this specific row's content
+                row.id = "req-row-" + targetId;
+                row.setAttribute('data-req-id', targetId);
+                if (updatedReq.wo) row.setAttribute('data-req-wo', targetWo);
+                row.innerHTML = buildSingleRowHTML(updatedReq);
+
+                // Flash subtle green highlight animation
+                row.classList.remove('row-updated-flash');
+                void row.offsetWidth; // Force CSS reflow
+                row.classList.add('row-updated-flash');
+                setTimeout(() => row.classList.remove('row-updated-flash'), 2600);
+
+                if (changesDescription) {
+                    showToast(changesDescription, "info");
+                }
+            } else {
+                // If it's a new entry from cloud, prepend it if it passes current filter
+                const lowerFilter = (document.getElementById('searchInput') ? document.getElementById('searchInput').value : "").toLowerCase().trim();
+                const woStr = String(updatedReq.wo || '').toLowerCase();
+                const plantStr = String(updatedReq.plant || '').toLowerCase();
+                const descStr = String(updatedReq.desc || '').toLowerCase();
+                const teamStr = String(updatedReq.team || '').toLowerCase();
+                const matchesFilter = !lowerFilter || (woStr.includes(lowerFilter) || plantStr.includes(lowerFilter) || descStr.includes(lowerFilter) || teamStr.includes(lowerFilter));
+
+                if (matchesFilter) {
+                    const newTr = document.createElement('tr');
+                    newTr.id = "req-row-" + targetId;
+                    newTr.setAttribute('data-req-id', targetId);
+                    if (updatedReq.wo) newTr.setAttribute('data-req-wo', targetWo);
+                    newTr.innerHTML = buildSingleRowHTML(updatedReq);
+                    newTr.classList.add('row-updated-flash');
+                    setTimeout(() => newTr.classList.remove('row-updated-flash'), 2600);
+                    tbody.insertBefore(newTr, tbody.firstChild);
+
+                    if (changesDescription) {
+                        showToast(changesDescription, "success");
+                    }
+                }
+            }
+
+            renderStatusSummaryCounts();
+        }
+
+        // Background Cross-Verification Engine
+        let isBackgroundVerifying = false;
+        async function checkAndCrossVerifyCloudChanges() {
+            if (typeof document !== 'undefined' && document.hidden) return;
+            if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+            if (isBackgroundVerifying) return;
+
+            const modal = document.getElementById('requestModal');
+            if (modal && modal.style.display === 'flex') return;
+
+            isBackgroundVerifying = true;
+            try {
+                const cloudRecords = await fetchLatestCloudRecords();
+                if (!Array.isArray(cloudRecords) || cloudRecords.length === 0) {
+                    return;
+                }
+
+                const deletedSet = new Set(getLocalDeletedIds().map(String));
+                const currentMap = new Map();
+                requests.forEach((r, idx) => {
+                    const info = { item: r, index: idx };
+                    if (r.id) currentMap.set('id:' + String(r.id), info);
+                    const w = String(r.wo || '').trim().toLowerCase();
+                    if (w) currentMap.set('wo:' + w, info);
+                    if (r.rowIdx) currentMap.set('row:' + r.rowIdx, info);
+                    const d = String(r.desc || '').trim().toLowerCase();
+                    const p = String(r.plant || '').trim().toLowerCase();
+                    if (d && p) currentMap.set('dp:' + d + '_' + p, info);
+                });
+
+                let updatedCount = 0;
+                let addedCount = 0;
+
+                cloudRecords.forEach(cloudItem => {
+                    const idStr = String(cloudItem.id);
+                    const woStr = String(cloudItem.wo || '').trim().toLowerCase();
+                    const rowKey = cloudItem.rowIdx ? ('row:' + cloudItem.rowIdx) : '';
+                    const dpKey = (cloudItem.desc && cloudItem.plant) ? ('dp:' + String(cloudItem.desc).trim().toLowerCase() + '_' + String(cloudItem.plant).trim().toLowerCase()) : '';
+
+                    if (deletedSet.has(idStr)) return;
+                    if (woStr && deletedSet.has('wo_' + woStr)) return;
+
+                    let match = currentMap.get('id:' + idStr);
+                    if (!match && woStr) match = currentMap.get('wo:' + woStr);
+                    if (!match && rowKey) match = currentMap.get(rowKey);
+                    if (!match && dpKey) match = currentMap.get(dpKey);
+
+                    if (match) {
+                        const local = match.item;
+                        const idx = match.index;
+
+                        // Check every field for differences
+                        const statusChanged = (local.status || DEFAULT_STATUS).trim().toLowerCase() !== (cloudItem.status || DEFAULT_STATUS).trim().toLowerCase();
+                        const remarksChanged = (local.remarks || '') !== (cloudItem.remarks || '');
+                        const descChanged = (local.desc || '') !== (cloudItem.desc || '');
+                        const plantChanged = (local.plant || '') !== (cloudItem.plant || '');
+                        const woChanged = (local.wo || '') !== (cloudItem.wo || '');
+                        const dateChanged = (local.date || '') !== (cloudItem.date || '');
+                        const timeChanged = (local.time || '') !== (cloudItem.time || '');
+                        const teamChanged = (local.team || '') !== (cloudItem.team || '');
+
+                        const isChanged = statusChanged || remarksChanged || descChanged || plantChanged || woChanged || dateChanged || timeChanged || teamChanged;
+
+                        if (isChanged) {
+                            updatedCount++;
+                            const mergedItem = { ...local, ...cloudItem };
+                            requests[idx] = mergedItem;
+
+                            let msg = '';
+                            const woTag = mergedItem.wo ? `WO #${mergedItem.wo}` : `Request (${mergedItem.plant || 'Record'})`;
+                            if (statusChanged) {
+                                msg = `${woTag}: Status updated to "${cloudItem.status}"`;
+                            } else if (descChanged || plantChanged) {
+                                msg = `${woTag}: Details refreshed from cloud`;
+                            } else if (remarksChanged) {
+                                msg = `${woTag}: Comments refreshed`;
+                            } else {
+                                msg = `${woTag}: Data updated from cloud`;
+                            }
+
+                            // SURGICAL: Only update this specific row in DOM!
+                            refreshSingleEntryInDOM(mergedItem, msg);
+                        }
+                    } else {
+                        // New row entered in cloud
+                        addedCount++;
+                        const newReq = { ...cloudItem };
+                        requests.unshift(newReq);
+                        refreshSingleEntryInDOM(newReq, `New request synced: WO #${newReq.wo || newReq.id}`);
+                    }
+                });
+
+                if (updatedCount > 0 || addedCount > 0) {
+                    localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
+                    renderStatusSummaryCounts();
+                }
+
+                updateStatusIndicator('online');
+            } catch (err) {
+                console.warn("Background cross-verification note:", err);
+            } finally {
+                isBackgroundVerifying = false;
+            }
+        }
+
+        let backgroundSyncTimer = null;
+        function startBackgroundCrossVerification() {
+            if (backgroundSyncTimer) clearInterval(backgroundSyncTimer);
+            // Cross-verify every 10 seconds in the background
+            backgroundSyncTimer = setInterval(checkAndCrossVerifyCloudChanges, 10000);
+        }
+
         function renderTable(filterText = "") {
             const tbody = document.getElementById('requestTableBody');
             if(!tbody) return;
@@ -4323,108 +4738,10 @@ input[type="date"] {
                 counts[s] = (counts[s] || 0) + 1;
 
                 const tr = document.createElement('tr');
-                const statusStyle = getStatusStyle(req.status);
-                
-                let actionsHtml = '';
-                if (canAccessActions) {
-                    const isArch = isRequestArchived(req);
-                    const archIcon = isArch ? 'fa-box-open' : 'fa-archive';
-                    const archTitle = isArch ? 'Unarchive Request' : 'Archive Request';
-                    const archColor = isArch ? '#d97706' : '#64748b';
-                    const isSup = userIsSupervisor || userIsDeveloper;
-                    const canEdit = canUserEditRequest(req);
-
-                    let actionContent = '';
-                    if (isSup) {
-                        actionContent = `
-                            <i class="fab fa-whatsapp icon-whatsapp" title="Send WhatsApp Message" onclick="openWhatsAppModal('${req.id}')" style="cursor:pointer; margin-right:10px; color:#25D366; font-size:15px;"></i>
-                            <i class="fas ${archIcon} icon-archive" title="${archTitle}" onclick="toggleArchiveRequest('${req.id}')" style="cursor:pointer; margin-right:10px; color:${archColor}; font-size:14px;"></i>
-                            <i class="fas fa-edit icon-edit" title="Edit" onclick="openRequestModal('${req.id}')" style="cursor:pointer; margin-right:10px; color:var(--primary); font-size:14px;"></i>
-                            <i class="fas fa-trash icon-delete" title="Delete" onclick="deleteRequest('${req.id}')" style="cursor:pointer; color:var(--danger); font-size:14px;"></i>
-                        `;
-                    } else if (canEdit) {
-                        actionContent = `
-                            <button type="button" class="btn-action" title="Edit Request" onclick="openRequestModal('${req.id}')" style="background:rgba(26,115,232,0.1); color:var(--primary); border:1.5px solid rgba(26,115,232,0.35); border-radius:6px; padding:4px 10px; font-size:12px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:5px; transition:all 0.15s ease;" onmouseover="this.style.background='var(--primary)'; this.style.color='white';" onmouseout="this.style.background='rgba(26,115,232,0.1)'; this.style.color='var(--primary)';">
-                                <i class="fas fa-edit" style="font-size:12px;"></i> <span>Edit</span>
-                            </button>
-                        `;
-                    } else {
-                        actionContent = `<span style="color:var(--text-muted); font-size:12px; opacity:0.4;">-</span>`;
-                    }
-
-                    actionsHtml = `
-                        <td class="action-icons" style="text-align:right; white-space:nowrap;">
-                            ${actionContent}
-                        </td>
-                    `;
-                }
-                
-                let statusHtml = `<span class="status-tag" style="${statusStyle}">${sanitizeInput(req.status || DEFAULT_STATUS)}</span>`;
-                if (userIsSupervisor) {
-                    statusHtml = `
-                    <div style="display:inline-flex;align-items:center;gap:6px;width:100%;max-width:150px;">
-                        <select class="status-tag inline-select" 
-                                style="${statusStyle};flex:1;min-width:110px;"
-                                id="inline-status-${sanitizeInput(req.id)}" 
-                                data-original="${sanitizeInput(req.status)}" 
-                                onchange="onInlineStatusChange('${sanitizeInput(req.id)}', this)">
-                            ${getStatusOptionsHTML(req.status)}
-                        </select>
-                        <button id="save-status-btn-${sanitizeInput(req.id)}" 
-                                onclick="saveInlineStatus('${sanitizeInput(req.id)}')" 
-                                title="Click to Save Status" 
-                                style="visibility:hidden;opacity:0;pointer-events:none;background:#16a34a;color:white;border:none;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:0.85rem;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 2px 5px rgba(22,163,74,0.35);flex-shrink:0;transition:opacity 0.15s ease;">
-                            <i class="fas fa-check"></i>
-                        </button>
-                    </div>`;
-                }
-                
-                const isSelected = selectedRequestIds.has(String(req.id));
-                const safeWo = sanitizeInput(req.wo || '');
-                const safeWoDisplay = req.wo ? safeWo : `<span style="color:var(--text-muted);font-style:italic;font-weight:normal;">N/A</span>`;
-                const woCopyClick = req.wo ? `data-copy-wo="${safeWo}" onclick="navigator.clipboard.writeText(this.getAttribute('data-copy-wo')); showToast('Copied: ' + this.getAttribute('data-copy-wo'))" title="Click to copy"` : '';
-                const safeDesc = sanitizeInput(req.desc || '-');
-                const safePlant = sanitizeInput(req.plant || '-');
-                const safeDate = sanitizeInput(formatDisplayDateWithDots(req.date));
-                const safeTime = sanitizeInput(req.time || '');
-                const safeTeam = sanitizeInput(req.team || '-');
-
-                // Comment icon calculation right after team member name
-                const rawRemarks = (req.remarks || req.comment || '').trim();
-                const auditMatches = rawRemarks.match(/\[Edited:[^\]]+\]/g);
-                const userOnlyRemarks = rawRemarks.replace(/\[Edited:[^\]]+\]/g, '').trim();
-                const hasComment = Boolean(userOnlyRemarks && userOnlyRemarks !== '-' && userOnlyRemarks.toLowerCase() !== 'none');
-                const hasAudit = Boolean(auditMatches && auditMatches.length > 0);
-                const hasAnyNote = hasComment || hasAudit;
-
-                let commentIconHtml = '';
-                if (hasAnyNote) {
-                    commentIconHtml = `<button type="button" onclick="event.stopPropagation(); showCommentPopup('${sanitizeInput(req.id)}')" title="View Comment &amp; Remarks" style="background:none; border:none; padding:2px 4px; margin-left:6px; cursor:pointer; vertical-align:middle; display:inline-flex; align-items:center; border-radius:4px; color:#d97706; transition:transform 0.15s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">
-                        <i class="fas fa-comment-dots" style="font-size:13px;"></i>
-                    </button>`;
-                } else {
-                    commentIconHtml = `<button type="button" onclick="event.stopPropagation(); showCommentPopup('${sanitizeInput(req.id)}')" title="Add / View Comment" style="background:none; border:none; padding:2px 4px; margin-left:6px; cursor:pointer; vertical-align:middle; display:inline-flex; align-items:center; border-radius:4px; color:var(--text-muted); opacity:0.38; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.38'">
-                        <i class="far fa-comment" style="font-size:12px;"></i>
-                    </button>`;
-                }
-
-                tr.innerHTML = `
-                    <td class="td-select-col" style="text-align:center; width:36px; display:${isSelectionModeActive ? '' : 'none'};" onclick="event.stopPropagation()">
-                        <input type="checkbox" class="row-select-checkbox" data-id="${sanitizeInput(req.id)}" ${isSelected ? 'checked' : ''} onchange="onRowSelectChange('${sanitizeInput(req.id)}', this.checked)" style="cursor:pointer; width:16px; height:16px; accent-color:var(--primary);">
-                    </td>
-                    <td style="font-weight:700; color:var(--primary); cursor:${req.wo ? 'pointer' : 'default'};" ${woCopyClick}>${safeWoDisplay}</td>
-                    <td>${safeDesc}</td>
-                    <td><span style="background:var(--bg-surface);padding:3px 8px;border-radius:4px;font-size:.8rem;border:1px solid var(--border);">${safePlant}</span></td>
-                    <td>${safeDate}<br><span style="font-size:0.75rem;color:var(--text-muted);">${safeTime}</span></td>
-                    <td style="white-space:nowrap;">
-                        <div style="display:inline-flex;align-items:center;">
-                            <span>${safeTeam}</span>
-                            ${commentIconHtml}
-                        </div>
-                    </td>
-                    <td>${statusHtml}</td>
-                    ${actionsHtml}
-                `;
+                tr.id = "req-row-" + req.id;
+                tr.setAttribute('data-req-id', req.id);
+                if (req.wo) tr.setAttribute('data-req-wo', String(req.wo).trim().toLowerCase());
+                tr.innerHTML = buildSingleRowHTML(req);
                 tbody.appendChild(tr);
             });
             
@@ -4439,24 +4756,7 @@ input[type="date"] {
             }
 
             // Update Summary (Count strictly of entries visible on the current page; hide if 0)
-            const sumDiv = document.getElementById('status-summary');
-            if(sumDiv) {
-                const defaultStatuses = STATUS_CONFIG.map(sc => sc.value);
-                const allKeys = [...defaultStatuses];
-                Object.keys(counts).forEach(k => {
-                    if (!allKeys.includes(k)) allKeys.push(k);
-                });
-                const visibleKeys = allKeys.filter(k => (counts[k] || 0) > 0);
-                if (visibleKeys.length === 0) {
-                    sumDiv.innerHTML = '';
-                } else {
-                    sumDiv.innerHTML = visibleKeys.map(k => {
-                        const v = counts[k];
-                        const st = getStatusItem(k);
-                        return `<div style="background:${st.bg}; border:1px solid ${st.border}; color:${st.color}; padding:5px 12px; border-radius:20px; font-size:0.85rem; font-weight:700;"><span style="opacity:0.85;">${k}:</span> <span style="font-weight:900;">${v}</span></div>`;
-                    }).join('');
-                }
-            }
+            renderStatusSummaryCounts(filterText);
 
             if(tbody.innerHTML === '') {
                 const colSpan = (canAccessActions ? 8 : 7) + (isSelectionModeActive ? 1 : 0);
@@ -4467,7 +4767,7 @@ input[type="date"] {
         }
 
         function updateStatusSummary() {
-            renderTable(document.getElementById('searchInput') ? document.getElementById('searchInput').value : "");
+            renderStatusSummaryCounts();
         }
 
         function filterRequests() {

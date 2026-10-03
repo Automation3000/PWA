@@ -94,7 +94,8 @@ function saveInventoryHistoryCache(data) {
 }
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
+const ALT_PORT = (process.env.PORT && String(process.env.PORT) !== '3000') ? Number(process.env.PORT) : null;
 
 // Security: Enforce request payload size limit to prevent Memory Exhaustion / DoS
 app.use(express.json({ limit: '1mb' }));
@@ -571,13 +572,58 @@ app.get('/api/operation-requests', async (req, res) => {
     }
 
     if (data && data.status === 'success' && Array.isArray(data.data)) {
+      const deletedList = loadDeletedIds();
+      const statusOverrides = loadStatusOverrides();
+      let overridesModified = false;
+
       const cleaned = data.data.filter(r => {
         const wo = String(r['Work Order'] || r.wo || '').trim();
         const desc = String(r['Description'] || r.desc || '').trim();
         const plant = String(r['Plant'] || r.plant || '').trim();
-        return Boolean(wo || desc || plant);
+        const idStr = String(r['ID'] || r.id || '');
+        if (!wo && !desc && !plant) return false;
+        if (idStr && deletedList.includes(idStr)) return false;
+        if (wo && deletedList.includes('wo_' + wo.toLowerCase())) return false;
+        return true;
+      }).map((r, idx) => {
+        const idStr = String(r['ID'] || r.id || ('row_' + (idx + 2)));
+        const cloudStatus = String(r['Status'] || r.status || 'Requested').trim();
+        
+        // Cloud response is authoritative: clear any stale local override for this ID or WO
+        if (statusOverrides[idStr]) {
+          delete statusOverrides[idStr];
+          overridesModified = true;
+        }
+        const woKey = String(r['Work Order'] || r.wo || '').trim().toLowerCase();
+        if (woKey && statusOverrides['wo_' + woKey]) {
+          delete statusOverrides['wo_' + woKey];
+          overridesModified = true;
+        }
+
+        r['Status'] = cloudStatus || 'Requested';
+        r.status = cloudStatus || 'Requested';
+        return r;
       });
-      cached = cleaned;
+
+      if (overridesModified) {
+        saveStatusOverrides(statusOverrides);
+      }
+
+      // Retain items from local cached that have not yet reached cloud (and are not deleted)
+      const cloudWos = new Set(cleaned.map(c => String(c['Work Order'] || c.wo || '').trim().toLowerCase()).filter(Boolean));
+      const cloudIds = new Set(cleaned.map(c => String(c['ID'] || c.id || '')).filter(Boolean));
+
+      const pendingLocal = (Array.isArray(cached) ? cached : []).filter(item => {
+        const itemWo = String(item['Work Order'] || item.wo || '').trim().toLowerCase();
+        const itemId = String(item['ID'] || item.id || '');
+        if (itemId && deletedList.includes(itemId)) return false;
+        if (itemWo && deletedList.includes('wo_' + itemWo)) return false;
+        if (itemWo && cloudWos.has(itemWo)) return false;
+        if (itemId && cloudIds.has(itemId)) return false;
+        return true;
+      });
+
+      cached = [...pendingLocal, ...cleaned];
       saveLocalData(cached);
       return res.json({ status: 'success', data: cached, source: 'cloud' });
     }
@@ -984,7 +1030,7 @@ app.post('/api/operation-requests', async (req, res) => {
       redirect: 'follow'
     }).catch(err => console.error("Apps Script saveTeamContact error:", err));
 
-    return res.json({ status: 'success', message: 'Team Contact saved to Google Sheet & cache', code: targetCode });
+    return res.json({ status: 'success', message: 'Team Contact saved to Cloud & cache', code: targetCode });
   }
 
   // Fallback forward
@@ -1131,7 +1177,7 @@ app.post('/api/team-contacts', async (req, res) => {
     redirect: 'follow'
   }).catch(err => console.error("Apps Script Team Contact post error:", err));
 
-  return res.json({ status: 'success', message: 'Team contact saved to Google Sheet', data: list[idx !== -1 ? idx : list.length - 1] });
+  return res.json({ status: 'success', message: 'Team contact saved to Cloud', data: list[idx !== -1 ? idx : list.length - 1] });
 });
 
 // GET ETS Locator Data (Fast local cache with async background refresh)
@@ -1482,7 +1528,7 @@ app.get('/api/inventory', async (req, res) => {
 
   // Also trigger background history revalidation
   setTimeout(() => syncInventoryHistoryFromGAS(true).catch(() => {}), 2000);
-  return res.json({ success: true, message: 'Update saved to cache and queued for Google Sheet sync' });
+  return res.json({ success: true, message: 'Update saved to cache and queued for Cloud sync' });
 });
 
 // POST Inventory Proxy (Always forwards as GET to GAS since GAS Web App only implements doGet)
@@ -1522,7 +1568,7 @@ app.post('/api/inventory', async (req, res) => {
   }
 
   setTimeout(() => syncInventoryHistoryFromGAS(true).catch(() => {}), 2000);
-  return res.json({ success: true, message: 'Update processed in cache and Google Sheet' });
+  return res.json({ success: true, message: 'Update processed in cache and Cloud' });
 });
 
 // POST Clean Ghost / Invalid Empty Rows from Sheet & Cache
@@ -1607,7 +1653,7 @@ app.post('/api/sync-all-to-sheets', async (req, res) => {
 
   return res.json({
     status: 'success',
-    message: 'Sync to Google Sheets completed',
+    message: 'Sync to Cloud completed',
     setupResult,
     contactsResult,
     contactsCount: contacts.length,
@@ -1895,7 +1941,34 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Global error handling middleware
+app.use((err, req, res, next) => {
+  console.error('[Server Error]', err);
+  if (!res.headersSent) {
+    res.status(500).json({ status: 'error', message: 'Internal server error' });
+  }
+});
+
+// Process-level resilience to prevent unexpected server termination
+process.on('uncaughtException', (err) => {
+  console.error('[Process] Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.warn('[Process] Unhandled Rejection:', reason);
+});
+
 app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://localhost:${PORT}`);
   console.log(`Server running on http://0.0.0.0:${PORT}`);
 });
+
+if (ALT_PORT && ALT_PORT !== PORT) {
+  try {
+    app.listen(ALT_PORT, '0.0.0.0', () => {
+      console.log(`Server also running on http://0.0.0.0:${ALT_PORT}`);
+    });
+  } catch (e) {
+    console.warn("Could not bind to alt port:", e.message);
+  }
+}
 

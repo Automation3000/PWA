@@ -3932,7 +3932,7 @@ window.startSmartInstall = async function() {
                                 cloudTarget: 'GAS Master Instrument Sheet'
                             }]
                         });
-                        showToast("Saved and synced online to Google Sheet.", "success");
+                        showToast("Saved and synced online to Cloud.", "success");
                         loadInventory(true);
                     } else {
                         addLog('ERROR', 'Save API rejected', { res: JSON.stringify(res).slice(0,200) });
@@ -4133,7 +4133,7 @@ window.startSmartInstall = async function() {
                             status: 'success',
                             summary: diffData.summary,
                             changes: diffData.changes,
-                            cloudTarget: task.module === 'operation_request' ? 'Google Sheets (Tabreed Cloud Data)' : 'GAS Master Instrument Sheet'
+                            cloudTarget: task.module === 'operation_request' ? 'Cloud (Tabreed Cloud Data)' : 'Cloud Master Instrument'
                         });
 
                         addLog('INFO', `Background auto-synced: ${params.name || params.itemName || 'Record'}`);

@@ -856,7 +856,7 @@
                 <div class="meta-strip">
                     <span class="meta-tag meta-tag-blue">Architecture: Full-Stack Express + PWA SPA</span>
                     <span class="meta-tag meta-tag-green">Cloud Target: Cloud Run (Node.js ESM)</span>
-                    <span class="meta-tag meta-tag-purple">Database: Google Sheets (GAS) + Local Cache</span>
+                    <span class="meta-tag meta-tag-purple">Database: Cloud (GAS) + Local Cache</span>
                     <span class="meta-tag">Port: 3000 (Reverse Proxy Safe)</span>
                     <span class="meta-tag">Offline Tier: Service Worker v17 + LocalStorage Queue</span>
                 </div>
@@ -875,7 +875,7 @@
                             <span style="color:var(--brand-success);">🔄</span> 2-Way Cloud Sync
                         </h3>
                         <p style="font-size:0.88rem; color:var(--text-muted);">
-                            Bi-directional communication between client devices and Google Sheets via Google Apps Script (GAS) Web Apps, buffered through an intelligent Express proxy.
+                            Bi-directional communication between client devices and Cloud via Google Apps Script (GAS) Web Apps, buffered through an intelligent Express proxy.
                         </p>
                     </div>
                     <div class="card">
@@ -1003,7 +1003,7 @@
                             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:10px;">
                                 <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
                                     <b>Operation_Request_GAS.gs.txt</b><br>
-                                    <span style="font-size:0.75rem; color:var(--text-muted);">• Last-row deduplication check before appendRow()<br>• Appends to 'Operation Request' Google Sheet tab<br>• Logs to 'History' sheet tab with 24-hr timestamps</span>
+                                    <span style="font-size:0.75rem; color:var(--text-muted);">• Last-row deduplication check before appendRow()<br>• Appends to 'Operation Request' Cloud tab<br>• Logs to 'History' tab with 24-hr timestamps</span>
                                 </div>
                                 <div style="background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:6px; padding:10px;">
                                     <b>Mix_Data_GAS.gs.txt</b><br>
@@ -1157,7 +1157,7 @@
                                 </div>
                                 <div class="arch-block" onclick="inspectBlock('google-sheets')">
                                     <div class="arch-block-header">
-                                        <span class="arch-block-title">Google Sheets DB</span>
+                                        <span class="arch-block-title">Cloud DB</span>
                                         <span class="arch-block-badge">Cloud Sheets</span>
                                     </div>
                                     <div class="arch-block-desc">Tabreed Master sheets: Requests, Operation History, ETS Locations, Documents.</div>
@@ -1253,7 +1253,7 @@
                             <div class="pipeline-step">
                                 <span class="step-number">Step 04: History Persistence</span>
                                 <span class="step-title">data/operation_history.json &amp; Sheet</span>
-                                <span class="step-body">Persists capped 200 entries locally in data/ and synchronizes bidirectionally with the Google Sheets 'History' tab.</span>
+                                <span class="step-body">Persists capped 200 entries locally in data/ and synchronizes bidirectionally with the Cloud 'History' tab.</span>
                             </div>
                         </div>
                     </div>
@@ -1504,7 +1504,7 @@
                     <div class="card">
                         <h3 style="margin-bottom:10px;">GAS/Operation_Request_GAS.gs.txt</h3>
                         <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:12px;">
-                            Google Apps Script backend deployed as a Web App to interact with Google Sheets:
+                            Google Apps Script backend deployed as a Web App to interact with Cloud:
                         </p>
                         <ul style="font-size:0.86rem; color:var(--text-muted); padding-left:18px; line-height:1.6;">
                             <li><b>Last-Row Deduplication:</b> When processing action 'create', inspects the last sheet row. If workOrder, plant, and description match, duplicate creation is averted.</li>
@@ -1750,7 +1750,7 @@
                                 <td><span class="code-tag" style="color:var(--brand-success); font-weight:700;">GET</span></td>
                                 <td><span class="code-tag">/api/operation-requests</span></td>
                                 <td>None</td>
-                                <td>Returns all current requests from Google Sheet or fallback <span class="code-tag">data/operation_requests.json</span>.</td>
+                                <td>Returns all current requests from Cloud or fallback <span class="code-tag">data/operation_requests.json</span>.</td>
                             </tr>
                             <tr>
                                 <td><span class="code-tag" style="color:var(--brand-primary); font-weight:700;">POST</span></td>
@@ -1917,13 +1917,13 @@
             'gas-sheet': {
                 title: 'Google Apps Script Web Apps',
                 file: '/GAS/Operation_Request_GAS.gs.txt & /GAS/Mix_Data_GAS.gs.txt',
-                desc: 'Cloud functions executing on Google Workspace infrastructure. Appends, updates, deletes rows and writes audit logs into Google Sheets, plus Google Drive PWA preferences sync.',
+                desc: 'Cloud functions executing on Google Workspace infrastructure. Appends, updates, deletes rows and writes audit logs into Cloud, plus Google Drive PWA preferences sync.',
                 role: 'Cloud Backend Handler',
                 funcs: 'doGet(), doPost(), logToHistorySheet(), savePwaConfig()',
                 target: 'Google Drive Spreadsheet & PWA.json'
             },
             'google-sheets': {
-                title: 'Google Sheets Industrial Database',
+                title: 'Cloud Industrial Database',
                 file: 'Remote Cloud Spreadsheet',
                 desc: 'Central cloud data repository storing all work order records, audit history entries, plant listings, and document indexes.',
                 role: 'Cloud Database',
