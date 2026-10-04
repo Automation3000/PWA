@@ -1,0 +1,6 @@
+{
+  "summary":  "Implementation plan for generating a comprehensive, production-grade DeepSeek prompt detailing the entire TABREED Automation App architecture, full API specifications, database/storage schemas, auth workflows, and explicit security/bug audit guidelines.",
+  "updatedAt":  "2026-10-04T12:11:48.849509788Z",
+  "requestFeedback":  true,
+  "userFacing":  true
+}
