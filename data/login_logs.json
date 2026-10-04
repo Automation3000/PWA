@@ -1,0 +1,83 @@
+[
+  {
+    "timestamp": "04.10.2026 11:55:15",
+    "code": "41764",
+    "name": "Majeed",
+    "role": "User",
+    "plantShift": "-",
+    "device": "Desktop (Verification)",
+    "loggedAt": "2026-10-04T11:55:15.408Z"
+  },
+  {
+    "timestamp": "04.10.2026 15:42:33",
+    "code": "41764",
+    "name": "Majeed",
+    "role": "Developer",
+    "plantShift": "-",
+    "device": "Desktop (TABREED Automation App)",
+    "loggedAt": "2026-10-04T11:42:33.253Z"
+  },
+  {
+    "timestamp": "04.10.2026 15:42:17",
+    "code": "40078",
+    "name": "Bibin",
+    "role": "Supervisor",
+    "plantShift": "-",
+    "device": "Desktop (TABREED Automation App)",
+    "loggedAt": "2026-10-04T11:42:17.428Z"
+  },
+  {
+    "timestamp": "04.10.2026 15:41:59",
+    "code": "40078",
+    "name": "Bibin",
+    "role": "Supervisor",
+    "plantShift": "-",
+    "device": "Desktop (TABREED Automation App)",
+    "loggedAt": "2026-10-04T11:41:59.409Z"
+  },
+  {
+    "timestamp": "04.10.2026 15:41:15",
+    "code": "41764",
+    "name": "Majeed",
+    "role": "Developer",
+    "plantShift": "-",
+    "device": "Desktop (TABREED Automation App)",
+    "loggedAt": "2026-10-04T11:41:15.896Z"
+  },
+  {
+    "timestamp": "04.10.2026 15:41:06",
+    "code": "41764",
+    "name": "Majeed",
+    "role": "Developer",
+    "plantShift": "-",
+    "device": "Desktop (TABREED Automation App)",
+    "loggedAt": "2026-10-04T11:41:07.354Z"
+  },
+  {
+    "timestamp": "04.10.2026 11:35:06",
+    "code": "41764",
+    "name": "Majeed",
+    "role": "Developer",
+    "plantShift": "Operations",
+    "device": "Desktop (Unified Auth Test)",
+    "loggedAt": "2026-10-04T11:35:06.637Z"
+  },
+  {
+    "timestamp": "04.10.2026 15:32:13",
+    "code": "41764",
+    "name": "Majeed",
+    "role": "Developer",
+    "plantShift": "-",
+    "device": "Desktop (Home Dashboard)",
+    "loggedAt": "2026-10-04T11:32:13.977Z"
+  },
+  {
+    "timestamp": "04.10.2026 11:27:22",
+    "code": "41764",
+    "name": "Majeed",
+    "role": "Developer",
+    "plantShift": "Shift A",
+    "device": "Desktop (Test)",
+    "loggedAt": "2026-10-04T11:27:22.462Z"
+  }
+]

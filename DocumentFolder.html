@@ -716,10 +716,20 @@
                     </div>
                 </div>
 
-                <div class="header-actions">
+                <div class="header-actions" style="display:flex;align-items:center;gap:8px;">
                     <button class="theme-toggle-btn" id="darkModeToggleBtn" onclick="toggleDarkMode()" title="Toggle Dark Mode">
                         <i class="fas fa-moon"></i>
                     </button>
+                    <!-- Login Button -->
+                    <button id="header-login-btn" onclick="promptLogin()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;padding:6px 14px;font-size:11px;font-weight:700;border-radius:20px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;box-shadow:0 3px 10px rgba(37,99,235,.35);">
+                        <i class="fas fa-sign-in-alt"></i> <span>LOGIN</span>
+                    </button>
+                    <!-- User Profile Button -->
+                    <div id="header-user-btn" onclick="openUserProfileModal()" style="display:none;align-items:center;gap:7px;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);color:var(--primary);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;" title="User Profile">
+                        <i class="fas fa-user-circle" style="font-size:14px;color:var(--primary);"></i>
+                        <span id="header-user-name">User</span>
+                        <span id="header-user-role-badge" style="display:none;font-size:9px;color:white;padding:1px 6px;border-radius:6px;text-transform:uppercase;font-weight:800;"></span>
+                    </div>
                 </div>
             </div>
         </header>
@@ -826,7 +836,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h3><i class="fas fa-cloud-upload-alt"></i> Upload to Document Library</h3>
-                <button onclick="closeUploadModal()">&times;</button>
+                <button class="auth-close-btn" aria-label="Close" onclick="closeUploadModal()">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
@@ -870,8 +880,9 @@
     </button>
 
     <!-- Toast Notification Container -->
-    <div class="toast-container pos-bottom" id="toastContainer"></div>
-
+    <!-- Centralized Configuration & Unified Auth Module -->
+    <script src="config.js"></script>
+    <script src="auth-module.js"></script>
     <script>
         function applyUserSettings(settings) {
             document.body.classList.remove('toast-minimal', 'toast-glassy', 'toast-outlined', 'toast-neon', 'toast-soft-shadow', 'toast-solid');

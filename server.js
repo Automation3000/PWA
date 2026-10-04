@@ -553,10 +553,10 @@ app.get('/api/operation-requests', async (req, res) => {
   const forceRefresh = req.query.refresh === 'true';
   let cached = loadLocalData();
 
-  // Always attempt live fetch from Google Apps Script with 12s timeout
+  // Always attempt live fetch from Google Apps Script with 25s timeout
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 12000);
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
     const response = await fetch(APPS_SCRIPT_URL + '?t=' + Date.now(), {
       redirect: 'follow',
       signal: controller.signal
@@ -614,6 +614,10 @@ app.get('/api/operation-requests', async (req, res) => {
       const cloudIds = new Set(cleaned.map(c => String(c['ID'] || c.id || '')).filter(Boolean));
 
       const pendingLocal = (Array.isArray(cached) ? cached : []).filter(item => {
+        // Only retain an item if it was created locally within the last 60 seconds and marked as a fresh draft
+        if (!item || !item._isLocalDraft) return false;
+        if (Date.now() - (item._createdAt || 0) > 60000) return false;
+
         const itemWo = String(item['Work Order'] || item.wo || '').trim().toLowerCase();
         const itemId = String(item['ID'] || item.id || '');
         if (itemId && deletedList.includes(itemId)) return false;
@@ -761,20 +765,34 @@ app.post('/api/operation-requests', async (req, res) => {
 
   if (action === 'delete') {
     const idToDelete = String(body.id || '');
+    const rawId = String(body.rawId || '');
     const wo = String(body.workOrder || '').trim();
     const rowIdx = Number(body.rowIdx || 0);
     const desc = String(body.description || body.desc || '').trim();
     const plant = String(body.plant || '').trim();
 
-    if (idToDelete) {
-      if (!deletedList.includes(idToDelete)) {
-        deletedList.push(idToDelete);
-        saveDeletedIds(deletedList);
-      }
-      if (statusOverrides[idToDelete]) {
-        delete statusOverrides[idToDelete];
-        saveStatusOverrides(statusOverrides);
-      }
+    if (idToDelete && !deletedList.includes(idToDelete)) {
+      deletedList.push(idToDelete);
+    }
+    if (rawId && !deletedList.includes(rawId)) {
+      deletedList.push(rawId);
+    }
+    if (wo && !deletedList.includes('wo_' + wo.toLowerCase())) {
+      deletedList.push('wo_' + wo.toLowerCase());
+    }
+    if (!wo && desc && plant) {
+      const entryKey = 'entry_' + desc.toLowerCase() + '_' + plant.toLowerCase();
+      if (!deletedList.includes(entryKey)) deletedList.push(entryKey);
+    }
+    saveDeletedIds(deletedList);
+
+    if (idToDelete && statusOverrides[idToDelete]) {
+      delete statusOverrides[idToDelete];
+      saveStatusOverrides(statusOverrides);
+    }
+    if (rawId && statusOverrides[rawId]) {
+      delete statusOverrides[rawId];
+      saveStatusOverrides(statusOverrides);
     }
 
     cached = cached.filter(item => {
@@ -785,6 +803,7 @@ app.post('/api/operation-requests', async (req, res) => {
       const itemRowIdx = Number(item.rowIdx || 0);
 
       if (idToDelete && itemId === idToDelete) return false;
+      if (rawId && itemId === rawId) return false;
       if (wo && itemWo && itemWo.toLowerCase() === wo.toLowerCase()) return false;
       if (!wo && rowIdx && itemRowIdx && itemRowIdx === rowIdx) return false;
       if (!wo && desc && plant && itemDesc.toLowerCase() === desc.toLowerCase() && itemPlant.toLowerCase() === plant.toLowerCase()) return false;
@@ -944,7 +963,9 @@ app.post('/api/operation-requests', async (req, res) => {
       "Team": body.team || '',
       "Status": body.status || 'Requested',
       "Remarks": body.remarks || '',
-      "ID": newId
+      "ID": newId,
+      "_isLocalDraft": true,
+      "_createdAt": Date.now()
     };
     cached.unshift(newItem);
     saveLocalData(cached);
@@ -1896,6 +1917,85 @@ app.post('/api/pwa-preferences/factory-reset', async (req, res) => {
   return res.json({ status: 'success', message: 'All employees factory reset to Developer Defaults', data: currentData });
 });
 
+// ─────────────────────────────────────────────────────────────
+// LOGIN LOGS SYSTEM (Logged into Mix Data "Login Log" Sheet)
+// ─────────────────────────────────────────────────────────────
+const LOGIN_LOGS_FILE = path.join(DATA_DIR, 'login_logs.json');
+
+function loadLoginLogs() {
+  try {
+    if (fs.existsSync(LOGIN_LOGS_FILE)) {
+      return JSON.parse(fs.readFileSync(LOGIN_LOGS_FILE, 'utf8'));
+    }
+  } catch (e) {}
+  return [];
+}
+
+function saveLoginLogs(logs) {
+  try {
+    fs.writeFileSync(LOGIN_LOGS_FILE, JSON.stringify(logs.slice(-300), null, 2), 'utf8');
+  } catch (e) {}
+}
+
+app.post('/api/log-login', async (req, res) => {
+  const body = req.body || {};
+  const user = body.user || body.userName || body.short || body.name || 'User';
+  const code = String(body.code || body.userCode || body.empCode || '').trim();
+  const role = body.role || 'user';
+  const plantShift = body.plantShift || body.plant || body.shift || '-';
+  const device = body.device || body.platform || 'PWA Web App';
+
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const timestamp = body.timestamp || `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+  const entry = {
+    timestamp,
+    code,
+    name: user,
+    role,
+    plantShift,
+    device,
+    loggedAt: now.toISOString()
+  };
+
+  // 1. Save to local server JSON file
+  const logs = loadLoginLogs();
+  logs.unshift(entry);
+  saveLoginLogs(logs);
+
+  // 2. Forward to Mix Data Google Apps Script to write into "Login Log" sheet
+  let targetGasUrl = MIX_DATA_GAS_URL;
+  try {
+    const pwaPref = loadPwaPreferences();
+    if (pwaPref && pwaPref.gasUrl) targetGasUrl = pwaPref.gasUrl.trim();
+  } catch(e) {}
+  if (targetGasUrl) {
+    fetch(targetGasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'logLogin',
+        timestamp,
+        code,
+        name: user,
+        role,
+        plantShift,
+        device
+      }),
+      redirect: 'follow',
+      signal: AbortSignal.timeout(10000)
+    }).catch(err => console.warn('[Login Log] Mix Data GAS sync note:', err.message));
+  }
+
+  return res.json({ status: 'success', message: 'Login logged successfully', entry });
+});
+
+app.get('/api/log-login', (req, res) => {
+  const logs = loadLoginLogs();
+  return res.json({ status: 'success', logs });
+});
+
 // Handle case-insensitive index request for PWA start_url (/Index.html)
 app.get(['/Index.html', '/index.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -1911,6 +2011,7 @@ const DATA_JSON_FILES = new Set([
   'deleted_requests.json',
   'status_overrides.json',
   'team_contacts.json',
+  'login_logs.json',
   'pwa_preferences.json',
   'inventory_cache.json',
   'inventory_history_cache.json'

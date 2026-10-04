@@ -193,9 +193,16 @@
                     <p style="font-size:.7rem;color:var(--text-muted);">Automation App</p>
                 </div>
             </div>
-            <button id="header-login-btn" onclick="promptLogin()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;padding:6px 14px;font-size:11px;font-weight:700;border-radius:20px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;box-shadow:0 3px 10px rgba(37,99,235,.35);">
-                <i class="fas fa-user-circle"></i> Login
-            </button>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <button id="header-login-btn" onclick="promptLogin()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:white;border:none;padding:6px 14px;font-size:11px;font-weight:700;border-radius:20px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;box-shadow:0 3px 10px rgba(37,99,235,.35);">
+                    <i class="fas fa-sign-in-alt"></i> <span>LOGIN</span>
+                </button>
+                <div id="header-user-btn" onclick="openUserProfileModal()" style="display:none;align-items:center;gap:7px;background:rgba(37,99,235,0.12);border:1px solid rgba(37,99,235,0.3);color:var(--primary);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;user-select:none;" title="User Profile">
+                    <i class="fas fa-user-circle" style="font-size:14px;color:var(--primary);"></i>
+                    <span id="header-user-name">User</span>
+                    <span id="header-user-role-badge" style="display:none;font-size:9px;color:white;padding:1px 6px;border-radius:6px;text-transform:uppercase;font-weight:800;"></span>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -225,6 +232,9 @@
 
     
 
+    <!-- Centralized Configuration & Unified Auth Module -->
+    <script src="config.js"></script>
+    <script src="auth-module.js"></script>
     <script>
 
         const THEME_KEY = 'tabreed_selected_theme';
@@ -245,44 +255,81 @@
         
         function loadCurrentUserAndSettings() {
             try {
-                const curUserStr = localStorage.getItem('tabreed_currentUser');
-                if (curUserStr) {
-                    const curUser = JSON.parse(curUserStr);
-                    const code = curUser.code || curUser.empId;
-                    if (code) {
-                        const settingsStr = localStorage.getItem('tabreed_settings_' + code);
-                        if (settingsStr) {
-                            applyUserSettings(JSON.parse(settingsStr));
+                if (window.TabreedAuth) {
+                    TabreedAuth.onAuthChange((user) => {
+                        if (user) {
+                            const empInput = document.getElementById('fbEmpId');
+                            const nameInput = document.getElementById('fbName');
+                            if (empInput) empInput.value = user.code || '';
+                            if (nameInput) nameInput.value = user.full || user.short || '';
+                            const code = user.code;
+                            if (code) {
+                                const settingsStr = localStorage.getItem('tabreed_settings_' + code);
+                                if (settingsStr) applyUserSettings(JSON.parse(settingsStr));
+                            }
                         }
-                        const btn = document.getElementById('header-login-btn');
-                        if (btn) btn.style.display = 'none';
-                    }
+                    });
+                }
+                const curUser = (window.TabreedAuth && TabreedAuth.getUser()) || JSON.parse(localStorage.getItem('tabreed_currentUser') || 'null');
+                if (curUser) {
+                    const empInput = document.getElementById('fbEmpId');
+                    const nameInput = document.getElementById('fbName');
+                    if (empInput && !empInput.value) empInput.value = curUser.code || '';
+                    if (nameInput && !nameInput.value) nameInput.value = curUser.full || curUser.short || '';
                 }
             } catch(e){}
         }
         
         document.addEventListener('DOMContentLoaded', loadCurrentUserAndSettings);
 
-        
         function promptLogin() {
-            const code = prompt("Enter Employee Code:");
+            if (window.TabreedAuth) {
+                window.TabreedAuth.promptLogin('Share Feedback');
+                return;
+            }
+            const code = prompt("Enter Password:");
             if (!code) return;
             const emps = getEmployees();
             const match = emps.find(emp => String(emp.code) === code);
             if (match) {
-                localStorage.setItem('tabreed_currentUser', JSON.stringify({
+                const isSuper = (match.code === '41764' || match.short === 'Majeed');
+                const role = isSuper ? 'Developer' : 'User';
+                const userObj = {
                     code: match.code,
                     name: match.name,
                     short: match.short,
-                    role: (match.code === '41764' || match.short === 'Majeed') ? 'developer' : 'user'
-                }));
+                    role: role
+                };
+                localStorage.setItem('tabreed_currentUser', JSON.stringify(userObj));
                 showToast('Logged in as ' + match.short, 'success');
                 document.getElementById('fbEmpId').value = match.code;
                 document.getElementById('fbName').value = match.name;
                 document.getElementById('header-login-btn').style.display = 'none';
+
+                // Record Login to Mix Data "Login Log" Sheet
+                try {
+                    const now = new Date();
+                    const pad = n => String(n).padStart(2, '0');
+                    const timestamp = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+                    const payload = {
+                        action: 'logLogin',
+                        timestamp: timestamp,
+                        code: String(match.code || '').trim(),
+                        name: match.short || match.name || 'User',
+                        role: role,
+                        plantShift: '-',
+                        device: (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop') + ' (Share Feedback)'
+                    };
+                    fetch('/api/log-login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    }).catch(() => {});
+                } catch(e) {}
+
                 setTimeout(() => location.reload(), 1000);
             } else {
-                showToast('Invalid Employee Code', 'error');
+                showToast('Invalid Password', 'error');
             }
         }
 
@@ -343,15 +390,11 @@
         }
         
         function isDeveloper() {
+            if (window.TabreedAuth) return window.TabreedAuth.isDeveloper();
             try {
                 const user = JSON.parse(localStorage.getItem('tabreed_currentUser'));
-                return user && (user.role === 'developer' || user.role === 'super_admin' || user.code === '41764' || (user.name && user.name.toLowerCase().includes('majeed')));
+                return !!(user && (user.role === 'developer' || user.role === 'super_admin'));
             } catch(e) { return false; }
-        }
-
-         else {
-                document.body.classList.remove('dark-mode');
-            }
         }
         
         function formatDateDDMMYYYY(timestamp) {

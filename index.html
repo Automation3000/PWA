@@ -1468,8 +1468,10 @@ input:checked + .slider:before { transform: translateX(20px); }
 <div class="toast-container pos-bottom" id="toastContainer"></div>
 
 <!-- ═══════════════════════════════════════
-     JAVASCRIPT
+     JAVASCRIPT & CENTRALIZED AUTH MODULE
 ═══════════════════════════════════════ -->
+<script src="config.js"></script>
+<script src="auth-module.js"></script>
 <script>
     'use strict';
 
@@ -1569,18 +1571,18 @@ input:checked + .slider:before { transform: translateX(20px); }
         
         // Developer Password strictly 'lkku' across all modules and home page
         if (clean === "lkku") {
-            return { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed", role: "super_admin" };
+            return { code: "41764", full: "Abdul Majeed Ansari", short: "Majeed", role: "super_admin" };
         }
 
         // Time-based check for Supervisor (40078)
         if (isTimebaseCode(clean, "40078")) {
-            const bibin = EMPLOYEES.find(e => e.code === "40078") || { code: "40078", full: "BIBIN IPE ABRAHAM", short: "Bibin" };
+            const bibin = EMPLOYEES.find(e => e.code === "40078") || { code: "40078", full: "Bibin Ipe Abraham", short: "Bibin" };
             return { ...bibin, role: "supervisor" };
         }
 
         // Time-based check for Super Admin Majeed (41764)
         if (isTimebaseCode(clean, "41764")) {
-            const majeed = EMPLOYEES.find(e => e.code === "41764") || { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed" };
+            const majeed = EMPLOYEES.find(e => e.code === "41764") || { code: "41764", full: "Abdul Majeed Ansari", short: "Majeed" };
             return { ...majeed, role: "super_admin" };
         }
 
@@ -1802,14 +1804,31 @@ input:checked + .slider:before { transform: translateX(20px); }
         if (currentView === 'NATIVE_INSTRUMENT') openApp('NATIVE_INSTRUMENT', '', false);
         else document.getElementById('fiori-wrapper').style.display = 'flex';
 
-        // Auto-restore User / Developer Session if logged in
-        try {
-            const saved = localStorage.getItem('tabreed_admin_user');
-            if (saved) {
-                const user = JSON.parse(saved);
-                applyUserLogin(user, false);
+        // Auto-restore User / Developer Session via TabreedAuth
+        if (window.TabreedAuth) {
+            TabreedAuth.onAuthChange((user, isExplicit) => {
+                if (user) {
+                    applyUserLogin(user, false);
+                } else {
+                    currentAuthUser = null;
+                    isDevModeActive = false;
+                    const devGroup = document.getElementById('dev-tools-group');
+                    if (devGroup) devGroup.style.display = 'none';
+                }
+            });
+            const existingUser = TabreedAuth.getUser();
+            if (existingUser) {
+                applyUserLogin(existingUser, false);
             }
-        } catch(e) {}
+        } else {
+            try {
+                const saved = localStorage.getItem('tabreed_admin_user');
+                if (saved) {
+                    const user = JSON.parse(saved);
+                    applyUserLogin(user, false);
+                }
+            } catch(e) {}
+        }
     });
 
     /* ──────────────────────────────────────
@@ -1885,11 +1904,10 @@ input:checked + .slider:before { transform: translateX(20px); }
     ────────────────────────────────────── */
     
     function isDeveloper() {
+        if (window.TabreedAuth) return window.TabreedAuth.isDeveloper();
         return !!(currentAuthUser && (
             currentAuthUser.role === 'developer' || 
-            currentAuthUser.role === 'super_admin' || 
-            currentAuthUser.code === '41764' || 
-            (currentAuthUser.name && currentAuthUser.name.toLowerCase().includes('majeed'))
+            currentAuthUser.role === 'super_admin'
         ));
     }
 
@@ -2133,45 +2151,17 @@ input:checked + .slider:before { transform: translateX(20px); }
     let currentAuthUser = null;
 
     function requestDevPassword(callback) {
-        const overlay = document.createElement('div');
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:10001;display:flex;align-items:center;justify-content:center;';
-        overlay.innerHTML = `
-        <div style="background:var(--bg-card);padding:24px;border-radius:16px;width:90%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.4);text-align:center;border:1px solid var(--border);position:relative;">
-            <button id="devPassCloseBtn" aria-label="Close" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:var(--bg-surface);border:1px solid var(--border);font-size:1.3rem;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
-            <div style="font-size:2rem;margin-bottom:8px;">🔐</div>
-            <h3 style="margin:0 0 16px;color:var(--text-primary);font-size:1rem;font-weight:700;">Access Login</h3>
-            <input type="password" id="devPassInput" placeholder="" autocomplete="off"
-                style="width:100%;padding:10px;margin-bottom:14px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;outline:none;text-align:center;background:var(--input-bg);color:var(--text-primary);">
-            <div style="display:flex;gap:10px;">
-                <button id="devPassCancel" style="flex:1;padding:10px;background:var(--bg-surface);color:var(--text-primary);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:600;">Cancel</button>
-                <button id="devPassSubmit" style="flex:1;padding:10px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:700;">Login</button>
-            </div>
-        </div>`;
-        document.body.appendChild(overlay);
-        const input = overlay.querySelector('#devPassInput');
-        input.focus();
-        const close   = () => { if (document.body.contains(overlay)) document.body.removeChild(overlay); };
-        const submit  = () => { const v = input.value; close(); callback(v); };
-        const closeBtn = overlay.querySelector('#devPassCloseBtn');
-        if (closeBtn) closeBtn.onclick = close;
-        overlay.querySelector('#devPassCancel').onclick = close;
-        overlay.querySelector('#devPassSubmit').onclick = submit;
-        input.addEventListener('keydown', e => { 
-            if (e.key === 'Enter') submit(); 
-            if (e.key === 'Escape') close(); 
-        });
-        overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+        if (window.TabreedAuth) {
+            window.TabreedAuth.promptLogin('Home Dashboard', callback);
+            return;
+        }
     }
 
     function promptLogin() {
-        requestDevPassword(pass => {
-            const user = verifyUserLogin(pass);
-            if (user) {
-                applyUserLogin(user, true);
-            } else if (pass && pass.trim()) {
-                showToast("Access Denied: Invalid Password", "error");
-            }
-        });
+        if (window.TabreedAuth) {
+            window.TabreedAuth.promptLogin('Home Dashboard');
+            return;
+        }
     }
 
     let devClickCount = 0, devClickTimer;
@@ -2191,6 +2181,47 @@ input:checked + .slider:before { transform: translateX(20px); }
         }
         devClickTimer = setTimeout(() => { devClickCount = 0; }, 1000);
     }
+
+    function recordUserLoginToMixData(user, sourcePage = 'Dashboard') {
+        if (!user) return;
+        try {
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const timestamp = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            const isSuper = (user.role === 'super_admin' || user.role === 'developer' || user.code === '41764');
+            const isSupervisor = (user.role === 'supervisor' || user.role === 'admin');
+            const role = isSuper ? 'Developer' : (isSupervisor ? 'Supervisor' : (user.role || 'User'));
+            const deviceType = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
+            const payload = {
+                action: 'logLogin',
+                timestamp: timestamp,
+                code: String(user.code || user.id || '').trim(),
+                name: user.short || user.name || user.full || 'User',
+                role: role,
+                plantShift: user.plant || user.shift || user.desc || '-',
+                device: `${deviceType} (${sourcePage})`
+            };
+
+            // 1. Send to local server endpoint
+            fetch('/api/log-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(() => {
+                // 2. Direct fallback to Mix Data GAS if running standalone or offline proxy fails
+                const mixGasUrl = "https://script.google.com/macros/s/AKfycby3rLk9ihwFSTXmDnp0suNtsxNRfZntql7rrPzB2u-l8vYVSMpZyDwOt7kkv_LstERijQ/exec";
+                fetch(mixGasUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload),
+                    mode: 'no-cors'
+                }).catch(() => {});
+            });
+        } catch(e) {
+            console.warn("Login log recording note:", e);
+        }
+    }
+    window.recordUserLoginToMixData = recordUserLoginToMixData;
 
     function applyUserLogin(user, showPopup = true) {
         if (!user) return;
@@ -2239,6 +2270,7 @@ input:checked + .slider:before { transform: translateX(20px); }
             if (devGroup) devGroup.style.display = 'block';
             addLog('INFO', `Developer Mode Activated by ${user.short}`);
             if (showPopup) {
+                recordUserLoginToMixData(user, 'Home Dashboard');
                 showAckPopup("Developer Mode Unlocked", `Welcome, <b>${user.short}</b>! Developer Tools and privileges enabled.`, "fas fa-user-shield", "var(--danger)");
                 setTimeout(() => {
                     const wrapper = document.getElementById('fiori-wrapper');
@@ -2249,6 +2281,7 @@ input:checked + .slider:before { transform: translateX(20px); }
             isDevModeActive = false;
             if (devGroup) devGroup.style.display = 'none';
             if (showPopup) {
+                recordUserLoginToMixData(user, 'Home Dashboard');
                 if (isSupervisor || isAdmin) {
                     showToast(`Welcome, ${user.short}! Supervisor Access active.`, 'success');
                 } else {
@@ -3134,7 +3167,7 @@ window.startSmartInstall = async function() {
     function checkUnlock(slider) {
         if (slider.value >= 95) {
             const defaultCode = currentAuthUser ? currentAuthUser.code : "";
-            const pass = prompt("Enter Employee Code to unlock Expiry Date:", defaultCode);
+            const pass = prompt("Enter Password to unlock Expiry Date:", defaultCode);
             if (!pass) {
                 slider.value = 0;
                 return;
@@ -3147,7 +3180,7 @@ window.startSmartInstall = async function() {
                 document.getElementById('modalExpiry').disabled = false;
                 showToast("Expiry Date Unlocked", "success");
             } else {
-                showToast("Invalid Employee Code.", "error");
+                showToast("Invalid Password.", "error");
                 slider.value = 0;
             }
         }
@@ -5393,7 +5426,7 @@ window.startSmartInstall = async function() {
             return;
         }
 
-        const isDev = currentAuthUser && (currentAuthUser.role === 'developer' || currentAuthUser.role === 'super_admin' || currentAuthUser.code === '41764' || (currentAuthUser.name && currentAuthUser.name.toLowerCase().includes('majeed')));
+        const isDev = isDeveloper();
         
         if (e.ctrlKey && isDev) {
             e.preventDefault();

@@ -1,34 +1,92 @@
-/* TABREED AUTOMATION - MIX DATA & PWA SYNC GOOGLE APPS SCRIPT
-================================================================
-NAME: Mix Data GAS (Google Apps Script)
-PURPOSE: Standalone handler to sync PWA preferences, Tile arrangements, 
-         User settings, and write directly into Google Drive PWA.json file.
+/* ================================================================
+   TABREED AUTOMATION - MIX DATA & LOGIN LOG GOOGLE APPS SCRIPT
+   ================================================================
+   FILE: Mix_Data_GAS.gs.txt (Copy & paste into Mix Data Apps Script)
+   PURPOSE:
+     1. Automatically create and maintain "Login Log" sheet in Mix Data.
+     2. Record all user logins with Timestamp, Employee Code, Name, Role,
+        Plant / Shift, and Device / Platform in a clean, simple format.
+     3. Sync PWA preferences and tile layouts into Google Drive PWA.json.
 
-INSTRUCTIONS (KAAM KAISE KAREGA):
-----------------------------------------------------------------
-1. Google Drive me ek nayi Google Sheet banayein jiska naam rakhein: "Mix Data"
-2. Upar menu me "Extensions" par click karein aur "Apps Script" choose karein.
-3. Code.gs ke andar jo bhi pehle se likha ho use hata kar yeh pura CODE paste karein.
-4. "Save" icon (Ctrl+S) dabayein.
-5. Upar right corner me "Deploy" -> "New deployment" par click karein:
-   - Select type: "Web app" (gear icon par click karke)
-   - Description: "Mix Data & PWA Sync v1"
-   - Execute as: "Me (aapki email)"
-   - Who has access: "Anyone" (Sabse Zaroori Step!)
-6. "Deploy" button dabayein, permissions grant karein (Authorize access -> Advanced -> Go to script (unsafe) -> Allow).
-7. Web App URL copy karein aur app me ya hume provide karein!
-================================================================ */
+   INSTRUCTIONS (KAAM KAISE KAREGA):
+   ----------------------------------------------------------------
+   1. Apni "Mix Data" Google Sheet open karein Google Drive me.
+   2. Upar menu bar me "Extensions" -> "Apps Script" par click karein.
+   3. Code editor me purana code hata kar yeh pura CODE paste karein.
+   4. Save icon (Ctrl + S) dabayein.
+   5. Upar toolbar me "Run" ke sath function dropdown me "createLoginLogSheet"
+      select karke "Run" dabayein (ya pehle login par yeh automatic ban jayegi).
+   6. Deploy karne ke liye:
+      - Upar right corner me "Deploy" -> "Manage deployments" -> Edit (pencil)
+      - Version: "New version"
+      - Execute as: "Me"
+      - Who has access: "Anyone"
+      - Click "Deploy".
+   ================================================================ */
 
-// Google Drive PWA.json File ID
+// Google Drive PWA.json File ID (Default configuration backup)
 const PWA_DRIVE_FILE_ID = '1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX';
 
-// Helper: Response Formatter with CORS Support
+// Helper: Response Formatter with full CORS Support
 function jsonResponse(data) {
   return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-// Helper: Get or Create Sheet Tab for Backup Logs (Clean 1-line log, no raw payload)
+// ─────────────────────────────────────────────────────────────
+// 1. LOGIN LOG SHEET HANDLER (Simple Login Data with Time Stamp)
+// ─────────────────────────────────────────────────────────────
+function getLoginLogSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Login Log');
+  if (!sheet) {
+    sheet = ss.insertSheet('Login Log');
+    
+    // Header row: Simple, clean login data with timestamp
+    var headers = ['Timestamp', 'Employee Code', 'User Name', 'Role', 'Plant / Shift', 'Device / Platform'];
+    sheet.appendRow(headers);
+    
+    // Header formatting
+    sheet.setFrozenRows(1);
+    var headerRange = sheet.getRange(1, 1, 1, 6);
+    headerRange.setFontWeight('bold')
+               .setBackground('#0f172a')
+               .setFontColor('#ffffff')
+               .setHorizontalAlignment('center');
+    
+    // Set clean, readable column widths
+    sheet.setColumnWidth(1, 175); // Timestamp (DD.MM.YYYY HH:mm:ss)
+    sheet.setColumnWidth(2, 130); // Employee Code
+    sheet.setColumnWidth(3, 170); // User Name
+    sheet.setColumnWidth(4, 130); // Role
+    sheet.setColumnWidth(5, 140); // Plant / Shift
+    sheet.setColumnWidth(6, 190); // Device / Platform
+
+    // Set first column as plain text to preserve full date & time formatting
+    sheet.getRange("A:A").setNumberFormat("@");
+  }
+  return sheet;
+}
+
+// Standalone runner function to create or verify "Login Log" sheet in 1-click
+function createLoginLogSheet() {
+  var sheet = getLoginLogSheet();
+  SpreadsheetApp.getActiveSpreadsheet().setActiveSheet(sheet);
+  Logger.log('Login Log sheet ready with ' + sheet.getLastRow() + ' rows.');
+}
+
+// Custom Menu in Google Sheets UI
+function onOpen() {
+  try {
+    SpreadsheetApp.getUi()
+      .createMenu('Tabreed Mix Data')
+      .addItem("Create / Check 'Login Log' Sheet", "createLoginLogSheet")
+      .addItem("Create / Check 'PWA_Sync_Log' Sheet", "getLogSheet")
+      .addToUi();
+  } catch(e) {}
+}
+
+// Helper: Get or Create Sheet Tab for PWA Configuration Sync Logs
 function getLogSheet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('PWA_Sync_Log');
@@ -37,12 +95,17 @@ function getLogSheet() {
     sheet.appendRow(['Timestamp', 'User', 'Action', 'Status', 'Summary']);
     sheet.setFrozenRows(1);
     sheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#1e293b').setFontColor('#ffffff');
+    sheet.setColumnWidth(1, 175);
+    sheet.setColumnWidth(2, 140);
+    sheet.setColumnWidth(3, 130);
+    sheet.setColumnWidth(4, 100);
+    sheet.setColumnWidth(5, 300);
   }
   return sheet;
 }
 
 // ─────────────────────────────────────────────────────────────
-// GET REQUESTS: Read PWA.json or Test Connection
+// 2. GET REQUESTS: Ping, Read Logs, Setup, or Read PWA Config
 // ─────────────────────────────────────────────────────────────
 function doGet(e) {
   try {
@@ -50,13 +113,82 @@ function doGet(e) {
     var action = param.action || 'getPwaConfig';
     var targetFileId = param.fileId || PWA_DRIVE_FILE_ID;
 
-    // Ping / Test
+    // Ping / Health Check
     if (action === 'ping' || action === 'test') {
       return jsonResponse({
         status: 'success',
         message: 'Mix Data GAS is active and connected!',
         fileId: targetFileId,
         timestamp: new Date().toISOString()
+      });
+    }
+
+    // Direct Create / Verify "Login Log" Sheet Tab
+    if (action === 'createLoginLogSheet' || action === 'setup' || action === 'setupLoginLog') {
+      var lSheet = getLoginLogSheet();
+      return jsonResponse({
+        status: 'success',
+        message: '"Login Log" sheet is ready in Mix Data spreadsheet!',
+        sheet: 'Login Log',
+        totalRows: lSheet.getLastRow()
+      });
+    }
+
+    // Log Login via GET (Zero-CORS fast logging fallback)
+    if (action === 'logLogin' || action === 'loginLog') {
+      var logSheet = getLoginLogSheet();
+      var nowStr = Utilities.formatDate(new Date(), 'GMT+4', 'dd.MM.yyyy HH:mm:ss');
+      var code = String(param.code || param.userCode || param.empCode || '').trim();
+      var name = String(param.name || param.userName || param.short || param.user || 'User').trim();
+      var role = String(param.role || 'User').trim();
+      var plantShift = String(param.plantShift || param.plant || param.shift || '-').trim();
+      var device = String(param.device || param.platform || 'PWA Web App').trim();
+      var timestamp = param.timestamp || nowStr;
+
+      logSheet.appendRow([
+        timestamp,
+        code,
+        name,
+        role,
+        plantShift,
+        device
+      ]);
+
+      return jsonResponse({
+        status: 'success',
+        message: 'Login logged successfully in "Login Log" sheet',
+        sheet: 'Login Log',
+        timestamp: timestamp,
+        user: name,
+        code: code
+      });
+    }
+
+    // Read recent Login Logs (Last 100 entries)
+    if (action === 'getLoginLogs') {
+      var lSheet = getLoginLogSheet();
+      var lastRow = lSheet.getLastRow();
+      var logs = [];
+      if (lastRow > 1) {
+        var startRow = Math.max(2, lastRow - 99);
+        var count = lastRow - startRow + 1;
+        var dataRange = lSheet.getRange(startRow, 1, count, 6).getValues();
+        for (var i = dataRange.length - 1; i >= 0; i--) {
+          logs.push({
+            timestamp: dataRange[i][0],
+            code: dataRange[i][1],
+            name: dataRange[i][2],
+            role: dataRange[i][3],
+            plantShift: dataRange[i][4],
+            device: dataRange[i][5]
+          });
+        }
+      }
+      return jsonResponse({
+        status: 'success',
+        sheet: 'Login Log',
+        count: logs.length,
+        logs: logs
       });
     }
 
@@ -82,50 +214,95 @@ function doGet(e) {
       });
     }
 
-    // Fallback info
+    // Default Fallback
     return jsonResponse({
       status: 'success',
-      message: 'Mix Data Web App is running. Use action=getPwaConfig (GET) or action=savePwaConfig (POST).',
+      message: 'Mix Data Web App is running. Supported actions: logLogin, getLoginLogs, createLoginLogSheet, getPwaConfig.',
       targetFileId: targetFileId
     });
 
   } catch (err) {
     return jsonResponse({
       status: 'error',
-      message: 'Drive read error: ' + err.toString()
+      message: 'Mix Data GET error: ' + err.toString()
     });
   }
 }
 
 // ─────────────────────────────────────────────────────────────
-// POST REQUESTS: Write into Google Drive PWA.json & Log Backup
+// 3. POST REQUESTS: Log Login & Save PWA Preferences
 // ─────────────────────────────────────────────────────────────
 function doPost(e) {
   try {
-    if (!e || !e.postData || !e.postData.contents) {
-      return jsonResponse({ status: 'error', message: 'No payload data received.' });
+    var requestData = {};
+    if (e && e.postData && e.postData.contents) {
+      try {
+        requestData = JSON.parse(e.postData.contents);
+      } catch (parseErr) {
+        requestData = { payload: e.postData.contents };
+      }
+    }
+    if (e && e.parameter) {
+      for (var k in e.parameter) {
+        if (!requestData[k]) requestData[k] = e.parameter[k];
+      }
     }
 
-    var requestData = JSON.parse(e.postData.contents);
     var action = requestData.action || 'savePwaConfig';
     var targetFileId = requestData.fileId || PWA_DRIVE_FILE_ID;
-    var user = requestData.user || 'Unknown User';
+    var user = requestData.user || requestData.name || 'Unknown User';
 
+    // 1. ACTION: Log User Login to "Login Log" Sheet
+    if (action === 'logLogin' || action === 'loginLog') {
+      try {
+        var logSheet = getLoginLogSheet();
+        var nowStr = Utilities.formatDate(new Date(), 'GMT+4', 'dd.MM.yyyy HH:mm:ss');
+        var code = String(requestData.code || requestData.userCode || requestData.empCode || '').trim();
+        var name = String(requestData.name || requestData.userName || requestData.short || user || 'User').trim();
+        var role = String(requestData.role || 'User').trim();
+        var plantShift = String(requestData.plantShift || requestData.plant || requestData.shift || '-').trim();
+        var device = String(requestData.device || requestData.platform || 'PWA Web App').trim();
+        var timestamp = requestData.timestamp || nowStr;
+
+        logSheet.appendRow([
+          timestamp,
+          code,
+          name,
+          role,
+          plantShift,
+          device
+        ]);
+
+        return jsonResponse({
+          status: 'success',
+          message: 'Login logged successfully in "Login Log" sheet',
+          sheet: 'Login Log',
+          timestamp: timestamp,
+          user: name,
+          code: code
+        });
+      } catch(logErr) {
+        return jsonResponse({
+          status: 'error',
+          message: 'Error writing to Login Log sheet: ' + logErr.toString()
+        });
+      }
+    }
+
+    // 2. ACTION: Save PWA Config to Google Drive PWA.json
     if (action === 'savePwaConfig' || action === 'update' || action === 'save') {
       var pwaPayload = requestData.pwaData || requestData.data || requestData;
 
-      // Format payload cleanly for Drive JSON
       var jsonString = (typeof pwaPayload === 'string') 
         ? pwaPayload 
         : JSON.stringify(pwaPayload, null, 2);
 
-      // 1. Direct Write to Google Drive PWA.json file
       var driveFile = DriveApp.getFileById(targetFileId);
       driveFile.setContent(jsonString);
 
-      // 2. Log clean 1-line backup entry in "Mix Data" spreadsheet (no raw payload)
+      // Log clean 1-line backup entry in PWA_Sync_Log
       try {
-        var logSheet = getLogSheet();
+        var pwaLogSheet = getLogSheet();
         var nowStr = Utilities.formatDate(new Date(), 'GMT+4', 'dd.MM.yyyy HH:mm:ss');
         var ordersCount = (pwaPayload.moduleOrders && typeof pwaPayload.moduleOrders === 'object')
           ? Object.keys(pwaPayload.moduleOrders).length
@@ -133,7 +310,7 @@ function doPost(e) {
         var counter = pwaPayload.syncCounter || 1;
         var summary = 'PWA Config synced (v' + counter + ') for ' + user + ' (' + ordersCount + ' custom orders)';
 
-        logSheet.appendRow([
+        pwaLogSheet.appendRow([
           nowStr,
           user,
           action,
@@ -141,13 +318,11 @@ function doPost(e) {
           summary
         ]);
 
-        // Keep sheet compact (retain last 100 entries)
-        if (logSheet.getLastRow() > 105) {
-          logSheet.deleteRows(2, logSheet.getLastRow() - 100);
+        // Keep log compact (retain last 100 entries)
+        if (pwaLogSheet.getLastRow() > 105) {
+          pwaLogSheet.deleteRows(2, pwaLogSheet.getLastRow() - 100);
         }
-      } catch(logErr) {
-        // Logging error shouldn't fail file write
-      }
+      } catch(pwaLogErr) {}
 
       return jsonResponse({
         status: 'success',
@@ -168,7 +343,7 @@ function doPost(e) {
   } catch (err) {
     return jsonResponse({
       status: 'error',
-      message: 'Drive write error: ' + err.toString()
+      message: 'Mix Data GAS error: ' + err.toString()
     });
   }
 }

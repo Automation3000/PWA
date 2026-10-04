@@ -936,6 +936,9 @@ input[type="date"] {
         </div>
     </div>
 
+    <!-- Centralized Configuration & Unified Auth Module -->
+    <script src="config.js"></script>
+    <script src="auth-module.js"></script>
     <script>
 
         const THEME_KEY = 'tabreed_selected_theme';
@@ -2133,34 +2136,10 @@ input[type="date"] {
         // LOGIN SYSTEM
         // ──────────────────────────────────────────
         function requestDevPassword(callback) {
-            const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:10001;display:flex;align-items:center;justify-content:center;';
-            overlay.innerHTML = `
-            <div style="background:var(--bg-card);padding:24px;border-radius:16px;width:90%;max-width:300px;box-shadow:0 20px 50px rgba(0,0,0,.4);text-align:center;border:1px solid var(--border);position:relative;">
-                <button id="devPassCloseBtn" aria-label="Close" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:var(--bg-surface);border:1px solid var(--border);font-size:1.3rem;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
-                <div style="font-size:2rem;margin-bottom:8px;">🔐</div>
-                <h3 style="margin:0 0 16px;color:var(--text-primary);font-size:1rem;font-weight:700;">Access Login</h3>
-                <input type="password" id="devPassInput" placeholder="" autocomplete="off"
-                    style="width:100%;padding:10px;margin-bottom:14px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;outline:none;text-align:center;background:var(--input-bg);color:var(--text-primary);">
-                <div style="display:flex;gap:10px;">
-                    <button id="devPassCancel" style="flex:1;padding:10px;background:var(--bg-surface);color:var(--text-primary);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:600;">Cancel</button>
-                    <button id="devPassSubmit" style="flex:1;padding:10px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:700;">Login</button>
-                </div>
-            </div>`;
-            document.body.appendChild(overlay);
-            const input = overlay.querySelector('#devPassInput');
-            input.focus();
-            const close   = () => { if (document.body.contains(overlay)) document.body.removeChild(overlay); };
-            const submit  = () => { const v = input.value; close(); callback(v); };
-            const closeBtn = overlay.querySelector('#devPassCloseBtn');
-            if (closeBtn) closeBtn.onclick = close;
-            overlay.querySelector('#devPassCancel').onclick = close;
-            overlay.querySelector('#devPassSubmit').onclick = submit;
-            input.addEventListener('keydown', e => { 
-                if (e.key === 'Enter') submit(); 
-                if (e.key === 'Escape') close(); 
-            });
-            overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+            if (window.TabreedAuth) {
+                window.TabreedAuth.promptLogin('Operation Requests', callback);
+                return;
+            }
         }
 
         function toTitleCase(str) {
@@ -2214,7 +2193,7 @@ input[type="date"] {
             
             // Developer Password strictly 'lkku' across all modules and home page
             if (clean === "lkku") {
-                return { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed", role: "super_admin" };
+                return { code: "41764", full: "Abdul Majeed Ansari", short: "Majeed", role: "super_admin" };
             }
 
             // Time-based check for Supervisor (40078)
@@ -2225,7 +2204,7 @@ input[type="date"] {
 
             // Time-based check for Super Admin Majeed (41764)
             if (isTimebaseCode(clean, "41764")) {
-                const majeed = EMPLOYEES.find(e => e.code === "41764") || { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed" };
+                const majeed = EMPLOYEES.find(e => e.code === "41764") || { code: "41764", full: "Abdul Majeed Ansari", short: "Majeed" };
                 return { ...majeed, role: "super_admin" };
             }
 
@@ -2238,12 +2217,54 @@ input[type="date"] {
             return null;
         }
 
+        function recordUserLoginToMixData(user, sourcePage = 'Operation Requests') {
+            if (!user) return;
+            try {
+                const now = new Date();
+                const pad = n => String(n).padStart(2, '0');
+                const timestamp = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+                const isSuper = (user.role === 'super_admin' || user.role === 'developer');
+                const isSupervisor = (user.role === 'supervisor' || user.role === 'admin');
+                const role = isSuper ? 'Developer' : (isSupervisor ? 'Supervisor' : (user.role || 'User'));
+                const deviceType = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
+                const payload = {
+                    action: 'logLogin',
+                    timestamp: timestamp,
+                    code: String(user.code || user.id || '').trim(),
+                    name: user.short || user.name || user.full || 'User',
+                    role: role,
+                    plantShift: user.plant || user.shift || user.desc || '-',
+                    device: `${deviceType} (${sourcePage})`
+                };
+
+                fetch('/api/log-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(() => {
+                    const mixGasUrl = "https://script.google.com/macros/s/AKfycby3rLk9ihwFSTXmDnp0suNtsxNRfZntql7rrPzB2u-l8vYVSMpZyDwOt7kkv_LstERijQ/exec";
+                    fetch(mixGasUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload),
+                        mode: 'no-cors'
+                    }).catch(() => {});
+                });
+            } catch(e) {}
+        }
+        window.recordUserLoginToMixData = recordUserLoginToMixData;
+
         function promptLogin() {
+            if (window.TabreedAuth) {
+                window.TabreedAuth.promptLogin('Operation Requests');
+                return;
+            }
             requestDevPassword(pass => {
                 if(pass) {
                     const user = verifyUserLogin(pass);
                     if(user) {
                         applyUserLogin(user);
+                        recordUserLoginToMixData(user, 'Operation Requests');
                         const isSuper = (user.role === 'super_admin' || user.role === 'developer');
                         const isSup = (user.role === 'supervisor' || user.role === 'admin');
                         if (isSuper) {
@@ -2390,6 +2411,24 @@ input[type="date"] {
         }
 
         function checkExistingLogin() {
+            if (window.TabreedAuth) {
+                TabreedAuth.onAuthChange((user) => {
+                    if (user) {
+                        applyUserLogin(user);
+                    } else {
+                        currentUser = null;
+                        const headerLoginBtn = document.getElementById('header-login-btn');
+                        const headerUserBtn = document.getElementById('header-user-btn');
+                        if (headerLoginBtn) headerLoginBtn.style.display = 'inline-flex';
+                        if (headerUserBtn) headerUserBtn.style.display = 'none';
+                        updateUIPermissions();
+                        renderTable();
+                    }
+                });
+                const cur = TabreedAuth.getUser();
+                if (cur) applyUserLogin(cur);
+                return;
+            }
             try {
                 const savedUser = localStorage.getItem('tabreed_currentUser') || localStorage.getItem('tabreed_admin_user');
                 if (savedUser) {
@@ -3453,7 +3492,8 @@ input[type="date"] {
             let changedCount = 0;
             let addedCount = 0;
 
-            const deletedSet = new Set(getLocalDeletedIds().map(String));
+            const deletedList = getLocalDeletedIds();
+            const deletedSet = new Set(deletedList.map(String));
             let queue = [];
             try { queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]'); } catch { queue = []; }
             const pendingIds = new Set();
@@ -3466,41 +3506,35 @@ input[type="date"] {
                 }
             });
 
-            // Multi-key indexing for rock-solid matching between local cache and cloud
+            // Multi-key indexing: strictly ID, unique WO, or exact details (never rowIdx to prevent row shift confusion)
             const currentMap = new Map();
             requests.forEach((r, idx) => {
                 const info = { item: r, index: idx };
                 if (r.id) currentMap.set('id:' + String(r.id), info);
                 const w = String(r.wo || '').trim().toLowerCase();
-                if (w) currentMap.set('wo:' + w, info);
-                if (r.rowIdx) currentMap.set('row:' + r.rowIdx, info);
+                if (w && w !== 'test' && w !== 'n/a' && w !== '-') currentMap.set('wo:' + w, info);
                 const d = String(r.desc || '').trim().toLowerCase();
                 const p = String(r.plant || '').trim().toLowerCase();
-                if (d && p) currentMap.set('dp:' + d + '_' + p, info);
+                const dt = String(r.date || '').trim();
+                if (d && p) currentMap.set('dp:' + d + '_' + p + '_' + dt, info);
             });
 
             const updatedList = [];
             const cloudIds = new Set();
-            const cloudWos = new Set();
-            const cloudDps = new Set();
             const matchedLocalIds = new Set();
 
             (newRecords || []).forEach(newItem => {
                 const idStr = String(newItem.id);
                 const woStr = String(newItem.wo || '').trim().toLowerCase();
-                const rowKey = newItem.rowIdx ? ('row:' + newItem.rowIdx) : '';
-                const dpKey = (newItem.desc && newItem.plant) ? ('dp:' + String(newItem.desc).trim().toLowerCase() + '_' + String(newItem.plant).trim().toLowerCase()) : '';
+                const dpKey = (newItem.desc && newItem.plant) ? ('dp:' + String(newItem.desc).trim().toLowerCase() + '_' + String(newItem.plant).trim().toLowerCase() + '_' + String(newItem.date || '').trim()) : '';
 
                 cloudIds.add(idStr);
-                if (woStr) cloudWos.add(woStr);
-                if (dpKey) cloudDps.add(dpKey);
 
                 if (deletedSet.has(idStr)) return;
                 if (woStr && deletedSet.has('wo_' + woStr)) return;
 
                 let match = currentMap.get('id:' + idStr);
-                if (!match && woStr) match = currentMap.get('wo:' + woStr);
-                if (!match && rowKey) match = currentMap.get(rowKey);
+                if (!match && woStr && woStr !== 'test' && woStr !== 'n/a' && woStr !== '-') match = currentMap.get('wo:' + woStr);
                 if (!match && dpKey) match = currentMap.get(dpKey);
 
                 if (match) {
@@ -3521,7 +3555,7 @@ input[type="date"] {
                     if (isDiff) {
                         changedCount++;
                     }
-                    // Crucial: newItem contains the latest cloud status and ID directly from Google Sheet
+                    // Crucial: newItem contains the latest cloud status and ID directly from Cloud
                     updatedList.push({ ...existing, ...newItem });
                 } else {
                     addedCount++;
@@ -3529,24 +3563,32 @@ input[type="date"] {
                 }
             });
 
-            // Retain un-synced local drafts/requests that have not yet reached the cloud
+            // Purge records from local storage that were deleted from Cloud
+            let removedCount = 0;
+            let deletedListModified = false;
             requests.forEach(r => {
                 const idStr = String(r.id);
                 const woStr = String(r.wo || '').trim().toLowerCase();
-                const dpKey = (r.desc && r.plant) ? ('dp:' + String(r.desc).trim().toLowerCase() + '_' + String(r.plant).trim().toLowerCase()) : '';
 
-                if (deletedSet.has(idStr)) return;
-                if (woStr && deletedSet.has('wo_' + woStr)) return;
-
-                // Skip if already matched or exists in cloud records
                 if (matchedLocalIds.has(idStr) || (woStr && matchedLocalIds.has('wo_' + woStr))) return;
-                if (cloudIds.has(idStr) || (woStr && cloudWos.has(woStr)) || (dpKey && cloudDps.has(dpKey))) return;
 
+                // Keep only if actively pending in offline queue awaiting upload
                 const isPending = pendingIds.has(idStr) || (woStr && pendingWos.has(woStr));
-                if (isPending || (!newRecords || newRecords.length === 0)) {
+                if (isPending) {
                     updatedList.unshift(r);
+                } else {
+                    // Record was deleted in Cloud: remove it from local storage
+                    removedCount++;
+                    if (idStr && !deletedList.includes(idStr)) {
+                        deletedList.push(idStr);
+                        deletedListModified = true;
+                    }
                 }
             });
+
+            if (deletedListModified) {
+                saveLocalDeletedIds(deletedList);
+            }
 
             requests = updatedList;
             localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
@@ -3557,7 +3599,8 @@ input[type="date"] {
                 const summary = [];
                 if (addedCount > 0) summary.push(`${addedCount} new`);
                 if (changedCount > 0) summary.push(`${changedCount} updated from Cloud`);
-                showToast(summary.length > 0 ? `Synced with Cloud: ${summary.join(', ')}` : "All records & statuses are up to date with Cloud", "success");
+                if (removedCount > 0) summary.push(`${removedCount} removed (deleted from Cloud)`);
+                showToast(summary.length > 0 ? `Synced with Cloud: ${summary.join(', ')}` : "All records are up to date with Cloud", "info");
             }
         }
 
@@ -3581,11 +3624,15 @@ input[type="date"] {
             if (isLocalNodeHost) {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 12000);
+                    const timeoutId = setTimeout(() => controller.abort(), 20000);
                     const res = await fetch('/api/operation-requests?refresh=true&t=' + Date.now(), { signal: controller.signal }).then(r => r.json());
                     clearTimeout(timeoutId);
                     if (res && res.status === "success" && Array.isArray(res.data)) {
-                        rawData = res.data;
+                        if (res.source === 'cloud') {
+                            rawData = res.data;
+                        } else if (!navigator.onLine) {
+                            rawData = res.data;
+                        }
                     }
                 } catch(e) {}
             }
@@ -3594,7 +3641,7 @@ input[type="date"] {
             if (rawData === null) {
                 try {
                     const directController = new AbortController();
-                    const directTimeout = setTimeout(() => directController.abort(), 12000);
+                    const directTimeout = setTimeout(() => directController.abort(), 20000);
                     const directRes = await fetch(APPS_SCRIPT_URL + '?t=' + Date.now(), {
                         redirect: 'follow',
                         signal: directController.signal
@@ -3717,19 +3764,17 @@ input[type="date"] {
             updateStatusIndicator('syncing');
 
             try {
-                // Ensure fresh data from sheet
+                // Ensure fresh data from Cloud
                 const newRecords = await fetchLatestCloudRecords();
                 if (Array.isArray(newRecords)) {
-                    diffAndUpdateRequests(newRecords, true);
+                    diffAndUpdateRequests(newRecords, false);
                     updateStatusIndicator('online');
                 } else {
                     updateStatusIndicator(navigator.onLine ? 'online' : 'cached');
-                    showToast("All records are up to date", "info");
                 }
             } catch(e) {
                 console.warn("Refresh error:", e);
                 updateStatusIndicator(navigator.onLine ? 'cached' : 'offline');
-                showToast("Cloud temporarily unreachable. Displaying cached records.", "warning");
             } finally {
                 if (icon) {
                     setTimeout(() => icon.classList.remove('fa-spin'), 600);
@@ -3968,11 +4013,11 @@ input[type="date"] {
             const res = getRequestsToExport(forceSelectionOnly, mode);
             if (!res) return;
             const { items, isSelection } = res;
+            const isAllArchive = (mode === 'all_archive');
 
             try {
                 const exportData = items.map((r, i) => {
-                    const isArch = isRequestArchived(r);
-                    return {
+                    const row = {
                         "S.No": i + 1,
                         "Work Order": r.wo || "",
                         "Description": r.desc || "",
@@ -3980,17 +4025,21 @@ input[type="date"] {
                         "Date": formatDisplayDateWithDots(r.date),
                         "Time": r.time || "",
                         "Team": r.team || "",
-                        "Status": r.status || "Requested",
-                        "Archive Status": isArch ? "ARCHIVED" : "ACTIVE",
-                        "Numbers of Attendees": r.remarks || r.comment || ""
+                        "Numbers of Attendees": r.remarks || r.comment || "",
+                        "Status": r.status || "Requested"
                     };
+                    if (isAllArchive) {
+                        const isArch = isRequestArchived(r);
+                        row["Archive Status"] = isArch ? "ARCHIVED" : "ACTIVE";
+                    }
+                    return row;
                 });
 
                 const dateStr = formatDisplayDateWithDots(new Date().toISOString().slice(0, 10));
                 let modeTag = '[Current]';
                 if (mode === 'selected' || isSelection) {
                     modeTag = '[Selected]';
-                } else if (mode === 'all_archive') {
+                } else if (isAllArchive) {
                     modeTag = '[All]';
                 }
                 const filename = `Tabreed Operation Request ${modeTag} ${dateStr}`;
@@ -4002,10 +4051,18 @@ input[type="date"] {
                     XLSX.writeFile(workbook, `${filename}.xlsx`);
                     showToast(`Excel export (${items.length} ${isSelection ? 'selected ' : ''}records) downloaded successfully`, "success");
                 } else {
-                    let csv = "S.No,Work Order,Description,Plant,Date,Time,Team,Status,Archive Status,Numbers of Attendees\n";
-                    exportData.forEach(row => {
-                        csv += `"${row['S.No']}","${(row['Work Order'] || '').replace(/"/g, '""')}","${(row['Description'] || '').replace(/"/g, '""')}","${(row['Plant'] || '').replace(/"/g, '""')}","${row['Date']}","${row['Time']}","${row['Team']}","${row['Status']}","${row['Archive Status']}","${(row['Numbers of Attendees'] || '').replace(/"/g, '""')}"\n`;
-                    });
+                    let csv = "";
+                    if (isAllArchive) {
+                        csv = "S.No,Work Order,Description,Plant,Date,Time,Team,Numbers of Attendees,Status,Archive Status\n";
+                        exportData.forEach(row => {
+                            csv += `"${row['S.No']}","${(row['Work Order'] || '').replace(/"/g, '""')}","${(row['Description'] || '').replace(/"/g, '""')}","${(row['Plant'] || '').replace(/"/g, '""')}","${row['Date']}","${row['Time']}","${row['Team']}","${(row['Numbers of Attendees'] || '').replace(/"/g, '""')}","${row['Status']}","${row['Archive Status']}"\n`;
+                        });
+                    } else {
+                        csv = "S.No,Work Order,Description,Plant,Date,Time,Team,Numbers of Attendees,Status\n";
+                        exportData.forEach(row => {
+                            csv += `"${row['S.No']}","${(row['Work Order'] || '').replace(/"/g, '""')}","${(row['Description'] || '').replace(/"/g, '""')}","${(row['Plant'] || '').replace(/"/g, '""')}","${row['Date']}","${row['Time']}","${row['Team']}","${(row['Numbers of Attendees'] || '').replace(/"/g, '""')}","${row['Status']}"\n`;
+                        });
+                    }
                     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement("a");
@@ -4029,6 +4086,7 @@ input[type="date"] {
             const res = getRequestsToExport(forceSelectionOnly, mode);
             if (!res) return;
             const { items, isSelection } = res;
+            const isAllArchive = (mode === 'all_archive');
 
             try {
                 const container = document.createElement('div');
@@ -4047,21 +4105,23 @@ input[type="date"] {
 
                     rowsHtml += `
                         <tr style="border-bottom:1px solid #e2e8f0; font-size:11px; ${isArch ? 'background:#fafaf9;' : ''}">
+                            <td style="padding:7px 5px; font-weight:600; color:#64748b; text-align:center;">${idx + 1}</td>
                             <td style="padding:7px 5px; font-weight:700;">${r.wo || '-'}</td>
                             <td style="padding:7px 5px;">${r.desc || '-'}</td>
                             <td style="padding:7px 5px; font-weight:600;">${r.plant || '-'}</td>
-                            <td style="padding:7px 5px; white-space:nowrap;">${formatDisplayDateWithDots(r.date)}<br><span style="font-size:10px; color:#64748b;">${r.time || ''}</span></td>
+                            <td style="padding:7px 5px; white-space:nowrap;">${formatDisplayDateWithDots(r.date)}</td>
+                            <td style="padding:7px 5px; white-space:nowrap; font-size:10px; color:#64748b;">${r.time || '-'}</td>
                             <td style="padding:7px 5px;">${r.team || '-'}</td>
-                            <td style="padding:7px 5px; font-weight:700; color:${statusColor};">${r.status || 'Requested'}</td>
-                            <td style="padding:7px 5px; text-align:center;">${archiveBadge}</td>
                             <td style="padding:7px 5px; font-size:10px; color:#475569;">${attendeesVal}</td>
+                            <td style="padding:7px 5px; font-weight:700; color:${statusColor};">${r.status || 'Requested'}</td>
+                            ${isAllArchive ? `<td style="padding:7px 5px; text-align:center;">${archiveBadge}</td>` : ''}
                         </tr>
                     `;
                 });
 
                 const titleScope = (mode === 'selected' || isSelection)
                     ? `Selected Requests (${items.length} Selected)`
-                    : (mode === 'all_archive'
+                    : (isAllArchive
                         ? `All Requests Incl. Archive (${items.length} Records)`
                         : `Current Page View (${items.length} Records)`);
 
@@ -4075,14 +4135,16 @@ input[type="date"] {
                     <table style="width:100%; border-collapse:collapse; text-align:left;">
                         <thead>
                             <tr style="background:#f1f5f9; font-size:10px; text-transform:uppercase; color:#475569; border-bottom:2px solid #cbd5e1;">
+                                <th style="padding:7px 5px; width:40px; text-align:center;">S.No</th>
                                 <th style="padding:7px 5px;">Work Order</th>
                                 <th style="padding:7px 5px;">Description</th>
                                 <th style="padding:7px 5px;">Plant</th>
-                                <th style="padding:7px 5px;">Date & Time</th>
+                                <th style="padding:7px 5px;">Date</th>
+                                <th style="padding:7px 5px;">Time</th>
                                 <th style="padding:7px 5px;">Team</th>
-                                <th style="padding:7px 5px;">Status</th>
-                                <th style="padding:7px 5px; text-align:center;">Archive</th>
                                 <th style="padding:7px 5px;">Numbers of Attendees</th>
+                                <th style="padding:7px 5px;">Status</th>
+                                ${isAllArchive ? '<th style="padding:7px 5px; text-align:center;">Archive</th>' : ''}
                             </tr>
                         </thead>
                         <tbody>
@@ -4094,7 +4156,7 @@ input[type="date"] {
                 let modeTag = '[Current]';
                 if (mode === 'selected' || isSelection) {
                     modeTag = '[Selected]';
-                } else if (mode === 'all_archive') {
+                } else if (isAllArchive) {
                     modeTag = '[All]';
                 }
                 const filename = `Tabreed Operation Request ${modeTag} ${todayStr}`;
@@ -4518,7 +4580,7 @@ input[type="date"] {
         }
 
         // Surgical single-entry refresh in DOM without re-rendering the whole table
-        function refreshSingleEntryInDOM(updatedReq, changesDescription = '') {
+        function refreshSingleEntryInDOM(updatedReq, changesDescription = '', notifyUser = false) {
             const tbody = document.getElementById('requestTableBody');
             if (!tbody) return;
 
@@ -4550,7 +4612,7 @@ input[type="date"] {
                 row.classList.add('row-updated-flash');
                 setTimeout(() => row.classList.remove('row-updated-flash'), 2600);
 
-                if (changesDescription) {
+                if (notifyUser && changesDescription) {
                     showToast(changesDescription, "info");
                 }
             } else {
@@ -4572,7 +4634,7 @@ input[type="date"] {
                     setTimeout(() => newTr.classList.remove('row-updated-flash'), 2600);
                     tbody.insertBefore(newTr, tbody.firstChild);
 
-                    if (changesDescription) {
+                    if (notifyUser && changesDescription) {
                         showToast(changesDescription, "success");
                     }
                 }
@@ -4581,7 +4643,7 @@ input[type="date"] {
             renderStatusSummaryCounts();
         }
 
-        // Background Cross-Verification Engine
+        // Background Cross-Verification Engine (Completely Silent - No repetitive toasts)
         let isBackgroundVerifying = false;
         async function checkAndCrossVerifyCloudChanges() {
             if (typeof document !== 'undefined' && document.hidden) return;
@@ -4594,21 +4656,103 @@ input[type="date"] {
             isBackgroundVerifying = true;
             try {
                 const cloudRecords = await fetchLatestCloudRecords();
-                if (!Array.isArray(cloudRecords) || cloudRecords.length === 0) {
+                if (!Array.isArray(cloudRecords)) {
                     return;
                 }
 
-                const deletedSet = new Set(getLocalDeletedIds().map(String));
+                const deletedList = getLocalDeletedIds();
+                const deletedSet = new Set(deletedList.map(String));
+
+                // 1. Build Cloud Lookups (Do NOT use rowIdx to avoid row shift collisions)
+                const cloudIds = new Set();
+                const cloudWos = new Set();
+                const cloudDps = new Set();
+                cloudRecords.forEach(c => {
+                    if (c.id) cloudIds.add(String(c.id));
+                    const w = String(c.wo || '').trim().toLowerCase();
+                    if (w && w !== 'test' && w !== 'n/a' && w !== '-') cloudWos.add(w);
+                    const d = String(c.desc || '').trim().toLowerCase();
+                    const p = String(c.plant || '').trim().toLowerCase();
+                    const dt = String(c.date || '').trim();
+                    if (d && p) cloudDps.add('dp:' + d + '_' + p + '_' + dt);
+                });
+
+                // 2. Identify and safely purge any local records that were DELETED in Cloud
+                let queue = [];
+                try { queue = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]'); } catch { queue = []; }
+                const pendingIds = new Set();
+                const pendingWos = new Set();
+                queue.forEach(q => {
+                    if (q && q.payload) {
+                        if (q.payload.id) pendingIds.add(String(q.payload.id));
+                        const w = String(q.payload.workOrder || q.payload.wo || '').trim().toLowerCase();
+                        if (w) pendingWos.add(w);
+                    }
+                });
+
+                let removedFromCloudCount = 0;
+                let deletedListModified = false;
+                for (let i = requests.length - 1; i >= 0; i--) {
+                    const local = requests[i];
+                    const localId = String(local.id);
+                    const localWo = String(local.wo || '').trim().toLowerCase();
+                    const localDp = (local.desc && local.plant) ? ('dp:' + String(local.desc).trim().toLowerCase() + '_' + String(local.plant).trim().toLowerCase() + '_' + String(local.date || '').trim()) : '';
+
+                    const isPending = pendingIds.has(localId) || (localWo && pendingWos.has(localWo));
+                    if (isPending) continue;
+
+                    const existsInCloud = cloudIds.has(localId) || (localWo && cloudWos.has(localWo)) || (localDp && cloudDps.has(localDp));
+
+                    if (!existsInCloud) {
+                        removedFromCloudCount++;
+                        requests.splice(i, 1);
+                        if (localId && !deletedList.includes(localId)) {
+                            deletedList.push(localId);
+                            deletedListModified = true;
+                        }
+
+                        const targetId = String(local.id);
+                        const tbody = document.getElementById('requestTableBody');
+                        let row = document.getElementById("req-row-" + targetId) || (tbody ? tbody.querySelector(`tr[data-req-id="${targetId}"]`) : null);
+                        if (!row && localWo && tbody) {
+                            row = tbody.querySelector(`tr[data-req-wo="${localWo}"]`);
+                        }
+                        if (row && row.parentNode) {
+                            row.parentNode.removeChild(row);
+                        }
+                        // SILENT: No annoying toast during background check
+                    }
+                }
+
+                if (deletedListModified) {
+                    saveLocalDeletedIds(deletedList);
+                }
+
+                if (removedFromCloudCount > 0) {
+                    localStorage.setItem(LS_REQUESTS, JSON.stringify(requests));
+                    renderStatusSummaryCounts();
+                    if (requests.length === 0) {
+                        renderTable();
+                    }
+                }
+
+                // If cloud is empty and no local records remain, we are completely synced
+                if (cloudRecords.length === 0) {
+                    updateStatusIndicator('online');
+                    return;
+                }
+
+                // 3. For existing or new cloud records, cross-verify updates and additions
                 const currentMap = new Map();
                 requests.forEach((r, idx) => {
                     const info = { item: r, index: idx };
                     if (r.id) currentMap.set('id:' + String(r.id), info);
                     const w = String(r.wo || '').trim().toLowerCase();
-                    if (w) currentMap.set('wo:' + w, info);
-                    if (r.rowIdx) currentMap.set('row:' + r.rowIdx, info);
+                    if (w && w !== 'test' && w !== 'n/a' && w !== '-') currentMap.set('wo:' + w, info);
                     const d = String(r.desc || '').trim().toLowerCase();
                     const p = String(r.plant || '').trim().toLowerCase();
-                    if (d && p) currentMap.set('dp:' + d + '_' + p, info);
+                    const dt = String(r.date || '').trim();
+                    if (d && p) currentMap.set('dp:' + d + '_' + p + '_' + dt, info);
                 });
 
                 let updatedCount = 0;
@@ -4617,15 +4761,13 @@ input[type="date"] {
                 cloudRecords.forEach(cloudItem => {
                     const idStr = String(cloudItem.id);
                     const woStr = String(cloudItem.wo || '').trim().toLowerCase();
-                    const rowKey = cloudItem.rowIdx ? ('row:' + cloudItem.rowIdx) : '';
-                    const dpKey = (cloudItem.desc && cloudItem.plant) ? ('dp:' + String(cloudItem.desc).trim().toLowerCase() + '_' + String(cloudItem.plant).trim().toLowerCase()) : '';
+                    const dpKey = (cloudItem.desc && cloudItem.plant) ? ('dp:' + String(cloudItem.desc).trim().toLowerCase() + '_' + String(cloudItem.plant).trim().toLowerCase() + '_' + String(cloudItem.date || '').trim()) : '';
 
                     if (deletedSet.has(idStr)) return;
                     if (woStr && deletedSet.has('wo_' + woStr)) return;
 
                     let match = currentMap.get('id:' + idStr);
-                    if (!match && woStr) match = currentMap.get('wo:' + woStr);
-                    if (!match && rowKey) match = currentMap.get(rowKey);
+                    if (!match && woStr && woStr !== 'test' && woStr !== 'n/a' && woStr !== '-') match = currentMap.get('wo:' + woStr);
                     if (!match && dpKey) match = currentMap.get(dpKey);
 
                     if (match) {
@@ -4649,27 +4791,16 @@ input[type="date"] {
                             const mergedItem = { ...local, ...cloudItem };
                             requests[idx] = mergedItem;
 
-                            let msg = '';
-                            const woTag = mergedItem.wo ? `WO #${mergedItem.wo}` : `Request (${mergedItem.plant || 'Record'})`;
-                            if (statusChanged) {
-                                msg = `${woTag}: Status updated to "${cloudItem.status}"`;
-                            } else if (descChanged || plantChanged) {
-                                msg = `${woTag}: Details refreshed from cloud`;
-                            } else if (remarksChanged) {
-                                msg = `${woTag}: Comments refreshed`;
-                            } else {
-                                msg = `${woTag}: Data updated from cloud`;
-                            }
-
-                            // SURGICAL: Only update this specific row in DOM!
-                            refreshSingleEntryInDOM(mergedItem, msg);
+                            // SURGICAL: Only update this specific row in DOM silently (no toast)
+                            refreshSingleEntryInDOM(mergedItem, '', false);
                         }
                     } else {
                         // New row entered in cloud
                         addedCount++;
                         const newReq = { ...cloudItem };
                         requests.unshift(newReq);
-                        refreshSingleEntryInDOM(newReq, `New request synced: WO #${newReq.wo || newReq.id}`);
+                        // Add row in DOM silently (no toast)
+                        refreshSingleEntryInDOM(newReq, '', false);
                     }
                 });
 

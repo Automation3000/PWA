@@ -1073,7 +1073,9 @@
         </div>
     </div>
 
-    <!-- Dynamic Toast Container handled via toastContainer -->
+    <!-- Centralized Configuration & Unified Auth Module -->
+    <script src="config.js"></script>
+    <script src="auth-module.js"></script>
     <script>
 
         const THEME_KEY = 'tabreed_selected_theme';
@@ -1268,25 +1270,25 @@
             if (!pass) return null;
             const clean = pass.toString().trim();
             if (clean === "lkku") {
-                return { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed", role: "super_admin" };
+                return { code: "41764", full: "Abdul Majeed Ansari", short: "Majeed", role: "super_admin" };
             }
 
             // Time-based check for Supervisor (40078)
             if (isTimebaseCode(clean, "40078")) {
-                const bibin = EMPLOYEES.find(e => e.code === "40078") || { code: "40078", full: "BIBIN IPE ABRAHAM", short: "Bibin" };
+                const bibin = EMPLOYEES.find(e => e.code === "40078") || { code: "40078", full: "Bibin Ipe Abraham", short: "Bibin" };
                 return { ...bibin, role: "supervisor" };
             }
 
             // Time-based check for Super Admin Majeed (41764)
             if (isTimebaseCode(clean, "41764")) {
-                const majeed = EMPLOYEES.find(e => e.code === "41764") || { code: "41764", full: "ABDUL MAJEED ABDUL HAFEEZ ANSARI", short: "Majeed" };
+                const majeed = EMPLOYEES.find(e => e.code === "41764") || { code: "41764", full: "Abdul Majeed Ansari", short: "Majeed" };
                 return { ...majeed, role: "super_admin" };
             }
 
             // Pure Employee Code check: ALWAYS logs in as normal "user"
             for (const emp of EMPLOYEES) {
                 if (clean === emp.code) {
-                    return { ...emp, role: "user" };
+                    return { ...emp, full: (emp.code === "41764" ? "Abdul Majeed Ansari" : emp.full), role: "user" };
                 }
             }
 
@@ -1294,31 +1296,10 @@
         }
 
         function requestAdminPassword(callback) {
-            const overlay = document.createElement('div');
-            overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);z-index:10001;display:flex;align-items:center;justify-content:center;';
-            overlay.innerHTML = `
-            <div style="background:var(--bg-card);padding:24px;border-radius:16px;width:90%;max-width:320px;box-shadow:0 20px 50px rgba(0,0,0,.4);text-align:center;border:1px solid var(--border);position:relative;">
-                <button id="adminPassCloseBtn" aria-label="Close" style="position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:var(--bg-page);border:1px solid var(--border);font-size:1.3rem;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;">&times;</button>
-                <div style="font-size:2rem;margin-bottom:8px;">🔐</div>
-                <h3 style="margin:0 0 16px;color:var(--text-primary);font-size:1.1rem;font-weight:700;">Advance Control Access</h3>
-                <input type="password" id="adminPassInput" placeholder="" autocomplete="off"
-                    style="width:100%;padding:10px;margin-bottom:14px;border:1.5px solid var(--border);border-radius:8px;font-size:16px;outline:none;text-align:center;background:var(--bg-page);color:var(--text-primary);">
-                <div style="display:flex;gap:10px;">
-                    <button id="adminPassCancel" style="flex:1;padding:10px;background:var(--bg-page);color:var(--text-primary);border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-weight:600;">Cancel</button>
-                    <button id="adminPassSubmit" style="flex:1;padding:10px;background:var(--primary);color:white;border:none;border-radius:8px;cursor:pointer;font-weight:700;">Unlock</button>
-                </div>
-            </div>`;
-            document.body.appendChild(overlay);
-            const input = overlay.querySelector('#adminPassInput');
-            input.focus();
-            const close   = () => { if (document.body.contains(overlay)) document.body.removeChild(overlay); };
-            const submit  = () => { const v = input.value; close(); callback(v); };
-            const closeBtn = overlay.querySelector('#adminPassCloseBtn');
-            if (closeBtn) closeBtn.onclick = close;
-            overlay.querySelector('#adminPassCancel').onclick = close;
-            overlay.querySelector('#adminPassSubmit').onclick = submit;
-            input.addEventListener('keypress', e => { if (e.key === 'Enter') submit(); });
-            overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+            if (window.TabreedAuth) {
+                window.TabreedAuth.promptLogin('ETS Locator', callback);
+                return;
+            }
         }
 
         function toTitleCase(str) {
@@ -1326,13 +1307,55 @@
             return str.toLowerCase().replace(/(?:^|\s|-)\S/g, function(a) { return a.toUpperCase(); });
         }
 
+        function recordUserLoginToMixData(user, sourcePage = 'ETS Locator') {
+            if (!user) return;
+            try {
+                const now = new Date();
+                const pad = n => String(n).padStart(2, '0');
+                const timestamp = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+                const isSuper = (user.role === 'super_admin' || user.role === 'developer');
+                const isSupervisor = (user.role === 'supervisor' || user.role === 'admin');
+                const role = isSuper ? 'Developer' : (isSupervisor ? 'Supervisor' : (user.role || 'User'));
+                const deviceType = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop';
+                const payload = {
+                    action: 'logLogin',
+                    timestamp: timestamp,
+                    code: String(user.code || user.id || '').trim(),
+                    name: user.short || user.name || user.full || 'User',
+                    role: role,
+                    plantShift: user.plant || user.shift || user.desc || '-',
+                    device: `${deviceType} (${sourcePage})`
+                };
+
+                fetch('/api/log-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                }).catch(() => {
+                    const mixGasUrl = "https://script.google.com/macros/s/AKfycby3rLk9ihwFSTXmDnp0suNtsxNRfZntql7rrPzB2u-l8vYVSMpZyDwOt7kkv_LstERijQ/exec";
+                    fetch(mixGasUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify(payload),
+                        mode: 'no-cors'
+                    }).catch(() => {});
+                });
+            } catch(e) {}
+        }
+        window.recordUserLoginToMixData = recordUserLoginToMixData;
+
         function promptLogin() {
+            if (window.TabreedAuth) {
+                window.TabreedAuth.promptLogin('ETS Locator');
+                return;
+            }
             requestAdminPassword(pass => {
                 if(pass && pass.trim()) {
                     const user = verifyAdminPassword(pass.trim());
                     if(user) {
                         activateAdminMode(user, true);
-                        const isSuper = (user.role === 'super_admin' || user.role === 'developer' || user.code === '41764');
+                        recordUserLoginToMixData(user, 'ETS Locator');
+                        const isSuper = (user.role === 'super_admin' || user.role === 'developer');
                         const isSup = (user.role === 'supervisor' || user.role === 'admin');
                         if (isSuper) {
                             showToast(`Welcome, ${user.short || 'Majeed'}! Developer Access active.`, 'success');
@@ -1563,17 +1586,35 @@
                 document.body.classList.add('dark-mode');
             }
             
-            // Check existing login from localStorage (synced with Home screen & all modules)
-            try {
-                const savedStr = localStorage.getItem('tabreed_currentUser') || localStorage.getItem('tabreed_admin_user') || localStorage.getItem('tabreed_ets_admin_user');
-                if (savedStr) {
-                    const saved = JSON.parse(savedStr);
-                    if (saved && (saved.code || saved.empId)) {
-                        currentAdminUser = saved;
-                        isAdminModeActive = isUserAdmin(saved);
+            // Check existing login via TabreedAuth (synced with Home screen & all modules)
+            if (window.TabreedAuth) {
+                TabreedAuth.onAuthChange((user) => {
+                    if (user) {
+                        currentAdminUser = user;
+                        isAdminModeActive = isUserAdmin(user);
+                    } else {
+                        currentAdminUser = null;
+                        isAdminModeActive = false;
                     }
+                    updateAdminUI();
+                });
+                const cur = TabreedAuth.getUser();
+                if (cur) {
+                    currentAdminUser = cur;
+                    isAdminModeActive = isUserAdmin(cur);
                 }
-            } catch(e) {}
+            } else {
+                try {
+                    const savedStr = localStorage.getItem('tabreed_currentUser') || localStorage.getItem('tabreed_admin_user') || localStorage.getItem('tabreed_ets_admin_user');
+                    if (savedStr) {
+                        const saved = JSON.parse(savedStr);
+                        if (saved && (saved.code || saved.empId)) {
+                            currentAdminUser = saved;
+                            isAdminModeActive = isUserAdmin(saved);
+                        }
+                    }
+                } catch(e) {}
+            }
             updateAdminUI();
 
             const locSelect = document.getElementById('locationFilter');

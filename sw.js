@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tabreed-pro-v20'; // v20: Offline ETS Locator & 2GIS direction support
+const CACHE_NAME = 'tabreed-pro-v21'; // v21: Unified centralized auth module & cache bust
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -9,6 +9,7 @@ const STATIC_ASSETS = [
   '/PM_Checklist_Generator.html',
   '/ETS_Locator.html',
   '/themes.css',
+  '/auth-module.js',
   '/data/employees.json',
   '/employees.json',
   '/data/ets_cache.json',
