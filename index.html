@@ -490,70 +490,6 @@
         .inst-name-soon-tag:hover {
             transform: scale(1.05);
         }
-        .inst-name-sub-expiry {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.74rem;
-            margin-top: 4px;
-            cursor: pointer;
-            border-radius: 4px;
-            padding: 2px 6px;
-            transition: background 0.15s ease;
-            width: fit-content;
-        }
-        .inst-name-sub-expiry:hover {
-            background: rgba(0,0,0,0.05);
-        }
-        body.dark-mode .inst-name-sub-expiry:hover {
-            background: rgba(255,255,255,0.08);
-        }
-        .inst-name-sub-expiry.expired-sub {
-            color: var(--danger);
-            font-weight: 600;
-            background: rgba(217, 48, 37, 0.08);
-            border: 1px solid rgba(217, 48, 37, 0.22);
-            border-radius: 5px;
-        }
-        body.dark-mode .inst-name-sub-expiry.expired-sub {
-            background: rgba(242, 139, 130, 0.15);
-            border-color: rgba(242, 139, 130, 0.32);
-        }
-        .inst-name-sub-expiry.soon-sub {
-            color: #ea580c;
-            font-weight: 600;
-            background: rgba(234, 88, 12, 0.08);
-            border: 1px solid rgba(234, 88, 12, 0.22);
-            border-radius: 5px;
-        }
-        body.dark-mode .inst-name-sub-expiry.soon-sub {
-            color: #fdd663;
-            background: rgba(253, 214, 99, 0.12);
-            border-color: rgba(253, 214, 99, 0.3);
-        }
-        .inst-days-pill {
-            padding: 1px 6px;
-            border-radius: 10px;
-            font-size: 10px;
-            font-weight: 700;
-            display: inline-block;
-        }
-        .inst-days-pill.expired-pill {
-            background: rgba(217, 48, 37, 0.18);
-            color: var(--danger);
-        }
-        body.dark-mode .inst-days-pill.expired-pill {
-            background: rgba(242, 139, 130, 0.25);
-            color: #f28b82;
-        }
-        .inst-days-pill.soon-pill {
-            background: rgba(234, 88, 12, 0.18);
-            color: #ea580c;
-        }
-        body.dark-mode .inst-days-pill.soon-pill {
-            background: rgba(253, 214, 99, 0.25);
-            color: #fdd663;
-        }
 
         /* ═══════════════════════════════════════════════════
            MODALS
@@ -818,7 +754,6 @@
             .inst-name-label { font-size:0.85rem !important; }
             .inst-name-expired-tag { font-size:9px !important; padding:1px 5px !important; }
             .inst-name-soon-tag { font-size:9px !important; padding:1px 5px !important; }
-            .inst-name-sub-expiry { font-size:0.7rem !important; margin-top:3px !important; }
             .update-flex-row { flex-direction:column; align-items:stretch; gap:10px; }
             .ack-modal, .profile-popup-box, .master-advance-popup-box { height:auto !important; max-height:85% !important; border-radius:16px !important; margin:20px !important; }
         }
@@ -1644,7 +1579,7 @@ input:checked + .slider:before { transform: translateX(20px); }
     /* ──────────────────────────────────────
        CONSTANTS & CONFIG
     ────────────────────────────────────── */
-    const APP_VERSION      = "v2.1.2";
+    const APP_VERSION      = "v2.1.4";
     const GAS_DIRECT_URL   = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
     const OP_REQUEST_GAS_URL = "https://script.google.com/macros/s/AKfycby_XKC1cV1VaeqKB2MbQgmRSOYmcxQI0v-5qcAAKhFczNOwU3GsindACIkuawzQZN4/exec";
     const isLocalNodeHost  = (typeof window !== 'undefined' && window.location && (
@@ -3097,15 +3032,9 @@ window.startSmartInstall = async function() {
             const rowClass = isExpired ? 'row-expired' : (isSoon ? 'row-expiring-soon' : '');
 
             const nameBadge = isExpired
-                ? `<span class="inst-name-expired-tag" onclick="event.stopPropagation();showExpiryDays('${expiryAttr}')" title="Expired: ${diff !== null ? Math.abs(diff) + 'd ago' : ''}"><i class="fas fa-exclamation-triangle"></i> EXPIRED</span>`
+                ? `<span class="inst-name-expired-tag" onclick="event.stopPropagation();showExpiryDays('${expiryAttr}')" title="Expired"><i class="fas fa-exclamation-triangle"></i> EXPIRED</span>`
                 : (isSoon
-                    ? `<span class="inst-name-soon-tag" onclick="event.stopPropagation();showExpiryDays('${expiryAttr}')" title="Expiring Soon: ${diff !== null ? (diff === 0 ? 'Today' : diff + 'd left') : ''}"><i class="fas fa-clock"></i> DUE SOON</span>`
-                    : '');
-
-            const expiryMeta = isExpired
-                ? `<div class="inst-name-sub-expiry expired-sub" onclick="event.stopPropagation();showExpiryDays('${expiryAttr}')" title="Expired ${diff !== null ? Math.abs(diff) + 'd ago' : ''}"><i class="fas fa-calendar-times"></i> Expired: <strong>${sanitizeInput(item.expiry || '')}</strong>${diff !== null ? ` <span class="inst-days-pill expired-pill">${Math.abs(diff)}d ago</span>` : ''}</div>`
-                : (isSoon
-                    ? `<div class="inst-name-sub-expiry soon-sub" onclick="event.stopPropagation();showExpiryDays('${expiryAttr}')" title="Due in ${diff !== null ? diff + 'd' : ''}"><i class="fas fa-calendar-alt"></i> Due: <strong>${sanitizeInput(item.expiry || '')}</strong>${diff !== null ? ` <span class="inst-days-pill soon-pill">${diff === 0 ? 'Today!' : diff + 'd left'}</span>` : ''}</div>`
+                    ? `<span class="inst-name-soon-tag" onclick="event.stopPropagation();showExpiryDays('${expiryAttr}')" title="Due Soon"><i class="fas fa-clock"></i> DUE SOON</span>`
                     : '');
 
             return `<tr class="${rowClass}" data-name="${sanitizeInput(item.name)}">
@@ -3115,7 +3044,6 @@ window.startSmartInstall = async function() {
                         ${nameBadge}
                         ${noteBadge}
                     </div>
-                    ${expiryMeta}
                 </td>
                 <td><span class="location-tag">${sanitizeInput(item.location)}</span></td>
                 <td style="text-align:center;">
@@ -4722,6 +4650,23 @@ window.startSmartInstall = async function() {
        RELEASE NOTES — full working module
     ────────────────────────────────────── */
     const RELEASE_HISTORY = [
+        {
+            version: "v2.1.4",
+            date: "October 2026",
+            badge: "Minor Update",
+            badgeColor: "#16a34a",
+            sections: [
+                {
+                    emoji: "⚡",
+                    title: "Master Instrument List Enhancements",
+                    color: "var(--primary)",
+                    items: [
+                        { text: "Added EXPIRED & DUE SOON quick highlight badges directly beside Instrument Name for fast mobile viewing without right scrolling.", credit: "Manikandan" },
+                        { text: "Dynamic row color highlighting for expired and due soon instruments with high contrast.", credit: "Manikandan" }
+                    ]
+                }
+            ]
+        },
         {
             version: "v2.1.3",
             date: "September 2026",
