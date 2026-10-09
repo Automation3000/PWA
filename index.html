@@ -1108,12 +1108,12 @@
                     <div class="tile-subtitle">Reset Local Storage</div>
                     <i class="fas fa-trash-alt tile-icon" style="color:var(--danger);"></i>
                 </div>
-                <div class="tile" onclick="openNotificationComposer()">
-                    <div class="tile-title" style="color:var(--text-primary);">Push Notification</div>
-                    <div class="tile-subtitle">Broadcast Alerts to Users</div>
-                    <i class="fas fa-bell tile-icon" style="color:#ea580c;"></i>
-                    <div class="tile-status" style="color:#ea580c;background:rgba(234,88,12,.1);padding:3px 8px;border-radius:20px;font-size:10px;">
-                        <i class="fas fa-paper-plane" style="font-size:9px;"></i> Broadcast
+                <div class="tile" onclick="window.location.href='push-studio.html'" style="border-color:#3b82f6;">
+                    <div class="tile-title" style="color:#2563eb;">Push Notification Studio</div>
+                    <div class="tile-subtitle">Broadcast &amp; Device Manager</div>
+                    <i class="fas fa-bullhorn tile-icon" style="color:#2563eb;"></i>
+                    <div class="tile-status" style="color:#2563eb;background:rgba(37,99,235,.1);padding:3px 8px;border-radius:20px;font-size:10px;">
+                        <i class="fas fa-satellite-dish" style="font-size:9px;"></i> Dev Studio
                     </div>
                 </div>
             </div>
@@ -1573,6 +1573,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 ═══════════════════════════════════════ -->
 <script src="config.js"></script>
 <script src="auth-module.js"></script>
+<script src="push-manager.js"></script>
 <script>
     'use strict';
 
@@ -4664,6 +4665,15 @@ window.startSmartInstall = async function() {
                         { text: "Added EXPIRED & DUE SOON quick highlight badges directly beside Instrument Name for fast mobile viewing without right scrolling.", credit: "Manikandan" },
                         { text: "Dynamic row color highlighting for expired and due soon instruments with high contrast.", credit: "Manikandan" }
                     ]
+                },
+                {
+                    emoji: "🔔",
+                    title: "Push Notification Studio & Web Push",
+                    color: "#2563eb",
+                    items: [
+                        { text: "Integrated standalone Push Notification Studio in Developer Tools with Chrome permission management, test-to-self, and multi-device broadcast dispatch.", credit: "Majeed" },
+                        { text: "Self-hosted VAPID Web Push engine on backend with background Service Worker push handlers.", credit: "Majeed" }
+                    ]
                 }
             ]
         },
@@ -5141,6 +5151,9 @@ window.startSmartInstall = async function() {
                 <button class="btn-primary" onclick="sendBroadcastNotification()" style="flex:1;padding:10px;background:#ea580c;border-radius:8px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;">
                     <i class="fas fa-paper-plane"></i> BROADCAST PUSH NOTIFICATION
                 </button>
+                <button class="btn-secondary" onclick="window.location.href='push-studio.html'" style="padding:10px 14px;border-radius:8px;font-weight:700;display:flex;align-items:center;gap:6px;" title="Open Standalone Push Studio">
+                    <i class="fas fa-external-link-alt"></i> Studio
+                </button>
             </div>`;
 
         if (history.length > 0) {
@@ -5203,13 +5216,24 @@ window.startSmartInstall = async function() {
             });
         }
 
-        // 2. Broadcast via BroadcastChannel
+        // 2. Broadcast via Server Web Push route (/api/push/broadcast)
+        if (window.PushNotificationManager && PushNotificationManager.broadcast) {
+            PushNotificationManager.broadcast({ title, message: body, url: '/index.html' }).catch(() => {});
+        } else {
+            fetch('/api/push/broadcast', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title, message: body, url: '/index.html' })
+            }).catch(() => {});
+        }
+
+        // 3. Broadcast via BroadcastChannel for active local tabs
         try {
             const bc = new BroadcastChannel('tabreed-push-channel');
             bc.postMessage({ title, body, time: Date.now() });
         } catch(e) {}
 
-        // 3. Save to History
+        // 4. Save to History
         try {
             const history = JSON.parse(localStorage.getItem(LS_PUSH_HISTORY) || '[]');
             history.unshift({ title, body, time: new Date().toISOString() });

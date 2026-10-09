@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { registerPushRoutes } from './server-push.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -2014,7 +2015,8 @@ const DATA_JSON_FILES = new Set([
   'login_logs.json',
   'pwa_preferences.json',
   'inventory_cache.json',
-  'inventory_history_cache.json'
+  'inventory_history_cache.json',
+  'push_subscriptions.json'
 ]);
 
 app.use((req, res, next) => {
@@ -2027,6 +2029,9 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// Register Web Push Protocol Endpoints
+registerPushRoutes(app);
 
 // Explicitly serve /data and /Data directory
 app.use('/data', express.static(DATA_DIR));
