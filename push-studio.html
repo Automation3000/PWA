@@ -505,6 +505,9 @@
         <button class="tab-btn" onclick="switchTab('logs')">
             <i class="fas fa-terminal"></i> Logs &amp; History
         </button>
+        <button class="tab-btn" onclick="switchTab('firebase')">
+            <i class="fas fa-fire" style="color:#f59e0b;"></i> Firebase Guide
+        </button>
     </nav>
 
     <!-- ==========================================
@@ -731,6 +734,42 @@
                 </div>
             </div>
         </div>
+
+        <!-- Active Subscribed Devices Directory -->
+        <div class="card">
+            <div class="card-header">
+                <div class="title-left">
+                    <i class="fas fa-satellite-dish" style="color:var(--success);"></i>
+                    <span>Registered Subscribers Directory</span>
+                </div>
+                <div style="display:flex;gap:6px;align-items:center;">
+                    <span id="subscribersCountBadge" class="badge badge-success">0 Registered</span>
+                    <button onclick="loadSubscribersList()" class="btn btn-outline btn-sm" title="Refresh Directory">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button onclick="pruneExpiredSubscribers()" class="btn btn-outline btn-sm" style="color:var(--warning);" title="Remove expired tokens">
+                        <i class="fas fa-broom"></i> Prune Inactive
+                    </button>
+                </div>
+            </div>
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:0.8rem;text-align:left;">
+                    <thead>
+                        <tr style="border-bottom:1px solid var(--border);color:var(--text-secondary);font-size:0.75rem;">
+                            <th style="padding:8px 6px;">#</th>
+                            <th style="padding:8px 6px;">Device / User</th>
+                            <th style="padding:8px 6px;">OS</th>
+                            <th style="padding:8px 6px;">Browser</th>
+                            <th style="padding:8px 6px;">Subscribed</th>
+                            <th style="padding:8px 6px;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subscribersTableBody">
+                        <tr><td colspan="6" style="text-align:center;padding:14px;color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Loading registered devices...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- ==========================================
@@ -811,6 +850,152 @@
         </div>
     </div>
 
+    <!-- ==========================================
+         TAB 6: FIREBASE CLOUD MESSAGING (FCM) GUIDE
+         ========================================== -->
+    <div id="tab-firebase" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <div class="title-left">
+                    <i class="fab fa-google" style="color:#f59e0b;"></i>
+                    <span>Firebase Cloud Messaging (FCM) Integration Guide</span>
+                </div>
+                <span class="badge badge-warning"><i class="fas fa-book"></i> Architectural Guide</span>
+            </div>
+            <div style="font-size:0.83rem;line-height:1.6;color:var(--text-secondary);display:flex;flex-direction:column;gap:14px;">
+                <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:12px 14px;">
+                    <strong style="color:#fbbf24;display:block;margin-bottom:4px;">
+                        <i class="fas fa-lightbulb"></i> Did You Know?
+                    </strong>
+                    Your Tabreed PWA is <strong>already connected</strong> to Google Chrome's native Web Push network (FCM) using the 100% free VAPID protocol. You do <strong>not</strong> need Firebase or third-party paid accounts for Chrome/Android push alerts to work. However, if you want to connect a dedicated Firebase Project, follow the steps below:
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                    <div style="border-left:3px solid var(--primary);padding-left:12px;">
+                        <strong style="color:var(--text-primary);">Step 1: Create a Firebase Project</strong>
+                        <p style="margin:2px 0 0;font-size:0.78rem;">
+                            1. Open <a href="https://console.firebase.google.com" target="_blank" style="color:var(--primary);text-decoration:underline;">console.firebase.google.com</a>.<br>
+                            2. Click <strong>Add Project</strong> &gt; Name it (e.g. <code>tabreed-automation</code>).<br>
+                            3. Add a <strong>Web App (<code>&lt;/&gt;</code>)</strong> to get your Firebase Config keys.
+                        </p>
+                    </div>
+
+                    <div style="border-left:3px solid var(--success);padding-left:12px;">
+                        <strong style="color:var(--text-primary);">Step 2: Generate Web Push Certificate (VAPID Key)</strong>
+                        <p style="margin:2px 0 0;font-size:0.78rem;">
+                            1. In Firebase Console, go to <strong>Project Settings (⚙️)</strong> &gt; <strong>Cloud Messaging</strong> tab.<br>
+                            2. Under <strong>Web configuration</strong> &gt; <strong>Web Push certificates</strong>, click <strong>Generate key pair</strong>.<br>
+                            3. Copy the generated Key (This replaces your VAPID Public Key).
+                        </p>
+                    </div>
+
+                    <div style="border-left:3px solid var(--warning);padding-left:12px;">
+                        <strong style="color:var(--text-primary);">Step 3: Frontend Client Integration (<code>firebase-messaging-sw.js</code>)</strong>
+                        <p style="margin:2px 0 0;font-size:0.78rem;">
+                            Import Firebase scripts in your Service Worker and initialize messaging:
+                        </p>
+                        <pre style="background:var(--bg-body);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:0.73rem;color:#38bdf8;overflow-x:auto;margin-top:6px;">importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js');
+
+firebase.initializeApp({
+  apiKey: "AIzaSy...",
+  projectId: "tabreed-automation",
+  messagingSenderId: "..."
+});
+
+const messaging = firebase.messaging();
+messaging.onBackgroundMessage((payload) => {
+  self.registration.showNotification(payload.notification.title, {
+    body: payload.notification.body,
+    icon: '/icon-192.png'
+  });
+});</pre>
+                    </div>
+
+                    <div style="border-left:3px solid #c084fc;padding-left:12px;">
+                        <strong style="color:var(--text-primary);">Step 4: Server Dispatch via Firebase Admin SDK</strong>
+                        <p style="margin:2px 0 0;font-size:0.78rem;">
+                            On your Node backend, install <code>firebase-admin</code> and send push alerts directly:
+                        </p>
+                        <pre style="background:var(--bg-body);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:0.73rem;color:#34d399;overflow-x:auto;margin-top:6px;">import admin from 'firebase-admin';
+// Send notification to device token
+await admin.messaging().send({
+  token: deviceToken,
+  notification: { title: "Tabreed Alert", body: "Chiller 04 status updated" }
+});</pre>
+                    </div>
+                </div>
+
+                <div style="margin-top:8px;padding:12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;">
+                    <strong style="color:var(--text-primary);">Comparison: Self-Hosted Web Push vs Firebase FCM</strong>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;font-size:0.77rem;">
+                        <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);padding:10px;border-radius:6px;">
+                            <strong style="color:var(--success);">✅ Current Self-Hosted Engine:</strong>
+                            <ul style="margin:6px 0 0 16px;padding:0;line-height:1.5;">
+                                <li>100% Free, zero external limits</li>
+                                <li>Runs completely inside this repo</li>
+                                <li>No Google Cloud billing account needed</li>
+                                <li>Works directly in Chrome, Android, Edge, iOS</li>
+                            </ul>
+                        </div>
+                        <div style="background:rgba(59,130,246,0.06);border:1px solid rgba(59,130,246,0.2);padding:10px;border-radius:6px;">
+                            <strong style="color:var(--primary);">ℹ️ Firebase FCM:</strong>
+                            <ul style="margin:6px 0 0 16px;padding:0;line-height:1.5;">
+                                <li>Requires GCP project setup</li>
+                                <li>Topic subscription management in cloud</li>
+                                <li>Dashboard analytics in Firebase Console</li>
+                                <li>Best for large multi-platform enterprise teams</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connected Firebase Project Panel -->
+        <div class="card" style="margin-top:14px;">
+            <div class="card-header">
+                <div class="title-left">
+                    <i class="fas fa-check-circle" style="color:var(--success);"></i>
+                    <span>Connected Firebase Project: push-24f80</span>
+                </div>
+                <span class="badge badge-success"><i class="fas fa-link"></i> Linked</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;font-size:0.78rem;">
+                <div style="background:var(--bg-surface);padding:8px 10px;border-radius:6px;border:1px solid var(--border);">
+                    <span style="color:var(--text-muted);display:block;font-size:0.7rem;">Project ID:</span>
+                    <strong style="color:var(--text-primary);font-family:monospace;">push-24f80</strong>
+                </div>
+                <div style="background:var(--bg-surface);padding:8px 10px;border-radius:6px;border:1px solid var(--border);">
+                    <span style="color:var(--text-muted);display:block;font-size:0.7rem;">Sender ID:</span>
+                    <strong style="color:var(--text-primary);font-family:monospace;">842767543058</strong>
+                </div>
+                <div style="background:var(--bg-surface);padding:8px 10px;border-radius:6px;border:1px solid var(--border);">
+                    <span style="color:var(--text-muted);display:block;font-size:0.7rem;">Measurement ID:</span>
+                    <strong style="color:var(--text-primary);font-family:monospace;">G-BJFJCC01VK</strong>
+                </div>
+            </div>
+
+            <!-- Firebase VAPID Key Input & Generator -->
+            <div class="form-group" style="margin-top:10px;">
+                <label class="form-label">
+                    <span>Firebase Cloud Messaging Web Push Certificate (VAPID Key):</span>
+                    <a href="https://console.firebase.google.com/project/push-24f80/settings/cloudmessaging" target="_blank" style="color:var(--primary);font-size:0.72rem;text-decoration:underline;">
+                        <i class="fas fa-external-link-alt"></i> Get Key from Firebase Console
+                    </a>
+                </label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <input type="text" id="firebaseVapidInput" class="form-input" value="BGYLdbt1Qwm1lCvdWE61sDdHwZHlIEs3oj9elDrXBUdoO37F0X12RJfiGJqrLyoNw74FwuDqetL17Ngo8GHMd3E" placeholder="Paste Web Push Certificate key from Cloud Messaging tab" style="font-family:monospace;font-size:0.74rem;flex:3;min-width:220px;">
+                    <button onclick="requestFirebaseTokenDirect()" class="btn btn-warning" style="white-space:nowrap;flex:1;min-width:140px;">
+                        <i class="fas fa-key"></i> Get FCM Token
+                    </button>
+                </div>
+            </div>
+
+            <div id="fcmTokenResultBox" style="display:none;padding:10px 12px;border-radius:8px;font-size:0.78rem;margin-top:6px;word-break:break-all;"></div>
+        </div>
+    </div>
+
 </div>
 
 <!-- In-App Floating Toast -->
@@ -824,6 +1009,7 @@
 <!-- Centralized Auth & Core Push Manager -->
 <script src="/auth-module.js"></script>
 <script src="/push-manager.js"></script>
+<script type="module" src="/firebase-client.js"></script>
 
 <script>
 /* ─────────────────────────────────────────────────────────────
@@ -872,8 +1058,115 @@ function switchTab(tabName) {
     const targetTab = document.getElementById(`tab-${tabName}`);
     if (targetTab) targetTab.classList.add('active');
 
-    // Highlight button
-    event.currentTarget.classList.add('active');
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
+
+    if (tabName === 'devices') {
+        loadSubscribersList();
+    }
+}
+
+// Escape HTML utility
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+    })[m]);
+}
+
+// Subscribers Directory Loader
+async function loadSubscribersList() {
+    const tableBody = document.getElementById('subscribersTableBody');
+    const countBadge = document.getElementById('subscribersCountBadge');
+    if (!tableBody) return;
+
+    tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:14px;color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Loading registered devices...</td></tr>';
+
+    try {
+        const res = await fetch('/api/push/subscribers');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.subscribers)) {
+            if (countBadge) countBadge.textContent = `${data.count} Registered`;
+            if (data.subscribers.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:16px;color:var(--text-muted);">No devices registered yet. Click "Register Device Token" above or open the app from a device.</td></tr>';
+                return;
+            }
+            window._cachedSubscribers = data.subscribers;
+            tableBody.innerHTML = data.subscribers.map((s, i) => {
+                const badgeClass = s.os === 'Windows' ? 'badge-info' : s.os === 'Android' ? 'badge-success' : s.os === 'iOS' ? 'badge-danger' : 'badge-purple';
+                return `
+                    <tr style="border-bottom:1px solid var(--border);">
+                        <td style="padding:10px 8px;font-family:monospace;font-size:0.75rem;">${i + 1}</td>
+                        <td style="padding:10px 8px;font-weight:600;">
+                            <i class="fas fa-user-circle" style="color:var(--primary);margin-right:5px;"></i>
+                            ${escapeHtml(s.user || 'Anonymous Device')}
+                        </td>
+                        <td style="padding:10px 8px;font-size:0.78rem;">
+                            <span class="badge ${badgeClass}">${escapeHtml(s.os)}</span>
+                        </td>
+                        <td style="padding:10px 8px;font-size:0.78rem;color:var(--text-secondary);">${escapeHtml(s.browser || 'Browser')}</td>
+                        <td style="padding:10px 8px;font-size:0.72rem;color:var(--text-muted);">${s.subscribedAt ? new Date(s.subscribedAt).toLocaleString() : 'Recent'}</td>
+                        <td style="padding:10px 8px;">
+                            <button onclick="sendTestToSubscriber(${i})" class="btn btn-outline btn-sm" style="padding:4px 8px;font-size:0.72rem;" title="Send Test Ping">
+                                <i class="fas fa-paper-plane"></i> Ping
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } else {
+            tableBody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:14px;color:var(--danger);">Failed to load subscribers.</td></tr>';
+        }
+    } catch (e) {
+        tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:14px;color:var(--danger);">Error: ${e.message}</td></tr>`;
+    }
+}
+
+// Prune Inactive Subscribers
+async function pruneExpiredSubscribers() {
+    log('Pruning expired and unsubscribed device endpoints...');
+    try {
+        const res = await fetch('/api/push/prune', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+            log(`Pruned ${data.removedCount} inactive device(s). Remaining: ${data.remaining}`, 'ok');
+            showInAppToast('Pruned', `Cleaned ${data.removedCount} expired token(s).`);
+            loadSubscribersList();
+            refreshAllStats();
+        }
+    } catch (e) {
+        log('Pruning error: ' + e.message, 'err');
+    }
+}
+
+// Direct Ping to Specific Device
+async function sendTestToSubscriber(index) {
+    const sub = window._cachedSubscribers && window._cachedSubscribers[index];
+    if (!sub || !sub.endpoint) return;
+
+    log(`Sending test ping to device #${index + 1} (${sub.user} - ${sub.os})...`);
+    try {
+        const res = await fetch('/api/push/send-test', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                endpoint: sub.endpoint,
+                title: 'Tabreed Direct Ping 🔔',
+                message: `Direct ping to ${sub.user} (${sub.os}) from Push Studio`,
+                url: '/push-studio.html'
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            log(`Direct ping delivered to device #${index + 1}!`, 'ok');
+            showInAppToast('Ping Delivered', `Sent to ${sub.user}`);
+        } else {
+            log(`Direct ping note: ${data.error || 'Server error'}`, 'warn');
+        }
+    } catch (e) {
+        log(`Error sending ping: ${e.message}`, 'err');
+    }
 }
 
 // Apply Preset Template
@@ -1263,6 +1556,64 @@ function clearHistoryLog() {
     window.PushNotificationManager.clearDispatchLog();
     renderRecentDispatches();
     log('Dispatches history cleared.');
+}
+
+// Request Firebase Cloud Messaging (FCM) Token
+async function requestFirebaseTokenDirect() {
+    const inputKey = document.getElementById('firebaseVapidInput')?.value.trim();
+    const resultBox = document.getElementById('fcmTokenResultBox');
+    if (!resultBox) return;
+
+    resultBox.style.display = 'block';
+    resultBox.style.background = 'rgba(59, 130, 246, 0.15)';
+    resultBox.style.border = '1px solid rgba(59, 130, 246, 0.3)';
+    resultBox.style.color = '#60a5fa';
+    resultBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Initializing Firebase Messaging and requesting token...';
+
+    log('Requesting Firebase FCM token for project: push-24f80...');
+
+    try {
+        if (!window.TabreedFirebase || !window.TabreedFirebase.requestToken) {
+            throw new Error('Firebase Client SDK is initializing. Please click again in 2 seconds.');
+        }
+
+        const res = await window.TabreedFirebase.requestToken(inputKey || null);
+        resultBox.style.background = 'rgba(16, 185, 129, 0.15)';
+        resultBox.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+        resultBox.style.color = '#34d399';
+        resultBox.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <strong><i class="fas fa-check-circle"></i> FCM Token Received &amp; Saved!</strong>
+                <button onclick="navigator.clipboard.writeText('${res.token}');showInAppToast('Copied','FCM Token copied to clipboard');" class="btn btn-outline btn-sm" style="padding:2px 8px;font-size:0.7rem;">
+                    <i class="fas fa-copy"></i> Copy Token
+                </button>
+            </div>
+            <div style="font-size:0.72rem;margin-top:6px;font-family:monospace;background:rgba(0,0,0,0.3);padding:6px 8px;border-radius:4px;word-break:break-all;user-select:all;">
+                ${res.token}
+            </div>
+            <div style="margin-top:8px;font-size:0.75rem;color:#cbd5e1;line-height:1.4;">
+                <strong style="color:#fbbf24;"><i class="fas fa-paper-plane"></i> Ab Firebase Console se Test Alert Bhejein:</strong><br>
+                1. <a href="https://console.firebase.google.com/project/push-24f80/messaging" target="_blank" style="color:#60a5fa;text-decoration:underline;">Firebase Console &gt; Messaging</a> par jayein.<br>
+                2. <strong>Create your first campaign</strong> &gt; <strong>Firebase Notification messages</strong> select karein.<br>
+                3. Title aur text likhein ➔ Right side me <strong>Send test message</strong> click karein.<br>
+                4. Upar diya gaya token paste karein aur <strong>Test</strong> daba dein!
+            </div>
+        `;
+        log('Firebase FCM token generated and registered successfully!', 'ok');
+        showInAppToast('FCM Token Ready', 'Saved in /data/firebase_tokens.json');
+    } catch(err) {
+        resultBox.style.background = 'rgba(239, 68, 68, 0.15)';
+        resultBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+        resultBox.style.color = '#f87171';
+        let tip = '';
+        if (err.message && (err.message.includes('vapidKey') || err.message.includes('missing') || err.message.includes('applicationServerKey'))) {
+            tip = `<div style="margin-top:6px;font-size:0.72rem;color:#fca5a5;">
+                <strong>Next Step:</strong> Go to <a href="https://console.firebase.google.com/project/push-24f80/settings/cloudmessaging" target="_blank" style="color:#60a5fa;text-decoration:underline;">Firebase Console &gt; Project Settings &gt; Cloud Messaging</a>, scroll to <em>Web Push certificates</em>, click <strong>Generate key pair</strong>, copy that key and paste it in the box above.
+            </div>`;
+        }
+        resultBox.innerHTML = `<strong><i class="fas fa-exclamation-triangle"></i> Firebase Notice:</strong> ${err.message}${tip}`;
+        log(`Firebase token request notice: ${err.message}`, 'warn');
+    }
 }
 
 // Auto Init

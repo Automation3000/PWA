@@ -194,10 +194,22 @@ export function registerPushRoutes(app) {
   // 6. Send Test Push to Single Device
   app.post('/api/push/send-test', async (req, res) => {
     try {
-      let { subscription, title, message, url } = req.body;
-      if (!subscription) return res.status(400).json({ error: 'Missing subscription object' });
+      let { subscription, endpoint, title, message, url } = req.body;
+      let subObj = null;
 
-      let subObj = typeof subscription === 'string' ? JSON.parse(subscription) : subscription;
+      if (subscription) {
+        subObj = typeof subscription === 'string' ? JSON.parse(subscription) : subscription;
+      } else if (endpoint) {
+        const subs = loadSubscriptions();
+        const found = subs.find(s => s.endpoint === endpoint);
+        if (found) {
+          subObj = found.rawSubscription ? JSON.parse(found.rawSubscription) : { endpoint: found.endpoint, keys: found.keys };
+        }
+      }
+
+      if (!subObj || !subObj.endpoint) {
+        return res.status(400).json({ error: 'Missing or invalid subscription object/endpoint' });
+      }
       const payload = JSON.stringify({
         title: title || 'Tabreed Alert 🔔',
         body: message || 'Test notification from Tabreed PWA',
@@ -268,6 +280,58 @@ export function registerPushRoutes(app) {
       saveSubscriptions(cleaned);
       res.json({ success: true, removedCount: subs.length - cleaned.length, remaining: cleaned.length });
     } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // 9. Firebase Cloud Messaging: Save Token Endpoint
+  const FIREBASE_TOKENS_FILE = path.join(DATA_DIR, 'firebase_tokens.json');
+  function loadFirebaseTokens() {
+    try {
+      if (fs.existsSync(FIREBASE_TOKENS_FILE)) {
+        return JSON.parse(fs.readFileSync(FIREBASE_TOKENS_FILE, 'utf8') || '[]');
+      }
+    } catch(e) {}
+    return [];
+  }
+  function saveFirebaseTokens(tokens) {
+    try {
+      fs.writeFileSync(FIREBASE_TOKENS_FILE, JSON.stringify(tokens, null, 2), 'utf8');
+    } catch(e) {}
+  }
+
+  app.post('/api/firebase/save-token', (req, res) => {
+    try {
+      const { token, user, projectId } = req.body;
+      if (!token) return res.status(400).json({ error: 'Missing FCM token' });
+
+      const tokens = loadFirebaseTokens();
+      const existing = tokens.findIndex(t => t.token === token);
+      const record = {
+        token,
+        user: user || 'Anonymous User',
+        projectId: projectId || 'push-24f80',
+        updatedAt: new Date().toISOString()
+      };
+
+      if (existing >= 0) {
+        tokens[existing] = { ...tokens[existing], ...record };
+      } else {
+        tokens.push({ ...record, createdAt: new Date().toISOString() });
+      }
+      saveFirebaseTokens(tokens);
+
+      res.json({ success: true, message: 'FCM Token saved successfully', totalTokens: tokens.length });
+    } catch(e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get('/api/firebase/tokens', (req, res) => {
+    try {
+      const tokens = loadFirebaseTokens();
+      res.json({ success: true, count: tokens.length, tokens });
+    } catch(e) {
       res.status(500).json({ error: e.message });
     }
   });
