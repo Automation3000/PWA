@@ -190,7 +190,7 @@ async function runPushDiagnostics() {
       name: 'Notification Permission', 
       status: 'fail', 
       text: inIframe 
-        ? 'Denied or blocked by iframe. Open in standalone tab (/push-tester.html)' 
+        ? 'Denied or blocked by iframe. Open in standalone tab (/push-studio.html)' 
         : 'Permission Denied in browser settings. Please allow notifications for this site.' 
     });
   } else {
@@ -276,7 +276,7 @@ async function subscribeUserToPush(gasUrl) {
         success: false, 
         error: permission === 'denied' 
           ? (isIframe 
-              ? 'Permission is blocked in preview iframe. Open /push-tester.html in a new tab to grant permission!' 
+              ? 'Permission is blocked in preview iframe. Open /push-studio.html in a new tab to grant permission!' 
               : 'Notification permission was denied. Please allow notifications in site settings.') 
           : 'Notification permission request was dismissed.' 
       };

@@ -9,15 +9,17 @@ import fs from 'fs';
 
 const PUSH_SUBS_FILE = path.join(process.cwd(), 'push_subscriptions.json');
 
-const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || 'BF1FJVnaTi9Zd1Bl4sjSrz9ALDS9LI__Bl5JjKL0cHkHt-UcR38IX0CXVLO_jw18AGubhNI2a-i7Nr8FbC3wluk';
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || 'uJ3D-WWMjIYp_9Xm7xdu1OCsx2caeN9ZIauS825BUjQ';
-const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:qadriabdulmajid@gmail.com';
-const PUSH_APPS_SCRIPT_URL = process.env.PUSH_APPS_SCRIPT_URL || "https://script.google.com/macros/s/AKfycbxr-HQedn7rqxJ9zP7JmDnLtHnp8ad8PhQ0v8bpBI8pOvw8D4P14OI_ojVKyUBOzDdN/exec";
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:admin@example.com';
+const PUSH_APPS_SCRIPT_URL = process.env.PUSH_APPS_SCRIPT_URL || '';
 
-try {
-  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
-} catch (e) {
-  console.warn('VAPID initialization notice:', e.message);
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  try {
+    webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY);
+  } catch (e) {
+    console.warn('VAPID initialization notice:', e.message);
+  }
 }
 
 function loadSubscriptions() {

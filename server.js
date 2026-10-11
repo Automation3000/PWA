@@ -2,7 +2,6 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { registerPushRoutes } from './server-push.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -2002,6 +2001,11 @@ app.get(['/Index.html', '/index.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Redirect any legacy Index_Backup.html requests to primary index.html
+app.get(['/Index_Backup.html', '/index_backup.html'], (req, res) => {
+  res.redirect(301, '/index.html');
+});
+
 // Backward Compatibility & Static Data Routing:
 // Maps requests for root JSON files (e.g. /employees.json) seamlessly to /data/
 const DATA_JSON_FILES = new Set([
@@ -2029,9 +2033,6 @@ app.use((req, res, next) => {
   }
   next();
 });
-
-// Register Web Push Protocol Endpoints
-registerPushRoutes(app);
 
 // Explicitly serve /data and /Data directory
 app.use('/data', express.static(DATA_DIR));

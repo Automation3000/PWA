@@ -13,17 +13,22 @@ app.use(express.urlencoded({ extended: true }));
 // ==========================================
 // 1. VAPID CONFIGURATION
 // ==========================================
-const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || 'BF1FJVnaTi9Zd1Bl4sjSrz9ALDS9LI__Bl5JjKL0cHkHt-UcR38IX0CXVLO_jw18AGubhNI2a-i7Nr8FbC3wluk';
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || 'uJ3D-WWMjIYp_9Xm7xdu1OCsx2caeN9ZIauS825BUjQ';
-const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:qadriabdulmajid@gmail.com';
+const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY || '';
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || '';
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:admin@example.com';
 
-webpush.setVapidDetails(
-  VAPID_SUBJECT,
-  VAPID_PUBLIC_KEY,
-  VAPID_PRIVATE_KEY
-);
-
-console.log('[PushServer] VAPID details configured successfully.');
+if (VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY) {
+  try {
+    webpush.setVapidDetails(
+      VAPID_SUBJECT,
+      VAPID_PUBLIC_KEY,
+      VAPID_PRIVATE_KEY
+    );
+    console.log('[PushServer] VAPID details configured successfully.');
+  } catch (e) {
+    console.warn('[PushServer] VAPID config notice:', e.message);
+  }
+}
 
 // ==========================================
 // 2. HEALTH CHECK

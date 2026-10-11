@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "acorn": "^8.18.0",
-    "acorn-walk": "^8.3.5"
+    "acorn-walk": "^8.3.5",
+    "tesseract.js": "^7.0.0"
   }
 }

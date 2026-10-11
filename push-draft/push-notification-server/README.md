@@ -31,10 +31,11 @@ Everything runs directly between your **GitHub Repository (`server.js`)**, **PWA
 
 ---
 
-## 🔑 Your VAPID Credentials
-- **Public Key:** `BF1FJVnaTi9Zd1Bl4sjSrz9ALDS9LI__Bl5JjKL0cHkHt-UcR38IX0CXVLO_jw18AGubhNI2a-i7Nr8FbC3wluk`
-- **Private Key:** `uJ3D-WWMjIYp_9Xm7xdu1OCsx2caeN9ZIauS825BUjQ`
-- **Subject:** `mailto:qadriabdulmajid@gmail.com`
+## 🔑 VAPID Credentials Setup
+Generate your free keys via terminal: `npx web-push generate-vapid-keys`
+- **Public Key:** Set in environment variable `VAPID_PUBLIC_KEY`
+- **Private Key:** Set in environment variable `VAPID_PRIVATE_KEY` (Keep secret!)
+- **Subject:** Set in environment variable `VAPID_SUBJECT` (e.g. `mailto:admin@example.com`)
 
 ---
 
@@ -92,11 +93,11 @@ The self-hosted push architecture works across **Windows**, **Android**, and **A
    - New Web Service ➜ Connect your GitHub repository.
    - Build Command: `npm install`
    - Start Command: `node server.js`
-   - Set Environment Variables (optional, since keys are already configured in code):
+   - Set Environment Variables:
      - `PORT`: `4000` (or host assigned)
-     - `VAPID_PUBLIC_KEY`: `BF1FJVnaTi9Zd1Bl4sjSrz9ALDS9LI__Bl5JjKL0cHkHt-UcR38IX0CXVLO_jw18AGubhNI2a-i7Nr8FbC3wluk`
-     - `VAPID_PRIVATE_KEY`: `uJ3D-WWMjIYp_9Xm7xdu1OCsx2caeN9ZIauS825BUjQ`
-     - `VAPID_SUBJECT`: `mailto:qadriabdulmajid@gmail.com`
+     - `VAPID_PUBLIC_KEY`: `YOUR_VAPID_PUBLIC_KEY`
+     - `VAPID_PRIVATE_KEY`: `YOUR_VAPID_PRIVATE_KEY`
+     - `VAPID_SUBJECT`: `mailto:admin@example.com`
 4. Copy your live server URL (e.g., `https://tabreed-push.onrender.com`).
 5. Verify in browser: Visiting `https://your-node-server.onrender.com/` will return:
    ```json

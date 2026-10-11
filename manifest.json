@@ -77,12 +77,6 @@
       "sizes": "1080x1920",
       "type": "image/png",
       "form_factor": "narrow"
-    },
-    {
-      "src": "screenshot-desktop.png",
-      "sizes": "1920x1080",
-      "type": "image/png",
-      "form_factor": "wide"
     }
   ],
   "shortcuts": [
@@ -90,7 +84,7 @@
       "name": "Network Monitor",
       "short_name": "PingLogger",
       "description": "Open PingLogger Ultimate",
-      "url": "/Index.html?action=pinglogger",
+      "url": "/index.html?action=pinglogger",
       "icons": [
         {
           "src": "icon-192.png",
@@ -103,7 +97,7 @@
       "name": "Add Instrument",
       "short_name": "Add Item",
       "description": "Add a new instrument to the list",
-      "url": "/Index.html?action=add",
+      "url": "/index.html?action=add",
       "icons": [
         {
           "src": "icon-192.png",
@@ -115,7 +109,7 @@
   ],
   "file_handlers": [
     {
-      "action": "/Index.html",
+      "action": "/index.html",
       "accept": {
         "text/plain": [
           ".txt",
@@ -131,7 +125,7 @@
     "client_mode": "focus-existing"
   },
   "share_target": {
-    "action": "/Index.html?share=true",
+    "action": "/index.html?share=true",
     "method": "GET",
     "params": {
       "title": "title",
@@ -147,7 +141,7 @@
   "protocol_handlers": [
     {
       "protocol": "web+tabreed",
-      "url": "/Index.html?action=%s"
+      "url": "/index.html?action=%s"
     }
   ],
   "widgets": [
@@ -164,6 +158,6 @@
     "preferred_width": 400
   },
   "note_taking": {
-    "new_note_url": "/Index.html?action=new_note"
+    "new_note_url": "/index.html?action=new_note"
   }
 }
