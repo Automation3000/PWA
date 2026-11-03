@@ -999,7 +999,7 @@ input[type="date"] {
         ];
 
         function applyTheme() {
-            const themeId = localStorage.getItem(THEME_KEY) || (localStorage.getItem(LS_DARK) === '0' ? 'default' : 'cyber-dark');
+            const themeId = localStorage.getItem(THEME_KEY) || localStorage.getItem('tabreed_pwa_theme') || (localStorage.getItem(LS_DARK) === '1' ? 'cyber-dark' : 'default');
             document.body.classList.remove(...ALL_THEME_CLASSES);
             if (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark') {
                 document.body.classList.add('dark-mode');
@@ -1020,11 +1020,14 @@ input[type="date"] {
 
         applyTheme();
         function toggleDarkMode() {
-            const isCurrentlyDark = document.body.classList.contains('dark-mode');
-            const newTheme = isCurrentlyDark ? 'default' : 'dark-mode';
+            const isCurrentlyDark = document.body.classList.contains('dark-mode') || document.body.classList.contains('theme-cyber-dark');
+            const newTheme = isCurrentlyDark ? 'default' : 'cyber-dark';
             localStorage.setItem(LS_DARK, isCurrentlyDark ? '0' : '1');
             localStorage.setItem(THEME_KEY, newTheme);
+            localStorage.setItem('tabreed_pwa_theme', newTheme);
+            localStorage.setItem('tabreed_selected_theme', newTheme);
             applyTheme();
+            showToast(isCurrentlyDark ? 'Light Mode Enabled' : 'Neon Dark Enabled', 'info');
         }
 
         // Data & State

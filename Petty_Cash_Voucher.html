@@ -4,12 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TABREED | Petty Cash Voucher</title>
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#1a2935">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
     <style>
         :root {
+            --primary:        #1a73e8;
+            --primary-dark:   #0d62d9;
+            --primary-light:  #e8f0fe;
+            --secondary:      #1e8e3e;
+            --warning:        #f9ab00;
+            --danger:         #d93025;
+            --dark:           #202124;
+            --light:          #f8f9fa;
+            --gray:           #5f6368;
+            --border:         #dadce0;
+            --shadow-sm:      0 1px 4px rgba(0,0,0,.08);
+            --shadow:         0 2px 12px rgba(0,0,0,.10);
+            --shadow-md:      0 4px 20px rgba(0,0,0,.12);
+            --radius:         12px;
+            --radius-sm:      8px;
+            --transition:     all .25s ease;
+            --bg-page:        #e8f0f8;
+            --bg-card:        #ffffff;
+            --bg-surface:     #f3f6fb;
+            --text-primary:   #202124;
+            --text-secondary: #5f6368;
+            --text-muted:     #80868b;
+            --input-bg:       #f8f9fa;
+            --header-bg:      #1a2935;
+            --header-text:    #ffffff;
+            --table-header:   #f1f3f4;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           DARK MODE / NEON DARK (CYBER DARK)
+        ═══════════════════════════════════════════════════ */
+        body.dark-mode,
+        body.theme-cyber-dark {
             --primary:        #22d3ee;
             --primary-dark:   #0891b2;
             --primary-light:  #164e63;
@@ -20,6 +53,9 @@
             --light:          #1f2937;
             --gray:           #9ca3af;
             --border:         #374151;
+            --shadow-sm:      0 1px 4px rgba(0,0,0,.3);
+            --shadow:         0 2px 12px rgba(0,0,0,.4);
+            --shadow-md:      0 4px 20px rgba(0,0,0,.5);
             --bg-page:        #0f172a;
             --bg-card:        #1e293b;
             --bg-surface:     #334155;
@@ -30,36 +66,6 @@
             --header-bg:      #0284c7;
             --header-text:    #ffffff;
             --table-header:   #334155;
-            --radius-sm:      6px;
-            --radius:         12px;
-            --radius-lg:      16px;
-            --shadow-sm:      0 2px 4px rgba(0,0,0,0.25);
-            --shadow:         0 4px 12px rgba(0,0,0,0.35);
-            --shadow-md:      0 8px 24px rgba(0,0,0,0.45);
-            --transition:     all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        body.light-theme {
-            --primary:        #0284c7;
-            --primary-dark:   #0369a1;
-            --primary-light:  #e0f2fe;
-            --secondary:      #10b981;
-            --warning:        #f59e0b;
-            --danger:         #ef4444;
-            --dark:           #1f2937;
-            --light:          #ffffff;
-            --gray:           #6b7280;
-            --border:         #e2e8f0;
-            --bg-page:        #f8fafc;
-            --bg-card:        #ffffff;
-            --bg-surface:     #f1f5f9;
-            --text-primary:   #0f172a;
-            --text-secondary: #475569;
-            --text-muted:     #94a3b8;
-            --input-bg:       #ffffff;
-            --header-bg:      #0284c7;
-            --header-text:    #ffffff;
-            --table-header:   #f8fafc;
         }
 
         * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -69,7 +75,7 @@
             color: var(--text-primary);
             line-height: 1.5;
             min-height: 100vh;
-            transition: background-color .3s, color .3s;
+            transition: background-color .25s ease, color .25s ease;
         }
 
         .app-container {
@@ -79,7 +85,7 @@
         }
 
         /* ═══════════════════════════════════════════════════
-           HEADER
+           HEADER — Clean title without icon or subtitle text
         ═══════════════════════════════════════════════════ */
         .app-header {
             background: var(--bg-card);
@@ -91,6 +97,7 @@
             z-index: 1000;
             margin: 0 -15px 15px -15px;
             border-bottom: 1px solid var(--border);
+            transition: var(--transition);
         }
         @media (min-width: 1200px) { .app-header { margin: 0 0 15px 0; } }
 
@@ -137,25 +144,16 @@
             border: 1px solid var(--border);
             overflow: hidden;
             flex-shrink: 0;
+            box-shadow: var(--shadow-sm);
         }
         .logo-img { width: 34px; height: 34px; object-fit: contain; }
         .brand-text h1 {
-            font-size: 1.15rem;
+            font-size: 1.18rem;
             font-weight: 800;
             letter-spacing: -0.3px;
             color: var(--text-primary);
             line-height: 1.2;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .brand-text p {
-            font-size: 0.75rem;
-            color: var(--text-muted);
             margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
         .header-actions {
@@ -164,21 +162,23 @@
             gap: 8px;
         }
         .connection-status {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: .4rem;
-            font-size: .75rem;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-weight: 700;
+            justify-content: center;
+            padding: 7px;
+            border-radius: 50%;
             background: var(--bg-surface);
             border: 1px solid var(--border);
+            width: 32px;
+            height: 32px;
+            cursor: default;
         }
         .status-dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: var(--secondary);
+            transition: background 0.3s ease;
         }
         .status-dot.syncing { background: var(--warning); animation: pulse 1s infinite; }
         .status-dot.offline { background: var(--danger); }
@@ -203,201 +203,186 @@
         }
 
         /* ═══════════════════════════════════════════════════
-           ROLE BANNER & SUMMARY STATS
+           SEARCH CONTAINER — Matching Master Instrument
         ═══════════════════════════════════════════════════ */
-        .role-notice {
-            background: linear-gradient(90deg, rgba(34,211,238,0.1), rgba(16,185,129,0.08));
-            border: 1px solid rgba(34,211,238,0.3);
-            border-radius: var(--radius);
-            padding: 10px 14px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            font-size: 0.85rem;
-        }
-        .role-badge {
-            background: var(--primary);
-            color: #0f172a;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .stat-card {
+        .search-container {
+            padding: 1rem;
+            margin-bottom: 1rem;
             background: var(--bg-card);
-            border: 1px solid var(--border);
             border-radius: var(--radius);
-            padding: 12px 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
             box-shadow: var(--shadow-sm);
-        }
-        .stat-card.primary {
-            border-left: 4px solid var(--primary);
-        }
-        .stat-card.emerald {
-            border-left: 4px solid #10b981;
-        }
-        .stat-card.amber {
-            border-left: 4px solid #f59e0b;
-        }
-        .stat-card.purple {
-            border-left: 4px solid #a855f7;
-        }
-        .stat-label {
-            font-size: 0.72rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-        }
-        .stat-value {
-            font-size: 1.35rem;
-            font-weight: 800;
-            color: var(--text-primary);
-        }
-
-        /* ═══════════════════════════════════════════════════
-           TOOLBAR & ACTION BUTTONS
-        ═══════════════════════════════════════════════════ */
-        .toolbar-card {
-            background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 12px;
-            margin-bottom: 15px;
-            box-shadow: var(--shadow-sm);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
         }
-        .toolbar-row {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .action-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .btn-primary {
-            background: var(--primary);
-            color: #0f172a;
-            border: none;
-            padding: 8px 16px;
-            border-radius: var(--radius-sm);
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.85rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: var(--transition);
-        }
-        .btn-primary:hover {
-            filter: brightness(1.1);
-            transform: translateY(-1px);
-        }
-        .btn-outline {
-            background: var(--bg-surface);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            padding: 8px 14px;
-            border-radius: var(--radius-sm);
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 0.82rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: var(--transition);
-        }
-        .btn-outline:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .search-box {
-            position: relative;
-            flex: 1;
-            min-width: 220px;
-        }
+        .search-box { position: relative; }
         .search-box input {
             width: 100%;
-            padding: 9px 12px 9px 34px;
-            border: 1px solid var(--border);
+            padding: .8rem 1rem .8rem 3rem;
+            border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
+            font-size: 15px;
             background: var(--input-bg);
             color: var(--text-primary);
-            font-size: 0.85rem;
             outline: none;
             transition: border-color .2s;
         }
         .search-box input:focus { border-color: var(--primary); }
-        .search-box i {
+        .search-box input::placeholder { color: var(--text-muted); opacity: 1; }
+        .search-icon {
             position: absolute;
-            left: 11px;
+            left: 1rem;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
-            font-size: 0.85rem;
+            font-size: 15px;
         }
 
-        .filter-pills {
+        /* ═══════════════════════════════════════════════════
+           QUICK ACTIONS — Matching Master Instrument
+        ═══════════════════════════════════════════════════ */
+        .quick-actions {
             display: flex;
+            flex-wrap: wrap;
+            gap: .5rem;
+            margin-bottom: 1rem;
+            justify-content: center;
+        }
+        .action-btn {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            flex: 1;
+            min-width: 80px;
+            max-width: 140px;
+            padding: .85rem .5rem;
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 6px;
-            overflow-x: auto;
-            padding-bottom: 2px;
-        }
-        .pill {
-            padding: 4px 10px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            background: var(--bg-surface);
-            color: var(--text-secondary);
-            font-size: 0.75rem;
+            justify-content: center;
+            font-size: .75rem;
             font-weight: 700;
+            color: var(--text-primary);
+            box-shadow: var(--shadow-sm);
             cursor: pointer;
-            white-space: nowrap;
             transition: var(--transition);
+            position: relative;
+            text-align: center;
+            user-select: none;
         }
-        .pill:hover, .pill.active {
-            background: var(--primary);
-            color: #0f172a;
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
             border-color: var(--primary);
         }
-
-        .supervisor-filter {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.82rem;
+        .action-btn i {
+            font-size: 1.25rem;
+            margin-bottom: 5px;
+            transition: transform 0.2s;
         }
-        .supervisor-filter select {
-            padding: 6px 10px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-            background: var(--input-bg);
-            color: var(--text-primary);
+        .action-btn:hover i { transform: scale(1.1); }
+        .action-btn span {
+            color: var(--text-secondary);
+            font-size: .72rem;
+            text-align: center;
+        }
+        .action-btn.active {
+            background: var(--primary-light) !important;
+            border-color: var(--primary) !important;
+        }
+        .action-btn.active span, .action-btn.active i {
+            color: var(--primary) !important;
+        }
+        .select-wrapper {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           STATUS PILLS / BADGES — Matching Operation Request
+           (NO "All" tab - strictly Submitted, Approved, Reimbursed, Rejected)
+        ═══════════════════════════════════════════════════ */
+        .status-summary-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .status-badge-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
             font-size: 0.82rem;
-            outline: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: var(--transition);
+            border: 1px solid transparent;
+            user-select: none;
+        }
+        .status-badge-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+        }
+        .badge-submitted {
+            background: rgba(245,158,11,0.12);
+            border-color: rgba(245,158,11,0.4);
+            color: #d97706;
+        }
+        body.dark-mode .badge-submitted, body.theme-cyber-dark .badge-submitted { color: #facc15; border-color: rgba(250,204,21,0.4); }
+        .badge-submitted.active {
+            background: #f59e0b !important;
+            color: #0f172a !important;
+            border-color: #f59e0b !important;
+        }
+
+        .badge-approved {
+            background: rgba(16,185,129,0.12);
+            border-color: rgba(16,185,129,0.4);
+            color: #059669;
+        }
+        body.dark-mode .badge-approved, body.theme-cyber-dark .badge-approved { color: #34d399; border-color: rgba(52,211,153,0.4); }
+        .badge-approved.active {
+            background: #10b981 !important;
+            color: #0f172a !important;
+            border-color: #10b981 !important;
+        }
+
+        .badge-reimbursed {
+            background: rgba(13,148,136,0.12);
+            border-color: rgba(13,148,136,0.4);
+            color: #0d9488;
+        }
+        body.dark-mode .badge-reimbursed, body.theme-cyber-dark .badge-reimbursed { color: #2dd4bf; border-color: rgba(45,212,191,0.4); }
+        .badge-reimbursed.active {
+            background: #0d9488 !important;
+            color: #ffffff !important;
+            border-color: #0d9488 !important;
+        }
+
+        .badge-rejected {
+            background: rgba(239,68,68,0.12);
+            border-color: rgba(239,68,68,0.4);
+            color: #dc2626;
+        }
+        body.dark-mode .badge-rejected, body.theme-cyber-dark .badge-rejected { color: #f87171; border-color: rgba(248,113,113,0.4); }
+        .badge-rejected.active {
+            background: #ef4444 !important;
+            color: #ffffff !important;
+            border-color: #ef4444 !important;
+        }
+
+        .badge-count {
+            background: rgba(0,0,0,0.15);
+            padding: 2px 7px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 900;
+        }
+        body.dark-mode .badge-count, body.theme-cyber-dark .badge-count {
+            background: rgba(255,255,255,0.15);
         }
 
         /* ═══════════════════════════════════════════════════
@@ -424,7 +409,7 @@
             vertical-align: middle;
         }
         th {
-            background: var(--bg-surface);
+            background: var(--table-header);
             color: var(--text-secondary);
             text-transform: uppercase;
             font-weight: 700;
@@ -432,24 +417,22 @@
             letter-spacing: .4px;
             white-space: nowrap;
         }
-        tbody tr:hover { background: rgba(255,255,255,0.02); }
+        tbody tr:hover { background: var(--bg-surface); }
         tbody tr:last-child td { border-bottom: none; }
 
-        .voucher-id {
+        .voucher-id-cell {
             font-family: monospace;
             font-weight: 800;
             color: var(--primary);
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+            letter-spacing: 0.3px;
         }
-        .voucher-id:hover { text-decoration: underline; }
+        .voucher-id-cell:hover { text-decoration: underline; }
 
         .amount-badge {
             display: inline-block;
-            background: rgba(16,185,129,0.15);
-            color: #10b981;
+            background: rgba(16,185,129,0.12);
+            color: #059669;
             font-weight: 800;
             font-size: 0.88rem;
             padding: 4px 10px;
@@ -457,22 +440,30 @@
             border: 1px solid rgba(16,185,129,0.3);
             white-space: nowrap;
         }
+        body.dark-mode .amount-badge, body.theme-cyber-dark .amount-badge {
+            color: #34d399;
+            background: rgba(52,211,153,0.12);
+        }
 
-        .status-tag {
+        .status-pill {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            padding: 3px 9px;
+            padding: 3px 10px;
             border-radius: 20px;
             font-size: 0.74rem;
             font-weight: 700;
             text-transform: capitalize;
             white-space: nowrap;
         }
-        .status-submitted  { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
-        .status-approved   { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
-        .status-reimbursed { background: rgba(168,85,247,0.15); color: #a855f7; border: 1px solid rgba(168,85,247,0.3); }
-        .status-rejected   { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .status-pill.status-submitted  { background: rgba(245,158,11,0.15); color: #d97706; border: 1px solid rgba(245,158,11,0.3); }
+        .status-pill.status-approved   { background: rgba(16,185,129,0.15); color: #059669; border: 1px solid rgba(16,185,129,0.3); }
+        .status-pill.status-reimbursed { background: rgba(13,148,136,0.15); color: #0d9488; border: 1px solid rgba(13,148,136,0.3); }
+        .status-pill.status-rejected   { background: rgba(239,68,68,0.15); color: #dc2626; border: 1px solid rgba(239,68,68,0.3); }
+        body.dark-mode .status-pill.status-submitted, body.theme-cyber-dark .status-pill.status-submitted { color: #facc15; }
+        body.dark-mode .status-pill.status-approved, body.theme-cyber-dark .status-pill.status-approved { color: #34d399; }
+        body.dark-mode .status-pill.status-reimbursed, body.theme-cyber-dark .status-pill.status-reimbursed { color: #2dd4bf; }
+        body.dark-mode .status-pill.status-rejected, body.theme-cyber-dark .status-pill.status-rejected { color: #f87171; }
 
         .receipt-btn {
             background: var(--bg-surface);
@@ -490,7 +481,7 @@
         }
         .receipt-btn:hover {
             background: var(--primary);
-            color: #0f172a;
+            color: #fff;
         }
 
         .action-btns {
@@ -537,7 +528,7 @@
         .modal-overlay.active { display: flex; }
         .modal-card {
             background: var(--bg-card);
-            border: 1px solid var(--border);
+            border: 1.5px solid var(--border);
             border-radius: var(--radius);
             width: 100%;
             max-width: 520px;
@@ -641,7 +632,7 @@
             border-radius: 8px;
             border: 1px dashed var(--border);
             object-fit: contain;
-            background: rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.05);
             margin-top: 6px;
             display: none;
         }
@@ -652,6 +643,34 @@
             justify-content: flex-end;
             gap: 10px;
             background: var(--bg-surface);
+        }
+
+        .btn-modal-cancel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .btn-modal-submit {
+            background: #0284c7;
+            border: none;
+            color: #ffffff;
+            padding: 8px 18px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition);
+        }
+        .btn-modal-submit:hover {
+            filter: brightness(1.1);
         }
 
         /* ═══════════════════════════════════════════════════
@@ -684,25 +703,24 @@
             max-width: 320px;
         }
         .toast.success { border-left: 4px solid #10b981; }
-        .toast.info    { border-left: 4px solid var(--primary); }
+        .toast.info    { border-left: 4px solid #0284c7; }
         .toast.warning { border-left: 4px solid #f59e0b; }
         .toast.error   { border-left: 4px solid #ef4444; }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* Mobile Adjustments */
         @media (max-width: 640px) {
             .app-container { padding: 0 10px 60px 10px; }
-            .header-content { flex-wrap: wrap; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .quick-actions { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
+            .action-btn { max-width: unset !important; min-width: unset !important; width: 100% !important; min-height: 70px !important; }
             th, td { padding: 8px 10px; font-size: 0.78rem; }
             .form-row { flex-direction: column; }
         }
     </style>
 </head>
-<body class="theme-cyber-dark">
+<body>
 
     <div class="app-container">
-        <!-- HEADER -->
+        <!-- HEADER — Clean title without icon or subtitle text -->
         <header class="app-header">
             <div class="header-content">
                 <div class="brand">
@@ -713,97 +731,89 @@
                         <img src="icon-192.png" alt="Tabreed" class="logo-img" onerror="this.onerror=null; this.src='icon-72.png';">
                     </div>
                     <div class="brand-text">
-                        <h1><i class="fas fa-receipt" style="color:var(--primary); font-size:1.1rem;"></i> Petty Cash Voucher</h1>
-                        <p><span id="headerSyncLabel">Live Cloud Sync</span> • Tabreed Automation</p>
+                        <h1>Petty Cash Voucher</h1>
                     </div>
                 </div>
 
                 <div class="header-actions">
-                    <div class="connection-status" id="connectionStatusBadge">
+                    <!-- Clean icon-only live connection dot (No text) -->
+                    <div class="connection-status" id="connectionStatusBadge" title="Live Cloud Connection">
                         <div class="status-dot" id="statusDot"></div>
-                        <span id="statusText">Online</span>
                     </div>
-                    <button class="btn-icon" id="themeToggleBtn" onclick="toggleTheme()" title="Toggle Theme">
+                    <button class="btn-icon" id="darkModeToggleBtn" onclick="toggleDarkMode()" title="Toggle Theme">
                         <i class="fas fa-moon"></i>
                     </button>
                     <!-- TabreedAuth Mount Point -->
-                    <button id="header-user-btn" class="btn-outline" style="display:none; padding:5px 10px;" title="User Profile">
-                        <i class="fas fa-user-circle"></i> <span id="headerUserName">User</span>
+                    <button id="header-user-btn" class="action-btn" style="display:none; padding:4px 10px; min-width:unset; max-width:unset; flex-direction:row; gap:6px; height:36px;" title="User Profile">
+                        <i class="fas fa-user-circle" style="margin:0; font-size:1rem; color:var(--primary);"></i> <span id="headerUserName" style="font-weight:700;">User</span>
                     </button>
-                    <button id="header-login-btn" class="btn-primary" style="padding:6px 12px; font-size:0.8rem;" onclick="if(window.TabreedAuth) TabreedAuth.showLoginModal();" title="Log in">
-                        <i class="fas fa-lock"></i> Login
+                    <button id="header-login-btn" class="action-btn" style="padding:4px 12px; min-width:unset; max-width:unset; flex-direction:row; gap:6px; height:36px; background:#0284c7; color:#fff; border-color:#0284c7;" onclick="if(window.TabreedAuth) TabreedAuth.showLoginModal();" title="Log in">
+                        <i class="fas fa-lock" style="margin:0; font-size:0.85rem; color:#fff;"></i> <span style="color:#fff; font-weight:700;">Login</span>
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- ACCESS ROLE NOTICE -->
-        <div class="role-notice" id="roleNoticeBanner">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <i class="fas fa-shield-alt" style="color:var(--primary);"></i>
-                <span id="roleNoticeText">Technician Mode: Showing only your own logged vouchers.</span>
-            </div>
-            <span class="role-badge" id="roleBadge">Technician</span>
-        </div>
-
-        <!-- STATS GRID -->
-        <div class="stats-grid">
-            <div class="stat-card primary">
-                <span class="stat-label">Total Amount</span>
-                <span class="stat-value" id="statTotalAmount">AED 0.00</span>
-            </div>
-            <div class="stat-card emerald">
-                <span class="stat-label">Reimbursed</span>
-                <span class="stat-value" id="statReimbursedAmount">AED 0.00</span>
-            </div>
-            <div class="stat-card amber">
-                <span class="stat-label">Pending Approval</span>
-                <span class="stat-value" id="statPendingCount">0</span>
-            </div>
-            <div class="stat-card purple">
-                <span class="stat-label">Total Vouchers</span>
-                <span class="stat-value" id="statTotalCount">0</span>
+        <!-- SEARCH CONTAINER — Matching Master Instrument -->
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="voucherSearchInput" placeholder="Search by item, note, ID, technician..." oninput="handleSearch()" autocomplete="off">
             </div>
         </div>
 
-        <!-- TOOLBAR & FILTERS -->
-        <div class="toolbar-card">
-            <div class="toolbar-row">
-                <div class="action-group">
-                    <button class="btn-primary" onclick="openClaimModal()">
-                        <i class="fas fa-plus-circle"></i> Log Cash Claim
-                    </button>
-                    <button class="btn-outline" onclick="manualRefresh()" id="refreshBtn" title="Refresh Vouchers">
-                        <i class="fas fa-sync-alt" id="refreshIcon"></i> Refresh
-                    </button>
-                    <button class="btn-outline" onclick="exportToExcel()" title="Export to Excel">
-                        <i class="fas fa-file-excel" style="color:#10b981;"></i> Export
-                    </button>
-                </div>
-
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" id="voucherSearchInput" placeholder="Search by item, note, ID, technician..." oninput="handleSearch()">
-                </div>
+        <!-- QUICK ACTIONS — Matching Master Instrument -->
+        <div class="quick-actions">
+            <!-- Log Cash Claim -->
+            <div class="action-btn" onclick="handleLogCashClick()" title="Log new petty cash claim">
+                <i class="fas fa-plus-circle" style="color:#0284c7;"></i>
+                <span>Log Cash</span>
             </div>
 
-            <div class="toolbar-row" style="margin-top:2px;">
-                <div class="filter-pills" id="statusFilterPills">
-                    <button class="pill active" data-status="all" onclick="filterByStatus('all', this)">All (<span id="countAll">0</span>)</button>
-                    <button class="pill" data-status="Submitted" onclick="filterByStatus('Submitted', this)">Submitted (<span id="countSubmitted">0</span>)</button>
-                    <button class="pill" data-status="Approved" onclick="filterByStatus('Approved', this)">Approved (<span id="countApproved">0</span>)</button>
-                    <button class="pill" data-status="Reimbursed" onclick="filterByStatus('Reimbursed', this)">Reimbursed (<span id="countReimbursed">0</span>)</button>
-                    <button class="pill" data-status="Rejected" onclick="filterByStatus('Rejected', this)">Rejected (<span id="countRejected">0</span>)</button>
-                </div>
-
-                <!-- Supervisor/Developer Only: Technician Filter Dropdown -->
-                <div class="supervisor-filter" id="techFilterContainer" style="display:none;">
-                    <label for="techFilterSelect"><i class="fas fa-user-friends"></i> Filter Technician:</label>
-                    <select id="techFilterSelect" onchange="handleTechFilterChange(this.value)">
-                        <option value="all">All Technicians</option>
-                    </select>
-                </div>
+            <!-- Refresh -->
+            <div class="action-btn" onclick="manualRefresh()" title="Refresh vouchers">
+                <i class="fas fa-sync-alt" id="refreshIcon" style="color:#10b981;"></i>
+                <span>Refresh</span>
             </div>
+
+            <!-- Export -->
+            <div class="action-btn" onclick="exportToExcel()" title="Export vouchers to Excel">
+                <i class="fas fa-file-excel" style="color:#16a34a;"></i>
+                <span>Export</span>
+            </div>
+
+            <!-- Supervisor & Developer Filter Button -->
+            <div class="action-btn" id="techFilterActionBtn" style="display:none;" title="Filter by technician">
+                <i class="fas fa-user-friends" style="color:#6366f1;"></i>
+                <span id="techFilterLabel">All Techs</span>
+                <select class="select-wrapper" id="techFilterSelect" onchange="handleTechFilterChange(this.value)">
+                    <option value="all">All Technicians</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- STATUS SUMMARY FILTER BADGES — Matching Operation Request (NO "All" tab) -->
+        <div class="status-summary-bar" id="statusSummaryBar">
+            <button class="status-badge-btn badge-submitted" id="pill-submitted" onclick="toggleStatusFilter('Submitted')">
+                <i class="fas fa-clock"></i>
+                <span>Submitted</span>
+                <span class="badge-count" id="countSubmitted">0</span>
+            </button>
+            <button class="status-badge-btn badge-approved" id="pill-approved" onclick="toggleStatusFilter('Approved')">
+                <i class="fas fa-check"></i>
+                <span>Approved</span>
+                <span class="badge-count" id="countApproved">0</span>
+            </button>
+            <button class="status-badge-btn badge-reimbursed" id="pill-reimbursed" onclick="toggleStatusFilter('Reimbursed')">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Reimbursed</span>
+                <span class="badge-count" id="countReimbursed">0</span>
+            </button>
+            <button class="status-badge-btn badge-rejected" id="pill-rejected" onclick="toggleStatusFilter('Rejected')">
+                <i class="fas fa-times"></i>
+                <span>Rejected</span>
+                <span class="badge-count" id="countRejected">0</span>
+            </button>
         </div>
 
         <!-- VOUCHERS TABLE -->
@@ -834,7 +844,7 @@
     <div class="modal-overlay" id="voucherModal">
         <div class="modal-card">
             <div class="modal-header">
-                <span id="modalTitle"><i class="fas fa-wallet" style="color:var(--primary); margin-right:8px;"></i> Log Petty Cash Claim</span>
+                <span id="modalTitle">Log Petty Cash Claim</span>
                 <button class="modal-close" onclick="closeVoucherModal()" title="Close">&times;</button>
             </div>
             <div class="modal-body">
@@ -844,7 +854,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="purchaseDate"><i class="far fa-calendar-alt"></i> Date of Purchase *</label>
-                            <input type="date" id="purchaseDate" required>
+                            <input type="date" id="purchaseDate" onchange="onPurchaseDateChange()" required>
                         </div>
                         <div class="form-group">
                             <label for="cashAmount"><i class="fas fa-coins"></i> Cash Paid (AED) *</label>
@@ -869,6 +879,11 @@
                             <label for="loggedByCode"><i class="fas fa-id-badge"></i> Employee Code</label>
                             <input type="text" id="loggedByCode" readonly style="opacity:0.85; background:var(--bg-surface);">
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="previewVoucherId"><i class="fas fa-fingerprint"></i> Generated Voucher ID</label>
+                        <input type="text" id="previewVoucherId" readonly style="opacity:0.85; font-family:monospace; font-weight:800; color:var(--primary); background:var(--bg-surface);">
                     </div>
 
                     <div class="form-group">
@@ -899,8 +914,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-outline" onclick="closeVoucherModal()">Cancel</button>
-                <button type="button" class="btn-primary" onclick="handleSaveVoucher()">
+                <button type="button" class="btn-modal-cancel" onclick="closeVoucherModal()">Cancel</button>
+                <button type="button" class="btn-modal-submit" onclick="handleSaveVoucher()">
                     <i class="fas fa-check"></i> <span id="saveBtnText">Save Voucher Claim</span>
                 </button>
             </div>
@@ -911,20 +926,20 @@
     <div class="modal-overlay" id="receiptViewModal">
         <div class="modal-card" style="max-width:600px;">
             <div class="modal-header">
-                <span id="receiptModalTitle"><i class="fas fa-receipt"></i> Bill / Receipt Attachment</span>
+                <span id="receiptModalTitle">Bill / Receipt Attachment</span>
                 <button class="modal-close" onclick="closeReceiptModal()">&times;</button>
             </div>
             <div class="modal-body" style="text-align:center; padding:20px;">
                 <img id="fullReceiptImg" src="" alt="Receipt" style="max-width:100%; max-height:65vh; border-radius:8px; display:none; margin:0 auto; box-shadow:var(--shadow-sm);">
                 <div id="receiptLinkContainer" style="display:none; padding:20px 10px;">
                     <p style="color:var(--text-secondary); margin-bottom:12px;">This bill is hosted on Google Drive or an external cloud document.</p>
-                    <a id="externalReceiptLink" href="#" target="_blank" class="btn-primary" style="text-decoration:none;">
+                    <a id="externalReceiptLink" href="#" target="_blank" class="btn-modal-submit" style="text-decoration:none; display:inline-flex;">
                         <i class="fas fa-external-link-alt"></i> Open Google Drive Bill
                     </a>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn-outline" onclick="closeReceiptModal()">Close</button>
+                <button type="button" class="btn-modal-cancel" onclick="closeReceiptModal()">Close</button>
             </div>
         </div>
     </div>
@@ -940,13 +955,67 @@
         // APP STATE & CONSTANTS
         // ─────────────────────────────────────────────────────────────
         const LS_KEY_PETTY = 'tabreed_petty_cash_vouchers';
+        const THEME_KEY = 'tabreed_selected_theme';
+        const LS_DARK = 'tabreed_dark_mode';
+
         let allVouchers = [];
         let filteredVouchers = [];
-        let activeStatusFilter = 'all';
+        let activeStatusFilter = null; // null = all visible, or 'Submitted', 'Approved', etc.
         let activeTechFilter = 'all';
         let currentUser = null;
         let selectedReceiptDataUrl = '';
         let isSyncing = false;
+
+        // ─────────────────────────────────────────────────────────────
+        // THEME MANAGEMENT — Light default, Neon Dark toggle, Global Sync
+        // ─────────────────────────────────────────────────────────────
+        const ALL_THEME_CLASSES = [
+            'dark-mode', 'theme-ocean-blue', 'theme-industrial',
+            'theme-emerald-forest', 'theme-royal-purple', 'theme-crimson-red',
+            'theme-nordic-teal', 'theme-slate-minimal', 'theme-cyber-dark'
+        ];
+
+        function applyTheme() {
+            const themeId = localStorage.getItem(THEME_KEY) || localStorage.getItem('tabreed_pwa_theme') || (localStorage.getItem(LS_DARK) === '1' ? 'cyber-dark' : 'default');
+            document.body.classList.remove(...ALL_THEME_CLASSES);
+            document.documentElement.classList.remove(...ALL_THEME_CLASSES);
+
+            if (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark') {
+                document.body.classList.add('dark-mode');
+                document.documentElement.classList.add('dark-mode');
+                document.body.classList.add('theme-cyber-dark');
+            }
+            if (themeId && themeId !== 'default' && themeId !== 'dark-mode') {
+                const finalTheme = themeId.startsWith('theme-') ? themeId : `theme-${themeId}`;
+                document.body.classList.add(finalTheme);
+                document.documentElement.classList.add(finalTheme);
+            }
+
+            const isDark = (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark');
+            const icon = document.querySelector('#darkModeToggleBtn i');
+            if (icon) {
+                icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+                icon.style.color = isDark ? '#fdd663' : 'var(--text-primary)';
+            }
+        }
+
+        function toggleDarkMode() {
+            const isCurrentlyDark = document.body.classList.contains('dark-mode') || document.body.classList.contains('theme-cyber-dark');
+            const nextTheme = isCurrentlyDark ? 'default' : 'cyber-dark';
+            localStorage.setItem(LS_DARK, isCurrentlyDark ? '0' : '1');
+            localStorage.setItem(THEME_KEY, nextTheme);
+            localStorage.setItem('tabreed_pwa_theme', nextTheme);
+            localStorage.setItem('tabreed_selected_theme', nextTheme);
+            applyTheme();
+            showToast(isCurrentlyDark ? 'Light Mode Enabled' : 'Neon Dark Enabled', 'info');
+        }
+
+        // Synchronize themes across any open tabs/windows
+        window.addEventListener('storage', (e) => {
+            if (e.key === THEME_KEY || e.key === 'tabreed_pwa_theme' || e.key === LS_DARK) {
+                applyTheme();
+            }
+        });
 
         // Today formatted for HTML date input: YYYY-MM-DD
         function getTodayISO() {
@@ -957,7 +1026,7 @@
             return `${y}-${m}-${d}`;
         }
 
-        // Today formatted for display: DD.MM.YYYY
+        // Format DD.MM.YYYY
         function formatDisplayDate(dateStr) {
             if (!dateStr) return '';
             if (dateStr.includes('-')) {
@@ -965,6 +1034,65 @@
                 if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
             }
             return dateStr;
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // VOUCHER ID GENERATOR: PCV-DDMMYY-XX
+        // Starts at 01 every month, sequential 01, 02, 03... no duplicates
+        // ─────────────────────────────────────────────────────────────
+        function generateSequentialVoucherId(dateInputVal) {
+            let now = new Date();
+            let d = now.getDate(), m = now.getMonth() + 1, y = now.getFullYear();
+
+            if (dateInputVal) {
+                if (dateInputVal.includes('-')) {
+                    const p = dateInputVal.split('-');
+                    if (p.length === 3) {
+                        y = parseInt(p[0], 10) || y;
+                        m = parseInt(p[1], 10) || m;
+                        d = parseInt(p[2], 10) || d;
+                    }
+                } else if (dateInputVal.includes('.')) {
+                    const p = dateInputVal.split('.');
+                    if (p.length === 3) {
+                        d = parseInt(p[0], 10) || d;
+                        m = parseInt(p[1], 10) || m;
+                        y = parseInt(p[2], 10) || y;
+                    }
+                }
+            }
+
+            const dd = String(d).padStart(2, '0');
+            const mm = String(m).padStart(2, '0');
+            const yy = String(y).slice(-2);
+            const monthKey = `${mm}${yy}`; // e.g. "1126"
+
+            // Collect all used numbers in this month from all existing vouchers
+            const usedNumbers = new Set();
+            allVouchers.forEach(v => {
+                const vid = String(v.voucherId || v.id || '').trim();
+                const match = vid.match(/^PCV-\d{2}(\d{4})-(\d+)$/);
+                if (match && match[1] === monthKey) {
+                    const num = parseInt(match[2], 10);
+                    if (!isNaN(num) && num > 0) usedNumbers.add(num);
+                }
+            });
+
+            let seq = 1;
+            while (usedNumbers.has(seq)) {
+                seq++;
+            }
+            const padXX = String(seq).padStart(2, '0');
+            return `PCV-${dd}${mm}${yy}-${padXX}`;
+        }
+
+        function onPurchaseDateChange() {
+            const pDateInput = document.getElementById('purchaseDate').value;
+            const editId = document.getElementById('editVoucherId').value;
+            if (!editId) {
+                const previewEl = document.getElementById('previewVoucherId');
+                if (previewEl) previewEl.value = generateSequentialVoucherId(pDateInput);
+            }
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -1012,33 +1140,12 @@
         }
 
         function applyRoleRestrictions() {
-            const bannerText = document.getElementById('roleNoticeText');
-            const roleBadge = document.getElementById('roleBadge');
-            const techFilterContainer = document.getElementById('techFilterContainer');
+            const isSup = isSupervisorOrDev();
+            const techBtn = document.getElementById('techFilterActionBtn');
             const supervisorApprovalSection = document.getElementById('supervisorApprovalSection');
 
-            const isSup = isSupervisorOrDev();
-
-            if (isSup) {
-                if (bannerText) bannerText.innerHTML = `<strong>Supervisor Mode:</strong> All technicians' vouchers are visible. You can review, approve & export.`;
-                if (roleBadge) {
-                    roleBadge.textContent = currentUser.role || 'Supervisor';
-                    roleBadge.style.background = '#a855f7';
-                    roleBadge.style.color = '#fff';
-                }
-                if (techFilterContainer) techFilterContainer.style.display = 'flex';
-                if (supervisorApprovalSection) supervisorApprovalSection.style.display = 'block';
-            } else {
-                const uName = currentUser ? (currentUser.short || currentUser.full || 'You') : 'Technician';
-                if (bannerText) bannerText.innerHTML = `<strong>Technician Mode:</strong> Showing your own logged cash vouchers for <strong>${uName}</strong>.`;
-                if (roleBadge) {
-                    roleBadge.textContent = 'Technician';
-                    roleBadge.style.background = 'var(--primary)';
-                    roleBadge.style.color = '#0f172a';
-                }
-                if (techFilterContainer) techFilterContainer.style.display = 'none';
-                if (supervisorApprovalSection) supervisorApprovalSection.style.display = 'none';
-            }
+            if (techBtn) techBtn.style.display = isSup ? 'flex' : 'none';
+            if (supervisorApprovalSection) supervisorApprovalSection.style.display = isSup ? 'block' : 'none';
 
             populateTechFilterDropdown();
             renderVouchersTable();
@@ -1075,7 +1182,6 @@
         // DATA LOADING & SILENT SYNC ENGINE
         // ─────────────────────────────────────────────────────────────
         async function loadInitialData() {
-            // 1. Instant cache load from localStorage
             try {
                 const cached = localStorage.getItem(LS_KEY_PETTY);
                 if (cached) {
@@ -1087,7 +1193,6 @@
                 }
             } catch(e) {}
 
-            // 2. Fetch fresh live data silently from backend / cloud
             await silentBackgroundSync();
         }
 
@@ -1099,7 +1204,6 @@
             try {
                 const res = await fetch('/api/petty-cash?t=' + Date.now()).then(r => r.json());
                 if (res && res.status === 'success' && Array.isArray(res.data)) {
-                    // Update cache silently
                     allVouchers = res.data;
                     localStorage.setItem(LS_KEY_PETTY, JSON.stringify(allVouchers));
                     updateConnectionStatus('online');
@@ -1109,7 +1213,6 @@
                     updateConnectionStatus(navigator.onLine ? 'online' : 'offline');
                 }
             } catch(err) {
-                console.warn('[Petty Cash] Background sync note:', err);
                 updateConnectionStatus(navigator.onLine ? 'online' : 'offline');
             } finally {
                 isSyncing = false;
@@ -1131,18 +1234,13 @@
 
         function updateConnectionStatus(state) {
             const dot = document.getElementById('statusDot');
-            const txt = document.getElementById('statusText');
-            if (!dot || !txt) return;
+            if (!dot) return;
 
             dot.className = 'status-dot';
             if (state === 'syncing') {
                 dot.classList.add('syncing');
-                txt.textContent = 'Syncing...';
             } else if (state === 'offline' || !navigator.onLine) {
                 dot.classList.add('offline');
-                txt.textContent = 'Offline (Cached)';
-            } else {
-                txt.textContent = 'Live Cloud';
             }
         }
 
@@ -1158,7 +1256,7 @@
             const curShort = currentUser ? String(currentUser.short || '').trim().toLowerCase() : '';
             const curFull = currentUser ? String(currentUser.full || '').trim().toLowerCase() : '';
 
-            // Step 1: Access Control Filtering
+            // Step 1: Role-based filtering
             let accessible = allVouchers;
             if (!isSup) {
                 accessible = allVouchers.filter(v => {
@@ -1182,8 +1280,8 @@
                 });
             }
 
-            // Step 3: Status Filter Pills
-            if (activeStatusFilter !== 'all') {
+            // Step 3: Status Filter Pills (Submitted, Approved, Reimbursed, Rejected)
+            if (activeStatusFilter) {
                 accessible = accessible.filter(v => (v.status || 'Submitted').toLowerCase() === activeStatusFilter.toLowerCase());
             }
 
@@ -1201,12 +1299,12 @@
             }
 
             filteredVouchers = accessible;
-            updateStatsAndPillCounts();
+            updateStatusPillCounts();
 
             if (filteredVouchers.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted);">
-                    <i class="fas fa-inbox" style="font-size:2rem; margin-bottom:10px; display:block; opacity:0.4;"></i>
-                    No petty cash vouchers found. Click <strong>"+ Log Cash Claim"</strong> to add an entry.
+                    <i class="fas fa-inbox" style="font-size:2rem; margin-bottom:10px; display:block; opacity:0.35;"></i>
+                    No petty cash vouchers found. Click <strong>"Log Cash"</strong> to record an expense claim.
                 </td></tr>`;
                 return;
             }
@@ -1245,7 +1343,7 @@
 
             return `
                 <tr>
-                    <td><span class="voucher-id" onclick="copyVoucherId('${escapeHTML(vId)}')" title="Click to copy">${escapeHTML(vId)}</span></td>
+                    <td><span class="voucher-id-cell" onclick="copyVoucherId('${escapeHTML(vId)}')" title="Click to copy">${escapeHTML(vId)}</span></td>
                     <td style="white-space:nowrap;">${escapeHTML(dateStr)}</td>
                     <td style="font-weight:600;">${itemText}</td>
                     <td><span class="amount-badge">${amountFormatted}</span></td>
@@ -1255,7 +1353,7 @@
                     </td>
                     <td style="text-align:center;">${receiptHtml}</td>
                     <td>
-                        <span class="status-tag ${statusClass}">
+                        <span class="status-pill ${statusClass}">
                             <i class="fas ${status === 'Approved' ? 'fa-check' : (status === 'Reimbursed' ? 'fa-money-bill-wave' : (status === 'Rejected' ? 'fa-times' : 'fa-clock'))}"></i>
                             ${escapeHTML(status)}
                         </span>
@@ -1265,14 +1363,9 @@
             `;
         }
 
-        function updateStatsAndPillCounts() {
-            let totalAmt = 0;
-            let reimbursedAmt = 0;
-            let pendingCount = 0;
+        function updateStatusPillCounts() {
+            const counts = { Submitted: 0, Approved: 0, Reimbursed: 0, Rejected: 0 };
 
-            const counts = { all: 0, Submitted: 0, Approved: 0, Reimbursed: 0, Rejected: 0 };
-
-            // Determine visible population based on role
             const isSup = isSupervisorOrDev();
             const curCode = currentUser ? String(currentUser.code || '').trim() : '';
             const curShort = currentUser ? String(currentUser.short || '').trim().toLowerCase() : '';
@@ -1284,38 +1377,57 @@
             });
 
             accessible.forEach(v => {
-                counts.all++;
                 const s = v.status || 'Submitted';
                 if (counts[s] !== undefined) counts[s]++;
-
-                const a = parseFloat(v.amount) || 0;
-                totalAmt += a;
-                if (s === 'Reimbursed') reimbursedAmt += a;
-                if (s === 'Submitted') pendingCount++;
             });
 
-            document.getElementById('statTotalAmount').textContent = 'AED ' + totalAmt.toFixed(2);
-            document.getElementById('statReimbursedAmount').textContent = 'AED ' + reimbursedAmt.toFixed(2);
-            document.getElementById('statPendingCount').textContent = pendingCount;
-            document.getElementById('statTotalCount').textContent = counts.all;
-
-            document.getElementById('countAll').textContent = counts.all;
             document.getElementById('countSubmitted').textContent = counts.Submitted;
             document.getElementById('countApproved').textContent = counts.Approved;
             document.getElementById('countReimbursed').textContent = counts.Reimbursed;
             document.getElementById('countRejected').textContent = counts.Rejected;
         }
 
+        function toggleStatusFilter(status) {
+            if (activeStatusFilter === status) {
+                activeStatusFilter = null; // Toggle off if clicked again
+            } else {
+                activeStatusFilter = status;
+            }
+
+            // Update active styling
+            ['Submitted', 'Approved', 'Reimbursed', 'Rejected'].forEach(s => {
+                const btn = document.getElementById(`pill-${s.toLowerCase()}`);
+                if (btn) {
+                    if (activeStatusFilter === s) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
+
+            renderVouchersTable();
+        }
+
         // ─────────────────────────────────────────────────────────────
-        // MODAL MANAGEMENT & FORM SUBMISSION
+        // MODAL & CLAIM SUBMISSION
         // ─────────────────────────────────────────────────────────────
+        function handleLogCashClick() {
+            // Require login before logging cash
+            if (!currentUser || (!currentUser.code && !currentUser.short)) {
+                showToast("Please login first to log a cash claim", "warning");
+                if (window.TabreedAuth) {
+                    TabreedAuth.showLoginModal();
+                }
+                return;
+            }
+            openClaimModal();
+        }
+
         function openClaimModal() {
             document.getElementById('editVoucherId').value = '';
-            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-wallet" style="color:var(--primary); margin-right:8px;"></i> Log Petty Cash Claim';
+            document.getElementById('modalTitle').textContent = 'Log Petty Cash Claim';
             document.getElementById('saveBtnText').textContent = 'Save Voucher Claim';
 
-            // Auto-fill current date as default date of purchase
-            document.getElementById('purchaseDate').value = getTodayISO();
+            const today = getTodayISO();
+            document.getElementById('purchaseDate').value = today;
             document.getElementById('cashAmount').value = '';
             document.getElementById('itemDescription').value = '';
             document.getElementById('billFileInput').value = '';
@@ -1325,11 +1437,13 @@
             document.getElementById('voucherStatusSelect').value = 'Submitted';
             selectedReceiptDataUrl = '';
 
-            // Auto-populate logged by from active user
             const userName = currentUser ? (currentUser.short || currentUser.full || 'Majeed') : 'Technician';
             const empCode = currentUser ? (currentUser.code || '41764') : '';
             document.getElementById('loggedByUser').value = userName;
             document.getElementById('loggedByCode').value = empCode;
+
+            // Generate sequential ID preview PCV-DDMMYY-XX
+            document.getElementById('previewVoucherId').value = generateSequentialVoucherId(today);
 
             document.getElementById('voucherModal').classList.add('active');
         }
@@ -1339,10 +1453,9 @@
             if (!v) return;
 
             document.getElementById('editVoucherId').value = voucherId;
-            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit" style="color:var(--primary); margin-right:8px;"></i> Edit Voucher ' + voucherId;
+            document.getElementById('modalTitle').textContent = 'Edit Voucher ' + voucherId;
             document.getElementById('saveBtnText').textContent = 'Update Voucher';
 
-            // Convert DD.MM.YYYY to YYYY-MM-DD if needed
             let pDate = v.dateOfPurchase || v.date || '';
             if (pDate.includes('.')) {
                 const parts = pDate.split('.');
@@ -1353,6 +1466,7 @@
             document.getElementById('itemDescription').value = v.item || v.description || '';
             document.getElementById('loggedByUser').value = v.userName || v.user || '';
             document.getElementById('loggedByCode').value = v.empCode || v.employeeCode || '';
+            document.getElementById('previewVoucherId').value = voucherId;
             document.getElementById('receiptDriveUrl').value = (v.receiptUrl && !v.receiptUrl.startsWith('data:')) ? v.receiptUrl : '';
             document.getElementById('supervisorRemarks').value = v.remarks || '';
             document.getElementById('voucherStatusSelect').value = v.status || 'Submitted';
@@ -1418,7 +1532,7 @@
             const remarks = document.getElementById('supervisorRemarks').value.trim();
 
             const isEdit = Boolean(editId);
-            const voucherId = isEdit ? editId : ('PCV-' + new Date().getFullYear().toString().slice(-2) + String(new Date().getMonth()+1).padStart(2,'0') + '-' + Math.floor(100 + Math.random()*900));
+            const voucherId = isEdit ? editId : generateSequentialVoucherId(pDateInput);
 
             const payload = {
                 id: voucherId,
@@ -1438,7 +1552,7 @@
                 timestamp: UtilitiesFormatNow()
             };
 
-            // Optimistic UI Update
+            // Optimistic update
             if (isEdit) {
                 const idx = allVouchers.findIndex(v => (v.voucherId || v.id) === editId);
                 if (idx !== -1) allVouchers[idx] = { ...allVouchers[idx], ...payload };
@@ -1484,7 +1598,7 @@
         }
 
         // ─────────────────────────────────────────────────────────────
-        // RECEIPT VIEWER MODAL
+        // RECEIPT VIEWER
         // ─────────────────────────────────────────────────────────────
         function openReceiptModal(url, vId) {
             const modal = document.getElementById('receiptViewModal');
@@ -1493,7 +1607,7 @@
             const extLink = document.getElementById('externalReceiptLink');
             const title = document.getElementById('receiptModalTitle');
 
-            if (title) title.innerHTML = `<i class="fas fa-receipt"></i> Receipt for ${vId}`;
+            if (title) title.textContent = `Receipt for ${vId}`;
 
             if (url.startsWith('data:') || url.startsWith('blob:') || url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i)) {
                 img.src = url;
@@ -1513,21 +1627,23 @@
         }
 
         // ─────────────────────────────────────────────────────────────
-        // FILTERS & SEARCH
+        // SEARCH & FILTERS
         // ─────────────────────────────────────────────────────────────
-        function filterByStatus(status, pillEl) {
-            activeStatusFilter = status;
-            document.querySelectorAll('#statusFilterPills .pill').forEach(p => p.classList.remove('active'));
-            if (pillEl) pillEl.classList.add('active');
+        function handleSearch() {
             renderVouchersTable();
         }
 
         function handleTechFilterChange(val) {
             activeTechFilter = val;
-            renderVouchersTable();
-        }
-
-        function handleSearch() {
+            const labelEl = document.getElementById('techFilterLabel');
+            if (labelEl) {
+                if (val === 'all') labelEl.textContent = 'All Techs';
+                else {
+                    const select = document.getElementById('techFilterSelect');
+                    const text = select.options[select.selectedIndex]?.text || val;
+                    labelEl.textContent = text.split(' ')[0] || val;
+                }
+            }
             renderVouchersTable();
         }
 
@@ -1613,21 +1729,8 @@
         }
 
         // ─────────────────────────────────────────────────────────────
-        // UTILITIES & THEME
+        // UTILITIES
         // ─────────────────────────────────────────────────────────────
-        function toggleTheme() {
-            const isDark = document.body.classList.contains('theme-cyber-dark');
-            if (isDark) {
-                document.body.classList.remove('theme-cyber-dark');
-                document.body.classList.add('light-theme');
-                localStorage.setItem('tabreed_pwa_theme', 'light');
-            } else {
-                document.body.classList.remove('light-theme');
-                document.body.classList.add('theme-cyber-dark');
-                localStorage.setItem('tabreed_pwa_theme', 'cyber-dark');
-            }
-        }
-
         function showToast(msg, type = 'info') {
             const container = document.getElementById('toastContainer');
             if (!container) return;
@@ -1640,7 +1743,7 @@
                 toast.style.opacity = '0';
                 toast.style.transform = 'translateY(10px)';
                 setTimeout(() => toast.remove(), 250);
-            }, 3200);
+            }, 3000);
         }
 
         function escapeHTML(str) {
@@ -1663,24 +1766,22 @@
         // INITIALIZATION
         // ─────────────────────────────────────────────────────────────
         window.addEventListener('DOMContentLoaded', () => {
+            applyTheme();
             checkUserAuth();
             loadInitialData();
 
-            // Background cross-verification every 15 seconds
             setInterval(() => {
                 if (!document.hidden && navigator.onLine) {
                     silentBackgroundSync();
                 }
             }, 15000);
 
-            // Re-sync silently on visibility change (switching tabs/windows)
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden && navigator.onLine) {
                     silentBackgroundSync();
                 }
             });
 
-            // Re-sync silently on window focus
             window.addEventListener('focus', () => {
                 if (navigator.onLine) {
                     silentBackgroundSync();

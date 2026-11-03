@@ -185,7 +185,7 @@ function saveTeamContacts(data) {
 const DEVELOPER_DEFAULT_SETTINGS = {
   toastStyle: 'outlined',
   toastPosition: 'pos-bottom',
-  defaultTheme: 'cyber-dark',
+  defaultTheme: 'default',
   lightToggle: 'default',
   darkToggle: 'cyber-dark',
   autoSync: true,
@@ -2076,8 +2076,53 @@ app.post(['/api/petty-cash', '/api/pitty-cash'], async (req, res) => {
   const todayStr = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`;
   const nowTime = `${todayStr} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
-  const voucherId = body.voucherId || body.id || ('PCV-' + now.getFullYear().toString().slice(-2) + pad(now.getMonth() + 1) + '-' + Math.floor(100 + Math.random() * 900));
-  const dateOfPurchase = body.dateOfPurchase || body.date || todayStr;
+  const vouchers = loadPettyCashData();
+
+  // Sequential Voucher ID: PCV-DDMMYY-XX (starts at 01 every month, sequential 01, 02, 03... no duplicates)
+  let voucherId = body.voucherId || body.id;
+  const rawDate = String(body.dateOfPurchase || body.date || todayStr).trim();
+  let d = now.getDate(), m = now.getMonth() + 1, y = now.getFullYear();
+  if (rawDate.includes('.')) {
+    const parts = rawDate.split('.');
+    if (parts.length === 3) {
+      d = parseInt(parts[0], 10) || d;
+      m = parseInt(parts[1], 10) || m;
+      y = parseInt(parts[2], 10) || y;
+    }
+  } else if (rawDate.includes('-')) {
+    const parts = rawDate.split('-');
+    if (parts.length === 3) {
+      y = parseInt(parts[0], 10) || y;
+      m = parseInt(parts[1], 10) || m;
+      d = parseInt(parts[2], 10) || d;
+    }
+  }
+  const dd = String(d).padStart(2, '0');
+  const mm = String(m).padStart(2, '0');
+  const yy = String(y).slice(-2);
+  const monthKey = `${mm}${yy}`; // e.g. "1126"
+
+  if (!voucherId || !voucherId.match(/^PCV-\d{6}-\d{2,}$/)) {
+    // Scan all existing vouchers for this month to determine next sequential XX
+    const usedNumbers = new Set();
+    vouchers.forEach(v => {
+      const vid = String(v.voucherId || v.id || '').trim();
+      const match = vid.match(/^PCV-\d{2}(\d{4})-(\d+)$/);
+      if (match && match[1] === monthKey) {
+        const num = parseInt(match[2], 10);
+        if (!isNaN(num) && num > 0) usedNumbers.add(num);
+      }
+    });
+
+    let seq = 1;
+    while (usedNumbers.has(seq)) {
+      seq++;
+    }
+    const padXX = String(seq).padStart(2, '0');
+    voucherId = `PCV-${dd}${mm}${yy}-${padXX}`;
+  }
+
+  const dateOfPurchase = rawDate;
   const amount = parseFloat(body.amount || body.cashPaid || 0) || 0;
   const item = String(body.item || body.note || body.description || '').trim();
   const user = String(body.user || body.userName || body.employeeName || 'Technician').trim();
@@ -2105,7 +2150,6 @@ app.post(['/api/petty-cash', '/api/pitty-cash'], async (req, res) => {
     createdAt: now.toISOString()
   };
 
-  const vouchers = loadPettyCashData();
   vouchers.unshift(newVoucher);
   savePettyCashData(vouchers);
 

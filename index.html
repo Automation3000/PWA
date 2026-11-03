@@ -64,7 +64,7 @@
             try {
                 var saved = localStorage.getItem('tabreed_selected_theme');
                 var isDark = localStorage.getItem('tabreed_dark_mode');
-                var theme = saved || (isDark === '0' ? 'default' : 'cyber-dark');
+                var theme = saved || (isDark === '1' ? 'cyber-dark' : 'default');
                 if (theme === 'dark-mode' || theme === 'cyber-dark' || theme === 'theme-cyber-dark') {
                     document.documentElement.classList.add('dark-mode');
                 }
@@ -984,7 +984,7 @@
         }
     </style>
 </head>
-<body class="dark-mode theme-cyber-dark toast-outlined">
+<body class="toast-outlined">
 
 <!-- ═══════════════════════════════════════
      FIORI LAUNCHPAD
@@ -1045,16 +1045,16 @@
                 <i class="fas fa-tools tile-icon" style="color:var(--primary);"></i>
                 <div class="tile-status" style="color:#0284c7; font-weight:700;"><i class="fas fa-flask"></i> Testing Only</div>
             </div>
-            <div class="tile" data-tile-id="Team_Contacts.html" onclick="handleTileClick(event, 'Team_Contacts.html', this)">
-                <div class="tile-title">Team Contacts</div>
-                <div class="tile-subtitle">Directory & Contact Information</div>
-                <i class="fas fa-address-book tile-icon" style="color:var(--primary);"></i>
-            </div>
             <div class="tile" data-tile-id="Petty_Cash_Voucher.html" onclick="handleTileClick(event, 'Petty_Cash_Voucher.html', this)">
                 <div class="tile-title">Petty Cash Voucher</div>
                 <div class="tile-subtitle">Cash Log &amp; Expense Claims</div>
                 <i class="fas fa-receipt tile-icon" style="color:var(--primary);"></i>
                 <div class="tile-status" style="color:var(--secondary);font-weight:700;"><i class="fas fa-wallet"></i> Cash Log</div>
+            </div>
+            <div class="tile" data-tile-id="Team_Contacts.html" onclick="handleTileClick(event, 'Team_Contacts.html', this)">
+                <div class="tile-title">Team Contacts</div>
+                <div class="tile-subtitle">Directory & Contact Information</div>
+                <i class="fas fa-address-book tile-icon" style="color:var(--primary);"></i>
             </div>
         </div>
         <script>
@@ -1864,7 +1864,7 @@ input:checked + .slider:before { transform: translateX(20px); }
         { id: 'crimson-red', name: 'Crimson Energy', color: '#dc2626', icon: 'fa-fire' },
         { id: 'nordic-teal', name: 'Nordic Teal Accent', color: '#0d9488', icon: 'fa-compass' },
         { id: 'slate-minimal', name: 'Slate Minimal Grey', color: '#475569', icon: 'fa-layer-group' },
-        { id: 'cyber-dark', name: 'Cyber Neon Dark', color: '#22d3ee', icon: 'fa-laptop-code' }
+        { id: 'cyber-dark', name: 'Neon Dark', color: '#22d3ee', icon: 'fa-laptop-code' }
     ];
 
     const ALL_THEME_CLASSES = [
@@ -1913,11 +1913,11 @@ input:checked + .slider:before { transform: translateX(20px); }
         }
 
         applyTheme(nextTheme);
-        showToast(nextIsDark ? 'Cyber Neon Dark Enabled' : 'Light Mode Enabled', 'info');
+        showToast(nextIsDark ? 'Neon Dark Enabled' : 'Light Mode Enabled', 'info');
     }
 
     function switchToBetaTheme() {
-        const currentTheme = localStorage.getItem('tabreed_selected_theme') || (localStorage.getItem(LS_DARK) === '0' ? 'default' : 'cyber-dark');
+        const currentTheme = localStorage.getItem('tabreed_selected_theme') || (localStorage.getItem(LS_DARK) === '1' ? 'cyber-dark' : 'default');
         
         let html = `<div style="text-align:left;margin-bottom:10px;">
             <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Choose your preferred UI theme style (10 Themes Available):</p>
@@ -1959,14 +1959,14 @@ input:checked + .slider:before { transform: translateX(20px); }
             }
         }
         
-        // Restore theme — Default for everyone: Cyber Neon Dark
+        // Restore theme — Default for everyone: Light Mode
         const savedTheme = localStorage.getItem('tabreed_selected_theme');
         if (savedTheme) {
             applyTheme(savedTheme);
-        } else if (localStorage.getItem(LS_DARK) === '0') {
-            applyTheme('default');
-        } else {
+        } else if (localStorage.getItem(LS_DARK) === '1') {
             applyTheme('cyber-dark');
+        } else {
+            applyTheme('default');
         }
 
         setupSearch();

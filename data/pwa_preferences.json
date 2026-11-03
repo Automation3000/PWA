@@ -20,7 +20,7 @@
       "autoSync": true,
       "toastStyle": "outlined",
       "toastPosition": "pos-bottom",
-      "defaultTheme": "cyber-dark",
+      "defaultTheme": "default",
       "lightToggle": "default",
       "darkToggle": "cyber-dark"
     }
@@ -28,7 +28,7 @@
   "defaultSettings": {
     "toastStyle": "outlined",
     "toastPosition": "pos-bottom",
-    "defaultTheme": "cyber-dark",
+    "defaultTheme": "default",
     "lightToggle": "default",
     "darkToggle": "cyber-dark",
     "autoSync": true,
@@ -44,7 +44,7 @@
   },
   "userDefaultSettings": {},
   "globalSettings": {
-    "theme": "cyber-dark"
+    "theme": "default"
   },
   "status": "synced_successfully"
 }
