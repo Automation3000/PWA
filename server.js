@@ -2304,6 +2304,38 @@ app.use((req, res, next) => {
   next();
 });
 
+// Explicit routes for core scripts and service worker with strict MIME types and caching headers
+app.get('/config.js', (req, res) => {
+  res.type('application/javascript; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=300');
+  res.sendFile(path.join(__dirname, 'config.js'));
+});
+
+app.get('/auth-module.js', (req, res) => {
+  res.type('application/javascript; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=300');
+  res.sendFile(path.join(__dirname, 'auth-module.js'));
+});
+
+app.get('/storage.js', (req, res) => {
+  res.type('application/javascript; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=300');
+  res.sendFile(path.join(__dirname, 'storage.js'));
+});
+
+app.get('/sw.js', (req, res) => {
+  res.type('application/javascript; charset=utf-8');
+  res.setHeader('Service-Worker-Allowed', '/');
+  res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.sendFile(path.join(__dirname, 'sw.js'));
+});
+
+app.get('/themes.css', (req, res) => {
+  res.type('text/css; charset=utf-8');
+  res.set('Cache-Control', 'public, max-age=300');
+  res.sendFile(path.join(__dirname, 'themes.css'));
+});
+
 // Explicitly serve /data and /Data directory
 app.use('/data', express.static(DATA_DIR));
 app.use('/Data', express.static(DATA_DIR));
@@ -2313,8 +2345,11 @@ app.use(express.static(__dirname, {
   index: 'index.html'
 }));
 
-// Fallback to index.html
+// Fallback to index.html for navigation routes ONLY - return 404 for asset extensions
 app.get('*', (req, res) => {
+  if (req.path.match(/\.(js|css|json|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map|txt)$/i)) {
+    return res.status(404).type('text/plain').send('Asset not found');
+  }
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 

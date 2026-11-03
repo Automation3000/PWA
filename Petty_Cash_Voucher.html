@@ -85,13 +85,13 @@
         }
 
         /* ═══════════════════════════════════════════════════
-           HEADER — Clean title without icon or subtitle text
+           HEADER — Clean compact title, aligned with Operation Request
         ═══════════════════════════════════════════════════ */
         .app-header {
             background: var(--bg-card);
-            padding: 1rem 1.5rem;
+            padding: 0.75rem 1rem;
             border-radius: 0 0 var(--radius) var(--radius);
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-sm);
             position: sticky;
             top: 0;
             z-index: 1000;
@@ -105,101 +105,210 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
+            width: 100%;
+            gap: 10px;
         }
-        .brand {
+        .header-left {
             display: flex;
             align-items: center;
-            gap: .85rem;
-            text-decoration: none;
-            color: inherit;
+            gap: 10px;
+            min-width: 0;
         }
-        .back-btn {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
+        .back-link {
+            text-decoration: none;
             color: var(--text-primary);
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            flex-shrink: 0;
             transition: var(--transition);
-            font-size: 15px;
         }
-        .back-btn:hover {
+        .back-link:hover {
             background: var(--primary);
             color: #fff;
             transform: scale(1.05);
         }
-        .logo {
-            width: 40px;
-            height: 40px;
-            background: #fff;
+        .header-logo {
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
+            overflow: hidden;
+            border: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid var(--border);
-            overflow: hidden;
+            background: #fff;
             flex-shrink: 0;
             box-shadow: var(--shadow-sm);
         }
-        .logo-img { width: 34px; height: 34px; object-fit: contain; }
-        .brand-text h1 {
-            font-size: 1.18rem;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-            color: var(--text-primary);
-            line-height: 1.2;
-            margin: 0;
+        .header-logo img { width: 26px; height: 26px; object-fit: contain; }
+        .header-titles {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
         }
+        .header-titles h1 {
+            font-size: 1.02rem;
+            font-weight: 800;
+            margin: 0;
+            line-height: 1.2;
+            letter-spacing: -0.2px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .header-sub-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 2px;
+        }
+        .header-sub-row p {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1;
+        }
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #16a34a;
+            display: inline-block;
+            box-shadow: 0 0 0 2px rgba(22,163,74,0.25);
+            transition: background 0.3s ease;
+        }
+        .status-dot.syncing { background: var(--warning); animation: pulse 1s infinite; box-shadow: 0 0 0 2px rgba(245,158,11,0.25); }
+        .status-dot.offline { background: var(--danger); box-shadow: 0 0 0 2px rgba(220,38,38,0.25); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
         .header-actions {
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-shrink: 0;
         }
-        .connection-status {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 7px;
-            border-radius: 50%;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            width: 32px;
-            height: 32px;
-            cursor: default;
-        }
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: var(--secondary);
-            transition: background 0.3s ease;
-        }
-        .status-dot.syncing { background: var(--warning); animation: pulse 1s infinite; }
-        .status-dot.offline { background: var(--danger); }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-        .btn-icon {
+        .btn-theme-toggle {
             background: var(--bg-surface);
             border: 1px solid var(--border);
             color: var(--text-primary);
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: var(--transition);
+            flex-shrink: 0;
         }
-        .btn-icon:hover {
+        .btn-theme-toggle:hover {
             border-color: var(--primary);
             color: var(--primary);
+        }
+
+        /* Dedicated Header Auth Buttons (Matching Operation Request) */
+        .hdr-login-btn {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: 800;
+            border-radius: 20px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 6px rgba(37,99,235,.35);
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+        .hdr-login-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+        .hdr-user-btn {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: rgba(37,99,235,0.12);
+            border: 1px solid rgba(37,99,235,0.3);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+        .hdr-user-btn:hover {
+            background: rgba(37,99,235,0.2);
+            border-color: var(--primary);
+        }
+
+        /* ═══════════════════════════════════════════════════
+           STATS SUMMARY CARDS — Restoring Design from IMG_1615.png
+        ═══════════════════════════════════════════════════ */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+                margin-bottom: 14px;
+            }
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 14px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        .stat-cyan   { border-left: 4px solid #06b6d4; }
+        .stat-green  { border-left: 4px solid #10b981; }
+        .stat-amber  { border-left: 4px solid #f59e0b; }
+        .stat-purple { border-left: 4px solid #8b5cf6; }
+        .stat-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            line-height: 1;
+        }
+        .stat-value {
+            font-size: 1.32rem;
+            font-weight: 900;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+            line-height: 1.2;
         }
 
         /* ═══════════════════════════════════════════════════
@@ -512,13 +621,13 @@
         }
 
         /* ═══════════════════════════════════════════════════
-           MODAL STYLES
+           LOG CASH CLAIM MODAL — Modern Sleek Card Layout
         ═══════════════════════════════════════════════════ */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(5px);
             z-index: 2000;
             display: none;
             align-items: center;
@@ -529,39 +638,49 @@
         .modal-card {
             background: var(--bg-card);
             border: 1.5px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: 16px;
             width: 100%;
-            max-width: 520px;
+            max-width: 500px;
             box-shadow: var(--shadow-md);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            animation: modalIn 0.2s ease-out;
-            max-height: 90vh;
+            animation: modalIn 0.22s ease-out;
+            max-height: 92vh;
         }
         @keyframes modalIn {
             from { opacity: 0; transform: scale(0.96) translateY(10px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
         .modal-header {
-            padding: 14px 18px;
+            padding: 13px 18px;
             background: var(--bg-surface);
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+        .modal-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             font-weight: 800;
-            font-size: 1rem;
+            font-size: 1.05rem;
+            color: var(--text-primary);
+        }
+        .modal-title-wrap i {
+            color: var(--primary);
+            font-size: 1.1rem;
         }
         .modal-close {
             background: none;
             border: none;
-            font-size: 1.15rem;
+            font-size: 1.25rem;
             cursor: pointer;
             color: var(--text-muted);
             width: 32px;
             height: 32px;
-            border-radius: 6px;
+            border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -576,8 +695,37 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 13px;
         }
+
+        /* Top Voucher ID Strip */
+        .voucher-id-strip {
+            background: rgba(2, 132, 199, 0.08);
+            border: 1px dashed rgba(2, 132, 199, 0.35);
+            border-radius: 10px;
+            padding: 9px 13px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .voucher-id-strip-label {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #0284c7;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .voucher-id-strip-val {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            letter-spacing: 0.5px;
+        }
+
         .form-row {
             display: flex;
             gap: 10px;
@@ -589,18 +737,21 @@
             gap: 5px;
         }
         .form-group label {
-            font-size: 0.78rem;
+            font-size: 0.76rem;
             font-weight: 700;
             color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .form-group input, .form-group textarea, .form-group select {
             width: 100%;
-            padding: 10px 12px;
+            padding: 9px 12px;
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
             background: var(--input-bg);
             color: var(--text-primary);
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-family: inherit;
             outline: none;
             transition: border-color .2s;
@@ -608,34 +759,190 @@
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
             border-color: var(--primary);
         }
-        .currency-input {
-            position: relative;
+
+        /* Hero Amount Input */
+        .hero-amount-card {
+            display: flex;
+            align-items: center;
+            background: var(--input-bg);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 3px 6px;
+            transition: border-color .2s;
         }
-        .currency-input span {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
+        .hero-amount-card:focus-within {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        }
+        .hero-currency-tag {
+            background: rgba(16, 185, 129, 0.12);
+            color: #059669;
             font-weight: 800;
+            font-size: 0.8rem;
+            padding: 5px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+        }
+        body.dark-mode .hero-currency-tag,
+        body.theme-cyber-dark .hero-currency-tag {
+            color: #34d399;
+        }
+        .hero-amount-input {
+            flex: 1;
+            border: none !important;
+            background: transparent !important;
+            padding: 6px 10px !important;
+            font-size: 1.18rem !important;
+            font-weight: 800 !important;
+            color: #10b981 !important;
+            outline: none !important;
+        }
+
+        /* Compact Technician Strip */
+        .tech-badge-strip {
+            display: flex;
+            align-items: center;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 12px;
+            gap: 10px;
+        }
+        .tech-badge-col {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+        .tech-badge-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+        }
+        .tech-badge-sub {
+            font-size: 0.65rem;
             color: var(--text-muted);
-            font-size: 0.85rem;
-        }
-        .currency-input input {
-            padding-left: 50px;
+            text-transform: uppercase;
             font-weight: 700;
-            font-size: 1rem;
-            color: #10b981;
+            line-height: 1;
         }
-        .receipt-preview {
-            max-width: 100%;
-            max-height: 180px;
+        .tech-badge-main {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-top: 2px;
+        }
+
+        /* Modern Receipt Dropzone */
+        .receipt-drop-zone {
+            border: 1.5px dashed var(--border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: var(--bg-surface);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+        .receipt-drop-zone:hover {
+            border-color: var(--primary);
+            background: rgba(2, 132, 199, 0.05);
+        }
+        .drop-zone-icon {
+            width: 36px;
+            height: 36px;
             border-radius: 8px;
-            border: 1px dashed var(--border);
-            object-fit: contain;
-            background: rgba(0,0,0,0.05);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.05rem;
+            flex-shrink: 0;
+        }
+        .drop-zone-info { flex: 1; min-width: 0; }
+        .drop-zone-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+        .drop-zone-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .drop-zone-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 4px 9px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .selected-file-badge {
+            margin-top: 4px;
+            font-size: 0.72rem;
+            color: #10b981;
+            font-weight: 700;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .drive-link-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 5px 10px;
             margin-top: 6px;
+        }
+        .drive-link-row input {
+            flex: 1;
+            border: none !important;
+            background: transparent !important;
+            font-size: 0.8rem !important;
+            padding: 3px 0 !important;
+            color: var(--text-primary);
+            outline: none !important;
+        }
+        .receipt-preview-box {
+            position: relative;
+            margin-top: 8px;
             display: none;
         }
+        .receipt-preview-card {
+            max-width: 100%;
+            max-height: 170px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            object-fit: contain;
+            background: rgba(0,0,0,0.03);
+            display: block;
+            margin: 0 auto;
+        }
+        .remove-receipt-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
         .modal-footer {
             padding: 12px 18px;
             border-top: 1px solid var(--border);
@@ -644,7 +951,6 @@
             gap: 10px;
             background: var(--bg-surface);
         }
-
         .btn-modal-cancel {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -654,9 +960,11 @@
             font-weight: 600;
             cursor: pointer;
             font-size: 0.85rem;
+            transition: var(--transition);
         }
+        .btn-modal-cancel:hover { background: var(--bg-surface); }
         .btn-modal-submit {
-            background: #0284c7;
+            background: linear-gradient(135deg, #0284c7, #0369a1);
             border: none;
             color: #ffffff;
             padding: 8px 18px;
@@ -667,10 +975,12 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.3);
             transition: var(--transition);
         }
         .btn-modal-submit:hover {
             filter: brightness(1.1);
+            transform: translateY(-1px);
         }
 
         /* ═══════════════════════════════════════════════════
@@ -711,7 +1021,7 @@
         @media (max-width: 640px) {
             .app-container { padding: 0 10px 60px 10px; }
             .quick-actions { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
-            .action-btn { max-width: unset !important; min-width: unset !important; width: 100% !important; min-height: 70px !important; }
+            .quick-actions .action-btn { max-width: unset !important; min-width: unset !important; width: 100% !important; min-height: 64px !important; }
             th, td { padding: 8px 10px; font-size: 0.78rem; }
             .form-row { flex-direction: column; }
         }
@@ -720,45 +1030,60 @@
 <body>
 
     <div class="app-container">
-        <!-- HEADER — Clean title without icon or subtitle text -->
+        <!-- HEADER — Clean compact title, aligned with Operation Request -->
         <header class="app-header">
             <div class="header-content">
-                <div class="brand">
-                    <button class="back-btn" onclick="window.location.href='index.html'" title="Back to Launchpad">
+                <div class="header-left">
+                    <a href="index.html" class="back-link" title="Back to Launchpad">
                         <i class="fas fa-arrow-left"></i>
-                    </button>
-                    <div class="logo">
-                        <img src="icon-192.png" alt="Tabreed" class="logo-img" onerror="this.onerror=null; this.src='icon-72.png';">
+                    </a>
+                    <div class="header-logo">
+                        <img src="icon-192.png" alt="Tabreed" onerror="this.onerror=null; this.src='icon-72.png';">
                     </div>
-                    <div class="brand-text">
+                    <div class="header-titles">
                         <h1>Petty Cash Voucher</h1>
+                        <div class="header-sub-row">
+                            <p>Automation App</p>
+                            <span class="status-dot" id="statusDot" title="Live Cloud Connection"></span>
+                        </div>
                     </div>
                 </div>
 
                 <div class="header-actions">
-                    <!-- Clean icon-only live connection dot (No text) -->
-                    <div class="connection-status" id="connectionStatusBadge" title="Live Cloud Connection">
-                        <div class="status-dot" id="statusDot"></div>
-                    </div>
-                    <button class="btn-icon" id="darkModeToggleBtn" onclick="toggleDarkMode()" title="Toggle Theme">
+                    <button class="btn-theme-toggle" id="darkModeToggleBtn" onclick="toggleDarkMode()" title="Toggle Theme">
                         <i class="fas fa-moon"></i>
                     </button>
-                    <!-- TabreedAuth Mount Point -->
-                    <button id="header-user-btn" class="action-btn" style="display:none; padding:4px 10px; min-width:unset; max-width:unset; flex-direction:row; gap:6px; height:36px;" title="User Profile">
-                        <i class="fas fa-user-circle" style="margin:0; font-size:1rem; color:var(--primary);"></i> <span id="headerUserName" style="font-weight:700;">User</span>
+                    <!-- Login Button -->
+                    <button id="header-login-btn" class="hdr-login-btn" onclick="if(window.TabreedAuth) TabreedAuth.showLoginModal();" title="Log in">
+                        <i class="fas fa-sign-in-alt"></i> <span>LOGIN</span>
                     </button>
-                    <button id="header-login-btn" class="action-btn" style="padding:4px 12px; min-width:unset; max-width:unset; flex-direction:row; gap:6px; height:36px; background:#0284c7; color:#fff; border-color:#0284c7;" onclick="if(window.TabreedAuth) TabreedAuth.showLoginModal();" title="Log in">
-                        <i class="fas fa-lock" style="margin:0; font-size:0.85rem; color:#fff;"></i> <span style="color:#fff; font-weight:700;">Login</span>
-                    </button>
+                    <!-- User Profile Button -->
+                    <div id="header-user-btn" class="hdr-user-btn" onclick="if(window.TabreedAuth) TabreedAuth.showProfileModal();" title="User Profile">
+                        <i class="fas fa-user-circle" style="font-size:13px; color:var(--primary);"></i>
+                        <span id="header-user-name">User</span>
+                        <span id="header-user-role-badge" style="display:none; font-size:8px; color:white; padding:1px 5px; border-radius:4px; text-transform:uppercase; font-weight:800;"></span>
+                    </div>
                 </div>
             </div>
         </header>
 
-        <!-- SEARCH CONTAINER — Matching Master Instrument -->
-        <div class="search-container">
-            <div class="search-box">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="voucherSearchInput" placeholder="Search by item, note, ID, technician..." oninput="handleSearch()" autocomplete="off">
+        <!-- STATS SUMMARY CARDS — Exactly Restoring Previous Design from Screenshot -->
+        <div class="stats-grid">
+            <div class="stat-card stat-cyan">
+                <div class="stat-label">TOTAL AMOUNT</div>
+                <div class="stat-value" id="statTotalAmount">AED 0.00</div>
+            </div>
+            <div class="stat-card stat-green">
+                <div class="stat-label">REIMBURSED</div>
+                <div class="stat-value" id="statReimbursedAmount">AED 0.00</div>
+            </div>
+            <div class="stat-card stat-amber">
+                <div class="stat-label">PENDING APPROVAL</div>
+                <div class="stat-value" id="statPendingCount">0</div>
+            </div>
+            <div class="stat-card stat-purple">
+                <div class="stat-label">TOTAL VOUCHERS</div>
+                <div class="stat-value" id="statTotalCount">0</div>
             </div>
         </div>
 
@@ -789,6 +1114,14 @@
                 <select class="select-wrapper" id="techFilterSelect" onchange="handleTechFilterChange(this.value)">
                     <option value="all">All Technicians</option>
                 </select>
+            </div>
+        </div>
+
+        <!-- SEARCH CONTAINER — Matching Master Instrument -->
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="voucherSearchInput" placeholder="Search by item, note, ID, technician..." oninput="handleSearch()" autocomplete="off">
             </div>
         </div>
 
@@ -840,64 +1173,105 @@
         </div>
     </div>
 
-    <!-- LOG PETTY CASH CLAIM MODAL -->
+    <!-- LOG PETTY CASH CLAIM MODAL — Modern Sleek Redesign -->
     <div class="modal-overlay" id="voucherModal">
         <div class="modal-card">
             <div class="modal-header">
-                <span id="modalTitle">Log Petty Cash Claim</span>
+                <div class="modal-title-wrap">
+                    <i class="fas fa-receipt"></i>
+                    <span id="modalTitle">Log Petty Cash Claim</span>
+                </div>
                 <button class="modal-close" onclick="closeVoucherModal()" title="Close">&times;</button>
             </div>
             <div class="modal-body">
                 <form id="voucherForm" onsubmit="event.preventDefault(); handleSaveVoucher();">
                     <input type="hidden" id="editVoucherId" value="">
 
+                    <!-- Top Voucher ID Badge Strip -->
+                    <div class="voucher-id-strip">
+                        <div class="voucher-id-strip-label">
+                            <i class="fas fa-fingerprint"></i> Generated Voucher ID
+                        </div>
+                        <div class="voucher-id-strip-val" id="previewVoucherIdDisplay">PCV-031126-01</div>
+                        <input type="hidden" id="previewVoucherId" value="">
+                    </div>
+
+                    <!-- Row 1: Date of Purchase & Cash Amount -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="purchaseDate"><i class="far fa-calendar-alt"></i> Date of Purchase *</label>
+                            <label for="purchaseDate"><i class="far fa-calendar-alt" style="color:var(--primary);"></i> Date of Purchase *</label>
                             <input type="date" id="purchaseDate" onchange="onPurchaseDateChange()" required>
                         </div>
                         <div class="form-group">
-                            <label for="cashAmount"><i class="fas fa-coins"></i> Cash Paid (AED) *</label>
-                            <div class="currency-input">
-                                <span>AED</span>
-                                <input type="number" id="cashAmount" step="0.01" min="0.5" placeholder="0.00" required>
+                            <label for="cashAmount"><i class="fas fa-coins" style="color:#10b981;"></i> Cash Paid (AED) *</label>
+                            <div class="hero-amount-card">
+                                <span class="hero-currency-tag">AED</span>
+                                <input type="number" id="cashAmount" class="hero-amount-input" step="0.01" min="0.5" placeholder="0.00" required>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Row 2: Item Name / Note / Description -->
                     <div class="form-group">
-                        <label for="itemDescription"><i class="fas fa-tag"></i> Item Name / Note / Description *</label>
+                        <label for="itemDescription"><i class="fas fa-tag" style="color:#f59e0b;"></i> Item Name / Note / Description *</label>
                         <textarea id="itemDescription" rows="2" placeholder="e.g. 9V Batteries for multimeter, conduit fittings, urgent glue..." required></textarea>
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="loggedByUser"><i class="fas fa-user"></i> Logged By (Technician)</label>
-                            <input type="text" id="loggedByUser" readonly style="opacity:0.85; background:var(--bg-surface);">
+                    <!-- Row 3: Compact Technician Strip -->
+                    <div class="tech-badge-strip">
+                        <div class="tech-badge-col">
+                            <i class="fas fa-user-circle" style="font-size:1.25rem; color:var(--primary);"></i>
+                            <div>
+                                <div class="tech-badge-sub">Technician</div>
+                                <div class="tech-badge-main" id="modalLoggedByName">Majeed</div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="loggedByCode"><i class="fas fa-id-badge"></i> Employee Code</label>
-                            <input type="text" id="loggedByCode" readonly style="opacity:0.85; background:var(--bg-surface);">
+                        <div class="tech-badge-divider"></div>
+                        <div class="tech-badge-col">
+                            <i class="fas fa-id-badge" style="font-size:1.2rem; color:var(--text-muted);"></i>
+                            <div>
+                                <div class="tech-badge-sub">Employee Code</div>
+                                <div class="tech-badge-main" id="modalLoggedByCode">41764</div>
+                            </div>
                         </div>
                     </div>
+                    <input type="hidden" id="loggedByUser" value="">
+                    <input type="hidden" id="loggedByCode" value="">
 
+                    <!-- Row 4: Modern Receipt Attachment Dropzone -->
                     <div class="form-group">
-                        <label for="previewVoucherId"><i class="fas fa-fingerprint"></i> Generated Voucher ID</label>
-                        <input type="text" id="previewVoucherId" readonly style="opacity:0.85; font-family:monospace; font-weight:800; color:var(--primary); background:var(--bg-surface);">
-                    </div>
+                        <label><i class="fas fa-paperclip" style="color:#8b5cf6;"></i> Bill / Receipt Attachment</label>
+                        <div class="receipt-drop-zone" onclick="document.getElementById('billFileInput').click()">
+                            <div class="drop-zone-icon">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                            <div class="drop-zone-info">
+                                <div class="drop-zone-title" id="dropZoneTitle">Attach Bill or Receipt Photo</div>
+                                <div class="drop-zone-desc" id="dropZoneDesc">Tap to take camera snap or upload picture / PDF</div>
+                                <div id="selectedFileNameBadge" class="selected-file-badge" style="display:none;"></div>
+                            </div>
+                            <button type="button" class="drop-zone-btn"><i class="fas fa-upload"></i> Browse</button>
+                        </div>
+                        <input type="file" id="billFileInput" accept="image/*,application/pdf" capture="environment" style="display:none;" onchange="handleBillFileSelect(this)">
+                        
+                        <div class="receipt-preview-box" id="previewReceiptContainer">
+                            <img id="billPreviewImg" class="receipt-preview-card" alt="Bill Preview">
+                            <button type="button" class="remove-receipt-btn" onclick="clearSelectedReceipt()">
+                                <i class="fas fa-times"></i> Remove
+                            </button>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="billFileInput"><i class="fas fa-paperclip"></i> Bill / Receipt Attachment (Upload or Camera)</label>
-                        <input type="file" id="billFileInput" accept="image/*,application/pdf" capture="environment" onchange="handleBillFileSelect(this)">
-                        <input type="text" id="receiptDriveUrl" placeholder="Or paste Google Drive Receipt Link (optional)" style="margin-top:6px; font-size:0.82rem;">
-                        <img id="billPreviewImg" class="receipt-preview" alt="Bill Preview">
+                        <div class="drive-link-row">
+                            <i class="fab fa-google-drive" style="color:#0f9d58; font-size:16px;"></i>
+                            <input type="text" id="receiptDriveUrl" placeholder="Or paste Google Drive Receipt Link (optional)">
+                        </div>
                     </div>
 
                     <!-- Supervisor / Developer Fields -->
-                    <div id="supervisorApprovalSection" style="display:none; border-top:1px solid var(--border); padding-top:10px; margin-top:6px;">
+                    <div id="supervisorApprovalSection" style="display:none; border-top:1px solid var(--border); padding-top:10px; margin-top:4px;">
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="voucherStatusSelect"><i class="fas fa-tasks"></i> Approval Status</label>
+                                <label for="voucherStatusSelect"><i class="fas fa-tasks" style="color:#0284c7;"></i> Approval Status</label>
                                 <select id="voucherStatusSelect">
                                     <option value="Submitted">Submitted (Pending)</option>
                                     <option value="Approved">Approved</option>
@@ -907,7 +1281,7 @@
                             </div>
                         </div>
                         <div class="form-group" style="margin-top:8px;">
-                            <label for="supervisorRemarks"><i class="fas fa-comment-dots"></i> Supervisor Remarks</label>
+                            <label for="supervisorRemarks"><i class="fas fa-comment-dots" style="color:#64748b;"></i> Supervisor Remarks</label>
                             <input type="text" id="supervisorRemarks" placeholder="Approval or rejection notes...">
                         </div>
                     </div>
@@ -1090,8 +1464,11 @@
             const pDateInput = document.getElementById('purchaseDate').value;
             const editId = document.getElementById('editVoucherId').value;
             if (!editId) {
+                const nextId = generateSequentialVoucherId(pDateInput);
                 const previewEl = document.getElementById('previewVoucherId');
-                if (previewEl) previewEl.value = generateSequentialVoucherId(pDateInput);
+                if (previewEl) previewEl.value = nextId;
+                const displayEl = document.getElementById('previewVoucherIdDisplay');
+                if (displayEl) displayEl.textContent = nextId;
             }
         }
 
@@ -1125,7 +1502,7 @@
         function updateUserUI() {
             const loginBtn = document.getElementById('header-login-btn');
             const userBtn = document.getElementById('header-user-btn');
-            const userNameSpan = document.getElementById('headerUserName');
+            const userNameSpan = document.getElementById('header-user-name');
 
             if (currentUser && (currentUser.code || currentUser.short)) {
                 if (loginBtn) loginBtn.style.display = 'none';
@@ -1245,6 +1622,40 @@
         }
 
         // ─────────────────────────────────────────────────────────────
+        // STATS SUMMARY CARDS CALCULATION (Matching IMG_1615.png)
+        // ─────────────────────────────────────────────────────────────
+        function updateStatsSummary(accessibleList) {
+            let totalAmt = 0;
+            let reimbursedAmt = 0;
+            let pendingCount = 0;
+            const totalCount = (accessibleList || []).length;
+
+            (accessibleList || []).forEach(v => {
+                const amt = parseFloat(v.amount) || 0;
+                totalAmt += amt;
+                const st = String(v.status || 'Submitted').trim().toLowerCase();
+                if (st === 'reimbursed') {
+                    reimbursedAmt += amt;
+                }
+                if (st === 'submitted') {
+                    pendingCount++;
+                }
+            });
+
+            const elTotal = document.getElementById('statTotalAmount');
+            if (elTotal) elTotal.textContent = 'AED ' + totalAmt.toFixed(2);
+
+            const elReimb = document.getElementById('statReimbursedAmount');
+            if (elReimb) elReimb.textContent = 'AED ' + reimbursedAmt.toFixed(2);
+
+            const elPending = document.getElementById('statPendingCount');
+            if (elPending) elPending.textContent = String(pendingCount);
+
+            const elCount = document.getElementById('statTotalCount');
+            if (elCount) elCount.textContent = String(totalCount);
+        }
+
+        // ─────────────────────────────────────────────────────────────
         // TABLE RENDERING & FILTERING
         // ─────────────────────────────────────────────────────────────
         function renderVouchersTable() {
@@ -1300,6 +1711,7 @@
 
             filteredVouchers = accessible;
             updateStatusPillCounts();
+            updateStatsSummary(accessible);
 
             if (filteredVouchers.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted);">
@@ -1430,20 +1842,26 @@
             document.getElementById('purchaseDate').value = today;
             document.getElementById('cashAmount').value = '';
             document.getElementById('itemDescription').value = '';
-            document.getElementById('billFileInput').value = '';
             document.getElementById('receiptDriveUrl').value = '';
-            document.getElementById('billPreviewImg').style.display = 'none';
             document.getElementById('supervisorRemarks').value = '';
             document.getElementById('voucherStatusSelect').value = 'Submitted';
-            selectedReceiptDataUrl = '';
+            clearSelectedReceipt();
 
             const userName = currentUser ? (currentUser.short || currentUser.full || 'Majeed') : 'Technician';
             const empCode = currentUser ? (currentUser.code || '41764') : '';
             document.getElementById('loggedByUser').value = userName;
             document.getElementById('loggedByCode').value = empCode;
 
+            const nameEl = document.getElementById('modalLoggedByName');
+            if (nameEl) nameEl.textContent = userName;
+            const codeEl = document.getElementById('modalLoggedByCode');
+            if (codeEl) codeEl.textContent = empCode || 'N/A';
+
             // Generate sequential ID preview PCV-DDMMYY-XX
-            document.getElementById('previewVoucherId').value = generateSequentialVoucherId(today);
+            const nextId = generateSequentialVoucherId(today);
+            document.getElementById('previewVoucherId').value = nextId;
+            const displayEl = document.getElementById('previewVoucherIdDisplay');
+            if (displayEl) displayEl.textContent = nextId;
 
             document.getElementById('voucherModal').classList.add('active');
         }
@@ -1464,9 +1882,20 @@
             document.getElementById('purchaseDate').value = pDate || getTodayISO();
             document.getElementById('cashAmount').value = v.amount || '';
             document.getElementById('itemDescription').value = v.item || v.description || '';
-            document.getElementById('loggedByUser').value = v.userName || v.user || '';
-            document.getElementById('loggedByCode').value = v.empCode || v.employeeCode || '';
+
+            const userName = v.userName || v.user || 'Technician';
+            const empCode = v.empCode || v.employeeCode || '';
+            document.getElementById('loggedByUser').value = userName;
+            document.getElementById('loggedByCode').value = empCode;
+            const nameEl = document.getElementById('modalLoggedByName');
+            if (nameEl) nameEl.textContent = userName;
+            const codeEl = document.getElementById('modalLoggedByCode');
+            if (codeEl) codeEl.textContent = empCode || 'N/A';
+
             document.getElementById('previewVoucherId').value = voucherId;
+            const displayEl = document.getElementById('previewVoucherIdDisplay');
+            if (displayEl) displayEl.textContent = voucherId;
+
             document.getElementById('receiptDriveUrl').value = (v.receiptUrl && !v.receiptUrl.startsWith('data:')) ? v.receiptUrl : '';
             document.getElementById('supervisorRemarks').value = v.remarks || '';
             document.getElementById('voucherStatusSelect').value = v.status || 'Submitted';
@@ -1474,11 +1903,14 @@
             if (v.receiptUrl && v.receiptUrl.startsWith('data:')) {
                 selectedReceiptDataUrl = v.receiptUrl;
                 const prev = document.getElementById('billPreviewImg');
-                prev.src = v.receiptUrl;
-                prev.style.display = 'block';
+                const container = document.getElementById('previewReceiptContainer');
+                if (prev) {
+                    prev.src = v.receiptUrl;
+                    prev.style.display = 'block';
+                }
+                if (container) container.style.display = 'block';
             } else {
-                selectedReceiptDataUrl = '';
-                document.getElementById('billPreviewImg').style.display = 'none';
+                clearSelectedReceipt();
             }
 
             document.getElementById('voucherModal').classList.add('active');
@@ -1491,17 +1923,47 @@
         function handleBillFileSelect(input) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
+                const badge = document.getElementById('selectedFileNameBadge');
+                if (badge) {
+                    badge.textContent = `Attached: ${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
+                    badge.style.display = 'inline-block';
+                }
+                const title = document.getElementById('dropZoneTitle');
+                if (title) title.textContent = 'Bill Selected: ' + file.name;
+
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     selectedReceiptDataUrl = e.target.result;
                     const preview = document.getElementById('billPreviewImg');
+                    const container = document.getElementById('previewReceiptContainer');
                     if (preview && file.type.startsWith('image/')) {
                         preview.src = selectedReceiptDataUrl;
                         preview.style.display = 'block';
+                        if (container) container.style.display = 'block';
                     }
                 };
                 reader.readAsDataURL(file);
             }
+        }
+
+        function clearSelectedReceipt() {
+            selectedReceiptDataUrl = '';
+            const input = document.getElementById('billFileInput');
+            if (input) input.value = '';
+            const preview = document.getElementById('billPreviewImg');
+            if (preview) {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+            const container = document.getElementById('previewReceiptContainer');
+            if (container) container.style.display = 'none';
+            const badge = document.getElementById('selectedFileNameBadge');
+            if (badge) {
+                badge.textContent = '';
+                badge.style.display = 'none';
+            }
+            const title = document.getElementById('dropZoneTitle');
+            if (title) title.textContent = 'Attach Bill or Receipt Photo';
         }
 
         async function handleSaveVoucher() {
