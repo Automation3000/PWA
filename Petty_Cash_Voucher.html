@@ -260,63 +260,64 @@
         }
 
         /* ═══════════════════════════════════════════════════
-           STATS SUMMARY CARDS — Restoring Design from IMG_1615.png
+           STATS SUMMARY CARDS — Ultra Compact & Minimal Vertical Height
         ═══════════════════════════════════════════════════ */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 12px;
         }
         @media (min-width: 768px) {
             .stats-grid {
                 grid-template-columns: repeat(4, 1fr);
-                gap: 12px;
-                margin-bottom: 14px;
+                gap: 10px;
+                margin-bottom: 12px;
             }
         }
         .stat-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
             box-shadow: var(--shadow-sm);
             display: flex;
             flex-direction: column;
             justify-content: center;
+            min-height: 52px;
             transition: var(--transition);
         }
         .stat-card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             box-shadow: var(--shadow);
         }
-        .stat-cyan   { border-left: 4px solid #06b6d4; }
-        .stat-green  { border-left: 4px solid #10b981; }
-        .stat-amber  { border-left: 4px solid #f59e0b; }
-        .stat-purple { border-left: 4px solid #8b5cf6; }
+        .stat-cyan   { border-left: 3.5px solid #06b6d4; }
+        .stat-green  { border-left: 3.5px solid #10b981; }
+        .stat-amber  { border-left: 3.5px solid #f59e0b; }
+        .stat-purple { border-left: 3.5px solid #8b5cf6; }
         .stat-label {
-            font-size: 0.7rem;
+            font-size: 0.62rem;
             font-weight: 800;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
             color: var(--text-muted);
             text-transform: uppercase;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             line-height: 1;
         }
         .stat-value {
-            font-size: 1.32rem;
+            font-size: 1.08rem;
             font-weight: 900;
             color: var(--text-primary);
-            letter-spacing: -0.3px;
-            line-height: 1.2;
+            letter-spacing: -0.2px;
+            line-height: 1.15;
         }
 
         /* ═══════════════════════════════════════════════════
            SEARCH CONTAINER — Matching Master Instrument
         ═══════════════════════════════════════════════════ */
         .search-container {
-            padding: 1rem;
-            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.85rem;
             background: var(--bg-card);
             border-radius: var(--radius);
             box-shadow: var(--shadow-sm);
@@ -325,10 +326,10 @@
         .search-box { position: relative; }
         .search-box input {
             width: 100%;
-            padding: .8rem 1rem .8rem 3rem;
+            padding: .7rem 1rem .7rem 2.8rem;
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
-            font-size: 15px;
+            font-size: 14px;
             background: var(--input-bg);
             color: var(--text-primary);
             outline: none;
@@ -338,11 +339,11 @@
         .search-box input::placeholder { color: var(--text-muted); opacity: 1; }
         .search-icon {
             position: absolute;
-            left: 1rem;
+            left: 0.95rem;
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
-            font-size: 15px;
+            font-size: 14px;
         }
 
         /* ═══════════════════════════════════════════════════
@@ -352,7 +353,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: .5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.85rem;
             justify-content: center;
         }
         .action-btn {
@@ -361,7 +362,7 @@
             flex: 1;
             min-width: 80px;
             max-width: 140px;
-            padding: .85rem .5rem;
+            padding: .75rem .5rem;
             border-radius: var(--radius);
             display: flex;
             flex-direction: column;
@@ -408,14 +409,13 @@
         }
 
         /* ═══════════════════════════════════════════════════
-           STATUS PILLS / BADGES — Matching Operation Request
-           (NO "All" tab - strictly Submitted, Approved, Reimbursed, Rejected)
+           STATUS PILLS / BADGES (Hidden by default as requested)
         ═══════════════════════════════════════════════════ */
         .status-summary-bar {
-            display: flex;
+            display: none !important;
             flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             align-items: center;
         }
         .status-badge-btn {
@@ -490,77 +490,80 @@
             font-size: 0.75rem;
             font-weight: 900;
         }
-        body.dark-mode .badge-count, body.theme-cyber-dark .badge-count {
-            background: rgba(255,255,255,0.15);
-        }
 
         /* ═══════════════════════════════════════════════════
-           TABLE & CARDS
+           MODERN BILL / VOUCHER CARD VIEW (Zero Side Scrolling)
         ═══════════════════════════════════════════════════ */
-        .card-container {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--border);
-            overflow: hidden;
+        .vouchers-bill-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
             margin-bottom: 20px;
         }
-        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
+        @media (min-width: 768px) {
+            .vouchers-bill-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
         }
-        th, td {
+        @media (min-width: 1100px) {
+            .vouchers-bill-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 14px;
+            }
+        }
+
+        .voucher-bill-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
             padding: 12px 14px;
-            font-size: .84rem;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
-        }
-        th {
-            background: var(--table-header);
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            font-weight: 700;
-            font-size: .72rem;
-            letter-spacing: .4px;
-            white-space: nowrap;
-        }
-        tbody tr:hover { background: var(--bg-surface); }
-        tbody tr:last-child td { border-bottom: none; }
-
-        .voucher-id-cell {
-            font-family: monospace;
-            font-weight: 800;
-            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
             cursor: pointer;
-            letter-spacing: 0.3px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            user-select: none;
         }
-        .voucher-id-cell:hover { text-decoration: underline; }
+        .voucher-bill-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+        .voucher-bill-card:active {
+            transform: scale(0.99);
+        }
+        .voucher-bill-card.border-submitted  { border-left: 4px solid #f59e0b; }
+        .voucher-bill-card.border-approved   { border-left: 4px solid #10b981; }
+        .voucher-bill-card.border-reimbursed { border-left: 4px solid #0d9488; }
+        .voucher-bill-card.border-rejected   { border-left: 4px solid #ef4444; }
 
-        .amount-badge {
-            display: inline-block;
-            background: rgba(16,185,129,0.12);
-            color: #059669;
+        .bill-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .bill-id-tag {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
             font-weight: 800;
-            font-size: 0.88rem;
-            padding: 4px 10px;
-            border-radius: 6px;
-            border: 1px solid rgba(16,185,129,0.3);
-            white-space: nowrap;
+            font-size: 0.82rem;
+            color: var(--primary);
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
-        body.dark-mode .amount-badge, body.theme-cyber-dark .amount-badge {
-            color: #34d399;
-            background: rgba(52,211,153,0.12);
-        }
-
         .status-pill {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            padding: 3px 10px;
+            padding: 2px 9px;
             border-radius: 20px;
-            font-size: 0.74rem;
+            font-size: 0.72rem;
             font-weight: 700;
             text-transform: capitalize;
             white-space: nowrap;
@@ -574,54 +577,108 @@
         body.dark-mode .status-pill.status-reimbursed, body.theme-cyber-dark .status-pill.status-reimbursed { color: #2dd4bf; }
         body.dark-mode .status-pill.status-rejected, body.theme-cyber-dark .status-pill.status-rejected { color: #f87171; }
 
-        .receipt-btn {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            color: var(--primary);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            transition: var(--transition);
+        .bill-card-body {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
         }
-        .receipt-btn:hover {
-            background: var(--primary);
-            color: #fff;
+        .bill-item-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            flex: 1;
+        }
+        .bill-amount-tag {
+            font-size: 1.12rem;
+            font-weight: 900;
+            color: #10b981;
+            letter-spacing: -0.3px;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: baseline;
+            gap: 3px;
+        }
+        body.dark-mode .bill-amount-tag, body.theme-cyber-dark .bill-amount-tag {
+            color: #34d399;
+        }
+        .bill-amount-cur {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--text-muted);
         }
 
-        .action-btns {
-            display: inline-flex;
+        .bill-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 6px;
+            border-top: 1px dashed var(--border);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .bill-footer-meta {
+            display: flex;
             align-items: center;
             gap: 6px;
+            flex-wrap: wrap;
+            min-width: 0;
         }
-        .btn-table-action {
-            background: none;
-            border: none;
-            cursor: pointer;
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
+        .bill-meta-tag {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .bill-footer-badges {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+        .bill-receipt-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            color: #0284c7;
+            background: rgba(2, 132, 199, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.7rem;
+        }
+        body.dark-mode .bill-receipt-indicator, body.theme-cyber-dark .bill-receipt-indicator {
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.15);
+        }
+        .bill-click-hint {
             color: var(--text-muted);
-            transition: var(--transition);
+            font-size: 0.75rem;
+            opacity: 0.6;
+            transition: transform 0.2s;
         }
-        .btn-table-action:hover {
-            background: var(--bg-surface);
-            color: var(--text-primary);
+        .voucher-bill-card:hover .bill-click-hint {
+            transform: translateX(3px);
+            opacity: 1;
+            color: var(--primary);
         }
-        .btn-table-action.delete:hover {
-            color: var(--danger);
-            background: rgba(239,68,68,0.1);
+
+        .empty-vouchers-card {
+            text-align: center;
+            padding: 36px 20px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1.5px dashed var(--border);
+            color: var(--text-muted);
         }
 
         /* ═══════════════════════════════════════════════════
-           LOG CASH CLAIM MODAL — Modern Sleek Card Layout
+           LOG CASH CLAIM MODAL — Clean Streamlined Layout
         ═══════════════════════════════════════════════════ */
         .modal-overlay {
             position: fixed;
@@ -640,7 +697,7 @@
             border: 1.5px solid var(--border);
             border-radius: 16px;
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
             box-shadow: var(--shadow-md);
             overflow: hidden;
             display: flex;
@@ -653,12 +710,18 @@
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
         .modal-header {
-            padding: 13px 18px;
+            padding: 12px 16px;
             background: var(--bg-surface);
             border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
+        }
+        .modal-header-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
         }
         .modal-title-wrap {
             display: flex;
@@ -671,6 +734,17 @@
         .modal-title-wrap i {
             color: var(--primary);
             font-size: 1.1rem;
+        }
+        .modal-header-user-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #0284c7;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        body.dark-mode .modal-header-user-tag, body.theme-cyber-dark .modal-header-user-tag {
+            color: #38bdf8;
         }
         .modal-close {
             background: none;
@@ -695,35 +769,7 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 13px;
-        }
-
-        /* Top Voucher ID Strip */
-        .voucher-id-strip {
-            background: rgba(2, 132, 199, 0.08);
-            border: 1px dashed rgba(2, 132, 199, 0.35);
-            border-radius: 10px;
-            padding: 9px 13px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .voucher-id-strip-label {
-            font-size: 0.72rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: #0284c7;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .voucher-id-strip-val {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-weight: 800;
-            font-size: 0.95rem;
-            color: var(--text-primary);
-            letter-spacing: 0.5px;
+            gap: 12px;
         }
 
         .form-row {
@@ -735,14 +781,6 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
-        }
-        .form-group label {
-            font-size: 0.76rem;
-            font-weight: 700;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
         .form-group input, .form-group textarea, .form-group select {
             width: 100%;
@@ -767,7 +805,7 @@
             background: var(--input-bg);
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
-            padding: 3px 6px;
+            padding: 2px 6px;
             transition: border-color .2s;
         }
         .hero-amount-card:focus-within {
@@ -792,136 +830,55 @@
             border: none !important;
             background: transparent !important;
             padding: 6px 10px !important;
-            font-size: 1.18rem !important;
+            font-size: 1.15rem !important;
             font-weight: 800 !important;
             color: #10b981 !important;
             outline: none !important;
         }
 
-        /* Compact Technician Strip */
-        .tech-badge-strip {
+        /* Streamlined Receipt Button & Preview */
+        .receipt-attach-bar {
             display: flex;
             align-items: center;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 8px 12px;
             gap: 10px;
+            flex-wrap: wrap;
         }
-        .tech-badge-col {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex: 1;
-        }
-        .tech-badge-divider {
-            width: 1px;
-            height: 24px;
-            background: var(--border);
-        }
-        .tech-badge-sub {
-            font-size: 0.65rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: 700;
-            line-height: 1;
-        }
-        .tech-badge-main {
-            font-size: 0.82rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            margin-top: 2px;
-        }
-
-        /* Modern Receipt Dropzone */
-        .receipt-drop-zone {
+        .btn-attach-bill {
+            background: var(--bg-surface);
             border: 1.5px dashed var(--border);
-            border-radius: 10px;
-            padding: 10px 12px;
-            background: var(--bg-surface);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            font-weight: 700;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 7px;
             transition: var(--transition);
         }
-        .receipt-drop-zone:hover {
+        .btn-attach-bill:hover {
             border-color: var(--primary);
+            color: var(--primary);
             background: rgba(2, 132, 199, 0.05);
         }
-        .drop-zone-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary);
-            font-size: 1.05rem;
-            flex-shrink: 0;
-        }
-        .drop-zone-info { flex: 1; min-width: 0; }
-        .drop-zone-title {
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            line-height: 1.2;
-        }
-        .drop-zone-desc {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-        .drop-zone-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-            padding: 4px 9px;
-            border-radius: 6px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
         .selected-file-badge {
-            margin-top: 4px;
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             color: #10b981;
             font-weight: 700;
             background: rgba(16, 185, 129, 0.1);
-            padding: 3px 8px;
-            border-radius: 4px;
+            padding: 4px 8px;
+            border-radius: 6px;
             display: inline-block;
-        }
-        .drive-link-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--input-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 5px 10px;
-            margin-top: 6px;
-        }
-        .drive-link-row input {
-            flex: 1;
-            border: none !important;
-            background: transparent !important;
-            font-size: 0.8rem !important;
-            padding: 3px 0 !important;
-            color: var(--text-primary);
-            outline: none !important;
         }
         .receipt-preview-box {
             position: relative;
-            margin-top: 8px;
+            margin-top: 6px;
             display: none;
         }
         .receipt-preview-card {
             max-width: 100%;
-            max-height: 170px;
+            max-height: 160px;
             border-radius: 8px;
             border: 1px solid var(--border);
             object-fit: contain;
@@ -943,23 +900,44 @@
             cursor: pointer;
         }
 
+        /* Modal Footer with Left-Aligned Generated Voucher ID */
         .modal-footer {
-            padding: 12px 18px;
+            padding: 10px 16px;
             border-top: 1px solid var(--border);
             display: flex;
-            justify-content: flex-end;
+            align-items: center;
+            justify-content: space-between;
             gap: 10px;
             background: var(--bg-surface);
+        }
+        .footer-voucher-id-tag {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--primary);
+            background: rgba(2, 132, 199, 0.1);
+            border: 1px dashed rgba(2, 132, 199, 0.35);
+            padding: 4px 9px;
+            border-radius: 6px;
+            letter-spacing: 0.4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .modal-footer-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .btn-modal-cancel {
             background: var(--bg-card);
             border: 1px solid var(--border);
             color: var(--text-primary);
-            padding: 8px 16px;
+            padding: 7px 14px;
             border-radius: var(--radius-sm);
             font-weight: 600;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             transition: var(--transition);
         }
         .btn-modal-cancel:hover { background: var(--bg-surface); }
@@ -967,11 +945,11 @@
             background: linear-gradient(135deg, #0284c7, #0369a1);
             border: none;
             color: #ffffff;
-            padding: 8px 18px;
+            padding: 7px 16px;
             border-radius: var(--radius-sm);
             font-weight: 700;
             cursor: pointer;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -984,39 +962,114 @@
         }
 
         /* ═══════════════════════════════════════════════════
-           TOAST NOTIFICATIONS
+           ELABORATIVE VOUCHER DETAIL MODAL
+        ═══════════════════════════════════════════════════ */
+        .detail-banner {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .detail-amount-hero {
+            text-align: center;
+            padding: 12px 10px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 10px;
+        }
+        .detail-amount-val {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #10b981;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+        body.dark-mode .detail-amount-val, body.theme-cyber-dark .detail-amount-val {
+            color: #34d399;
+        }
+        .detail-section-row {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .detail-sec-label {
+            font-size: 0.68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.4px;
+        }
+        .detail-sec-val {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           TOAST NOTIFICATIONS (Centered & Synchronized with User Settings)
         ═══════════════════════════════════════════════════ */
         .toast-container {
             position: fixed;
-            bottom: 24px;
-            right: 20px;
-            z-index: 3000;
+            top: 24px;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            z-index: 10000;
+            pointer-events: none;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            pointer-events: none;
-        }
-        .toast {
-            background: var(--bg-card);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            padding: 10px 16px;
-            border-radius: 8px;
-            box-shadow: var(--shadow-md);
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: flex;
             align-items: center;
             gap: 8px;
-            pointer-events: auto;
-            animation: slideUp 0.2s ease-out;
-            max-width: 320px;
+            width: max-content;
+            max-width: 90vw;
         }
-        .toast.success { border-left: 4px solid #10b981; }
-        .toast.info    { border-left: 4px solid #0284c7; }
-        .toast.warning { border-left: 4px solid #f59e0b; }
-        .toast.error   { border-left: 4px solid #ef4444; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .toast-container.pos-top {
+            top: 24px;
+            bottom: auto;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            align-items: center;
+        }
+        .toast-container.pos-bottom {
+            top: auto;
+            bottom: 24px;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            align-items: center;
+        }
+        .toast {
+            background: var(--bg-card, #ffffff);
+            color: var(--text-primary, #1e293b);
+            padding: 10px 22px;
+            border-radius: 50px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            border: 1px solid var(--border, #e2e8f0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            pointer-events: auto;
+            animation: toastCenterAnim 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+            max-width: 85vw;
+        }
+        body.toast-outlined .toast {
+            background: var(--bg-card, #ffffff);
+            border: 2px solid var(--primary, #1a73e8);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            color: var(--text-primary, #1e293b);
+        }
+        @keyframes toastCenterAnim {
+            from { transform: translateY(-12px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
         @media (max-width: 640px) {
             .app-container { padding: 0 10px 60px 10px; }
@@ -1125,8 +1178,8 @@
             </div>
         </div>
 
-        <!-- STATUS SUMMARY FILTER BADGES — Matching Operation Request (NO "All" tab) -->
-        <div class="status-summary-bar" id="statusSummaryBar">
+        <!-- STATUS SUMMARY FILTER BADGES (Hidden for now as requested) -->
+        <div class="status-summary-bar" id="statusSummaryBar" style="display:none !important;">
             <button class="status-badge-btn badge-submitted" id="pill-submitted" onclick="toggleStatusFilter('Submitted')">
                 <i class="fas fa-clock"></i>
                 <span>Submitted</span>
@@ -1149,37 +1202,25 @@
             </button>
         </div>
 
-        <!-- VOUCHERS TABLE -->
-        <div class="card-container">
-            <div class="table-responsive">
-                <table id="vouchersTable">
-                    <thead>
-                        <tr>
-                            <th style="width:130px;">Voucher ID</th>
-                            <th style="width:110px;">Date of Purchase</th>
-                            <th>Item / Note</th>
-                            <th style="width:115px;">Amount</th>
-                            <th style="width:140px;">Logged By</th>
-                            <th style="width:90px; text-align:center;">Bill / Receipt</th>
-                            <th style="width:120px;">Status</th>
-                            <th style="width:100px; text-align:right;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="vouchersTableBody">
-                        <!-- Populated by JavaScript -->
-                    </tbody>
-                </table>
-            </div>
+        <!-- VOUCHERS CONTAINER — Modern Bill Slip Card Layout (Zero Horizontal Scrolling on Mobile) -->
+        <div id="vouchersContainer" class="vouchers-bill-grid">
+            <!-- Populated by JavaScript -->
         </div>
     </div>
 
-    <!-- LOG PETTY CASH CLAIM MODAL — Modern Sleek Redesign -->
+    <!-- LOG PETTY CASH CLAIM MODAL — Clean Streamlined Layout -->
     <div class="modal-overlay" id="voucherModal">
         <div class="modal-card">
             <div class="modal-header">
-                <div class="modal-title-wrap">
-                    <i class="fas fa-receipt"></i>
-                    <span id="modalTitle">Log Petty Cash Claim</span>
+                <div class="modal-header-main">
+                    <div class="modal-title-wrap">
+                        <i class="fas fa-receipt"></i>
+                        <span id="modalTitle">Log Petty Cash Claim</span>
+                    </div>
+                    <div class="modal-header-user-tag">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="modalHeaderUserBadge">Majeed ~ 41764</span>
+                    </div>
                 </div>
                 <button class="modal-close" onclick="closeVoucherModal()" title="Close">&times;</button>
             </div>
@@ -1187,23 +1228,12 @@
                 <form id="voucherForm" onsubmit="event.preventDefault(); handleSaveVoucher();">
                     <input type="hidden" id="editVoucherId" value="">
 
-                    <!-- Top Voucher ID Badge Strip -->
-                    <div class="voucher-id-strip">
-                        <div class="voucher-id-strip-label">
-                            <i class="fas fa-fingerprint"></i> Generated Voucher ID
-                        </div>
-                        <div class="voucher-id-strip-val" id="previewVoucherIdDisplay">PCV-031126-01</div>
-                        <input type="hidden" id="previewVoucherId" value="">
-                    </div>
-
-                    <!-- Row 1: Date of Purchase & Cash Amount -->
+                    <!-- Row 1: Date of Purchase & Cash Amount (No redundant labels) -->
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="purchaseDate"><i class="far fa-calendar-alt" style="color:var(--primary);"></i> Date of Purchase *</label>
                             <input type="date" id="purchaseDate" onchange="onPurchaseDateChange()" required>
                         </div>
                         <div class="form-group">
-                            <label for="cashAmount"><i class="fas fa-coins" style="color:#10b981;"></i> Cash Paid (AED) *</label>
                             <div class="hero-amount-card">
                                 <span class="hero-currency-tag">AED</span>
                                 <input type="number" id="cashAmount" class="hero-amount-input" step="0.01" min="0.5" placeholder="0.00" required>
@@ -1211,46 +1241,22 @@
                         </div>
                     </div>
 
-                    <!-- Row 2: Item Name / Note / Description -->
+                    <!-- Row 2: Item Name / Note / Description (Label moved to placeholder) -->
                     <div class="form-group">
-                        <label for="itemDescription"><i class="fas fa-tag" style="color:#f59e0b;"></i> Item Name / Note / Description *</label>
-                        <textarea id="itemDescription" rows="2" placeholder="e.g. 9V Batteries for multimeter, conduit fittings, urgent glue..." required></textarea>
+                        <textarea id="itemDescription" rows="2" placeholder="Item Name / Note / Description *" required></textarea>
                     </div>
 
-                    <!-- Row 3: Compact Technician Strip -->
-                    <div class="tech-badge-strip">
-                        <div class="tech-badge-col">
-                            <i class="fas fa-user-circle" style="font-size:1.25rem; color:var(--primary);"></i>
-                            <div>
-                                <div class="tech-badge-sub">Technician</div>
-                                <div class="tech-badge-main" id="modalLoggedByName">Majeed</div>
-                            </div>
-                        </div>
-                        <div class="tech-badge-divider"></div>
-                        <div class="tech-badge-col">
-                            <i class="fas fa-id-badge" style="font-size:1.2rem; color:var(--text-muted);"></i>
-                            <div>
-                                <div class="tech-badge-sub">Employee Code</div>
-                                <div class="tech-badge-main" id="modalLoggedByCode">41764</div>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Hidden Technician & Employee Code references (Displayed cleanly in header) -->
                     <input type="hidden" id="loggedByUser" value="">
                     <input type="hidden" id="loggedByCode" value="">
 
-                    <!-- Row 4: Modern Receipt Attachment Dropzone -->
+                    <!-- Row 3: Streamlined Bill / Receipt Attachment (No text label, just clean button) -->
                     <div class="form-group">
-                        <label><i class="fas fa-paperclip" style="color:#8b5cf6;"></i> Bill / Receipt Attachment</label>
-                        <div class="receipt-drop-zone" onclick="document.getElementById('billFileInput').click()">
-                            <div class="drop-zone-icon">
-                                <i class="fas fa-camera"></i>
-                            </div>
-                            <div class="drop-zone-info">
-                                <div class="drop-zone-title" id="dropZoneTitle">Attach Bill or Receipt Photo</div>
-                                <div class="drop-zone-desc" id="dropZoneDesc">Tap to take camera snap or upload picture / PDF</div>
-                                <div id="selectedFileNameBadge" class="selected-file-badge" style="display:none;"></div>
-                            </div>
-                            <button type="button" class="drop-zone-btn"><i class="fas fa-upload"></i> Browse</button>
+                        <div class="receipt-attach-bar">
+                            <button type="button" class="btn-attach-bill" onclick="document.getElementById('billFileInput').click()">
+                                <i class="fas fa-camera"></i> Attach Bill / Photo
+                            </button>
+                            <span id="selectedFileNameBadge" class="selected-file-badge" style="display:none;"></span>
                         </div>
                         <input type="file" id="billFileInput" accept="image/*,application/pdf" capture="environment" style="display:none;" onchange="handleBillFileSelect(this)">
                         
@@ -1260,18 +1266,12 @@
                                 <i class="fas fa-times"></i> Remove
                             </button>
                         </div>
-
-                        <div class="drive-link-row">
-                            <i class="fab fa-google-drive" style="color:#0f9d58; font-size:16px;"></i>
-                            <input type="text" id="receiptDriveUrl" placeholder="Or paste Google Drive Receipt Link (optional)">
-                        </div>
                     </div>
 
                     <!-- Supervisor / Developer Fields -->
-                    <div id="supervisorApprovalSection" style="display:none; border-top:1px solid var(--border); padding-top:10px; margin-top:4px;">
+                    <div id="supervisorApprovalSection" style="display:none; border-top:1px solid var(--border); padding-top:10px; margin-top:2px;">
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="voucherStatusSelect"><i class="fas fa-tasks" style="color:#0284c7;"></i> Approval Status</label>
                                 <select id="voucherStatusSelect">
                                     <option value="Submitted">Submitted (Pending)</option>
                                     <option value="Approved">Approved</option>
@@ -1280,18 +1280,104 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="form-group" style="margin-top:8px;">
-                            <label for="supervisorRemarks"><i class="fas fa-comment-dots" style="color:#64748b;"></i> Supervisor Remarks</label>
-                            <input type="text" id="supervisorRemarks" placeholder="Approval or rejection notes...">
+                        <div class="form-group" style="margin-top:6px;">
+                            <input type="text" id="supervisorRemarks" placeholder="Supervisor remarks / notes...">
                         </div>
                     </div>
                 </form>
             </div>
+            <!-- Modal Footer: Left-aligned Generated Voucher ID, Right-aligned Actions -->
             <div class="modal-footer">
-                <button type="button" class="btn-modal-cancel" onclick="closeVoucherModal()">Cancel</button>
-                <button type="button" class="btn-modal-submit" onclick="handleSaveVoucher()">
-                    <i class="fas fa-check"></i> <span id="saveBtnText">Save Voucher Claim</span>
-                </button>
+                <div class="footer-voucher-id-tag" title="Generated Voucher ID">
+                    <i class="fas fa-fingerprint"></i>
+                    <span id="footerVoucherIdTag">PCV-031126-01</span>
+                    <input type="hidden" id="previewVoucherId" value="">
+                </div>
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn-modal-cancel" onclick="closeVoucherModal()">Cancel</button>
+                    <button type="button" class="btn-modal-submit" onclick="handleSaveVoucher()">
+                        <i class="fas fa-check"></i> <span id="saveBtnText">Save Voucher Claim</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ELABORATIVE VOUCHER DETAIL MODAL (Opens on Card Click) -->
+    <div class="modal-overlay" id="voucherDetailModal">
+        <div class="modal-card" style="max-width:500px;">
+            <div class="modal-header">
+                <div class="modal-title-wrap">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Voucher Slip Details</span>
+                </div>
+                <button class="modal-close" onclick="closeDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="gap:14px;">
+                <!-- Top Banner with Voucher ID & Status -->
+                <div class="detail-banner">
+                    <div>
+                        <div style="font-size:0.68rem; font-weight:800; color:var(--text-muted); text-transform:uppercase;">Voucher ID</div>
+                        <div id="detailVoucherId" style="font-family:ui-monospace,monospace; font-size:1.05rem; font-weight:900; color:var(--primary); margin-top:2px;">PCV-031126-01</div>
+                    </div>
+                    <div id="detailStatusBadgeContainer">
+                        <span class="status-pill status-submitted" id="detailStatusPill">Submitted</span>
+                    </div>
+                </div>
+
+                <!-- Big Amount Hero Display -->
+                <div class="detail-amount-hero">
+                    <div style="font-size:0.7rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px;">Claimed Amount</div>
+                    <div class="detail-amount-val" id="detailAmount">AED 0.00</div>
+                </div>
+
+                <!-- Date & Claimant Info -->
+                <div class="form-row">
+                    <div class="detail-section-row">
+                        <div class="detail-sec-label"><i class="far fa-calendar-alt"></i> Date of Purchase</div>
+                        <div class="detail-sec-val" id="detailDate">-</div>
+                    </div>
+                    <div class="detail-section-row">
+                        <div class="detail-sec-label"><i class="far fa-user"></i> Logged By</div>
+                        <div class="detail-sec-val" id="detailUser">-</div>
+                    </div>
+                </div>
+
+                <!-- Item / Note Description (Full Text) -->
+                <div class="detail-section-row">
+                    <div class="detail-sec-label"><i class="fas fa-tag"></i> Item / Description</div>
+                    <div class="detail-sec-val" id="detailDescription" style="background:var(--input-bg); padding:10px 12px; border-radius:8px; border:1px solid var(--border); white-space:pre-wrap;">-</div>
+                </div>
+
+                <!-- Remarks (if any) -->
+                <div class="detail-section-row" id="detailRemarksRow" style="display:none;">
+                    <div class="detail-sec-label"><i class="fas fa-comment-dots"></i> Supervisor Remarks</div>
+                    <div class="detail-sec-val" id="detailRemarks" style="color:var(--text-secondary); font-style:italic;">-</div>
+                </div>
+
+                <!-- Receipt Attachment Section -->
+                <div class="detail-section-row" id="detailReceiptSection">
+                    <div class="detail-sec-label"><i class="fas fa-paperclip"></i> Attached Bill / Receipt</div>
+                    <div id="detailReceiptContent" style="margin-top:4px;">
+                        <!-- Dynamic Receipt Thumbnail or None Notice -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="detailActionLeft">
+                    <button type="button" class="btn-modal-cancel" id="btnDetailPrint" onclick="printActiveDetailVoucher()">
+                        <i class="fas fa-print"></i> Print Slip
+                    </button>
+                </div>
+                <div class="modal-footer-actions">
+                    <button type="button" class="btn-modal-cancel" id="btnDetailEdit" style="display:none; color:var(--primary);" onclick="editActiveDetailVoucher()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button type="button" class="btn-modal-cancel" id="btnDetailDelete" style="display:none; color:var(--danger);" onclick="deleteActiveDetailVoucher()">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                    <button type="button" class="btn-modal-submit" onclick="closeDetailModal()">Done</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1410,9 +1496,48 @@
             return dateStr;
         }
 
+        let activeDetailVoucherId = null;
+
+        // ─────────────────────────────────────────────────────────────
+        // USER PREFERENCES & TOAST STYLING SYNC (Matching Operation Request)
+        // ─────────────────────────────────────────────────────────────
+        function applyUserSettings(settings) {
+            settings = settings || {};
+            const toastStyle = settings.toastStyle || 'outlined';
+            const toastPosition = settings.toastPosition || 'pos-bottom';
+
+            document.body.classList.remove('toast-minimal', 'toast-glassy', 'toast-outlined', 'toast-neon', 'toast-soft-shadow', 'toast-solid');
+            if (toastStyle && toastStyle !== 'default') {
+                document.body.classList.add('toast-' + toastStyle);
+            } else {
+                document.body.classList.add('toast-outlined');
+            }
+            const container = document.getElementById('toastContainer');
+            if (container) {
+                container.className = 'toast-container ' + toastPosition;
+            }
+        }
+
+        function loadCurrentUserAndSettings() {
+            try {
+                const curUserStr = localStorage.getItem('tabreed_currentUser');
+                if (curUserStr) {
+                    const curUser = JSON.parse(curUserStr);
+                    const code = curUser.code || curUser.empId;
+                    if (code) {
+                        const settingsStr = localStorage.getItem('tabreed_settings_' + code);
+                        if (settingsStr) {
+                            applyUserSettings(JSON.parse(settingsStr));
+                        }
+                    }
+                }
+            } catch(e){}
+        }
+
         // ─────────────────────────────────────────────────────────────
         // VOUCHER ID GENERATOR: PCV-DDMMYY-XX
-        // Starts at 01 every month, sequential 01, 02, 03... no duplicates
+        // Starts at 01 every month, sequential 01, 02, 03...
+        // Strictly uses maxNum + 1 so deleted entries never cause holes or regressing numbers
         // ─────────────────────────────────────────────────────────────
         function generateSequentialVoucherId(dateInputVal) {
             let now = new Date();
@@ -1441,22 +1566,19 @@
             const yy = String(y).slice(-2);
             const monthKey = `${mm}${yy}`; // e.g. "1126"
 
-            // Collect all used numbers in this month from all existing vouchers
-            const usedNumbers = new Set();
+            // Monotonically increasing: find highest numeric sequence used this month
+            let maxNum = 0;
             allVouchers.forEach(v => {
                 const vid = String(v.voucherId || v.id || '').trim();
                 const match = vid.match(/^PCV-\d{2}(\d{4})-(\d+)$/);
                 if (match && match[1] === monthKey) {
                     const num = parseInt(match[2], 10);
-                    if (!isNaN(num) && num > 0) usedNumbers.add(num);
+                    if (!isNaN(num) && num > maxNum) maxNum = num;
                 }
             });
 
-            let seq = 1;
-            while (usedNumbers.has(seq)) {
-                seq++;
-            }
-            const padXX = String(seq).padStart(2, '0');
+            const nextSeq = maxNum + 1;
+            const padXX = String(nextSeq).padStart(2, '0');
             return `PCV-${dd}${mm}${yy}-${padXX}`;
         }
 
@@ -1467,7 +1589,7 @@
                 const nextId = generateSequentialVoucherId(pDateInput);
                 const previewEl = document.getElementById('previewVoucherId');
                 if (previewEl) previewEl.value = nextId;
-                const displayEl = document.getElementById('previewVoucherIdDisplay');
+                const displayEl = document.getElementById('footerVoucherIdTag');
                 if (displayEl) displayEl.textContent = nextId;
             }
         }
@@ -1488,6 +1610,7 @@
                     currentUser = user;
                     updateUserUI();
                     applyRoleRestrictions();
+                    loadCurrentUserAndSettings();
                 });
             } else {
                 try {
@@ -1497,6 +1620,7 @@
             }
             updateUserUI();
             applyRoleRestrictions();
+            loadCurrentUserAndSettings();
         }
 
         function updateUserUI() {
@@ -1622,7 +1746,7 @@
         }
 
         // ─────────────────────────────────────────────────────────────
-        // STATS SUMMARY CARDS CALCULATION (Matching IMG_1615.png)
+        // STATS SUMMARY CARDS CALCULATION (Ultra-compact)
         // ─────────────────────────────────────────────────────────────
         function updateStatsSummary(accessibleList) {
             let totalAmt = 0;
@@ -1656,18 +1780,19 @@
         }
 
         // ─────────────────────────────────────────────────────────────
-        // TABLE RENDERING & FILTERING
+        // VOUCHERS CARD / BILL LIST RENDERING & FILTERING
+        // Zero horizontal scrolling on mobile, clean bill slip design!
         // ─────────────────────────────────────────────────────────────
         function renderVouchersTable() {
-            const tbody = document.getElementById('vouchersTableBody');
-            if (!tbody) return;
+            const container = document.getElementById('vouchersContainer');
+            if (!container) return;
 
             const isSup = isSupervisorOrDev();
             const curCode = currentUser ? String(currentUser.code || currentUser.empId || '').trim() : '';
             const curShort = currentUser ? String(currentUser.short || '').trim().toLowerCase() : '';
             const curFull = currentUser ? String(currentUser.full || '').trim().toLowerCase() : '';
 
-            // Step 1: Role-based filtering
+            // Step 1: Role-based filtering (Technician sees only their own, Supervisor/Dev sees all)
             let accessible = allVouchers;
             if (!isSup) {
                 accessible = allVouchers.filter(v => {
@@ -1714,64 +1839,67 @@
             updateStatsSummary(accessible);
 
             if (filteredVouchers.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-muted);">
-                    <i class="fas fa-inbox" style="font-size:2rem; margin-bottom:10px; display:block; opacity:0.35;"></i>
-                    No petty cash vouchers found. Click <strong>"Log Cash"</strong> to record an expense claim.
-                </td></tr>`;
+                container.innerHTML = `
+                    <div class="empty-vouchers-card" style="grid-column: 1 / -1;">
+                        <i class="fas fa-receipt" style="font-size:2.2rem; margin-bottom:12px; display:block; opacity:0.35; color:var(--primary);"></i>
+                        <div style="font-size:0.95rem; font-weight:700; color:var(--text-primary); margin-bottom:4px;">No Petty Cash Vouchers Found</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">Tap <strong>"Log Cash"</strong> above to record an expense claim.</div>
+                    </div>
+                `;
                 return;
             }
 
-            tbody.innerHTML = filteredVouchers.map(v => buildTableRow(v)).join('');
+            container.innerHTML = filteredVouchers.map(v => buildBillCard(v)).join('');
         }
 
-        function buildTableRow(v) {
+        function buildBillCard(v) {
             const vId = v.voucherId || v.id || '-';
             const dateStr = formatDisplayDate(v.dateOfPurchase || v.date);
             const amountVal = parseFloat(v.amount) || 0;
-            const amountFormatted = 'AED ' + amountVal.toFixed(2);
-            const itemText = escapeHTML(v.item || v.description || '-');
+            const amountFormatted = amountVal.toFixed(2);
+            const itemText = escapeHTML(v.item || v.description || 'Petty cash purchase');
             const userName = escapeHTML(v.userName || v.user || 'Technician');
             const empCode = v.empCode || v.employeeCode || '';
             const status = v.status || 'Submitted';
-            const statusClass = `status-${status.toLowerCase()}`;
+            const statusLower = status.toLowerCase();
+            const statusClass = `status-${statusLower}`;
+            const borderClass = `border-${statusLower}`;
 
             const hasReceipt = Boolean(v.receiptUrl);
-            const receiptHtml = hasReceipt
-                ? `<button class="receipt-btn" onclick="openReceiptModal('${escapeHTML(v.receiptUrl)}', '${escapeHTML(vId)}')"><i class="fas fa-file-invoice"></i> View</button>`
-                : `<span style="color:var(--text-muted); font-size:0.75rem; opacity:0.4;">None</span>`;
-
-            const isSup = isSupervisorOrDev();
-            const curCode = currentUser ? String(currentUser.code || '').trim() : '';
-            const isOwner = empCode && curCode && empCode === curCode;
-            const canEdit = isSup || (isOwner && status === 'Submitted');
-
-            let actionsHtml = `
-                <div class="action-btns">
-                    ${canEdit ? `<button class="btn-table-action" onclick="openEditModal('${escapeHTML(vId)}')" title="Edit Voucher"><i class="fas fa-edit"></i></button>` : ''}
-                    ${canEdit ? `<button class="btn-table-action delete" onclick="deleteVoucher('${escapeHTML(vId)}')" title="Delete Voucher"><i class="fas fa-trash-alt"></i></button>` : ''}
-                    <button class="btn-table-action" onclick="printVoucherSlip('${escapeHTML(vId)}')" title="Print Voucher Slip"><i class="fas fa-print"></i></button>
-                </div>
-            `;
 
             return `
-                <tr>
-                    <td><span class="voucher-id-cell" onclick="copyVoucherId('${escapeHTML(vId)}')" title="Click to copy">${escapeHTML(vId)}</span></td>
-                    <td style="white-space:nowrap;">${escapeHTML(dateStr)}</td>
-                    <td style="font-weight:600;">${itemText}</td>
-                    <td><span class="amount-badge">${amountFormatted}</span></td>
-                    <td>
-                        <div style="font-weight:700;">${userName}</div>
-                        ${empCode ? `<span style="font-size:0.72rem; color:var(--text-muted);">${escapeHTML(empCode)}</span>` : ''}
-                    </td>
-                    <td style="text-align:center;">${receiptHtml}</td>
-                    <td>
+                <div class="voucher-bill-card ${borderClass}" onclick="openVoucherDetailModal('${escapeHTML(vId)}')">
+                    <div class="bill-card-header">
+                        <span class="bill-id-tag">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            ${escapeHTML(vId)}
+                        </span>
                         <span class="status-pill ${statusClass}">
                             <i class="fas ${status === 'Approved' ? 'fa-check' : (status === 'Reimbursed' ? 'fa-money-bill-wave' : (status === 'Rejected' ? 'fa-times' : 'fa-clock'))}"></i>
                             ${escapeHTML(status)}
                         </span>
-                    </td>
-                    <td style="text-align:right;">${actionsHtml}</td>
-                </tr>
+                    </div>
+
+                    <div class="bill-card-body">
+                        <div class="bill-item-title">${itemText}</div>
+                        <div class="bill-amount-tag">
+                            <span class="bill-amount-cur">AED</span>
+                            <span>${amountFormatted}</span>
+                        </div>
+                    </div>
+
+                    <div class="bill-card-footer">
+                        <div class="bill-footer-meta">
+                            <span class="bill-meta-tag"><i class="far fa-calendar-alt"></i> ${escapeHTML(dateStr)}</span>
+                            <span>•</span>
+                            <span class="bill-meta-tag"><i class="far fa-user"></i> ${userName}${empCode ? ' ~ ' + escapeHTML(empCode) : ''}</span>
+                        </div>
+                        <div class="bill-footer-badges">
+                            ${hasReceipt ? `<span class="bill-receipt-indicator" title="Receipt attached"><i class="fas fa-paperclip"></i> Bill</span>` : ''}
+                            <i class="fas fa-chevron-right bill-click-hint"></i>
+                        </div>
+                    </div>
+                </div>
             `;
         }
 
@@ -1793,20 +1921,23 @@
                 if (counts[s] !== undefined) counts[s]++;
             });
 
-            document.getElementById('countSubmitted').textContent = counts.Submitted;
-            document.getElementById('countApproved').textContent = counts.Approved;
-            document.getElementById('countReimbursed').textContent = counts.Reimbursed;
-            document.getElementById('countRejected').textContent = counts.Rejected;
+            const elSub = document.getElementById('countSubmitted');
+            if (elSub) elSub.textContent = counts.Submitted;
+            const elApp = document.getElementById('countApproved');
+            if (elApp) elApp.textContent = counts.Approved;
+            const elRei = document.getElementById('countReimbursed');
+            if (elRei) elRei.textContent = counts.Reimbursed;
+            const elRej = document.getElementById('countRejected');
+            if (elRej) elRej.textContent = counts.Rejected;
         }
 
         function toggleStatusFilter(status) {
             if (activeStatusFilter === status) {
-                activeStatusFilter = null; // Toggle off if clicked again
+                activeStatusFilter = null;
             } else {
                 activeStatusFilter = status;
             }
 
-            // Update active styling
             ['Submitted', 'Approved', 'Reimbursed', 'Rejected'].forEach(s => {
                 const btn = document.getElementById(`pill-${s.toLowerCase()}`);
                 if (btn) {
@@ -1819,14 +1950,136 @@
         }
 
         // ─────────────────────────────────────────────────────────────
-        // MODAL & CLAIM SUBMISSION
+        // ELABORATIVE VOUCHER DETAIL MODAL (On Card Click)
+        // ─────────────────────────────────────────────────────────────
+        function openVoucherDetailModal(vId) {
+            const v = allVouchers.find(item => (item.voucherId || item.id) === vId);
+            if (!v) return;
+
+            activeDetailVoucherId = vId;
+
+            // Voucher ID
+            const idEl = document.getElementById('detailVoucherId');
+            if (idEl) idEl.textContent = vId;
+
+            // Status Badge
+            const status = v.status || 'Submitted';
+            const statusContainer = document.getElementById('detailStatusBadgeContainer');
+            if (statusContainer) {
+                const statusLower = status.toLowerCase();
+                const icon = status === 'Approved' ? 'fa-check' : (status === 'Reimbursed' ? 'fa-money-bill-wave' : (status === 'Rejected' ? 'fa-times' : 'fa-clock'));
+                statusContainer.innerHTML = `<span class="status-pill status-${statusLower}"><i class="fas ${icon}"></i> ${escapeHTML(status)}</span>`;
+            }
+
+            // Amount
+            const amtVal = parseFloat(v.amount) || 0;
+            const amtEl = document.getElementById('detailAmount');
+            if (amtEl) amtEl.textContent = 'AED ' + amtVal.toFixed(2);
+
+            // Date & Logged By
+            const dateEl = document.getElementById('detailDate');
+            if (dateEl) dateEl.textContent = formatDisplayDate(v.dateOfPurchase || v.date) || '-';
+
+            const userName = v.userName || v.user || 'Technician';
+            const empCode = v.empCode || v.employeeCode || '';
+            const userEl = document.getElementById('detailUser');
+            if (userEl) userEl.textContent = `${userName} ~ ${empCode || 'N/A'}`;
+
+            // Description
+            const descEl = document.getElementById('detailDescription');
+            if (descEl) descEl.textContent = v.item || v.description || '-';
+
+            // Remarks
+            const remarksRow = document.getElementById('detailRemarksRow');
+            const remarksEl = document.getElementById('detailRemarks');
+            if (v.remarks && v.remarks.trim()) {
+                if (remarksRow) remarksRow.style.display = 'flex';
+                if (remarksEl) remarksEl.textContent = v.remarks.trim();
+            } else {
+                if (remarksRow) remarksRow.style.display = 'none';
+            }
+
+            // Receipt Attachment
+            const receiptDiv = document.getElementById('detailReceiptContent');
+            if (receiptDiv) {
+                if (v.receiptUrl) {
+                    if (v.receiptUrl.startsWith('data:') || v.receiptUrl.startsWith('blob:') || v.receiptUrl.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i)) {
+                        receiptDiv.innerHTML = `
+                            <div style="text-align:center; cursor:pointer;" onclick="openReceiptModal('${escapeHTML(v.receiptUrl)}', '${escapeHTML(vId)}')">
+                                <img src="${escapeHTML(v.receiptUrl)}" alt="Receipt" style="max-height:160px; max-width:100%; border-radius:8px; border:1px solid var(--border); box-shadow:var(--shadow-sm); display:block; margin:0 auto;">
+                                <div style="font-size:0.75rem; color:var(--primary); font-weight:700; margin-top:5px;">
+                                    <i class="fas fa-search-plus"></i> Tap to view full size receipt
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        receiptDiv.innerHTML = `
+                            <a href="${escapeHTML(v.receiptUrl)}" target="_blank" class="btn-attach-bill" style="text-decoration:none;">
+                                <i class="fab fa-google-drive" style="color:#0f9d58;"></i> Open Google Drive Bill Document
+                            </a>
+                        `;
+                    }
+                } else {
+                    receiptDiv.innerHTML = `<span style="font-size:0.8rem; color:var(--text-muted); font-style:italic;">No bill / receipt photo attached</span>`;
+                }
+            }
+
+            // Permissions for Edit & Delete
+            const isSup = isSupervisorOrDev();
+            const curCode = currentUser ? String(currentUser.code || '').trim() : '';
+            const isOwner = empCode && curCode && empCode === curCode;
+            const canEdit = isSup || (isOwner && status === 'Submitted');
+
+            const btnEdit = document.getElementById('btnDetailEdit');
+            if (btnEdit) btnEdit.style.display = canEdit ? 'inline-flex' : 'none';
+
+            const btnDelete = document.getElementById('btnDetailDelete');
+            if (btnDelete) btnDelete.style.display = canEdit ? 'inline-flex' : 'none';
+
+            document.getElementById('voucherDetailModal').classList.add('active');
+        }
+
+        function closeDetailModal() {
+            const m = document.getElementById('voucherDetailModal');
+            if (m) m.classList.remove('active');
+            activeDetailVoucherId = null;
+        }
+
+        function printActiveDetailVoucher() {
+            if (activeDetailVoucherId) {
+                printVoucherSlip(activeDetailVoucherId);
+            }
+        }
+
+        function editActiveDetailVoucher() {
+            if (activeDetailVoucherId) {
+                const id = activeDetailVoucherId;
+                closeDetailModal();
+                openEditModal(id);
+            }
+        }
+
+        function deleteActiveDetailVoucher() {
+            if (activeDetailVoucherId) {
+                const id = activeDetailVoucherId;
+                closeDetailModal();
+                deleteVoucher(id);
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // MODAL & CLAIM SUBMISSION (Access Login Integration)
         // ─────────────────────────────────────────────────────────────
         function handleLogCashClick() {
-            // Require login before logging cash
+            // Require login before logging cash — Opens exact Access Login popup with rotating lock!
             if (!currentUser || (!currentUser.code && !currentUser.short)) {
-                showToast("Please login first to log a cash claim", "warning");
                 if (window.TabreedAuth) {
-                    TabreedAuth.showLoginModal();
+                    TabreedAuth.promptLogin('Petty_Cash_Voucher.html', (user) => {
+                        currentUser = user;
+                        updateUserUI();
+                        applyRoleRestrictions();
+                        openClaimModal();
+                    });
                 }
                 return;
             }
@@ -1842,7 +2095,6 @@
             document.getElementById('purchaseDate').value = today;
             document.getElementById('cashAmount').value = '';
             document.getElementById('itemDescription').value = '';
-            document.getElementById('receiptDriveUrl').value = '';
             document.getElementById('supervisorRemarks').value = '';
             document.getElementById('voucherStatusSelect').value = 'Submitted';
             clearSelectedReceipt();
@@ -1852,15 +2104,14 @@
             document.getElementById('loggedByUser').value = userName;
             document.getElementById('loggedByCode').value = empCode;
 
-            const nameEl = document.getElementById('modalLoggedByName');
-            if (nameEl) nameEl.textContent = userName;
-            const codeEl = document.getElementById('modalLoggedByCode');
-            if (codeEl) codeEl.textContent = empCode || 'N/A';
+            // Header User Badge: Majeed ~ 41764
+            const headerBadgeEl = document.getElementById('modalHeaderUserBadge');
+            if (headerBadgeEl) headerBadgeEl.textContent = `${userName} ~ ${empCode || 'N/A'}`;
 
             // Generate sequential ID preview PCV-DDMMYY-XX
             const nextId = generateSequentialVoucherId(today);
             document.getElementById('previewVoucherId').value = nextId;
-            const displayEl = document.getElementById('previewVoucherIdDisplay');
+            const displayEl = document.getElementById('footerVoucherIdTag');
             if (displayEl) displayEl.textContent = nextId;
 
             document.getElementById('voucherModal').classList.add('active');
@@ -1871,7 +2122,7 @@
             if (!v) return;
 
             document.getElementById('editVoucherId').value = voucherId;
-            document.getElementById('modalTitle').textContent = 'Edit Voucher ' + voucherId;
+            document.getElementById('modalTitle').textContent = 'Edit Voucher';
             document.getElementById('saveBtnText').textContent = 'Update Voucher';
 
             let pDate = v.dateOfPurchase || v.date || '';
@@ -1887,16 +2138,14 @@
             const empCode = v.empCode || v.employeeCode || '';
             document.getElementById('loggedByUser').value = userName;
             document.getElementById('loggedByCode').value = empCode;
-            const nameEl = document.getElementById('modalLoggedByName');
-            if (nameEl) nameEl.textContent = userName;
-            const codeEl = document.getElementById('modalLoggedByCode');
-            if (codeEl) codeEl.textContent = empCode || 'N/A';
+
+            const headerBadgeEl = document.getElementById('modalHeaderUserBadge');
+            if (headerBadgeEl) headerBadgeEl.textContent = `${userName} ~ ${empCode || 'N/A'}`;
 
             document.getElementById('previewVoucherId').value = voucherId;
-            const displayEl = document.getElementById('previewVoucherIdDisplay');
+            const displayEl = document.getElementById('footerVoucherIdTag');
             if (displayEl) displayEl.textContent = voucherId;
 
-            document.getElementById('receiptDriveUrl').value = (v.receiptUrl && !v.receiptUrl.startsWith('data:')) ? v.receiptUrl : '';
             document.getElementById('supervisorRemarks').value = v.remarks || '';
             document.getElementById('voucherStatusSelect').value = v.status || 'Submitted';
 
@@ -1928,8 +2177,6 @@
                     badge.textContent = `Attached: ${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
                     badge.style.display = 'inline-block';
                 }
-                const title = document.getElementById('dropZoneTitle');
-                if (title) title.textContent = 'Bill Selected: ' + file.name;
 
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -1962,8 +2209,6 @@
                 badge.textContent = '';
                 badge.style.display = 'none';
             }
-            const title = document.getElementById('dropZoneTitle');
-            if (title) title.textContent = 'Attach Bill or Receipt Photo';
         }
 
         async function handleSaveVoucher() {
@@ -1985,8 +2230,7 @@
                 return;
             }
 
-            const driveUrl = document.getElementById('receiptDriveUrl').value.trim();
-            const receiptFinal = driveUrl || selectedReceiptDataUrl || '';
+            const receiptFinal = selectedReceiptDataUrl || '';
 
             const userName = document.getElementById('loggedByUser').value.trim() || 'Technician';
             const empCode = document.getElementById('loggedByCode').value.trim() || '';
@@ -2191,20 +2435,22 @@
         }
 
         // ─────────────────────────────────────────────────────────────
-        // UTILITIES
+        // UTILITIES & SYNCHRONIZED TOAST
         // ─────────────────────────────────────────────────────────────
         function showToast(msg, type = 'info') {
             const container = document.getElementById('toastContainer');
             if (!container) return;
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const icon = type === 'success' ? 'fa-check-circle' : (type === 'warning' ? 'fa-exclamation-triangle' : (type === 'error' ? 'fa-times-circle' : 'fa-info-circle'));
-            toast.innerHTML = `<i class="fas ${icon}"></i> <span>${escapeHTML(msg)}</span>`;
-            container.appendChild(toast);
+            const t = document.createElement('div');
+            t.className = 'toast';
+            const colors = { success:'var(--secondary, #10b981)', error:'var(--danger, #ef4444)', warning:'var(--warning, #f59e0b)', info:'var(--primary, #0284c7)' };
+            const icons  = { success:'fa-check-circle', error:'fa-exclamation-circle', warning:'fa-exclamation-triangle', info:'fa-info-circle' };
+            const safeMsg = msg ? String(msg).replace(/[<>"'&]/g, c => ({ '<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;' }[c])) : '';
+            t.innerHTML  = `<i class="fas ${icons[type]||icons.info}" style="color:${colors[type]||colors.info};font-size:1.1rem;flex-shrink:0;"></i><span>${safeMsg}</span>`;
+            container.appendChild(t);
             setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(10px)';
-                setTimeout(() => toast.remove(), 250);
+                t.style.opacity = '0';
+                t.style.transform = 'translateY(10px)';
+                setTimeout(() => t.remove(), 250);
             }, 3000);
         }
 

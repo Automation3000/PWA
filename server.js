@@ -2103,22 +2103,19 @@ app.post(['/api/petty-cash', '/api/pitty-cash'], async (req, res) => {
   const monthKey = `${mm}${yy}`; // e.g. "1126"
 
   if (!voucherId || !voucherId.match(/^PCV-\d{6}-\d{2,}$/)) {
-    // Scan all existing vouchers for this month to determine next sequential XX
-    const usedNumbers = new Set();
+    // Scan all existing vouchers for this month to determine next sequential XX (monotonically increasing)
+    let maxNum = 0;
     vouchers.forEach(v => {
       const vid = String(v.voucherId || v.id || '').trim();
       const match = vid.match(/^PCV-\d{2}(\d{4})-(\d+)$/);
       if (match && match[1] === monthKey) {
         const num = parseInt(match[2], 10);
-        if (!isNaN(num) && num > 0) usedNumbers.add(num);
+        if (!isNaN(num) && num > maxNum) maxNum = num;
       }
     });
 
-    let seq = 1;
-    while (usedNumbers.has(seq)) {
-      seq++;
-    }
-    const padXX = String(seq).padStart(2, '0');
+    const nextSeq = maxNum + 1;
+    const padXX = String(nextSeq).padStart(2, '0');
     voucherId = `PCV-${dd}${mm}${yy}-${padXX}`;
   }
 
