@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>AFT — Sender (Air File Transfer)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/themes.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1a73e8',
+                        'primary-dark': '#0d62d9',
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d62d9;
+            --bg-page: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+        }
+        body.dark-mode {
+            --bg-page: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        #qrcode img, #qrcode canvas {
+            margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- Top Header -->
+        <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+            <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <a href="/AFT/index.html" class="p-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition" title="Back to AFT Hub">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-black tracking-wider uppercase bg-blue-600 px-2 py-0.5 rounded text-white">AFT</span>
+                            <h1 class="text-base sm:text-lg font-bold">Data Sender Mode</h1>
+                        </div>
+                        <p class="text-xs text-slate-400">Airgapped QR Code Transfer • Generator</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="/AFT/scanner.html" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                        <i class="fas fa-camera text-blue-400"></i>
+                        <span class="hidden sm:inline">Switch to</span> Receiver
+                    </a>
+                    <a href="/index.html" class="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition" title="Home Launchpad">
+                        <i class="fas fa-th-large"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Body -->
+        <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 flex flex-col items-center">
+            
+            <!-- Instructions Banner -->
+            <div class="w-full bg-blue-50 dark:bg-slate-800 border border-blue-200 dark:border-slate-700 rounded-xl p-4 mb-6 shadow-sm">
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class="fas fa-satellite-dish text-sm"></i>
+                    </div>
+                    <div class="text-sm">
+                        <p class="font-bold text-slate-900 dark:text-white mb-0.5">How to send data:</p>
+                        <p class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm">
+                            1. Select any file (document, logs, backup, zip).<br>
+                            2. Click <b>"Start Transfer"</b>. The file will be compressed and streamed as animated QR codes.<br>
+                            3. Point the receiving phone or laptop camera at this screen using the <b>Receiver</b> scanner.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card -->
+            <div class="w-full bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-6 flex flex-col items-center">
+                
+                <!-- File Selection Box -->
+                <div class="w-full max-w-md mb-5">
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
+                        Select File to Transfer
+                    </label>
+                    <div class="relative border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-blue-500 rounded-xl p-4 text-center cursor-pointer transition bg-slate-50 dark:bg-slate-900/50" onclick="document.getElementById('file_input').click()">
+                        <i class="fas fa-file-arrow-up text-3xl text-blue-500 mb-2"></i>
+                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200" v-if="!selected_file">
+                            Click to browse or drag file here
+                        </p>
+                        <p class="text-sm font-bold text-blue-600 dark:text-blue-400 truncate" v-else>
+                            {{ selected_file.name }}
+                        </p>
+                        <p class="text-xs text-slate-500 mt-1" v-if="selected_file">
+                            Original: {{ formatBytes(selected_file.size) }}
+                        </p>
+                        <input
+                            class="hidden"
+                            id="file_input"
+                            type="file"
+                            v-on:change="on_file_selected"
+                        />
+                    </div>
+                </div>
+
+                <!-- Transfer Settings (Foldable / Configurable) -->
+                <div class="w-full max-w-md bg-slate-50 dark:bg-slate-900/60 rounded-xl p-3 mb-5 border border-slate-200 dark:border-slate-700 text-xs">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-slate-500 font-semibold mb-1">Frame Speed</label>
+                            <select v-model="interval_ms" :disabled="is_transferring" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 font-medium">
+                                <option :value="50">Ultra Fast (50ms)</option>
+                                <option :value="80">Fast (80ms)</option>
+                                <option :value="120">Standard (120ms)</option>
+                                <option :value="200">Slow / High-Res (200ms)</option>
+                                <option :value="350">Very Slow (350ms)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-slate-500 font-semibold mb-1">Chunk Size</label>
+                            <select v-model="chunk_size" :disabled="is_transferring" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-slate-200 font-medium">
+                                <option :value="150">Small (150 B)</option>
+                                <option :value="200">Medium (200 B)</option>
+                                <option :value="250">Standard (250 B)</option>
+                                <option :value="320">Dense (320 B)</option>
+                                <option :value="400">High Density (400 B)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-2.5 pt-2.5 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" v-model="loop_transfer" class="rounded text-blue-600">
+                            <span class="text-slate-700 dark:text-slate-300 font-medium">Continuous Loop (Repeat Stream)</span>
+                        </label>
+                        <span class="text-slate-400 text-[11px]" v-if="total_chunks > 0">{{ total_chunks }} Chunks</span>
+                    </div>
+                </div>
+
+                <!-- Status Message Banner -->
+                <div class="w-full max-w-md text-center py-2 px-4 rounded-lg mb-4 text-xs sm:text-sm font-semibold transition"
+                     :class="{
+                        'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300': is_transferring,
+                        'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300': !is_transferring
+                     }">
+                    <i class="fas fa-circle-notch fa-spin mr-1.5 text-blue-500" v-if="is_transferring && !is_paused"></i>
+                    <i class="fas fa-pause mr-1.5 text-amber-500" v-if="is_paused"></i>
+                    {{ user_message }}
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full max-w-md mb-5" v-if="total_chunks > 0">
+                    <div class="flex justify-between text-xs text-slate-500 font-semibold mb-1">
+                        <span>Progress: {{ current_chunk_index + 1 }} / {{ total_chunks }}</span>
+                        <span>{{ progress_percent }}%</span>
+                    </div>
+                    <div class="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-600 transition-all duration-75" :style="{ width: progress_percent + '%' }"></div>
+                    </div>
+                </div>
+
+                <!-- Control Buttons -->
+                <div class="flex flex-wrap items-center justify-center gap-3 mb-6">
+                    <button
+                        v-if="!is_transferring"
+                        v-on:click="start_transfer"
+                        :disabled="!selected_file"
+                        class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-md transition flex items-center gap-2"
+                    >
+                        <i class="fas fa-play"></i> Start Transfer
+                    </button>
+                    
+                    <template v-else>
+                        <button
+                            v-on:click="toggle_pause"
+                            class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2"
+                        >
+                            <i :class="is_paused ? 'fas fa-play' : 'fas fa-pause'"></i>
+                            {{ is_paused ? 'Resume' : 'Pause' }}
+                        </button>
+                        
+                        <button
+                            v-if="is_paused"
+                            v-on:click="step_prev"
+                            class="px-3.5 py-2.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition"
+                            title="Previous Chunk"
+                        >
+                            <i class="fas fa-step-backward"></i>
+                        </button>
+                        
+                        <button
+                            v-if="is_paused"
+                            v-on:click="step_next"
+                            class="px-3.5 py-2.5 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition"
+                            title="Next Chunk"
+                        >
+                            <i class="fas fa-step-forward"></i>
+                        </button>
+
+                        <button
+                            v-on:click="stop_transfer"
+                            class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2"
+                        >
+                            <i class="fas fa-stop"></i> Stop
+                        </button>
+                    </template>
+                </div>
+
+                <!-- QR Code Display Box -->
+                <div class="p-4 bg-white rounded-2xl shadow-inner border border-slate-300 dark:border-slate-600 flex flex-col items-center justify-center">
+                    <div id="qrcode" class="flex justify-center items-center min-w-[240px] min-h-[240px]"></div>
+                    <div class="mt-3 text-xs text-slate-500 font-mono" v-if="is_transferring">
+                        Chunk #{{ current_chunk_index }} / {{ total_chunks - 1 }}
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.3/pako.min.js"></script>
+    
+    <script>
+      const { createApp, ref, computed, onMounted } = Vue;
+
+      createApp({
+        setup() {
+          const user_message = ref("Choose file to get started");
+          const is_transferring = ref(false);
+          const is_paused = ref(false);
+          const chunk_size = ref(250);
+          const interval_ms = ref(100);
+          const loop_transfer = ref(true);
+          const selected_file = ref(null);
+          const current_chunk_index = ref(0);
+          const total_chunks = ref(0);
+          
+          let qrcode_object = null;
+          let transfer_data_chunks = [];
+          let loop_active = false;
+
+          const progress_percent = computed(() => {
+            if (total_chunks.value <= 0) return 0;
+            return Math.min(100, Math.round(((current_chunk_index.value + 1) / total_chunks.value) * 100));
+          });
+
+          const formatBytes = (bytes) => {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+          };
+
+          const encode_data = (index, input_bytes) => {
+            let encoded_string = String.fromCharCode.apply(null, input_bytes);
+            let utf8Encoder = new TextEncoder();
+            let utf8_bytes = utf8Encoder.encode(encoded_string);
+            let encoded_data = btoa(
+              String.fromCharCode.apply(null, utf8_bytes)
+            );
+            return index + "," + encoded_data;
+          };
+
+          const on_file_selected = (e) => {
+            if (e.target.files && e.target.files[0]) {
+              selected_file.value = e.target.files[0];
+              user_message.value = `Ready: ${selected_file.value.name} (${formatBytes(selected_file.value.size)})`;
+            }
+          };
+
+          const stop_transfer = () => {
+            is_transferring.value = false;
+            is_paused.value = false;
+            loop_active = false;
+            user_message.value = selected_file.value ? `Ready: ${selected_file.value.name}` : "Choose file to get started";
+            current_chunk_index.value = 0;
+            if (qrcode_object) {
+              qrcode_object.clear();
+              qrcode_object.makeCode("AFT Ready — Start Transfer");
+            }
+          };
+
+          const toggle_pause = () => {
+            is_paused.value = !is_paused.value;
+            user_message.value = is_paused.value ? `Paused at Chunk ${current_chunk_index.value + 1} / ${total_chunks.value}` : `Streaming Chunks...`;
+          };
+
+          const step_next = () => {
+            if (current_chunk_index.value < total_chunks.value - 1) {
+              current_chunk_index.value++;
+              display_current_chunk();
+            }
+          };
+
+          const step_prev = () => {
+            if (current_chunk_index.value > 0) {
+              current_chunk_index.value--;
+              display_current_chunk();
+            }
+          };
+
+          const display_current_chunk = () => {
+            if (!transfer_data_chunks || transfer_data_chunks.length === 0) return;
+            const chunkData = transfer_data_chunks[current_chunk_index.value];
+            if (chunkData && qrcode_object) {
+              qrcode_object.clear();
+              qrcode_object.makeCode(chunkData);
+            }
+          };
+
+          const start_transfer = async () => {
+            if (!selected_file.value) {
+              user_message.value = "Please select a file first";
+              return;
+            }
+
+            try {
+              is_transferring.value = true;
+              is_paused.value = false;
+              user_message.value = "Compressing with GZIP (Level 9)...";
+
+              const buffer = await selected_file.value.arrayBuffer();
+              const compressed_bytes = pako.gzip(new Uint8Array(buffer), { level: 9 });
+              
+              const calculated_chunks = Math.ceil(compressed_bytes.length / chunk_size.value);
+              total_chunks.value = calculated_chunks;
+
+              // Pre-encode all chunks
+              transfer_data_chunks = [];
+              for (let i = 0; i < calculated_chunks; i++) {
+                const start = i * chunk_size.value;
+                const chunk = compressed_bytes.subarray(start, start + chunk_size.value);
+                transfer_data_chunks.push(encode_data(i, chunk));
+              }
+
+              const metadata = {
+                name: selected_file.value.name,
+                chunks: calculated_chunks,
+                rawSize: selected_file.value.size,
+                gzipSize: compressed_bytes.length
+              };
+
+              loop_active = true;
+
+              while (loop_active && is_transferring.value) {
+                // First: Send file metadata for 1.2s
+                qrcode_object.clear();
+                qrcode_object.makeCode(JSON.stringify(metadata));
+                user_message.value = `Broadcasting Metadata: ${metadata.name} (${calculated_chunks} parts)`;
+                
+                let waited = 0;
+                while (waited < 1200 && is_transferring.value && !is_paused.value) {
+                  await new Promise(r => setTimeout(r, 100));
+                  waited += 100;
+                }
+
+                // Next: Stream chunks sequentially
+                for (let i = 0; i < calculated_chunks; i++) {
+                  if (!is_transferring.value) break;
+
+                  while (is_paused.value && is_transferring.value) {
+                    await new Promise(r => setTimeout(r, 150));
+                  }
+                  if (!is_transferring.value) break;
+
+                  current_chunk_index.value = i;
+                  display_current_chunk();
+                  user_message.value = `Transferring Chunk ${i + 1} / ${calculated_chunks}...`;
+
+                  await new Promise(r => setTimeout(r, interval_ms.value));
+                }
+
+                if (!loop_transfer.value) {
+                  loop_active = false;
+                  break;
+                }
+
+                if (is_transferring.value) {
+                  user_message.value = "Cycle finished. Repeating stream in 1s for any missed chunks...";
+                  await new Promise(r => setTimeout(r, 1000));
+                }
+              }
+
+              if (!loop_transfer.value && is_transferring.value) {
+                user_message.value = "Transfer cycle complete!";
+                stop_transfer();
+              }
+
+            } catch (err) {
+              console.error("Transfer error:", err);
+              user_message.value = "Error: " + err.message;
+              is_transferring.value = false;
+            }
+          };
+
+          onMounted(() => {
+            const size = Math.min(Math.min(window.innerWidth, window.innerHeight) * 0.75, 340);
+            qrcode_object = new QRCode("qrcode", {
+              text: "AFT Ready — Choose file to transfer",
+              width: size,
+              height: size,
+              typeNumber: 40,
+              colorDark: "#000000",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.M,
+            });
+
+            // Dark mode preference sync
+            const dark = localStorage.getItem('tabreed_dark_mode') === 'true';
+            if (dark) document.body.classList.add('dark-mode');
+          });
+
+          return {
+            user_message,
+            selected_file,
+            is_transferring,
+            is_paused,
+            chunk_size,
+            interval_ms,
+            loop_transfer,
+            current_chunk_index,
+            total_chunks,
+            progress_percent,
+            formatBytes,
+            on_file_selected,
+            start_transfer,
+            stop_transfer,
+            toggle_pause,
+            step_next,
+            step_prev
+          };
+        }
+      }).mount("#app");
+    </script>
+</body>
+</html>

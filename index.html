@@ -59,6 +59,22 @@
             } catch (e) {}
         })();
     </script>
+    <script>
+        (function() {
+            try {
+                var saved = localStorage.getItem('tabreed_selected_theme');
+                var isDark = localStorage.getItem('tabreed_dark_mode');
+                var theme = saved || (isDark === '0' ? 'default' : 'cyber-dark');
+                if (theme === 'dark-mode' || theme === 'cyber-dark' || theme === 'theme-cyber-dark') {
+                    document.documentElement.classList.add('dark-mode');
+                }
+                if (theme && theme !== 'default' && theme !== 'dark-mode') {
+                    var cls = theme.startsWith('theme-') ? theme : 'theme-' + theme;
+                    document.documentElement.classList.add(cls);
+                }
+            } catch(e) {}
+        })();
+    </script>
     <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
     <link rel="prefetch" href="DocumentFolder.html">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" crossorigin="anonymous">
@@ -263,8 +279,10 @@
         body.dark-mode .modal-header          { background: #0d62d9 !important; }
         body.dark-mode .btn-secondary         { background: var(--bg-surface) !important; color: var(--text-primary) !important; border-color: var(--border) !important; }
         body.dark-mode .location-tag          { background: var(--primary-light) !important; color: var(--primary) !important; }
+        body.dark-mode .location-tag.location-calibrating { background: rgba(251,146,60,.18) !important; color: #fb923c !important; border: 1px solid rgba(251,146,60,.35) !important; }
         body.dark-mode .expiry-badge          { background: var(--bg-surface) !important; color: var(--text-primary) !important; border-color: var(--border) !important; }
         body.dark-mode .expiry-badge.expired  { background: rgba(242,139,130,.15) !important; color: var(--danger) !important; border-color: var(--danger) !important; }
+        body.dark-mode .expiry-badge.expired-calibrating { background: rgba(248,113,113,.15) !important; color: #fca5a5 !important; border-color: rgba(248,113,113,.4) !important; }
         body.dark-mode .skeleton-cell         { background: #2d2f31 !important; }
         body.dark-mode #sliderContainer       { background: var(--bg-surface) !important; border-color: var(--border) !important; }
         body.dark-mode #sliderText            { color: var(--text-muted) !important; }
@@ -324,8 +342,8 @@
         @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.35} }
         @keyframes popBounce { 0%{transform:scale(1)} 50%{transform:scale(1.12)} 100%{transform:scale(1)} }
         .pop-anim { animation:popBounce .35s cubic-bezier(.175,.885,.32,1.275); }
-        @keyframes subtlePop { 0%{opacity:0.75;transform:scale(0.995);} 100%{opacity:1;transform:scale(1);} }
-        .subtle-pop-anim { animation:subtlePop .22s ease-out; }
+        @keyframes subtlePop { 0%{opacity:0.85;} 100%{opacity:1;} }
+        .subtle-pop-anim { animation:subtlePop .15s ease-out; }
 
         /* ═══════════════════════════════════════════════════
            SEARCH
@@ -366,8 +384,10 @@
            INVENTORY TABLE
         ═══════════════════════════════════════════════════ */
         .inventory-section { background:var(--bg-card); margin:0 1rem 1rem; border-radius:var(--radius); box-shadow:var(--shadow-sm); overflow:hidden; border:1px solid var(--border); }
-        .table-container   { overflow-x:auto; }
-        .inventory-table   { width:100%; border-collapse:collapse; min-width:650px; table-layout:fixed; }
+        .table-container   { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+        .inventory-table   { width:100%; border-collapse:collapse; min-width:650px; table-layout:fixed; -webkit-transform:none !important; transform:none !important; }
+        .inventory-table tbody, .history-table tbody { -webkit-transform:none !important; transform:none !important; animation:none !important; }
+        .inventory-table tr, .inventory-table td { -webkit-transform:none !important; transform:none !important; }
         .inventory-table th:nth-child(1) { width:35%; padding-left:1.5rem; }
         .inventory-table th:nth-child(2) { width:20%; }
         .inventory-table th:nth-child(3) { width:15%; text-align:center; }
@@ -384,6 +404,7 @@
         .expiry-td { white-space:nowrap !important; }
 
         .location-tag  { padding:4px 10px; background:var(--primary-light); color:var(--primary); border-radius:20px; font-size:.75rem; font-weight:700; display:inline-block; }
+        .location-tag.location-calibrating { background:rgba(234,88,12,0.12); color:#c2410c; border:1px solid rgba(234,88,12,0.22); }
         .expiry-badge  {
             display:inline-flex; align-items:center; justify-content:center;
             gap:5px; padding:5px 12px; background:var(--bg-surface);
@@ -393,6 +414,7 @@
         }
         .expiry-badge:hover { border-color:var(--primary); }
         .expiry-badge.expired { color:var(--danger) !important; border-color:var(--danger) !important; background:rgba(217,48,37,.08) !important; }
+        .expiry-badge.expired-calibrating { color:#e06d63 !important; border-color:#fca5a5 !important; background:rgba(248,113,113,.08) !important; }
         .expiry-badge.expiring-soon { color:var(--warning) !important; border-color:var(--warning) !important; background:rgba(249,171,0,.08) !important; }
 
         /* Expired & Expiring-Soon Highlights on Name / Left side */
@@ -404,6 +426,16 @@
         }
         .row-expired:hover td {
             background-color: rgba(217, 48, 37, 0.1) !important;
+        }
+        /* Expired but Sent for Calibration: Light/Muted indicator */
+        .row-expired-calibrating td:first-child {
+            border-left: 4px solid #f87171 !important;
+        }
+        .row-expired-calibrating td {
+            background-color: rgba(248, 113, 113, 0.03);
+        }
+        .row-expired-calibrating:hover td {
+            background-color: rgba(248, 113, 113, 0.065) !important;
         }
         .row-expiring-soon td:first-child {
             border-left: 4px solid var(--warning) !important;
@@ -423,6 +455,15 @@
         }
         body.dark-mode .row-expired:hover td {
             background-color: rgba(242, 139, 130, 0.16) !important;
+        }
+        body.dark-mode .row-expired-calibrating td:first-child {
+            border-left: 4px solid #f87171 !important;
+        }
+        body.dark-mode .row-expired-calibrating td {
+            background-color: rgba(248, 113, 113, 0.06) !important;
+        }
+        body.dark-mode .row-expired-calibrating:hover td {
+            background-color: rgba(248, 113, 113, 0.1) !important;
         }
         body.dark-mode .row-expiring-soon td:first-child {
             border-left: 4px solid var(--warning) !important;
@@ -452,6 +493,12 @@
         .inst-name-label.label-expired {
             color: var(--danger);
         }
+        .inst-name-label.label-expired-cal {
+            color: #c25e5e;
+        }
+        body.dark-mode .inst-name-label.label-expired-cal {
+            color: #fca5a5;
+        }
         .inst-name-expired-tag {
             display: inline-flex;
             align-items: center;
@@ -471,6 +518,29 @@
         .inst-name-expired-tag:hover {
             transform: scale(1.05);
             opacity: 0.95;
+        }
+        .inst-name-expired-cal-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 8px;
+            background: linear-gradient(135deg, #fb923c 0%, #f87171 100%);
+            color: #ffffff !important;
+            font-size: 10px;
+            font-weight: 800;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(248, 113, 113, 0.28);
+            white-space: nowrap;
+            transition: transform 0.15s ease, opacity 0.15s ease;
+        }
+        .inst-name-expired-cal-tag:hover {
+            transform: scale(1.05);
+            opacity: 0.95;
+        }
+        .inst-name-expired-cal-tag i {
+            font-size: 9px;
         }
         .inst-name-soon-tag {
             display: inline-flex;
@@ -752,7 +822,7 @@
             .inventory-table th:nth-child(1) { width:40% !important; min-width:145px !important; }
             .inst-name-cell { min-width:145px !important; }
             .inst-name-label { font-size:0.85rem !important; }
-            .inst-name-expired-tag { font-size:9px !important; padding:1px 5px !important; }
+            .inst-name-expired-tag, .inst-name-expired-cal-tag { font-size:9px !important; padding:1px 5px !important; }
             .inst-name-soon-tag { font-size:9px !important; padding:1px 5px !important; }
             .update-flex-row { flex-direction:column; align-items:stretch; gap:10px; }
             .ack-modal, .profile-popup-box, .master-advance-popup-box { height:auto !important; max-height:85% !important; border-radius:16px !important; margin:20px !important; }
@@ -914,7 +984,7 @@
         }
     </style>
 </head>
-<body class="toast-outlined">
+<body class="dark-mode theme-cyber-dark toast-outlined">
 
 <!-- ═══════════════════════════════════════
      FIORI LAUNCHPAD
@@ -980,12 +1050,23 @@
                 <div class="tile-subtitle">Directory & Contact Information</div>
                 <i class="fas fa-address-book tile-icon" style="color:var(--primary);"></i>
             </div>
+            <div class="tile" id="tile-aft" data-tile-id="AFT/index.html" data-dev-only="true" style="display:none;" onclick="handleTileClick(event, 'AFT/index.html', this)">
+                <div class="tile-title">Air File Transfer</div>
+                <div class="tile-subtitle">AFT • Airgapped QR Data Transfer</div>
+                <i class="fas fa-qrcode tile-icon" style="color:var(--primary);"></i>
+                <div class="tile-status" style="color:var(--secondary);font-weight:700;"><i class="fas fa-shield-alt"></i> Airgapped</div>
+            </div>
         </div>
         <script>
         // Instant synchronous module layout from LocalStorage (ZERO millisecond flash)
         (function() {
             try {
                 const curUser = JSON.parse(localStorage.getItem('tabreed_admin_user') || localStorage.getItem('tabreed_currentUser') || '{}');
+                const isDev = !!(curUser && (curUser.role === 'developer' || curUser.role === 'super_admin'));
+                const aftTile = document.getElementById('tile-aft');
+                if (aftTile) {
+                    aftTile.style.display = isDev ? 'flex' : 'none';
+                }
                 const userKey = curUser.code || curUser.empId || curUser.short || '41764';
                 let order = null;
                 const pwaPref = JSON.parse(localStorage.getItem('tabreed_pwa_preferences') || '{}');
@@ -996,16 +1077,20 @@
                     const localOrder = localStorage.getItem('tabreed_module_order_' + userKey);
                     if (localOrder) order = JSON.parse(localOrder);
                 }
-                if (order && Array.isArray(order) && order.length > 0) {
-                    const grid = document.getElementById('automationTileGrid');
-                    if (grid) {
+                const grid = document.getElementById('automationTileGrid');
+                if (grid) {
+                    if (order && Array.isArray(order) && order.length > 0) {
                         const map = {};
                         Array.from(grid.querySelectorAll('.tile[data-tile-id]')).forEach(function(t) {
                             map[t.getAttribute('data-tile-id')] = t;
                         });
                         order.forEach(function(id) {
-                            if (map[id]) grid.appendChild(map[id]);
+                            if (map[id] && id !== 'AFT/index.html') grid.appendChild(map[id]);
                         });
+                    }
+                    // AFT is strictly kept at the very end of the sequence
+                    if (aftTile) {
+                        grid.appendChild(aftTile);
                     }
                 }
             } catch(e) {}
@@ -1788,13 +1873,16 @@ input:checked + .slider:before { transform: translateX(20px); }
 
     function applyTheme(themeId, noSave = false) {
         document.body.classList.remove(...ALL_THEME_CLASSES);
+        document.documentElement.classList.remove(...ALL_THEME_CLASSES);
         if (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark') {
             document.body.classList.add('dark-mode');
+            document.documentElement.classList.add('dark-mode');
         }
         if (themeId && themeId !== 'default') {
             if (themeId !== 'dark-mode') {
                 const finalTheme = themeId.startsWith('theme-') ? themeId : `theme-${themeId}`;
                 document.body.classList.add(finalTheme);
+                document.documentElement.classList.add(finalTheme);
             }
         }
         const isDark = (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark');
@@ -1815,7 +1903,7 @@ input:checked + .slider:before { transform: translateX(20px); }
         const isCurrentlyDark = document.body.classList.contains('dark-mode');
         const nextIsDark = !isCurrentlyDark;
         
-        let nextTheme = nextIsDark ? 'dark-mode' : 'default';
+        let nextTheme = nextIsDark ? 'cyber-dark' : 'default';
         if (currentAuthUser) {
             const settings = JSON.parse(localStorage.getItem(`tabreed_settings_${currentAuthUser.code}`)) || {};
             if (nextIsDark && settings.darkToggle) nextTheme = settings.darkToggle;
@@ -1823,11 +1911,11 @@ input:checked + .slider:before { transform: translateX(20px); }
         }
 
         applyTheme(nextTheme);
-        showToast(nextIsDark ? 'Dark Mode Enabled' : 'Light Mode Enabled', 'info');
+        showToast(nextIsDark ? 'Cyber Neon Dark Enabled' : 'Light Mode Enabled', 'info');
     }
 
     function switchToBetaTheme() {
-        const currentTheme = localStorage.getItem('tabreed_selected_theme') || (localStorage.getItem(LS_DARK) === '1' ? 'dark-mode' : 'default');
+        const currentTheme = localStorage.getItem('tabreed_selected_theme') || (localStorage.getItem(LS_DARK) === '0' ? 'default' : 'cyber-dark');
         
         let html = `<div style="text-align:left;margin-bottom:10px;">
             <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:12px;">Choose your preferred UI theme style (10 Themes Available):</p>
@@ -1869,12 +1957,14 @@ input:checked + .slider:before { transform: translateX(20px); }
             }
         }
         
-        // Restore theme
+        // Restore theme — Default for everyone: Cyber Neon Dark
         const savedTheme = localStorage.getItem('tabreed_selected_theme');
         if (savedTheme) {
             applyTheme(savedTheme);
-        } else if (localStorage.getItem(LS_DARK) === '1') {
-            applyTheme('dark-mode');
+        } else if (localStorage.getItem(LS_DARK) === '0') {
+            applyTheme('default');
+        } else {
+            applyTheme('cyber-dark');
         }
 
         setupSearch();
@@ -2383,6 +2473,15 @@ input:checked + .slider:before { transform: translateX(20px); }
             }
         }
 
+        const aftTile = document.getElementById('tile-aft') || document.querySelector('[data-tile-id="AFT/index.html"]');
+        if (aftTile) {
+            aftTile.style.display = isSuper ? 'flex' : 'none';
+            if (isSuper) {
+                const grid = document.getElementById('automationTileGrid');
+                if (grid) grid.appendChild(aftTile);
+            }
+        }
+
         if (typeof applyAutomationTileOrder === 'function') {
             applyAutomationTileOrder();
         }
@@ -2418,6 +2517,11 @@ input:checked + .slider:before { transform: translateX(20px); }
         if (headerLoginBtn) headerLoginBtn.style.display = 'inline-flex';
         if (headerUserBtn) headerUserBtn.style.display = 'none';
         if (devGroup) devGroup.style.display = 'none';
+
+        const aftTile = document.getElementById('tile-aft') || document.querySelector('[data-tile-id="AFT/index.html"]');
+        if (aftTile) {
+            aftTile.style.display = 'none';
+        }
 
         const hintEl = document.getElementById('reorder-hint');
         if (hintEl) hintEl.style.display = 'none';
@@ -2789,6 +2893,8 @@ window.startSmartInstall = async function() {
     function triggerSubtlePop(id) {
         const el = document.getElementById(id);
         if (!el) return;
+        // Never apply animations to table bodies/rows (prevents blank/invisible row bug on iOS Safari WebKit)
+        if (el.tagName === 'TBODY' || el.tagName === 'TABLE' || el.tagName === 'TR') return;
         el.classList.remove('subtle-pop-anim');
         void el.offsetWidth;
         el.classList.add('subtle-pop-anim');
@@ -2815,7 +2921,6 @@ window.startSmartInstall = async function() {
             icon.classList.add('fa-spin');
             setTimeout(() => icon.classList.remove('fa-spin'), 600);
         }
-        triggerSubtlePop('tableBody');
         document.getElementById('locationFilter').value = 'ALL';
         document.getElementById('expiryFilter').value   = 'ALL';
         document.getElementById('searchInput').value    = '';
@@ -2999,7 +3104,13 @@ window.startSmartInstall = async function() {
             const isExpired = diff !== null && diff < 0;
             const isSoon    = diff !== null && diff >= 0 && diff <= 30;
 
-            let expiryClass   = isExpired ? 'expired' : (isSoon ? 'expiring-soon' : '');
+            const locLower             = (item.location || '').toLowerCase();
+            const isCalibrating        = locLower.includes('calibration');
+            const isExpiredCalibrating = isExpired && isCalibrating;
+
+            let expiryClass = isExpiredCalibrating
+                ? 'expired-calibrating'
+                : (isExpired ? 'expired' : (isSoon ? 'expiring-soon' : ''));
             let expiryContent = sanitizeInput(item.expiry || '—');
 
             if (showExpiryAsDays && diff !== null) {
@@ -3021,28 +3132,40 @@ window.startSmartInstall = async function() {
                 ? `<i class="fas fa-comment-dots" style="color:var(--warning);cursor:pointer;font-size:1.2rem;margin-left:4px;opacity:.9;" data-comment="${sanitizeInput(commentText)}" onclick="showCommentPopup(this.getAttribute('data-comment'))" title="View Comment"></i>`
                 : '';
 
-            const rowClass = isExpired ? 'row-expired' : (isSoon ? 'row-expiring-soon' : '');
+            const rowClass = isExpiredCalibrating
+                ? 'row-expired-calibrating'
+                : (isExpired ? 'row-expired' : (isSoon ? 'row-expiring-soon' : ''));
 
-            const nameBadge = isExpired
-                ? `<span class="inst-name-expired-tag" onclick="event.stopPropagation();showExpiryDays('${expiryAttr}')" title="Expired"><i class="fas fa-exclamation-triangle"></i> EXPIRED</span>`
-                : (isSoon
-                    ? `<span class="inst-name-soon-tag" onclick="event.stopPropagation();showExpiryDays('${expiryAttr}')" title="Due Soon"><i class="fas fa-clock"></i> DUE SOON</span>`
-                    : '');
+            const nameBadge = isExpiredCalibrating
+                ? `<span class="inst-name-expired-cal-tag" onclick="event.stopPropagation();showExpiryDays('${expiryAttr}', true)" title="Expired — Sent for Calibration"><i class="fas fa-exclamation-triangle"></i> EXPIRED</span>`
+                : (isExpired
+                    ? `<span class="inst-name-expired-tag" onclick="event.stopPropagation();showExpiryDays('${expiryAttr}', false)" title="Expired"><i class="fas fa-exclamation-triangle"></i> EXPIRED</span>`
+                    : (isSoon
+                        ? `<span class="inst-name-soon-tag" onclick="event.stopPropagation();showExpiryDays('${expiryAttr}', false)" title="Due Soon"><i class="fas fa-clock"></i> DUE SOON</span>`
+                        : ''));
+
+            const labelClass = isExpiredCalibrating
+                ? 'label-expired-cal'
+                : (isExpired ? 'label-expired' : '');
+
+            const locationBadge = isCalibrating
+                ? `<span class="location-tag location-calibrating"><i class="fas fa-wrench" style="margin-right:4px;font-size:0.7rem;opacity:0.85;"></i>${sanitizeInput(item.location)}</span>`
+                : `<span class="location-tag">${sanitizeInput(item.location)}</span>`;
 
             return `<tr class="${rowClass}" data-name="${sanitizeInput(item.name)}">
                 <td class="inst-name-cell" data-name="${sanitizeInput(item.name)}">
                     <div class="inst-name-flex">
-                        <span class="inst-name-label ${isExpired ? 'label-expired' : ''}">${sanitizeInput(item.name)}</span>
+                        <span class="inst-name-label ${labelClass}">${sanitizeInput(item.name)}</span>
                         ${nameBadge}
                         ${noteBadge}
                     </div>
                 </td>
-                <td><span class="location-tag">${sanitizeInput(item.location)}</span></td>
+                <td>${locationBadge}</td>
                 <td style="text-align:center;">
                     <button onclick="openUpdateModalByIndex(${realIdx})" style="padding:5px 14px;background:var(--primary);color:white;border:none;border-radius:6px;font-weight:700;cursor:pointer;font-size:.82rem;transition:.2s;" onmouseover="this.style.background='var(--primary-dark)'" onmouseout="this.style.background='var(--primary)'">Update</button>
                 </td>
                 <td class="expiry-td" style="text-align:center;">
-                    <span class="expiry-badge ${expiryClass}" onclick="showExpiryDays('${expiryAttr}')">${expiryContent}</span>
+                    <span class="expiry-badge ${expiryClass}" onclick="showExpiryDays('${expiryAttr}', ${isExpiredCalibrating})">${expiryContent}</span>
                 </td>
                 <td style="font-size:.8rem;color:var(--text-secondary);">
                     <div style="display:flex;justify-content:space-between;align-items:center;gap:4px;">
@@ -3051,15 +3174,19 @@ window.startSmartInstall = async function() {
                 </td>
             </tr>`;
         }).join('');
-
-        triggerSubtlePop('tableBody');
     }
 
-    function showExpiryDays(dateStr) {
+    function showExpiryDays(dateStr, isCalibrating = false) {
         if (!dateStr || dateStr === '-') return showToast('No expiry date set.', 'info');
         const diff = getExpiryDiff(dateStr);
         if (diff === null) return showToast('Invalid expiry date.', 'warning');
-        if (diff < 0)       showToast(`Expired ${Math.abs(diff)} days ago!`, 'error');
+        if (diff < 0) {
+            if (isCalibrating) {
+                showToast(`Expired ${Math.abs(diff)} days ago — Sent for Calibration`, 'warning');
+            } else {
+                showToast(`Expired ${Math.abs(diff)} days ago!`, 'error');
+            }
+        }
         else if (diff === 0) showToast('Expiring Today!', 'warning');
         else                 showToast(`${diff} day${diff!==1?'s':''} remaining for expiry.`, 'success');
     }
@@ -4999,6 +5126,7 @@ window.startSmartInstall = async function() {
         const total        = inventoryData.length;
         const locCount     = locations.length;
         const expiredCount = inventoryData.filter(i => { const d = getExpiryDiff(i.expiry); return d !== null && d < 0; }).length;
+        const expiredInCal = inventoryData.filter(i => { const d = getExpiryDiff(i.expiry); return d !== null && d < 0 && (i.location || '').toLowerCase().includes('calibration'); }).length;
         const soon30Count  = inventoryData.filter(i => { const d = getExpiryDiff(i.expiry); return d !== null && d >= 0 && d <= 30; }).length;
         const noExpiry     = inventoryData.filter(i => !i.expiry || i.expiry === '-').length;
 
@@ -5011,6 +5139,7 @@ window.startSmartInstall = async function() {
         const html = row('Total Instruments', total, 'var(--primary)')
             + row('Total Locations', locCount, 'var(--primary)')
             + row('Expired', expiredCount, 'var(--danger)')
+            + (expiredInCal > 0 ? row('&nbsp;&nbsp;↳ In Calibration', expiredInCal, '#fb923c') : '')
             + row('Expiring within 30 days', soon30Count, 'var(--warning)')
             + row('No Expiry Date', noExpiry, 'var(--text-muted)');
 
@@ -5466,8 +5595,6 @@ window.startSmartInstall = async function() {
             <td><span class="location-tag" style="background:var(--primary-light);color:var(--primary);">${sanitizeInput(log.newLoc||'—')}</span></td>
             <td style="font-size:.85rem;font-weight:700;">${sanitizeInput(log.user||'—')}</td>
         </tr>`).join('');
-
-        triggerSubtlePop('historyTableBody');
     }
 
     /* ──────────────────────────────────────
@@ -5537,6 +5664,12 @@ window.startSmartInstall = async function() {
             
             const destination = match[1];
             const tId = destination.replace('.html', '').replace('NATIVE_', '');
+            const isDevOnly = (tile.getAttribute('data-dev-only') === 'true' || destination === 'AFT/index.html');
+
+            if (isDevOnly && !isDev) {
+                tile.style.display = 'none';
+                return;
+            }
             
             const config = configs[tId];
             if (config) {
@@ -5565,7 +5698,7 @@ window.startSmartInstall = async function() {
                     if (config.statusColor) statusEl.style.color = config.statusColor;
                 }
             } else {
-                tile.style.display = 'flex'; // Ensure visible if no config and was hidden before
+                tile.style.display = (isDevOnly && !isDev) ? 'none' : 'flex';
             }
         });
     }
@@ -5884,6 +6017,12 @@ window.startSmartInstall = async function() {
         const grid = document.getElementById('automationTileGrid');
         if (!grid) return;
 
+        const isDev = isDeveloper();
+        const aftTile = document.getElementById('tile-aft') || grid.querySelector('[data-tile-id="AFT/index.html"]');
+        if (aftTile) {
+            aftTile.style.display = isDev ? 'flex' : 'none';
+        }
+
         // Cache initial DOM order once
         if (defaultAutomationTileOrder.length === 0) {
             defaultAutomationTileOrder = Array.from(grid.querySelectorAll('.tile[data-tile-id]'))
@@ -5898,6 +6037,7 @@ window.startSmartInstall = async function() {
 
         if (!userKey) {
             restoreDefaultAutomationTileOrder();
+            if (aftTile) aftTile.style.display = 'none';
             return;
         }
 
@@ -5907,7 +6047,10 @@ window.startSmartInstall = async function() {
             if (saved) order = JSON.parse(saved);
         } catch(e) {}
 
-        if (!order || !Array.isArray(order) || order.length === 0) return;
+        if (!order || !Array.isArray(order) || order.length === 0) {
+            restoreDefaultAutomationTileOrder();
+            return;
+        }
 
         const tileMap = {};
         const tiles = Array.from(grid.querySelectorAll('.tile[data-tile-id]'));
@@ -5916,10 +6059,16 @@ window.startSmartInstall = async function() {
         });
 
         order.forEach(id => {
-            if (tileMap[id]) {
+            if (tileMap[id] && id !== 'AFT/index.html') {
                 grid.appendChild(tileMap[id]);
             }
         });
+
+        // Always ensure AFT tile is kept at the very end of the sequence
+        if (tileMap['AFT/index.html']) {
+            grid.appendChild(tileMap['AFT/index.html']);
+            tileMap['AFT/index.html'].style.display = isDev ? 'flex' : 'none';
+        }
     }
 
     const DEVELOPER_DEFAULT_TILE_ORDER = [
@@ -5928,20 +6077,32 @@ window.startSmartInstall = async function() {
         'PM_Checklist_Generator.html',
         'ETS_Locator.html',
         'Operation_Request.html',
-        'Team_Contacts.html'
+        'Team_Contacts.html',
+        'AFT/index.html'
     ];
 
     function restoreDefaultAutomationTileOrder() {
         const grid = document.getElementById('automationTileGrid');
         if (!grid) return;
+        const isDev = isDeveloper();
+        const aftTile = document.getElementById('tile-aft') || grid.querySelector('[data-tile-id="AFT/index.html"]');
+        if (aftTile) {
+            aftTile.style.display = isDev ? 'flex' : 'none';
+        }
+
         const targetOrder = defaultAutomationTileOrder.length ? defaultAutomationTileOrder : DEVELOPER_DEFAULT_TILE_ORDER;
         const tileMap = {};
         Array.from(grid.querySelectorAll('.tile[data-tile-id]')).forEach(t => {
             tileMap[t.getAttribute('data-tile-id')] = t;
         });
         targetOrder.forEach(id => {
-            if (tileMap[id]) grid.appendChild(tileMap[id]);
+            if (tileMap[id] && id !== 'AFT/index.html') grid.appendChild(tileMap[id]);
         });
+        // Always place AFT tile last in sequence
+        if (tileMap['AFT/index.html']) {
+            grid.appendChild(tileMap['AFT/index.html']);
+            tileMap['AFT/index.html'].style.display = isDev ? 'flex' : 'none';
+        }
     }
 
     function setupAutomationTileReordering() {
@@ -6157,6 +6318,15 @@ window.startSmartInstall = async function() {
     }
     
     document.addEventListener("DOMContentLoaded", () => {
+        if (window.TabreedAuth && typeof window.TabreedAuth.addListener === 'function') {
+            window.TabreedAuth.addListener(function(user) {
+                const isSuper = !!(user && (user.role === 'developer' || user.role === 'super_admin'));
+                const aftTile = document.getElementById('tile-aft');
+                if (aftTile) aftTile.style.display = isSuper ? 'flex' : 'none';
+                if (typeof initTiles === 'function') initTiles();
+                if (typeof applyAutomationTileOrder === 'function') applyAutomationTileOrder();
+            });
+        }
         initTiles();
         applyAutomationTileOrder();
         setupAutomationTileReordering();

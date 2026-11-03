@@ -1137,7 +1137,7 @@
         ];
 
         function applyTheme() {
-            const themeId = localStorage.getItem(THEME_KEY) || (localStorage.getItem(LS_DARK) === '1' ? 'dark-mode' : 'default');
+            const themeId = localStorage.getItem(THEME_KEY) || (localStorage.getItem(LS_DARK) === '0' ? 'default' : 'cyber-dark');
             document.body.classList.remove(...ALL_THEME_CLASSES);
             if (themeId === 'dark-mode' || themeId === 'cyber-dark' || themeId === 'theme-cyber-dark') {
                 document.body.classList.add('dark-mode');

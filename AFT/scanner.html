@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>AFT — Receiver (Air File Transfer)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/themes.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1a73e8',
+                        'primary-dark': '#0d62d9',
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d62d9;
+            --bg-page: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+        }
+        body.dark-mode {
+            --bg-page: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .scanner-frame {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+        }
+        .scanner-reticle {
+            position: absolute;
+            inset: 15%;
+            border: 2px dashed rgba(59, 130, 246, 0.8);
+            border-radius: 16px;
+            pointer-events: none;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
+        }
+        .chunk-pill {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            transition: all 0.15s ease;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- Top Header -->
+        <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+            <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <a href="/AFT/index.html" class="p-2 rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition" title="Back to AFT Hub">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-black tracking-wider uppercase bg-emerald-600 px-2 py-0.5 rounded text-white">AFT</span>
+                            <h1 class="text-base sm:text-lg font-bold">Data Receiver Mode</h1>
+                        </div>
+                        <p class="text-xs text-slate-400">Optical QR Code Scanner • Receiver</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="/AFT/generator.html" class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                        <i class="fas fa-satellite-dish text-emerald-400"></i>
+                        <span class="hidden sm:inline">Switch to</span> Sender
+                    </a>
+                    <a href="/index.html" class="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition" title="Home Launchpad">
+                        <i class="fas fa-th-large"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Body -->
+        <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 flex flex-col items-center">
+            
+            <!-- Instructions Banner -->
+            <div class="w-full bg-emerald-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 rounded-xl p-4 mb-6 shadow-sm">
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <i class="fas fa-camera text-sm"></i>
+                    </div>
+                    <div class="text-sm">
+                        <p class="font-bold text-slate-900 dark:text-white mb-0.5">How to receive data:</p>
+                        <p class="text-slate-600 dark:text-slate-300 text-xs sm:text-sm">
+                            1. Click <b>"Start Receiver"</b> and grant camera permission.<br>
+                            2. Point camera at the sender device streaming the dynamic QR codes.<br>
+                            3. Watch chunks collect in real-time. Once 100% is received, the file will automatically assemble and download!
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receiver Panel Card -->
+            <div class="w-full bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700 p-6 flex flex-col items-center">
+                
+                <!-- Status Header -->
+                <div class="w-full flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <div>
+                        <div class="text-xs uppercase font-bold text-slate-400">File In Transit</div>
+                        <div class="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                            <i class="fas fa-file-archive text-emerald-600" v-if="file_metadata.name"></i>
+                            <span>{{ file_metadata.name || 'Waiting for Sender Stream...' }}</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs uppercase font-bold text-slate-400">Chunks Collected</div>
+                        <div class="text-base font-extrabold text-emerald-600 dark:text-emerald-400">
+                            {{ Object.keys(decoded_chunks).length }} / {{ file_metadata.chunks || 0 }}
+                            <span class="text-xs text-slate-500 font-normal" v-if="file_metadata.chunks">({{ progress_percent }}%)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Banner -->
+                <div class="w-full text-center py-2.5 px-4 rounded-xl mb-4 text-xs sm:text-sm font-semibold transition"
+                     :class="{
+                        'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300': is_receiving && !transfer_complete,
+                        'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300': transfer_complete,
+                        'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300': !is_receiving && !transfer_complete
+                     }">
+                    <i class="fas fa-spinner fa-spin mr-1.5" v-if="is_receiving && !transfer_complete"></i>
+                    <i class="fas fa-check-circle mr-1.5 text-emerald-600" v-if="transfer_complete"></i>
+                    {{ user_message }}
+                </div>
+
+                <!-- Controls -->
+                <div class="flex flex-wrap items-center justify-center gap-3 mb-5">
+                    <button
+                        v-if="!is_receiving"
+                        v-on:click="start_receiver"
+                        class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2"
+                    >
+                        <i class="fas fa-camera"></i> Start Receiver
+                    </button>
+                    
+                    <button
+                        v-else
+                        v-on:click="stop_receiver"
+                        class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2"
+                    >
+                        <i class="fas fa-stop"></i> Stop Receiver
+                    </button>
+
+                    <button
+                        v-if="is_receiving"
+                        v-on:click="toggle_camera"
+                        class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition flex items-center gap-2 text-xs"
+                        title="Flip Camera"
+                    >
+                        <i class="fas fa-sync-alt"></i> Flip Camera
+                    </button>
+
+                    <button
+                        v-if="download_url"
+                        v-on:click="trigger_download"
+                        class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2 text-xs"
+                    >
+                        <i class="fas fa-download"></i> Save File Again
+                    </button>
+                </div>
+
+                <!-- Video Viewport -->
+                <div class="w-full max-w-md scanner-frame bg-black aspect-square mb-5 flex items-center justify-center">
+                    <video id="videoElement" class="w-full h-full object-cover" muted autoplay playsinline></video>
+                    <div class="scanner-reticle" v-if="is_receiving"></div>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-900/80 p-6 text-center" v-if="!is_receiving">
+                        <i class="fas fa-camera text-4xl mb-3 text-slate-500"></i>
+                        <p class="text-sm font-semibold">Camera is idle</p>
+                        <p class="text-xs text-slate-500 mt-1">Click "Start Receiver" to activate camera scanner</p>
+                    </div>
+                </div>
+
+                <!-- Visual Chunks Matrix (When chunks are defined) -->
+                <div class="w-full max-w-md bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3 border border-slate-200 dark:border-slate-700" v-if="file_metadata.chunks && file_metadata.chunks > 0">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
+                        <span>Reconstruction Matrix</span>
+                        <span>{{ Object.keys(decoded_chunks).length }} / {{ file_metadata.chunks }}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1 max-h-32 overflow-y-auto p-1">
+                        <div
+                            v-for="i in file_metadata.chunks"
+                            :key="i-1"
+                            class="chunk-pill"
+                            :class="decoded_chunks[i-1] ? 'bg-emerald-500 shadow-sm' : 'bg-slate-300 dark:bg-slate-700'"
+                            :title="'Chunk #' + (i-1) + ': ' + (decoded_chunks[i-1] ? 'Received' : 'Pending')"
+                        ></div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.3/pako.min.js"></script>
+    <script src="/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@latest/dist/index.js"></script>
+
+    <script>
+      const { createApp, ref, reactive, computed, onMounted } = Vue;
+
+      createApp({
+        setup() {
+          const user_message = ref("Click 'Start Receiver' to begin optical scanning");
+          const decoded_chunks = ref({});
+          const file_metadata = reactive({});
+          const is_receiving = ref(false);
+          const transfer_complete = ref(false);
+          const download_url = ref("");
+          const current_facing_mode = ref("environment");
+
+          let canvas = null;
+          let context = null;
+          let videoElement = null;
+          let mediaStream = null;
+          let animationFrameId = null;
+          let audioContext = null;
+          let nativeBarcodeDetector = null;
+
+          const progress_percent = computed(() => {
+            if (!file_metadata.chunks || file_metadata.chunks <= 0) return 0;
+            return Math.min(100, Math.round((Object.keys(decoded_chunks.value).length / file_metadata.chunks) * 100));
+          });
+
+          // Play short synthesizer beep on received chunk
+          const playBeep = (freq = 880, duration = 0.05) => {
+            try {
+              if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+              }
+              if (audioContext.state === 'suspended') {
+                audioContext.resume();
+              }
+              const osc = audioContext.createOscillator();
+              const gain = audioContext.createGain();
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+              gain.gain.setValueAtTime(0.08, audioContext.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+              osc.connect(gain);
+              gain.connect(audioContext.destination);
+              osc.start();
+              osc.stop(audioContext.currentTime + duration);
+            } catch (e) {}
+          };
+
+          const decode_data = (input_string) => {
+            const parts = input_string.split(",");
+            const index = parseInt(parts[0], 10);
+            const encoded_data = atob(parts[1]);
+            const encoded_array = Array.from(encoded_data, (char) => char.charCodeAt(0));
+            const utf8Decoder = new TextDecoder();
+            const output_string = utf8Decoder.decode(new Uint8Array(encoded_array));
+            const data_array = Array.from(output_string, (char) => char.charCodeAt(0));
+            return {
+              index: index,
+              data: data_array,
+            };
+          };
+
+          const download_file = (data, fileName) => {
+            const blob = new Blob([data]);
+            const url = URL.createObjectURL(blob);
+            download_url.value = url;
+            const dummy_element = document.createElement("a");
+            dummy_element.href = url;
+            dummy_element.download = fileName;
+            document.body.appendChild(dummy_element);
+            dummy_element.click();
+            document.body.removeChild(dummy_element);
+          };
+
+          const trigger_download = () => {
+            if (download_url.value && file_metadata.name) {
+              const a = document.createElement('a');
+              a.href = download_url.value;
+              a.download = file_metadata.name;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }
+          };
+
+          const stop_receiver = () => {
+            is_receiving.value = false;
+            if (animationFrameId) {
+              cancelAnimationFrame(animationFrameId);
+              animationFrameId = null;
+            }
+            if (mediaStream) {
+              mediaStream.getTracks().forEach(track => track.stop());
+              mediaStream = null;
+            }
+            if (videoElement) {
+              videoElement.srcObject = null;
+            }
+            if (!transfer_complete.value) {
+              user_message.value = "Receiver stopped. Click 'Start Receiver' to resume.";
+            }
+          };
+
+          const toggle_camera = async () => {
+            current_facing_mode.value = current_facing_mode.value === "environment" ? "user" : "environment";
+            if (is_receiving.value) {
+              stop_receiver();
+              await start_receiver();
+            }
+          };
+
+          const processDecodedString = (text) => {
+            if (!text || typeof text !== 'string') return;
+
+            // Check if metadata
+            if (text.includes('"chunks"') || text.startsWith('{"name"')) {
+              try {
+                const meta = JSON.parse(text);
+                if (meta.name && meta.chunks) {
+                  if (file_metadata.name !== meta.name) {
+                    Object.assign(file_metadata, meta);
+                    decoded_chunks.value = {};
+                    transfer_complete.value = false;
+                    playBeep(520, 0.1);
+                    user_message.value = `Target file detected: ${meta.name} (${meta.chunks} parts)`;
+                  }
+                }
+              } catch (e) {}
+            } else if (text.includes(',')) {
+              try {
+                const parts = text.split(',');
+                if (parts.length === 2 && !isNaN(parseInt(parts[0]))) {
+                  const raw_data = decode_data(text);
+                  if (!decoded_chunks.value[raw_data.index]) {
+                    decoded_chunks.value[raw_data.index] = raw_data.data;
+                    playBeep(880, 0.04);
+                    user_message.value = `Received Chunk #${raw_data.index + 1} (${Object.keys(decoded_chunks.value).length}/${file_metadata.chunks || '?'})`;
+                  }
+                }
+              } catch (err) {
+                console.warn("Chunk decode err:", err);
+              }
+            }
+          };
+
+          const scanFrame = async () => {
+            if (!is_receiving.value) return;
+
+            if (videoElement && videoElement.readyState >= 2) {
+              try {
+                let decodedText = null;
+
+                // 1. Try Hardware-accelerated BarcodeDetector (Chrome / Edge / Android)
+                if (nativeBarcodeDetector) {
+                  try {
+                    const barcodes = await nativeBarcodeDetector.detect(videoElement);
+                    if (barcodes && barcodes.length > 0) {
+                      decodedText = barcodes[0].rawValue;
+                    }
+                  } catch (e) {}
+                }
+
+                // 2. Try zbar-wasm if available
+                if (!decodedText && window.zbarWasm && canvas && context) {
+                  try {
+                    canvas.width = videoElement.videoWidth;
+                    canvas.height = videoElement.videoHeight;
+                    context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const symbols = await window.zbarWasm.scanImageData(imageData);
+                    if (symbols && symbols.length > 0) {
+                      decodedText = symbols[0].decode();
+                    }
+                  } catch (e) {}
+                }
+
+                if (decodedText) {
+                  processDecodedString(decodedText);
+
+                  // Check completion
+                  if (file_metadata.chunks && Object.keys(decoded_chunks.value).length === file_metadata.chunks) {
+                    finishTransfer();
+                    return;
+                  }
+                }
+              } catch (e) {
+                console.error("Frame scanning exception:", e);
+              }
+            }
+
+            animationFrameId = requestAnimationFrame(scanFrame);
+          };
+
+          const finishTransfer = () => {
+            try {
+              transfer_complete.value = true;
+              user_message.value = "Transfer 100% Complete! Reconstructing file...";
+              playBeep(1200, 0.2);
+
+              let output_array = [];
+              for (let i = 0; i < file_metadata.chunks; i++) {
+                output_array = output_array.concat(decoded_chunks.value[i]);
+              }
+
+              const output_uint8 = Uint8Array.from(output_array);
+              const inflated_bytes = pako.inflate(output_uint8);
+              download_file(inflated_bytes, file_metadata.name);
+
+              user_message.value = `Success! "${file_metadata.name}" assembled and downloaded!`;
+              stop_receiver();
+            } catch (err) {
+              console.error("Assembly error:", err);
+              user_message.value = "Error reassembling file: " + err.message;
+            }
+          };
+
+          const start_receiver = async () => {
+            try {
+              user_message.value = "Requesting camera permissions...";
+              
+              mediaStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                  facingMode: { ideal: current_facing_mode.value },
+                  width: { ideal: 1280 },
+                  height: { ideal: 720 }
+                }
+              });
+
+              videoElement = document.getElementById("videoElement");
+              videoElement.srcObject = mediaStream;
+              await videoElement.play();
+
+              canvas = document.createElement("canvas");
+              context = canvas.getContext("2d");
+
+              if ('BarcodeDetector' in window) {
+                try {
+                  nativeBarcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+                } catch (e) {
+                  nativeBarcodeDetector = null;
+                }
+              }
+
+              is_receiving.value = true;
+              user_message.value = "Camera active. Point at sender QR screen...";
+              animationFrameId = requestAnimationFrame(scanFrame);
+
+            } catch (err) {
+              console.error("Camera access error:", err);
+              user_message.value = "Camera Error: " + (err.message || "Permission denied or camera not found");
+              is_receiving.value = false;
+            }
+          };
+
+          onMounted(() => {
+            const dark = localStorage.getItem('tabreed_dark_mode') === 'true';
+            if (dark) document.body.classList.add('dark-mode');
+          });
+
+          return {
+            user_message,
+            decoded_chunks,
+            file_metadata,
+            is_receiving,
+            transfer_complete,
+            download_url,
+            progress_percent,
+            start_receiver,
+            stop_receiver,
+            toggle_camera,
+            trigger_download
+          };
+        }
+      }).mount("#app");
+    </script>
+</body>
+</html>

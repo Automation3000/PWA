@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#1a2935">
+    <title>TABREED — Air File Transfer (AFT)</title>
+    <link rel="icon" href="https://cdn.brandfetch.io/idYzxNpaam/w/400/h/400/theme/dark/icon.jpeg?c=1bxid64Mup7aczewSAYMX&t=1763636632146" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/themes.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1a73e8',
+                        'primary-dark': '#0d62d9',
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #0d62d9;
+            --secondary: #16a34a;
+            --bg-page: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-surface: #f8fafc;
+            --text-primary: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+        body.dark-mode {
+            --primary: #38bdf8;
+            --primary-dark: #0284c7;
+            --secondary: #22c55e;
+            --bg-page: #0b1120;
+            --bg-card: #1e293b;
+            --bg-surface: #0f172a;
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            transition: background-color 0.25s, color 0.25s;
+        }
+        #qrcode img, #qrcode canvas {
+            margin: 0 auto;
+            border-radius: 8px;
+        }
+        .scanner-frame {
+            position: relative;
+            overflow: hidden;
+            border-radius: 16px;
+        }
+        .scanner-reticle {
+            position: absolute;
+            inset: 15%;
+            border: 2px dashed rgba(16, 185, 129, 0.85);
+            border-radius: 14px;
+            pointer-events: none;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+        }
+        .chunk-grid-item {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            transition: all 0.15s ease;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div id="app" class="min-h-screen flex flex-col">
+        
+        <!-- Header -->
+        <header class="bg-[#1a2935] text-white shadow-lg sticky top-0 z-50">
+            <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <a href="/index.html" class="p-2 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition flex items-center gap-2" title="Return to Home Launchpad">
+                        <i class="fas fa-arrow-left"></i>
+                        <span class="text-xs font-semibold hidden sm:inline">Launchpad</span>
+                    </a>
+                    <div class="h-6 w-px bg-white/20 hidden sm:block"></div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-black tracking-wider uppercase bg-blue-600 px-2 py-0.5 rounded text-white shadow-sm">AFT</span>
+                            <h1 class="text-base sm:text-lg font-bold tracking-tight">Air File Transfer</h1>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold hidden md:inline-flex items-center gap-1">
+                                <i class="fas fa-shield-alt text-[9px]"></i> Airgapped
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-400">Offline Optical QR Data Transfer • Tabreed ICS/SCADA</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button v-on:click="toggleDarkMode" class="p-2 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition" title="Toggle Theme">
+                        <i :class="isDark ? 'fas fa-sun text-amber-400' : 'fas fa-moon'"></i>
+                    </button>
+                    <a href="/AFT/README.md" target="_blank" class="p-2 rounded-lg hover:bg-white/10 text-slate-300 hover:text-white transition hidden sm:inline-block" title="Documentation">
+                        <i class="fas fa-book-open"></i>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mode Navigation Bar -->
+        <div class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm sticky top-[57px] z-40">
+            <div class="max-w-5xl mx-auto px-4 flex items-center justify-between overflow-x-auto">
+                <div class="flex gap-1 py-2">
+                    <button
+                        v-on:click="active_tab = 'send'"
+                        class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition"
+                        :class="active_tab === 'send' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    >
+                        <i class="fas fa-satellite-dish"></i>
+                        <span>Send (Generator)</span>
+                    </button>
+
+                    <button
+                        v-on:click="active_tab = 'receive'"
+                        class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition"
+                        :class="active_tab === 'receive' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    >
+                        <i class="fas fa-camera"></i>
+                        <span>Receive (Scanner)</span>
+                    </button>
+
+                    <button
+                        v-on:click="active_tab = 'info'"
+                        class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition"
+                        :class="active_tab === 'info' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'"
+                    >
+                        <i class="fas fa-circle-info"></i>
+                        <span>About &amp; Security</span>
+                    </button>
+                </div>
+
+                <div class="hidden lg:flex items-center gap-2 text-xs text-slate-500 font-semibold">
+                    <a href="/AFT/generator.html" class="hover:text-blue-500 transition"><i class="fas fa-external-link-alt mr-1"></i>Standalone Sender</a>
+                    <span>•</span>
+                    <a href="/AFT/scanner.html" class="hover:text-emerald-500 transition"><i class="fas fa-external-link-alt mr-1"></i>Standalone Receiver</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="flex-1 max-w-5xl w-full mx-auto p-4 sm:p-6">
+            
+            <!-- ═══════════════════════════════════════
+                 TAB 1: SENDER (GENERATOR)
+            ═══════════════════════════════════════ -->
+            <section v-if="active_tab === 'send'" class="space-y-6">
+                <!-- Info Alert -->
+                <div class="bg-blue-50 dark:bg-slate-800/80 border border-blue-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 flex items-start gap-3 sm:gap-4 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow">
+                        <i class="fas fa-qrcode text-lg"></i>
+                    </div>
+                    <div class="text-xs sm:text-sm">
+                        <h3 class="font-bold text-slate-900 dark:text-slate-100 mb-1">Optical File Transmission (Data Sender)</h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Select any file from your computer or mobile. The file will be compressed using <b>GZIP (Level 9)</b> and split into compact packets. When you click <b>"Start Transfer"</b>, high-speed sequential QR codes will stream onto the screen for the receiving device to scan with its camera.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left: File Selector & Controls -->
+                    <div class="lg:col-span-5 space-y-4">
+                        
+                        <!-- File Upload Box -->
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm">
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2">
+                                Choose File
+                            </label>
+
+                            <div 
+                                class="border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-400 rounded-xl p-5 text-center cursor-pointer transition bg-slate-50 dark:bg-slate-900/40"
+                                onclick="document.getElementById('aft_file_input').click()"
+                            >
+                                <i class="fas fa-cloud-arrow-up text-3xl text-blue-500 mb-2"></i>
+                                <div v-if="!sender_file">
+                                    <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">Click or Drag &amp; Drop</p>
+                                    <p class="text-xs text-slate-400 mt-1">PDFs, images, ZIP, TXT, Excel, configs</p>
+                                </div>
+                                <div v-else>
+                                    <p class="text-sm font-bold text-blue-600 dark:text-blue-400 truncate max-w-xs mx-auto">{{ sender_file.name }}</p>
+                                    <p class="text-xs text-slate-500 mt-1">Raw Size: {{ formatBytes(sender_file.size) }}</p>
+                                </div>
+                                <input id="aft_file_input" type="file" class="hidden" v-on:change="onFileChosen">
+                            </div>
+
+                            <!-- File Details (When selected) -->
+                            <div v-if="sender_file" class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 space-y-2 text-xs">
+                                <div class="flex justify-between text-slate-600 dark:text-slate-300">
+                                    <span class="font-medium">File Name:</span>
+                                    <span class="font-bold truncate max-w-[180px]">{{ sender_file.name }}</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600 dark:text-slate-300">
+                                    <span class="font-medium">Raw Size:</span>
+                                    <span>{{ formatBytes(sender_file.size) }}</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600 dark:text-slate-300" v-if="sender_gzip_size">
+                                    <span class="font-medium">GZIP Compressed:</span>
+                                    <span class="text-emerald-600 dark:text-emerald-400 font-bold">
+                                        {{ formatBytes(sender_gzip_size) }}
+                                        <span class="text-[10px] bg-emerald-100 dark:bg-emerald-950 px-1.5 py-0.5 rounded ml-1 font-extrabold">-{{ compressionRatio }}%</span>
+                                    </span>
+                                </div>
+                                <div class="flex justify-between text-slate-600 dark:text-slate-300" v-if="sender_total_chunks > 0">
+                                    <span class="font-medium">Total Chunks:</span>
+                                    <span class="font-bold text-blue-600 dark:text-blue-400">{{ sender_total_chunks }} packets</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Transmission Settings -->
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-4">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                Transmission Tuning
+                            </h4>
+
+                            <div class="grid grid-cols-2 gap-3 text-xs">
+                                <div>
+                                    <label class="block text-slate-600 dark:text-slate-300 font-semibold mb-1">Frame Speed</label>
+                                    <select v-model="sender_interval" :disabled="sender_is_transferring" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2 font-medium">
+                                        <option :value="50">50 ms (Ultra Fast)</option>
+                                        <option :value="80">80 ms (Fast)</option>
+                                        <option :value="120">120 ms (Recommended)</option>
+                                        <option :value="200">200 ms (Stable)</option>
+                                        <option :value="350">350 ms (Low Spec)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-slate-600 dark:text-slate-300 font-semibold mb-1">Chunk Size</label>
+                                    <select v-model="sender_chunk_size" :disabled="sender_is_transferring" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-2 font-medium">
+                                        <option :value="150">150 Bytes (Low Density)</option>
+                                        <option :value="200">200 Bytes</option>
+                                        <option :value="250">250 Bytes (Default)</option>
+                                        <option :value="320">320 Bytes</option>
+                                        <option :value="400">400 Bytes (High Density)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex items-center justify-between text-xs">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" v-model="sender_loop" class="rounded text-blue-600">
+                                    <span class="text-slate-700 dark:text-slate-300 font-semibold">Continuous Loop (Stream again if missed)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-wrap gap-2">
+                            <button
+                                v-if="!sender_is_transferring"
+                                v-on:click="startSender"
+                                :disabled="!sender_file"
+                                class="flex-1 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm"
+                            >
+                                <i class="fas fa-play"></i> Start Transfer
+                            </button>
+
+                            <template v-else>
+                                <button
+                                    v-on:click="toggleSenderPause"
+                                    class="flex-1 py-3 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm"
+                                >
+                                    <i :class="sender_is_paused ? 'fas fa-play' : 'fas fa-pause'"></i>
+                                    {{ sender_is_paused ? 'Resume' : 'Pause' }}
+                                </button>
+
+                                <button
+                                    v-if="sender_is_paused"
+                                    v-on:click="stepSenderPrev"
+                                    class="px-3.5 py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-800 dark:text-slate-100 font-bold rounded-xl transition text-sm"
+                                    title="Previous Chunk"
+                                >
+                                    <i class="fas fa-step-backward"></i>
+                                </button>
+
+                                <button
+                                    v-if="sender_is_paused"
+                                    v-on:click="stepSenderNext"
+                                    class="px-3.5 py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-800 dark:text-slate-100 font-bold rounded-xl transition text-sm"
+                                    title="Next Chunk"
+                                >
+                                    <i class="fas fa-step-forward"></i>
+                                </button>
+
+                                <button
+                                    v-on:click="stopSender"
+                                    class="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-sm"
+                                >
+                                    <i class="fas fa-stop"></i> Stop
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Right: Large QR Display -->
+                    <div class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-col items-center justify-center min-h-[460px]">
+                        
+                        <!-- Status Banner -->
+                        <div class="w-full text-center py-2 px-4 rounded-xl mb-4 text-xs sm:text-sm font-semibold transition"
+                             :class="{
+                                'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300': sender_is_transferring,
+                                'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300': !sender_is_transferring
+                             }">
+                            <i class="fas fa-circle-notch fa-spin mr-1.5 text-blue-500" v-if="sender_is_transferring && !sender_is_paused"></i>
+                            <i class="fas fa-pause mr-1.5 text-amber-500" v-if="sender_is_paused"></i>
+                            {{ sender_message }}
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="w-full max-w-sm mb-4" v-if="sender_total_chunks > 0">
+                            <div class="flex justify-between text-xs text-slate-500 font-semibold mb-1">
+                                <span>Chunk {{ sender_current_chunk + 1 }} / {{ sender_total_chunks }}</span>
+                                <span>{{ senderProgressPercent }}%</span>
+                            </div>
+                            <div class="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-600 transition-all duration-75" :style="{ width: senderProgressPercent + '%' }"></div>
+                            </div>
+                        </div>
+
+                        <!-- QR Box with White Padding Frame -->
+                        <div class="p-4 sm:p-6 bg-white rounded-2xl shadow-inner border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center">
+                            <div id="qrcode" class="flex justify-center items-center min-w-[260px] min-h-[260px]"></div>
+                        </div>
+
+                        <div class="mt-4 text-xs font-mono text-slate-500" v-if="sender_is_transferring">
+                            Broadcasting Packet: #{{ sender_current_chunk }} of {{ sender_total_chunks - 1 }}
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════
+                 TAB 2: RECEIVER (SCANNER)
+            ═══════════════════════════════════════ -->
+            <section v-if="active_tab === 'receive'" class="space-y-6">
+                <!-- Info Alert -->
+                <div class="bg-emerald-50 dark:bg-slate-800/80 border border-emerald-200 dark:border-slate-700 rounded-2xl p-4 sm:p-5 flex items-start gap-3 sm:gap-4 shadow-sm">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow">
+                        <i class="fas fa-camera text-lg"></i>
+                    </div>
+                    <div class="text-xs sm:text-sm">
+                        <h3 class="font-bold text-slate-900 dark:text-slate-100 mb-1">Optical Camera Reception (Data Receiver)</h3>
+                        <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+                            Click <b>"Start Receiver"</b> to activate your camera. Aim the camera at the sender screen. As each QR chunk flashes, it is captured, validated, and placed in the reconstruction buffer. When all parts arrive, the file decompresses and automatically downloads!
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                    
+                    <!-- Left: Camera Viewport -->
+                    <div class="lg:col-span-7 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm flex flex-col items-center">
+                        
+                        <!-- Top status -->
+                        <div class="w-full text-center py-2 px-4 rounded-xl mb-4 text-xs sm:text-sm font-semibold transition"
+                             :class="{
+                                'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300': rx_is_receiving && !rx_complete,
+                                'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300': rx_complete,
+                                'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300': !rx_is_receiving && !rx_complete
+                             }">
+                            <i class="fas fa-spinner fa-spin mr-1.5" v-if="rx_is_receiving && !rx_complete"></i>
+                            <i class="fas fa-check-circle mr-1.5 text-emerald-600" v-if="rx_complete"></i>
+                            {{ rx_message }}
+                        </div>
+
+                        <!-- Camera Container -->
+                        <div class="w-full aspect-square max-w-sm scanner-frame bg-black mb-4 flex items-center justify-center">
+                            <video id="aft_videoElement" class="w-full h-full object-cover" muted autoplay playsinline></video>
+                            <div class="scanner-reticle" v-if="rx_is_receiving"></div>
+                            
+                            <div class="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-900/85 p-6 text-center" v-if="!rx_is_receiving">
+                                <i class="fas fa-video-slash text-4xl mb-3 text-slate-500"></i>
+                                <p class="text-sm font-semibold text-slate-300">Camera is Inactive</p>
+                                <p class="text-xs text-slate-500 mt-1">Press "Start Receiver" to begin scanning</p>
+                            </div>
+                        </div>
+
+                        <!-- Action controls -->
+                        <div class="flex flex-wrap items-center justify-center gap-3">
+                            <button
+                                v-if="!rx_is_receiving"
+                                v-on:click="startReceiver"
+                                class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2 text-sm"
+                            >
+                                <i class="fas fa-camera"></i> Start Receiver
+                            </button>
+
+                            <button
+                                v-else
+                                v-on:click="stopReceiver"
+                                class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2 text-sm"
+                            >
+                                <i class="fas fa-stop"></i> Stop Receiver
+                            </button>
+
+                            <button
+                                v-if="rx_is_receiving"
+                                v-on:click="toggleCamera"
+                                class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition text-xs flex items-center gap-2"
+                                title="Switch between front and back camera"
+                            >
+                                <i class="fas fa-sync-alt"></i> Flip Camera
+                            </button>
+
+                            <button
+                                v-if="rx_download_url"
+                                v-on:click="downloadAgain"
+                                class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition text-xs flex items-center gap-2"
+                            >
+                                <i class="fas fa-download"></i> Save File Again
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right: Progress Matrix & File Info -->
+                    <div class="lg:col-span-5 space-y-4">
+                        
+                        <!-- File Metadata Card -->
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm space-y-3">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                Transfer Status
+                            </h4>
+
+                            <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl space-y-2 text-xs">
+                                <div class="flex justify-between items-center text-slate-600 dark:text-slate-300">
+                                    <span class="font-medium">File Name:</span>
+                                    <span class="font-bold text-slate-900 dark:text-slate-100 truncate max-w-[180px]">
+                                        {{ rx_metadata.name || 'Waiting for stream...' }}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center text-slate-600 dark:text-slate-300">
+                                    <span class="font-medium">Chunks Received:</span>
+                                    <span class="font-extrabold text-emerald-600 dark:text-emerald-400">
+                                        {{ Object.keys(rx_chunks).length }} / {{ rx_metadata.chunks || 0 }}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center text-slate-600 dark:text-slate-300">
+                                    <span class="font-medium">Completion:</span>
+                                    <span class="font-bold">{{ rxProgressPercent }}%</span>
+                                </div>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="w-full" v-if="rx_metadata.chunks > 0">
+                                <div class="w-full h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                                    <div class="h-full bg-emerald-500 transition-all duration-150" :style="{ width: rxProgressPercent + '%' }"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chunk Reconstruction Matrix -->
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm" v-if="rx_metadata.chunks && rx_metadata.chunks > 0">
+                            <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
+                                <span>Chunk Matrix</span>
+                                <span>{{ Object.keys(rx_chunks).length }} of {{ rx_metadata.chunks }} collected</span>
+                            </div>
+                            <div class="flex flex-wrap gap-1 max-h-48 overflow-y-auto p-2 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <div
+                                    v-for="i in rx_metadata.chunks"
+                                    :key="i-1"
+                                    class="chunk-grid-item"
+                                    :class="rx_chunks[i-1] ? 'bg-emerald-500 shadow-sm' : 'bg-slate-300 dark:bg-slate-700'"
+                                    :title="'Chunk #' + (i-1) + ': ' + (rx_chunks[i-1] ? 'Received' : 'Pending')"
+                                ></div>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-2 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded bg-emerald-500 inline-block"></span> Received
+                                <span class="w-2.5 h-2.5 rounded bg-slate-300 dark:bg-slate-700 inline-block ml-2"></span> Pending
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════
+                 TAB 3: ABOUT & SECURITY
+            ═══════════════════════════════════════ -->
+            <section v-if="active_tab === 'info'" class="space-y-6">
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-6 sm:p-8 shadow-sm space-y-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center font-black text-xl shadow">
+                            AFT
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900 dark:text-slate-100">Air File Transfer Architecture</h2>
+                            <p class="text-xs text-slate-500">Airgapped Optical QR Code Data Transfer</p>
+                        </div>
+                    </div>
+
+                    <div class="prose dark:prose-invert max-w-none text-xs sm:text-sm space-y-4 text-slate-600 dark:text-slate-300">
+                        <p>
+                            <b>Air File Transfer (AFT)</b> allows secure, bidirectional transmission of arbitrary files across strictly isolated (airgapped) industrial systems, SCADA environments, and field tablets without touching any physical network, Wi-Fi router, Bluetooth stack, or USB storage device.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700">
+                                <div class="text-blue-500 font-bold mb-1 flex items-center gap-2">
+                                    <i class="fas fa-lock"></i> 100% Airgap Compliant
+                                </div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                    Zero network packets. Data travels exclusively via optical light photons from display to camera lens.
+                                </p>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700">
+                                <div class="text-emerald-500 font-bold mb-1 flex items-center gap-2">
+                                    <i class="fas fa-file-zipper"></i> GZIP Level 9
+                                </div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                    High compression reduces payload size up to 85% for lightning-fast transmission cycles.
+                                </p>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-700">
+                                <div class="text-purple-500 font-bold mb-1 flex items-center gap-2">
+                                    <i class="fas fa-microchip"></i> Hardware Scanning
+                                </div>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                    Leverages native GPU-accelerated BarcodeDetector and ZBar WASM for seamless 60fps decoding.
+                                </p>
+                            </div>
+                        </div>
+
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 pt-2">Standalone Tools Access</h3>
+                        <p>
+                            You can also launch dedicated full-screen standalone modes for dedicated sender or receiver devices:
+                        </p>
+                        <div class="flex flex-wrap gap-3">
+                            <a href="/AFT/generator.html" class="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-xs hover:bg-blue-700 transition flex items-center gap-2">
+                                <i class="fas fa-external-link-alt"></i> Standalone Generator (Sender)
+                            </a>
+                            <a href="/AFT/scanner.html" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold text-xs hover:bg-emerald-700 transition flex items-center gap-2">
+                                <i class="fas fa-external-link-alt"></i> Standalone Scanner (Receiver)
+                            </a>
+                            <a href="https://github.com/mohankumarelec/airgapped-qr-code-transfer" target="_blank" class="px-4 py-2 bg-slate-800 text-white rounded-xl font-bold text-xs hover:bg-slate-900 transition flex items-center gap-2">
+                                <i class="fab fa-github"></i> Open Source Repository
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Dependencies -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.3/pako.min.js"></script>
+    <script src="/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@undecaf/zbar-wasm@latest/dist/index.js"></script>
+
+    <script>
+      const { createApp, ref, reactive, computed, onMounted } = Vue;
+
+      createApp({
+        setup() {
+          const active_tab = ref('send');
+          const isDark = ref(false);
+
+          // ── SENDER STATE ──
+          const sender_file = ref(null);
+          const sender_gzip_size = ref(0);
+          const sender_chunk_size = ref(250);
+          const sender_interval = ref(100);
+          const sender_loop = ref(true);
+          const sender_is_transferring = ref(false);
+          const sender_is_paused = ref(false);
+          const sender_current_chunk = ref(0);
+          const sender_total_chunks = ref(0);
+          const sender_message = ref("Choose file to get started");
+          let sender_qrcode_obj = null;
+          let sender_chunks_array = [];
+          let sender_loop_active = false;
+
+          // ── RECEIVER STATE ──
+          const rx_is_receiving = ref(false);
+          const rx_complete = ref(false);
+          const rx_message = ref("Click 'Start Receiver' to activate camera");
+          const rx_chunks = ref({});
+          const rx_metadata = reactive({});
+          const rx_download_url = ref("");
+          const rx_facing_mode = ref("environment");
+          let rx_media_stream = null;
+          let rx_video_el = null;
+          let rx_canvas = null;
+          let rx_ctx = null;
+          let rx_anim_id = null;
+          let rx_detector = null;
+          let rx_audio_ctx = null;
+
+          // ── HELPERS ──
+          const formatBytes = (bytes) => {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+          };
+
+          const compressionRatio = computed(() => {
+            if (!sender_file.value || !sender_gzip_size.value || sender_file.value.size === 0) return 0;
+            return Math.max(0, Math.round((1 - (sender_gzip_size.value / sender_file.value.size)) * 100));
+          });
+
+          const senderProgressPercent = computed(() => {
+            if (sender_total_chunks.value <= 0) return 0;
+            return Math.min(100, Math.round(((sender_current_chunk.value + 1) / sender_total_chunks.value) * 100));
+          });
+
+          const rxProgressPercent = computed(() => {
+            if (!rx_metadata.chunks || rx_metadata.chunks <= 0) return 0;
+            return Math.min(100, Math.round((Object.keys(rx_chunks.value).length / rx_metadata.chunks) * 100));
+          });
+
+          const toggleDarkMode = () => {
+            isDark.value = !isDark.value;
+            if (isDark.value) {
+              document.body.classList.add('dark-mode');
+              document.documentElement.classList.add('dark');
+              localStorage.setItem('tabreed_dark_mode', 'true');
+            } else {
+              document.body.classList.remove('dark-mode');
+              document.documentElement.classList.remove('dark');
+              localStorage.setItem('tabreed_dark_mode', 'false');
+            }
+          };
+
+          const playTone = (freq = 880, dur = 0.04) => {
+            try {
+              if (!rx_audio_ctx) rx_audio_ctx = new (window.AudioContext || window.webkitAudioContext)();
+              if (rx_audio_ctx.state === 'suspended') rx_audio_ctx.resume();
+              const osc = rx_audio_ctx.createOscillator();
+              const gain = rx_audio_ctx.createGain();
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(freq, rx_audio_ctx.currentTime);
+              gain.gain.setValueAtTime(0.06, rx_audio_ctx.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.001, rx_audio_ctx.currentTime + dur);
+              osc.connect(gain);
+              gain.connect(rx_audio_ctx.destination);
+              osc.start();
+              osc.stop(rx_audio_ctx.currentTime + dur);
+            } catch (e) {}
+          };
+
+          // ── SENDER LOGIC ──
+          const encodeChunk = (index, bytes) => {
+            const str = String.fromCharCode.apply(null, bytes);
+            const utf8 = new TextEncoder().encode(str);
+            const b64 = btoa(String.fromCharCode.apply(null, utf8));
+            return index + "," + b64;
+          };
+
+          const onFileChosen = async (e) => {
+            if (e.target.files && e.target.files[0]) {
+              sender_file.value = e.target.files[0];
+              sender_message.value = `File loaded: ${sender_file.value.name} (${formatBytes(sender_file.value.size)})`;
+              
+              // Precalculate gzip size
+              try {
+                const buf = await sender_file.value.arrayBuffer();
+                const compressed = pako.gzip(new Uint8Array(buf), { level: 9 });
+                sender_gzip_size.value = compressed.length;
+                sender_total_chunks.value = Math.ceil(compressed.length / sender_chunk_size.value);
+              } catch (err) {
+                console.warn("GZIP estimate err:", err);
+              }
+            }
+          };
+
+          const startSender = async () => {
+            if (!sender_file.value) return;
+
+            try {
+              sender_is_transferring.value = true;
+              sender_is_paused.value = false;
+              sender_message.value = "Compressing with GZIP (Level 9)...";
+
+              const buf = await sender_file.value.arrayBuffer();
+              const compressed = pako.gzip(new Uint8Array(buf), { level: 9 });
+              sender_gzip_size.value = compressed.length;
+
+              const chunksCount = Math.ceil(compressed.length / sender_chunk_size.value);
+              sender_total_chunks.value = chunksCount;
+
+              sender_chunks_array = [];
+              for (let i = 0; i < chunksCount; i++) {
+                const start = i * sender_chunk_size.value;
+                const chunk = compressed.subarray(start, start + sender_chunk_size.value);
+                sender_chunks_array.push(encodeChunk(i, chunk));
+              }
+
+              const metadata = {
+                name: sender_file.value.name,
+                chunks: chunksCount,
+                rawSize: sender_file.value.size,
+                gzipSize: compressed.length
+              };
+
+              sender_loop_active = true;
+
+              while (sender_loop_active && sender_is_transferring.value) {
+                // Broadcast metadata
+                if (sender_qrcode_obj) {
+                  sender_qrcode_obj.clear();
+                  sender_qrcode_obj.makeCode(JSON.stringify(metadata));
+                }
+                sender_message.value = `Broadcasting Metadata: ${metadata.name} (${chunksCount} parts)`;
+
+                let waited = 0;
+                while (waited < 1200 && sender_is_transferring.value && !sender_is_paused.value) {
+                  await new Promise(r => setTimeout(r, 100));
+                  waited += 100;
+                }
+
+                // Stream chunks
+                for (let i = 0; i < chunksCount; i++) {
+                  if (!sender_is_transferring.value) break;
+
+                  while (sender_is_paused.value && sender_is_transferring.value) {
+                    await new Promise(r => setTimeout(r, 150));
+                  }
+                  if (!sender_is_transferring.value) break;
+
+                  sender_current_chunk.value = i;
+                  displaySenderChunk();
+                  sender_message.value = `Transferring Chunk ${i + 1} / ${chunksCount}...`;
+
+                  await new Promise(r => setTimeout(r, sender_interval.value));
+                }
+
+                if (!sender_loop.value) {
+                  sender_loop_active = false;
+                  break;
+                }
+
+                if (sender_is_transferring.value) {
+                  sender_message.value = "Stream cycle completed. Repeating in 1s for any missed chunks...";
+                  await new Promise(r => setTimeout(r, 1000));
+                }
+              }
+
+              if (!sender_loop.value && sender_is_transferring.value) {
+                sender_message.value = "Transfer cycle complete!";
+                stopSender();
+              }
+
+            } catch (err) {
+              console.error("Sender error:", err);
+              sender_message.value = "Error: " + err.message;
+              sender_is_transferring.value = false;
+            }
+          };
+
+          const displaySenderChunk = () => {
+            if (!sender_chunks_array || sender_chunks_array.length === 0) return;
+            const code = sender_chunks_array[sender_current_chunk.value];
+            if (code && sender_qrcode_obj) {
+              sender_qrcode_obj.clear();
+              sender_qrcode_obj.makeCode(code);
+            }
+          };
+
+          const toggleSenderPause = () => {
+            sender_is_paused.value = !sender_is_paused.value;
+            sender_message.value = sender_is_paused.value ? `Paused at Chunk ${sender_current_chunk.value + 1}` : "Streaming...";
+          };
+
+          const stepSenderNext = () => {
+            if (sender_current_chunk.value < sender_total_chunks.value - 1) {
+              sender_current_chunk.value++;
+              displaySenderChunk();
+            }
+          };
+
+          const stepSenderPrev = () => {
+            if (sender_current_chunk.value > 0) {
+              sender_current_chunk.value--;
+              displaySenderChunk();
+            }
+          };
+
+          const stopSender = () => {
+            sender_is_transferring.value = false;
+            sender_is_paused.value = false;
+            sender_loop_active = false;
+            sender_current_chunk.value = 0;
+            sender_message.value = sender_file.value ? `Ready: ${sender_file.value.name}` : "Choose file to get started";
+            if (sender_qrcode_obj) {
+              sender_qrcode_obj.clear();
+              sender_qrcode_obj.makeCode("AFT Ready — Start Transfer");
+            }
+          };
+
+          // ── RECEIVER LOGIC ──
+          const decodeChunkPayload = (input_string) => {
+            const parts = input_string.split(",");
+            const index = parseInt(parts[0], 10);
+            const encoded = atob(parts[1]);
+            const encArr = Array.from(encoded, c => c.charCodeAt(0));
+            const decodedStr = new TextDecoder().decode(new Uint8Array(encArr));
+            const dataArr = Array.from(decodedStr, c => c.charCodeAt(0));
+            return { index: index, data: dataArr };
+          };
+
+          const processRxDecodedText = (text) => {
+            if (!text || typeof text !== 'string') return;
+
+            // Check metadata
+            if (text.includes('"chunks"') || text.startsWith('{"name"')) {
+              try {
+                const meta = JSON.parse(text);
+                if (meta.name && meta.chunks) {
+                  if (rx_metadata.name !== meta.name) {
+                    Object.assign(rx_metadata, meta);
+                    rx_chunks.value = {};
+                    rx_complete.value = false;
+                    playTone(520, 0.1);
+                    rx_message.value = `Target file: ${meta.name} (${meta.chunks} parts)`;
+                  }
+                }
+              } catch (e) {}
+            } else if (text.includes(',')) {
+              try {
+                const parts = text.split(',');
+                if (parts.length === 2 && !isNaN(parseInt(parts[0]))) {
+                  const raw = decodeChunkPayload(text);
+                  if (!rx_chunks.value[raw.index]) {
+                    rx_chunks.value[raw.index] = raw.data;
+                    playTone(880, 0.04);
+                    rx_message.value = `Received Chunk #${raw.index + 1} (${Object.keys(rx_chunks.value).length}/${rx_metadata.chunks || '?'})`;
+                  }
+                }
+              } catch (e) {}
+            }
+          };
+
+          const rxScanLoop = async () => {
+            if (!rx_is_receiving.value) return;
+
+            if (rx_video_el && rx_video_el.readyState >= 2) {
+              try {
+                let decoded = null;
+
+                // 1. Native BarcodeDetector (Hardware)
+                if (rx_detector) {
+                  try {
+                    const codes = await rx_detector.detect(rx_video_el);
+                    if (codes && codes.length > 0) decoded = codes[0].rawValue;
+                  } catch (e) {}
+                }
+
+                // 2. zbar-wasm fallback
+                if (!decoded && window.zbarWasm && rx_canvas && rx_ctx) {
+                  try {
+                    rx_canvas.width = rx_video_el.videoWidth;
+                    rx_canvas.height = rx_video_el.videoHeight;
+                    rx_ctx.drawImage(rx_video_el, 0, 0, rx_canvas.width, rx_canvas.height);
+                    const imgData = rx_ctx.getImageData(0, 0, rx_canvas.width, rx_canvas.height);
+                    const symbols = await window.zbarWasm.scanImageData(imgData);
+                    if (symbols && symbols.length > 0) decoded = symbols[0].decode();
+                  } catch (e) {}
+                }
+
+                if (decoded) {
+                  processRxDecodedText(decoded);
+
+                  if (rx_metadata.chunks && Object.keys(rx_chunks.value).length === rx_metadata.chunks) {
+                    finishRxTransfer();
+                    return;
+                  }
+                }
+              } catch (e) {}
+            }
+
+            rx_anim_id = requestAnimationFrame(rxScanLoop);
+          };
+
+          const finishRxTransfer = () => {
+            try {
+              rx_complete.value = true;
+              rx_message.value = "100% Chunks Received! Decompressing & Assembling...";
+              playTone(1200, 0.2);
+
+              let out = [];
+              for (let i = 0; i < rx_metadata.chunks; i++) {
+                out = out.concat(rx_chunks.value[i]);
+              }
+
+              const uint8 = Uint8Array.from(out);
+              const inflated = pako.inflate(uint8);
+
+              // Create download blob
+              const blob = new Blob([inflated]);
+              const url = URL.createObjectURL(blob);
+              rx_download_url.value = url;
+
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = rx_metadata.name;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+
+              rx_message.value = `Success! "${rx_metadata.name}" assembled and downloaded!`;
+              stopReceiver();
+            } catch (err) {
+              console.error("Assembly err:", err);
+              rx_message.value = "Reassembly Error: " + err.message;
+            }
+          };
+
+          const downloadAgain = () => {
+            if (rx_download_url.value && rx_metadata.name) {
+              const a = document.createElement("a");
+              a.href = rx_download_url.value;
+              a.download = rx_metadata.name;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }
+          };
+
+          const startReceiver = async () => {
+            try {
+              rx_message.value = "Requesting camera permissions...";
+              
+              rx_media_stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                  facingMode: { ideal: rx_facing_mode.value },
+                  width: { ideal: 1280 },
+                  height: { ideal: 720 }
+                }
+              });
+
+              rx_video_el = document.getElementById("aft_videoElement");
+              rx_video_el.srcObject = rx_media_stream;
+              await rx_video_el.play();
+
+              rx_canvas = document.createElement("canvas");
+              rx_ctx = rx_canvas.getContext("2d");
+
+              if ('BarcodeDetector' in window) {
+                try {
+                  rx_detector = new BarcodeDetector({ formats: ['qr_code'] });
+                } catch (e) {
+                  rx_detector = null;
+                }
+              }
+
+              rx_is_receiving.value = true;
+              rx_message.value = "Scanning active. Point camera at sender QR stream...";
+              rx_anim_id = requestAnimationFrame(rxScanLoop);
+
+            } catch (err) {
+              console.error("Camera start err:", err);
+              rx_message.value = "Camera Error: " + (err.message || "Permission denied or unavailable");
+              rx_is_receiving.value = false;
+            }
+          };
+
+          const stopReceiver = () => {
+            rx_is_receiving.value = false;
+            if (rx_anim_id) {
+              cancelAnimationFrame(rx_anim_id);
+              rx_anim_id = null;
+            }
+            if (rx_media_stream) {
+              rx_media_stream.getTracks().forEach(t => t.stop());
+              rx_media_stream = null;
+            }
+            if (rx_video_el) rx_video_el.srcObject = null;
+            if (!rx_complete.value) {
+              rx_message.value = "Receiver stopped. Click 'Start Receiver' to resume.";
+            }
+          };
+
+          const toggleCamera = async () => {
+            rx_facing_mode.value = rx_facing_mode.value === "environment" ? "user" : "environment";
+            if (rx_is_receiving.value) {
+              stopReceiver();
+              await startReceiver();
+            }
+          };
+
+          onMounted(() => {
+            // Theme setup
+            const dark = localStorage.getItem('tabreed_dark_mode') === 'true';
+            isDark.value = dark;
+            if (dark) {
+              document.body.classList.add('dark-mode');
+              document.documentElement.classList.add('dark');
+            }
+
+            // Init Sender QR
+            const qrSize = Math.min(Math.min(window.innerWidth, window.innerHeight) * 0.7, 300);
+            sender_qrcode_obj = new QRCode("qrcode", {
+              text: "AFT Ready — Choose file to transfer",
+              width: qrSize,
+              height: qrSize,
+              typeNumber: 40,
+              colorDark: "#000000",
+              colorLight: "#ffffff",
+              correctLevel: QRCode.CorrectLevel.M,
+            });
+          });
+
+          return {
+            active_tab,
+            isDark,
+            toggleDarkMode,
+            formatBytes,
+            compressionRatio,
+
+            // Sender
+            sender_file,
+            sender_gzip_size,
+            sender_chunk_size,
+            sender_interval,
+            sender_loop,
+            sender_is_transferring,
+            sender_is_paused,
+            sender_current_chunk,
+            sender_total_chunks,
+            sender_message,
+            senderProgressPercent,
+            onFileChosen,
+            startSender,
+            stopSender,
+            toggleSenderPause,
+            stepSenderNext,
+            stepSenderPrev,
+
+            // Receiver
+            rx_is_receiving,
+            rx_complete,
+            rx_message,
+            rx_chunks,
+            rx_metadata,
+            rx_download_url,
+            rxProgressPercent,
+            startReceiver,
+            stopReceiver,
+            toggleCamera,
+            downloadAgain
+          };
+        }
+      }).mount("#app");
+    </script>
+</body>
+</html>

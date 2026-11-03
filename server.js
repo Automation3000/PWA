@@ -107,7 +107,7 @@ app.use((req, res, next) => {
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  res.setHeader('Permissions-Policy', 'camera=(self), microphone=(), geolocation=(self)');
   next();
 });
 
@@ -174,7 +174,8 @@ const DEVELOPER_DEFAULT_SETTINGS = {
     'PM_Checklist_Generator.html',
     'ETS_Locator.html',
     'Operation_Request.html',
-    'Team_Contacts.html'
+    'Team_Contacts.html',
+    'AFT/index.html'
   ]
 };
 

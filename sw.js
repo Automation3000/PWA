@@ -1,7 +1,10 @@
-const CACHE_NAME = 'tabreed-pro-v23'; // v23: Clean core PWA assets & cache refresh
+const CACHE_NAME = 'tabreed-pro-v24'; // v24: Air File Transfer (AFT) module
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/AFT/index.html',
+  '/AFT/generator.html',
+  '/AFT/scanner.html',
   '/app-documentation.html',
   '/Operation_Request.html',
   '/Team_Contacts.html',

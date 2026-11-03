@@ -19,7 +19,7 @@
       "autoSync": true,
       "toastStyle": "outlined",
       "toastPosition": "pos-bottom",
-      "defaultTheme": "default",
+      "defaultTheme": "cyber-dark",
       "lightToggle": "default",
       "darkToggle": "cyber-dark"
     }
@@ -27,9 +27,9 @@
   "defaultSettings": {
     "toastStyle": "outlined",
     "toastPosition": "pos-bottom",
-    "defaultTheme": "default",
+    "defaultTheme": "cyber-dark",
     "lightToggle": "default",
-    "darkToggle": "dark-mode",
+    "darkToggle": "cyber-dark",
     "autoSync": true,
     "moduleOrder": [
       "NATIVE_INSTRUMENT",
@@ -42,7 +42,7 @@
   },
   "userDefaultSettings": {},
   "globalSettings": {
-    "theme": "default"
+    "theme": "cyber-dark"
   },
   "status": "synced_successfully"
 }
