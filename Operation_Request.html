@@ -2600,6 +2600,10 @@ input[type="date"] {
                     checkAndCrossVerifyCloudChanges();
                 }
             });
+
+            window.addEventListener('focus', () => {
+                checkAndCrossVerifyCloudChanges();
+            });
         };
 
         function setupFormNavigation() {
@@ -3627,12 +3631,8 @@ input[type="date"] {
                     const timeoutId = setTimeout(() => controller.abort(), 20000);
                     const res = await fetch('/api/operation-requests?refresh=true&t=' + Date.now(), { signal: controller.signal }).then(r => r.json());
                     clearTimeout(timeoutId);
-                    if (res && res.status === "success" && Array.isArray(res.data)) {
-                        if (res.source === 'cloud') {
-                            rawData = res.data;
-                        } else if (!navigator.onLine) {
-                            rawData = res.data;
-                        }
+                    if (res && res.status === "success" && Array.isArray(res.data) && res.data.length > 0) {
+                        rawData = res.data;
                     }
                 } catch(e) {}
             }

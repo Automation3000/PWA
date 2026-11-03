@@ -1050,11 +1050,11 @@
                 <div class="tile-subtitle">Directory & Contact Information</div>
                 <i class="fas fa-address-book tile-icon" style="color:var(--primary);"></i>
             </div>
-            <div class="tile" id="tile-aft" data-tile-id="AFT/index.html" data-dev-only="true" style="display:none;" onclick="handleTileClick(event, 'AFT/index.html', this)">
-                <div class="tile-title">Air File Transfer</div>
-                <div class="tile-subtitle">AFT • Airgapped QR Data Transfer</div>
-                <i class="fas fa-qrcode tile-icon" style="color:var(--primary);"></i>
-                <div class="tile-status" style="color:var(--secondary);font-weight:700;"><i class="fas fa-shield-alt"></i> Airgapped</div>
+            <div class="tile" data-tile-id="Petty_Cash_Voucher.html" onclick="handleTileClick(event, 'Petty_Cash_Voucher.html', this)">
+                <div class="tile-title">Petty Cash Voucher</div>
+                <div class="tile-subtitle">Cash Log &amp; Expense Claims</div>
+                <i class="fas fa-receipt tile-icon" style="color:var(--primary);"></i>
+                <div class="tile-status" style="color:var(--secondary);font-weight:700;"><i class="fas fa-wallet"></i> Cash Log</div>
             </div>
         </div>
         <script>
@@ -1087,10 +1087,6 @@
                         order.forEach(function(id) {
                             if (map[id] && id !== 'AFT/index.html') grid.appendChild(map[id]);
                         });
-                    }
-                    // AFT is strictly kept at the very end of the sequence
-                    if (aftTile) {
-                        grid.appendChild(aftTile);
                     }
                 }
             } catch(e) {}
@@ -1138,6 +1134,12 @@
                 <button onclick="lockDeveloperMode()" style="background:rgba(217,48,37,0.08);border:1px solid rgba(217,48,37,.3);color:var(--danger);padding:3px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-weight:600;"><i class="fas fa-lock"></i> Lock</button>
             </h2>
             <div class="tile-grid">
+                <div class="tile" id="tile-aft" data-tile-id="AFT/index.html" onclick="handleTileClick(event, 'AFT/index.html', this)" style="border-color:#16a34a;">
+                    <div class="tile-title" style="color:#16a34a;">Air File Transfer</div>
+                    <div class="tile-subtitle">AFT • Airgapped QR Data Transfer</div>
+                    <i class="fas fa-qrcode tile-icon" style="color:#16a34a;"></i>
+                    <div class="tile-status" style="color:var(--secondary);font-weight:700;"><i class="fas fa-shield-alt"></i> Airgapped (Dev)</div>
+                </div>
                 <div class="tile tile-beta" onclick="switchToBetaTheme()">
                     <span class="beta-tag">BETA</span>
                     <div class="tile-title">Beta Theme</div>
@@ -2473,13 +2475,9 @@ input:checked + .slider:before { transform: translateX(20px); }
             }
         }
 
-        const aftTile = document.getElementById('tile-aft') || document.querySelector('[data-tile-id="AFT/index.html"]');
+        const aftTile = document.getElementById('tile-aft');
         if (aftTile) {
             aftTile.style.display = isSuper ? 'flex' : 'none';
-            if (isSuper) {
-                const grid = document.getElementById('automationTileGrid');
-                if (grid) grid.appendChild(aftTile);
-            }
         }
 
         if (typeof applyAutomationTileOrder === 'function') {
@@ -6059,16 +6057,10 @@ window.startSmartInstall = async function() {
         });
 
         order.forEach(id => {
-            if (tileMap[id] && id !== 'AFT/index.html') {
+            if (tileMap[id]) {
                 grid.appendChild(tileMap[id]);
             }
         });
-
-        // Always ensure AFT tile is kept at the very end of the sequence
-        if (tileMap['AFT/index.html']) {
-            grid.appendChild(tileMap['AFT/index.html']);
-            tileMap['AFT/index.html'].style.display = isDev ? 'flex' : 'none';
-        }
     }
 
     const DEVELOPER_DEFAULT_TILE_ORDER = [
@@ -6077,18 +6069,13 @@ window.startSmartInstall = async function() {
         'PM_Checklist_Generator.html',
         'ETS_Locator.html',
         'Operation_Request.html',
-        'Team_Contacts.html',
-        'AFT/index.html'
+        'Petty_Cash_Voucher.html',
+        'Team_Contacts.html'
     ];
 
     function restoreDefaultAutomationTileOrder() {
         const grid = document.getElementById('automationTileGrid');
         if (!grid) return;
-        const isDev = isDeveloper();
-        const aftTile = document.getElementById('tile-aft') || grid.querySelector('[data-tile-id="AFT/index.html"]');
-        if (aftTile) {
-            aftTile.style.display = isDev ? 'flex' : 'none';
-        }
 
         const targetOrder = defaultAutomationTileOrder.length ? defaultAutomationTileOrder : DEVELOPER_DEFAULT_TILE_ORDER;
         const tileMap = {};
@@ -6096,13 +6083,8 @@ window.startSmartInstall = async function() {
             tileMap[t.getAttribute('data-tile-id')] = t;
         });
         targetOrder.forEach(id => {
-            if (tileMap[id] && id !== 'AFT/index.html') grid.appendChild(tileMap[id]);
+            if (tileMap[id]) grid.appendChild(tileMap[id]);
         });
-        // Always place AFT tile last in sequence
-        if (tileMap['AFT/index.html']) {
-            grid.appendChild(tileMap['AFT/index.html']);
-            tileMap['AFT/index.html'].style.display = isDev ? 'flex' : 'none';
-        }
     }
 
     function setupAutomationTileReordering() {

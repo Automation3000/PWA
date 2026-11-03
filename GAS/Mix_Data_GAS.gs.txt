@@ -75,12 +75,61 @@ function createLoginLogSheet() {
   Logger.log('Login Log sheet ready with ' + sheet.getLastRow() + ' rows.');
 }
 
+// ─────────────────────────────────────────────────────────────
+// 1B. PETTY CASH SHEET HANDLER (Petty Cash Expenses & Claims)
+// ─────────────────────────────────────────────────────────────
+function getPettyCashSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Petty Cash') || ss.getSheetByName('Pitty Cash');
+  if (!sheet) {
+    sheet = ss.insertSheet('Petty Cash');
+    
+    // Header row: Voucher ID, Date of Purchase, Amount (AED), Item / Note, Employee Name, Employee Code, Receipt URL, Status, Remarks, Timestamp
+    var headers = ['Voucher ID', 'Date of Purchase', 'Amount (AED)', 'Item / Note', 'Employee Name', 'Employee Code', 'Receipt URL', 'Status', 'Remarks', 'Timestamp'];
+    sheet.appendRow(headers);
+    
+    // Header formatting
+    sheet.setFrozenRows(1);
+    var headerRange = sheet.getRange(1, 1, 1, 10);
+    headerRange.setFontWeight('bold')
+               .setBackground('#065f46') // Emerald Green
+               .setFontColor('#ffffff')
+               .setHorizontalAlignment('center');
+    
+    // Column widths
+    sheet.setColumnWidth(1, 150); // Voucher ID
+    sheet.setColumnWidth(2, 140); // Date of Purchase
+    sheet.setColumnWidth(3, 120); // Amount (AED)
+    sheet.setColumnWidth(4, 250); // Item / Note
+    sheet.setColumnWidth(5, 170); // Employee Name
+    sheet.setColumnWidth(6, 120); // Employee Code
+    sheet.setColumnWidth(7, 200); // Receipt URL / Bill
+    sheet.setColumnWidth(8, 120); // Status
+    sheet.setColumnWidth(9, 220); // Remarks
+    sheet.setColumnWidth(10, 175); // Timestamp
+
+    sheet.getRange("A:A").setNumberFormat("@");
+    sheet.getRange("B:B").setNumberFormat("@");
+    sheet.getRange("F:F").setNumberFormat("@");
+    sheet.getRange("J:J").setNumberFormat("@");
+  }
+  return sheet;
+}
+
+// Standalone runner function for Petty Cash
+function createPettyCashSheet() {
+  var sheet = getPettyCashSheet();
+  SpreadsheetApp.getActiveSpreadsheet().setActiveSheet(sheet);
+  Logger.log('Petty Cash sheet ready with ' + sheet.getLastRow() + ' rows.');
+}
+
 // Custom Menu in Google Sheets UI
 function onOpen() {
   try {
     SpreadsheetApp.getUi()
       .createMenu('Tabreed Mix Data')
       .addItem("Create / Check 'Login Log' Sheet", "createLoginLogSheet")
+      .addItem("Create / Check 'Petty Cash' Sheet", "createPettyCashSheet")
       .addItem("Create / Check 'PWA_Sync_Log' Sheet", "getLogSheet")
       .addToUi();
   } catch(e) {}
@@ -214,10 +263,48 @@ function doGet(e) {
       });
     }
 
+    // Read Petty Cash Vouchers from "Petty Cash" sheet
+    if (action === 'getPettyCash' || action === 'getPittyCash') {
+      var pSheet = getPettyCashSheet();
+      var lastRow = pSheet.getLastRow();
+      var vouchers = [];
+      if (lastRow > 1) {
+        var dataRange = pSheet.getRange(2, 1, lastRow - 1, 10).getValues();
+        for (var i = dataRange.length - 1; i >= 0; i--) {
+          var row = dataRange[i];
+          if (!row[0] && !row[2] && !row[3]) continue; // Skip blank rows
+          vouchers.push({
+            id: String(row[0] || ''),
+            voucherId: String(row[0] || ''),
+            date: String(row[1] || ''),
+            dateOfPurchase: String(row[1] || ''),
+            amount: parseFloat(row[2]) || 0,
+            item: String(row[3] || ''),
+            description: String(row[3] || ''),
+            employeeName: String(row[4] || ''),
+            userName: String(row[4] || ''),
+            user: String(row[4] || ''),
+            employeeCode: String(row[5] || ''),
+            empCode: String(row[5] || ''),
+            receiptUrl: String(row[6] || ''),
+            status: String(row[7] || 'Submitted'),
+            remarks: String(row[8] || ''),
+            timestamp: String(row[9] || '')
+          });
+        }
+      }
+      return jsonResponse({
+        status: 'success',
+        sheet: 'Petty Cash',
+        count: vouchers.length,
+        data: vouchers
+      });
+    }
+
     // Default Fallback
     return jsonResponse({
       status: 'success',
-      message: 'Mix Data Web App is running. Supported actions: logLogin, getLoginLogs, createLoginLogSheet, getPwaConfig.',
+      message: 'Mix Data Web App is running. Supported actions: logLogin, getLoginLogs, createLoginLogSheet, getPettyCash, addPettyCash, getPwaConfig.',
       targetFileId: targetFileId
     });
 
@@ -333,6 +420,153 @@ function doPost(e) {
         syncCounter: pwaPayload.syncCounter || 1,
         user: user
       });
+    }
+
+    // 3. ACTION: Add Petty Cash Voucher
+    if (action === 'addPettyCash' || action === 'createPettyCash') {
+      try {
+        var pSheet = getPettyCashSheet();
+        var nowStr = Utilities.formatDate(new Date(), 'GMT+4', 'dd.MM.yyyy HH:mm:ss');
+        var todayStr = Utilities.formatDate(new Date(), 'GMT+4', 'dd.MM.yyyy');
+
+        var vId = String(requestData.id || requestData.voucherId || ('PCV-' + Date.now().toString().slice(-6))).trim();
+        var pDate = String(requestData.dateOfPurchase || requestData.date || todayStr).trim();
+        var pAmount = parseFloat(requestData.amount || requestData.cashPaid || 0) || 0;
+        var pItem = String(requestData.item || requestData.note || requestData.description || '').trim();
+        var pEmpName = String(requestData.employeeName || requestData.userName || requestData.user || user || '').trim();
+        var pEmpCode = String(requestData.employeeCode || requestData.empCode || requestData.code || '').trim();
+        var pReceipt = String(requestData.receiptUrl || requestData.billUrl || requestData.bill || '').trim();
+        var pStatus = String(requestData.status || 'Submitted').trim();
+        var pRemarks = String(requestData.remarks || '').trim();
+        var pTimestamp = requestData.timestamp || nowStr;
+
+        pSheet.appendRow([
+          vId,
+          pDate,
+          pAmount,
+          pItem,
+          pEmpName,
+          pEmpCode,
+          pReceipt,
+          pStatus,
+          pRemarks,
+          pTimestamp
+        ]);
+
+        return jsonResponse({
+          status: 'success',
+          message: 'Petty cash voucher added successfully to Google Sheet',
+          voucherId: vId,
+          data: {
+            id: vId,
+            voucherId: vId,
+            dateOfPurchase: pDate,
+            date: pDate,
+            amount: pAmount,
+            item: pItem,
+            description: pItem,
+            employeeName: pEmpName,
+            userName: pEmpName,
+            user: pEmpName,
+            employeeCode: pEmpCode,
+            empCode: pEmpCode,
+            receiptUrl: pReceipt,
+            status: pStatus,
+            remarks: pRemarks,
+            timestamp: pTimestamp
+          }
+        });
+      } catch(addErr) {
+        return jsonResponse({
+          status: 'error',
+          message: 'Error adding to Petty Cash sheet: ' + addErr.toString()
+        });
+      }
+    }
+
+    // 4. ACTION: Update Petty Cash Voucher (Status / Remarks / Edit)
+    if (action === 'updatePettyCash') {
+      try {
+        var pSheet = getPettyCashSheet();
+        var targetId = String(requestData.id || requestData.voucherId || '').trim();
+        var lastRow = pSheet.getLastRow();
+        var foundRow = -1;
+
+        if (targetId && lastRow > 1) {
+          var idColumn = pSheet.getRange(2, 1, lastRow - 1, 1).getValues();
+          for (var r = 0; r < idColumn.length; r++) {
+            if (String(idColumn[r][0]).trim() === targetId) {
+              foundRow = r + 2;
+              break;
+            }
+          }
+        }
+
+        if (foundRow > 1) {
+          if (requestData.dateOfPurchase || requestData.date) pSheet.getRange(foundRow, 2).setValue(String(requestData.dateOfPurchase || requestData.date).trim());
+          if (requestData.amount !== undefined) pSheet.getRange(foundRow, 3).setValue(parseFloat(requestData.amount) || 0);
+          if (requestData.item !== undefined || requestData.description !== undefined) pSheet.getRange(foundRow, 4).setValue(String(requestData.item || requestData.description || '').trim());
+          if (requestData.receiptUrl !== undefined) pSheet.getRange(foundRow, 7).setValue(String(requestData.receiptUrl || '').trim());
+          if (requestData.status !== undefined) pSheet.getRange(foundRow, 8).setValue(String(requestData.status || '').trim());
+          if (requestData.remarks !== undefined) pSheet.getRange(foundRow, 9).setValue(String(requestData.remarks || '').trim());
+
+          return jsonResponse({
+            status: 'success',
+            message: 'Petty cash voucher updated in Google Sheet',
+            voucherId: targetId,
+            row: foundRow
+          });
+        }
+
+        return jsonResponse({
+          status: 'error',
+          message: 'Petty cash voucher with ID ' + targetId + ' not found in Google Sheet'
+        });
+      } catch(upErr) {
+        return jsonResponse({
+          status: 'error',
+          message: 'Error updating Petty Cash sheet: ' + upErr.toString()
+        });
+      }
+    }
+
+    // 5. ACTION: Delete Petty Cash Voucher
+    if (action === 'deletePettyCash') {
+      try {
+        var pSheet = getPettyCashSheet();
+        var targetId = String(requestData.id || requestData.voucherId || '').trim();
+        var lastRow = pSheet.getLastRow();
+        var foundRow = -1;
+
+        if (targetId && lastRow > 1) {
+          var idColumn = pSheet.getRange(2, 1, lastRow - 1, 1).getValues();
+          for (var r = 0; r < idColumn.length; r++) {
+            if (String(idColumn[r][0]).trim() === targetId) {
+              foundRow = r + 2;
+              break;
+            }
+          }
+        }
+
+        if (foundRow > 1) {
+          pSheet.deleteRow(foundRow);
+          return jsonResponse({
+            status: 'success',
+            message: 'Petty cash voucher deleted from Google Sheet',
+            voucherId: targetId
+          });
+        }
+
+        return jsonResponse({
+          status: 'error',
+          message: 'Voucher ID ' + targetId + ' not found in Google Sheet'
+        });
+      } catch(delErr) {
+        return jsonResponse({
+          status: 'error',
+          message: 'Error deleting from Petty Cash sheet: ' + delErr.toString()
+        });
+      }
     }
 
     return jsonResponse({

@@ -24,11 +24,32 @@ const TEAM_CONTACTS_FILE = path.join(DATA_DIR, 'team_contacts.json');
 const EMPLOYEES_FILE = path.join(DATA_DIR, 'employees.json');
 const PWA_PREFERENCES_FILE = path.join(DATA_DIR, 'pwa_preferences.json');
 const DRIVE_PWA_FILE_ID = '1AlvVbRj3DOQIMOQ2DaWikRoOlilJMmlX';
+const PETTY_CASH_FILE = path.join(DATA_DIR, 'petty_cash_vouchers.json');
 const INVENTORY_CACHE_FILE = path.join(DATA_DIR, 'inventory_cache.json');
 const INVENTORY_HISTORY_FILE = path.join(DATA_DIR, 'inventory_history_cache.json');
 const INVENTORY_GAS_URL = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
 const ETS_CACHE_FILE = path.join(DATA_DIR, 'ets_cache.json');
 const ETS_GAS_URL = "https://script.google.com/macros/s/AKfycbwtbDjkB35lpSHZAN40I6voWUbQHHGVZo9LHtfah_y3IZO149gJgeY33K-98MqxBeGc1g/exec";
+
+function loadPettyCashData() {
+  try {
+    if (fs.existsSync(PETTY_CASH_FILE)) {
+      const data = JSON.parse(fs.readFileSync(PETTY_CASH_FILE, 'utf8'));
+      if (Array.isArray(data)) return data;
+    }
+  } catch (e) {
+    console.error("Error reading petty_cash_vouchers.json:", e);
+  }
+  return [];
+}
+
+function savePettyCashData(data) {
+  try {
+    fs.writeFileSync(PETTY_CASH_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (e) {
+    console.error("Error writing petty_cash_vouchers.json:", e);
+  }
+}
 
 function loadEtsCache() {
   try {
@@ -164,9 +185,9 @@ function saveTeamContacts(data) {
 const DEVELOPER_DEFAULT_SETTINGS = {
   toastStyle: 'outlined',
   toastPosition: 'pos-bottom',
-  defaultTheme: 'default',
+  defaultTheme: 'cyber-dark',
   lightToggle: 'default',
-  darkToggle: 'dark-mode',
+  darkToggle: 'cyber-dark',
   autoSync: true,
   moduleOrder: [
     'NATIVE_INSTRUMENT',
@@ -174,8 +195,8 @@ const DEVELOPER_DEFAULT_SETTINGS = {
     'PM_Checklist_Generator.html',
     'ETS_Locator.html',
     'Operation_Request.html',
-    'Team_Contacts.html',
-    'AFT/index.html'
+    'Petty_Cash_Voucher.html',
+    'Team_Contacts.html'
   ]
 };
 
@@ -1997,6 +2018,209 @@ app.get('/api/log-login', (req, res) => {
   return res.json({ status: 'success', logs });
 });
 
+// ─────────────────────────────────────────────────────────────
+// PETTY CASH VOUCHER API ENDPOINTS
+// ─────────────────────────────────────────────────────────────
+app.get(['/api/petty-cash', '/api/pitty-cash'], async (req, res) => {
+  let vouchers = loadPettyCashData();
+
+  // Try fetching fresh data from Mix Data Google Apps Script
+  try {
+    let targetGasUrl = MIX_DATA_GAS_URL;
+    try {
+      const pwaPref = loadPwaPreferences();
+      if (pwaPref && pwaPref.gasUrl) targetGasUrl = pwaPref.gasUrl.trim();
+    } catch(e) {}
+
+    if (targetGasUrl) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const cloudRes = await fetch(targetGasUrl + '?action=getPettyCash&t=' + Date.now(), {
+        signal: controller.signal,
+        redirect: 'follow'
+      });
+      clearTimeout(timeoutId);
+
+      if (cloudRes.ok) {
+        const json = await cloudRes.json();
+        if (json && json.status === 'success' && Array.isArray(json.data) && json.data.length > 0) {
+          // Merge cloud vouchers with local, deduplicate by voucherId / id
+          const map = new Map();
+          vouchers.forEach(v => {
+            const k = String(v.voucherId || v.id || '').trim();
+            if (k) map.set(k, v);
+          });
+          json.data.forEach(cv => {
+            const k = String(cv.voucherId || cv.id || '').trim();
+            if (k) {
+              const local = map.get(k);
+              map.set(k, local ? { ...local, ...cv } : cv);
+            }
+          });
+          vouchers = Array.from(map.values());
+          savePettyCashData(vouchers);
+        }
+      }
+    }
+  } catch(e) {
+    // Quiet fallback to local cache
+  }
+
+  return res.json({ status: 'success', data: vouchers });
+});
+
+app.post(['/api/petty-cash', '/api/pitty-cash'], async (req, res) => {
+  const body = req.body || {};
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const todayStr = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`;
+  const nowTime = `${todayStr} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+  const voucherId = body.voucherId || body.id || ('PCV-' + now.getFullYear().toString().slice(-2) + pad(now.getMonth() + 1) + '-' + Math.floor(100 + Math.random() * 900));
+  const dateOfPurchase = body.dateOfPurchase || body.date || todayStr;
+  const amount = parseFloat(body.amount || body.cashPaid || 0) || 0;
+  const item = String(body.item || body.note || body.description || '').trim();
+  const user = String(body.user || body.userName || body.employeeName || 'Technician').trim();
+  const empCode = String(body.empCode || body.employeeCode || '').trim();
+  const receiptUrl = String(body.receiptUrl || body.billUrl || '').trim();
+  const status = body.status || 'Submitted';
+  const remarks = String(body.remarks || '').trim();
+
+  const newVoucher = {
+    id: voucherId,
+    voucherId,
+    dateOfPurchase,
+    date: dateOfPurchase,
+    amount,
+    item,
+    description: item,
+    user,
+    userName: user,
+    empCode,
+    employeeCode: empCode,
+    receiptUrl,
+    status,
+    remarks,
+    timestamp: body.timestamp || nowTime,
+    createdAt: now.toISOString()
+  };
+
+  const vouchers = loadPettyCashData();
+  vouchers.unshift(newVoucher);
+  savePettyCashData(vouchers);
+
+  // Forward to Mix Data Google Apps Script asynchronously
+  let targetGasUrl = MIX_DATA_GAS_URL;
+  try {
+    const pwaPref = loadPwaPreferences();
+    if (pwaPref && pwaPref.gasUrl) targetGasUrl = pwaPref.gasUrl.trim();
+  } catch(e) {}
+  if (targetGasUrl) {
+    fetch(targetGasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'addPettyCash',
+        ...newVoucher
+      }),
+      redirect: 'follow',
+      signal: AbortSignal.timeout(10000)
+    }).catch(err => console.warn('[Petty Cash] Mix Data GAS sync note:', err.message));
+  }
+
+  return res.json({ status: 'success', message: 'Petty cash voucher logged successfully', data: newVoucher });
+});
+
+app.put(['/api/petty-cash/:id', '/api/pitty-cash/:id'], async (req, res) => {
+  const targetId = String(req.params.id || '').trim();
+  const body = req.body || {};
+  let vouchers = loadPettyCashData();
+  let found = false;
+  let updatedItem = null;
+
+  vouchers = vouchers.map(v => {
+    if (String(v.id || v.voucherId || '').trim() === targetId) {
+      found = true;
+      updatedItem = {
+        ...v,
+        ...body,
+        id: targetId,
+        voucherId: targetId,
+        updatedAt: new Date().toISOString()
+      };
+      return updatedItem;
+    }
+    return v;
+  });
+
+  if (!found) {
+    return res.status(404).json({ status: 'error', message: 'Voucher not found' });
+  }
+
+  savePettyCashData(vouchers);
+
+  // Forward to Mix Data GAS
+  let targetGasUrl = MIX_DATA_GAS_URL;
+  try {
+    const pwaPref = loadPwaPreferences();
+    if (pwaPref && pwaPref.gasUrl) targetGasUrl = pwaPref.gasUrl.trim();
+  } catch(e) {}
+  if (targetGasUrl) {
+    fetch(targetGasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'updatePettyCash',
+        ...updatedItem
+      }),
+      redirect: 'follow',
+      signal: AbortSignal.timeout(10000)
+    }).catch(err => console.warn('[Petty Cash Update] GAS sync note:', err.message));
+  }
+
+  return res.json({ status: 'success', message: 'Voucher updated successfully', data: updatedItem });
+});
+
+app.delete(['/api/petty-cash/:id', '/api/pitty-cash/:id'], async (req, res) => {
+  const targetId = String(req.params.id || '').trim();
+  let vouchers = loadPettyCashData();
+  const initialLen = vouchers.length;
+  vouchers = vouchers.filter(v => String(v.id || v.voucherId || '').trim() !== targetId);
+
+  if (vouchers.length === initialLen) {
+    return res.status(404).json({ status: 'error', message: 'Voucher not found' });
+  }
+
+  savePettyCashData(vouchers);
+
+  // Forward to Mix Data GAS
+  let targetGasUrl = MIX_DATA_GAS_URL;
+  try {
+    const pwaPref = loadPwaPreferences();
+    if (pwaPref && pwaPref.gasUrl) targetGasUrl = pwaPref.gasUrl.trim();
+  } catch(e) {}
+  if (targetGasUrl) {
+    fetch(targetGasUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'deletePettyCash',
+        id: targetId,
+        voucherId: targetId
+      }),
+      redirect: 'follow',
+      signal: AbortSignal.timeout(10000)
+    }).catch(err => console.warn('[Petty Cash Delete] GAS sync note:', err.message));
+  }
+
+  return res.json({ status: 'success', message: 'Voucher deleted successfully' });
+});
+
+// Alias for Pitty_Cash_Voucher.html to Petty_Cash_Voucher.html
+app.get(['/Pitty_Cash_Voucher.html', '/pitty_cash_voucher.html'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'Petty_Cash_Voucher.html'));
+});
+
 // Handle case-insensitive index request for PWA start_url (/Index.html)
 app.get(['/Index.html', '/index.html'], (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
@@ -2018,6 +2242,7 @@ const DATA_JSON_FILES = new Set([
   'status_overrides.json',
   'team_contacts.json',
   'login_logs.json',
+  'petty_cash_vouchers.json',
   'pwa_preferences.json',
   'inventory_cache.json',
   'inventory_history_cache.json',
