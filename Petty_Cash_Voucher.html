@@ -547,26 +547,72 @@
             justify-content: space-between;
             gap: 8px;
         }
+        .bill-header-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
         .bill-id-tag {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-weight: 800;
-            font-size: 0.82rem;
-            color: var(--primary);
-            letter-spacing: 0.3px;
+            font-weight: 700;
+            font-size: 0.74rem;
+            color: var(--text-secondary);
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.2px;
             display: inline-flex;
             align-items: center;
             gap: 5px;
+        }
+        .bill-id-tag i {
+            color: var(--text-muted);
+            font-size: 0.74rem;
+        }
+        .bill-card-edit-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.72rem;
+            transition: var(--transition);
+        }
+        .bill-card-edit-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(2, 132, 199, 0.08);
         }
         .status-pill {
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            padding: 2px 9px;
+            padding: 3px 9px;
             border-radius: 20px;
             font-size: 0.72rem;
             font-weight: 700;
             text-transform: capitalize;
             white-space: nowrap;
+        }
+        .status-pill.status-clickable {
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .status-pill.status-clickable:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+        .status-caret {
+            font-size: 0.65rem;
+            margin-left: 2px;
+            opacity: 0.75;
         }
         .status-pill.status-submitted  { background: rgba(245,158,11,0.15); color: #d97706; border: 1px solid rgba(245,158,11,0.3); }
         .status-pill.status-approved   { background: rgba(16,185,129,0.15); color: #059669; border: 1px solid rgba(16,185,129,0.3); }
@@ -716,12 +762,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
         }
-        .modal-header-main {
+        .modal-header-right {
             display: flex;
-            flex-direction: column;
-            gap: 2px;
-            min-width: 0;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
         }
         .modal-title-wrap {
             display: flex;
@@ -730,21 +777,34 @@
             font-weight: 800;
             font-size: 1.05rem;
             color: var(--text-primary);
+            min-width: 0;
+            white-space: nowrap;
         }
         .modal-title-wrap i {
             color: var(--primary);
             font-size: 1.1rem;
         }
         .modal-header-user-tag {
-            font-size: 0.75rem;
+            font-size: 0.74rem;
             font-weight: 700;
-            color: #0284c7;
+            color: var(--text-secondary);
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 14px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+            white-space: nowrap;
         }
         body.dark-mode .modal-header-user-tag, body.theme-cyber-dark .modal-header-user-tag {
-            color: #38bdf8;
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: var(--text-secondary);
+        }
+        .modal-header-user-tag i {
+            color: var(--primary);
+            font-size: 0.85rem;
         }
         .modal-close {
             background: none;
@@ -769,22 +829,23 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
 
         .form-row {
             display: flex;
             gap: 10px;
+            align-items: stretch;
         }
-        .form-row > * { flex: 1; }
+        .form-row > * { flex: 1; min-width: 0; }
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 4px;
         }
         .form-group input, .form-group textarea, .form-group select {
             width: 100%;
-            padding: 9px 12px;
+            padding: 8px 12px;
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
             background: var(--input-bg);
@@ -792,10 +853,16 @@
             font-size: 0.88rem;
             font-family: inherit;
             outline: none;
+            box-sizing: border-box;
             transition: border-color .2s;
         }
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
             border-color: var(--primary);
+        }
+        #purchaseDate {
+            height: 42px;
+            padding: 8px 10px;
+            line-height: 1.2;
         }
 
         /* Hero Amount Input */
@@ -805,7 +872,9 @@
             background: var(--input-bg);
             border: 1.5px solid var(--border);
             border-radius: var(--radius-sm);
-            padding: 2px 6px;
+            padding: 0 6px 0 8px;
+            height: 42px;
+            box-sizing: border-box;
             transition: border-color .2s;
         }
         .hero-amount-card:focus-within {
@@ -816,10 +885,11 @@
             background: rgba(16, 185, 129, 0.12);
             color: #059669;
             font-weight: 800;
-            font-size: 0.8rem;
-            padding: 5px 8px;
-            border-radius: 6px;
+            font-size: 0.75rem;
+            padding: 4px 7px;
+            border-radius: 5px;
             letter-spacing: 0.5px;
+            flex-shrink: 0;
         }
         body.dark-mode .hero-currency-tag,
         body.theme-cyber-dark .hero-currency-tag {
@@ -829,11 +899,21 @@
             flex: 1;
             border: none !important;
             background: transparent !important;
-            padding: 6px 10px !important;
-            font-size: 1.15rem !important;
+            padding: 4px 8px !important;
+            font-size: 1.1rem !important;
             font-weight: 800 !important;
             color: #10b981 !important;
             outline: none !important;
+            height: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        #itemDescription {
+            min-height: 74px;
+            height: 74px;
+            resize: none;
+            padding: 10px 12px;
+            line-height: 1.4;
         }
 
         /* Streamlined Receipt Button & Preview */
@@ -912,17 +992,21 @@
         }
         .footer-voucher-id-tag {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-size: 0.82rem;
-            font-weight: 800;
-            color: var(--primary);
-            background: rgba(2, 132, 199, 0.1);
-            border: 1px dashed rgba(2, 132, 199, 0.35);
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             padding: 4px 9px;
             border-radius: 6px;
-            letter-spacing: 0.4px;
+            letter-spacing: 0.2px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
+        }
+        .footer-voucher-id-tag i {
+            color: var(--text-muted);
+            font-size: 0.76rem;
         }
         .modal-footer-actions {
             display: flex;
@@ -1160,12 +1244,34 @@
                 <span>Export</span>
             </div>
 
-            <!-- Supervisor & Developer Filter Button -->
-            <div class="action-btn" id="techFilterActionBtn" style="display:none;" title="Filter by technician">
+            <!-- Month Filter Dropdown (Dynamically populated from vouchers) -->
+            <div class="action-btn" id="monthFilterActionBtn" title="Filter by month">
+                <i class="far fa-calendar-alt" style="color:#0ea5e9;"></i>
+                <span id="monthFilterLabel">All Months</span>
+                <select class="select-wrapper" id="monthFilterSelect" onchange="handleMonthFilterChange(this.value)">
+                    <option value="all">All Months</option>
+                </select>
+            </div>
+
+            <!-- Team Filter Button (Supervisor & Developer) -->
+            <div class="action-btn" id="techFilterActionBtn" style="display:none;" title="Filter by technician / team">
                 <i class="fas fa-user-friends" style="color:#6366f1;"></i>
-                <span id="techFilterLabel">All Techs</span>
+                <span id="techFilterLabel">Team</span>
                 <select class="select-wrapper" id="techFilterSelect" onchange="handleTechFilterChange(this.value)">
-                    <option value="all">All Technicians</option>
+                    <option value="all">All Team</option>
+                </select>
+            </div>
+
+            <!-- Status Filter Dropdown (Supervisor & Developer) -->
+            <div class="action-btn" id="statusFilterActionBtn" style="display:none;" title="Filter by status">
+                <i class="fas fa-filter" style="color:#f59e0b;"></i>
+                <span id="statusFilterLabel">All Status</span>
+                <select class="select-wrapper" id="statusFilterSelect" onchange="handleStatusDropdownChange(this.value)">
+                    <option value="all">All Status</option>
+                    <option value="Submitted">Submitted</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Reimbursed">Reimbursed</option>
+                    <option value="Rejected">Rejected</option>
                 </select>
             </div>
         </div>
@@ -1212,17 +1318,17 @@
     <div class="modal-overlay" id="voucherModal">
         <div class="modal-card">
             <div class="modal-header">
-                <div class="modal-header-main">
-                    <div class="modal-title-wrap">
-                        <i class="fas fa-receipt"></i>
-                        <span id="modalTitle">Log Petty Cash Claim</span>
-                    </div>
-                    <div class="modal-header-user-tag">
-                        <i class="fas fa-user-circle"></i>
-                        <span id="modalHeaderUserBadge">Majeed ~ 41764</span>
-                    </div>
+                <div class="modal-title-wrap">
+                    <i class="fas fa-receipt"></i>
+                    <span id="modalTitle">Log Petty Cash Claim</span>
                 </div>
-                <button class="modal-close" onclick="closeVoucherModal()" title="Close">&times;</button>
+                <div class="modal-header-right">
+                    <div class="modal-header-user-tag" id="modalHeaderUserBadgeContainer" title="Logged In User">
+                        <i class="fas fa-user-circle"></i>
+                        <span id="modalHeaderUserBadge">User</span>
+                    </div>
+                    <button type="button" class="modal-close" onclick="closeVoucherModal()" title="Close (ESC)">&times;</button>
+                </div>
             </div>
             <div class="modal-body">
                 <form id="voucherForm" onsubmit="event.preventDefault(); handleSaveVoucher();">
@@ -1486,17 +1592,111 @@
             return `${y}-${m}-${d}`;
         }
 
-        // Format DD.MM.YYYY
+        let activeMonthFilter = 'all';
+
+        // Format DD.MM.YYYY strictly using dot separator
         function formatDisplayDate(dateStr) {
             if (!dateStr) return '';
-            if (dateStr.includes('-')) {
-                const parts = dateStr.split('-');
-                if (parts.length === 3) return `${parts[2]}.${parts[1]}.${parts[0]}`;
+            const s = String(dateStr).trim();
+            if (s.includes('-')) {
+                const parts = s.split('-');
+                if (parts.length === 3) {
+                    if (parts[0].length === 4) return `${parts[2].padStart(2,'0')}.${parts[1].padStart(2,'0')}.${parts[0]}`;
+                    return `${parts[0].padStart(2,'0')}.${parts[1].padStart(2,'0')}.${parts[2]}`;
+                }
             }
-            return dateStr;
+            if (s.includes('/')) {
+                const parts = s.split('/');
+                if (parts.length === 3) {
+                    if (parts[0].length === 4) return `${parts[2].padStart(2,'0')}.${parts[1].padStart(2,'0')}.${parts[0]}`;
+                    return `${parts[0].padStart(2,'0')}.${parts[1].padStart(2,'0')}.${parts[2]}`;
+                }
+                return s.replace(/\//g, '.');
+            }
+            return s;
         }
 
         let activeDetailVoucherId = null;
+
+        // Extract month key and year for filtering (from PCV-DDMMYY-XX or Date)
+        function getVoucherMonthKey(v) {
+            const vid = String(v.voucherId || v.id || '').trim();
+            const match = vid.match(/^PCV-\d{2}(\d{2})(\d{2})-\d+$/);
+            if (match) {
+                return { key: `${match[1]}.20${match[2]}`, mm: match[1], year: `20${match[2]}` };
+            }
+            const dStr = String(v.dateOfPurchase || v.date || '').trim();
+            if (dStr.includes('.')) {
+                const p = dStr.split('.');
+                if (p.length === 3) return { key: `${p[1].padStart(2,'0')}.${p[2]}`, mm: p[1].padStart(2,'0'), year: p[2] };
+            } else if (dStr.includes('-')) {
+                const p = dStr.split('-');
+                if (p.length === 3) {
+                    if (p[0].length === 4) return { key: `${p[1].padStart(2,'0')}.${p[0]}`, mm: p[1].padStart(2,'0'), year: p[0] };
+                    return { key: `${p[1].padStart(2,'0')}.${p[2]}`, mm: p[1].padStart(2,'0'), year: p[2] };
+                }
+            }
+            return null;
+        }
+
+        function getMonthName(mm) {
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            const idx = parseInt(mm, 10) - 1;
+            return months[idx] || mm;
+        }
+
+        function populateMonthFilterDropdown() {
+            const select = document.getElementById('monthFilterSelect');
+            if (!select) return;
+
+            const existingVal = select.value;
+            select.innerHTML = '<option value="all">All Months</option>';
+
+            const monthMap = new Map();
+            allVouchers.forEach(v => {
+                const mInfo = getVoucherMonthKey(v);
+                if (mInfo) {
+                    const label = `${getMonthName(mInfo.mm)} ${mInfo.year}`;
+                    monthMap.set(mInfo.key, { label, sortKey: `${mInfo.year}${mInfo.mm}` });
+                }
+            });
+
+            const sorted = Array.from(monthMap.entries()).sort((a, b) => b[1].sortKey.localeCompare(a[1].sortKey));
+            sorted.forEach(([key, info]) => {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = info.label;
+                select.appendChild(opt);
+            });
+
+            if (existingVal && monthMap.has(existingVal)) {
+                select.value = existingVal;
+            }
+        }
+
+        function handleMonthFilterChange(val) {
+            activeMonthFilter = val;
+            const labelEl = document.getElementById('monthFilterLabel');
+            if (labelEl) {
+                if (val === 'all') {
+                    labelEl.textContent = 'All Months';
+                } else {
+                    const select = document.getElementById('monthFilterSelect');
+                    const text = select.options[select.selectedIndex]?.text || val;
+                    labelEl.textContent = text;
+                }
+            }
+            renderVouchersTable();
+        }
+
+        function handleStatusDropdownChange(val) {
+            activeStatusFilter = (val === 'all') ? null : val;
+            const labelEl = document.getElementById('statusFilterLabel');
+            if (labelEl) {
+                labelEl.textContent = (val === 'all') ? 'All Status' : val;
+            }
+            renderVouchersTable();
+        }
 
         // ─────────────────────────────────────────────────────────────
         // USER PREFERENCES & TOAST STYLING SYNC (Matching Operation Request)
@@ -1643,11 +1843,14 @@
         function applyRoleRestrictions() {
             const isSup = isSupervisorOrDev();
             const techBtn = document.getElementById('techFilterActionBtn');
+            const statusBtn = document.getElementById('statusFilterActionBtn');
             const supervisorApprovalSection = document.getElementById('supervisorApprovalSection');
 
             if (techBtn) techBtn.style.display = isSup ? 'flex' : 'none';
+            if (statusBtn) statusBtn.style.display = isSup ? 'flex' : 'none';
             if (supervisorApprovalSection) supervisorApprovalSection.style.display = isSup ? 'block' : 'none';
 
+            populateMonthFilterDropdown();
             populateTechFilterDropdown();
             renderVouchersTable();
         }
@@ -1657,7 +1860,7 @@
             if (!select) return;
 
             const existingVal = select.value;
-            select.innerHTML = '<option value="all">All Technicians</option>';
+            select.innerHTML = '<option value="all">All Team</option>';
 
             const techSet = new Map();
             allVouchers.forEach(v => {
@@ -1679,6 +1882,62 @@
             }
         }
 
+        // Check if user has permission to edit voucher (Owner or Supervisor/Dev)
+        function canEditVoucher(v) {
+            if (isSupervisorOrDev()) return true;
+            if (!currentUser) return false;
+            const curCode = String(currentUser.code || currentUser.empId || '').trim();
+            const curShort = String(currentUser.short || '').trim().toLowerCase();
+            const curFull = String(currentUser.full || '').trim().toLowerCase();
+            const vCode = String(v.empCode || v.employeeCode || '').trim();
+            const vUser = String(v.userName || v.user || '').trim().toLowerCase();
+
+            return (curCode && vCode && curCode === vCode) ||
+                   (curShort && (vUser === curShort || vUser.includes(curShort))) ||
+                   (curFull && (vUser === curFull || vUser.includes(curFull)));
+        }
+
+        // 1-Click Status Quick-Change & Auto-Save (Supervisor & Developer Only)
+        async function cycleVoucherStatus(voucherId) {
+            if (!isSupervisorOrDev()) return;
+            const v = allVouchers.find(item => (item.voucherId || item.id) === voucherId);
+            if (!v) return;
+
+            const currentStatus = v.status || 'Submitted';
+            const statusCycle = ['Submitted', 'Approved', 'Reimbursed', 'Rejected'];
+            const curIdx = statusCycle.indexOf(currentStatus);
+            const nextStatus = statusCycle[(curIdx + 1) % statusCycle.length];
+
+            v.status = nextStatus;
+            localStorage.setItem(LS_KEY_PETTY, JSON.stringify(allVouchers));
+            renderVouchersTable();
+            showToast(`Status updated to "${nextStatus}" for ${voucherId}`, 'success');
+
+            // If detail modal is currently open for this voucher, update its badge
+            if (activeDetailVoucherId === voucherId) {
+                const statusContainer = document.getElementById('detailStatusBadgeContainer');
+                if (statusContainer) {
+                    const statusLower = nextStatus.toLowerCase();
+                    const icon = nextStatus === 'Approved' ? 'fa-check' : (nextStatus === 'Reimbursed' ? 'fa-money-bill-wave' : (nextStatus === 'Rejected' ? 'fa-times' : 'fa-clock'));
+                    statusContainer.innerHTML = `
+                        <span class="status-pill status-${statusLower} status-clickable" onclick="cycleVoucherStatus('${escapeHTML(voucherId)}')" title="Click to cycle status">
+                            <i class="fas ${icon}"></i> <span>${escapeHTML(nextStatus)}</span> <i class="fas fa-caret-down status-caret"></i>
+                        </span>
+                    `;
+                }
+            }
+
+            try {
+                await fetch(`/api/petty-cash/${encodeURIComponent(voucherId)}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: nextStatus })
+                });
+            } catch(err) {
+                console.warn('[Petty Cash] Offline status update saved locally:', err);
+            }
+        }
+
         // ─────────────────────────────────────────────────────────────
         // DATA LOADING & SILENT SYNC ENGINE
         // ─────────────────────────────────────────────────────────────
@@ -1689,6 +1948,7 @@
                     const parsed = JSON.parse(cached);
                     if (Array.isArray(parsed) && parsed.length > 0) {
                         allVouchers = parsed;
+                        populateMonthFilterDropdown();
                         renderVouchersTable();
                     }
                 }
@@ -1708,6 +1968,7 @@
                     allVouchers = res.data;
                     localStorage.setItem(LS_KEY_PETTY, JSON.stringify(allVouchers));
                     updateConnectionStatus('online');
+                    populateMonthFilterDropdown();
                     populateTechFilterDropdown();
                     renderVouchersTable();
                 } else {
@@ -1807,7 +2068,15 @@
                 });
             }
 
-            // Step 2: Technician Dropdown Filter (Supervisor Only)
+            // Step 2: Month Filter (Newest to Oldest)
+            if (activeMonthFilter !== 'all') {
+                accessible = accessible.filter(v => {
+                    const mInfo = getVoucherMonthKey(v);
+                    return mInfo && mInfo.key === activeMonthFilter;
+                });
+            }
+
+            // Step 3: Team / Technician Dropdown Filter (Supervisor Only)
             if (isSup && activeTechFilter !== 'all') {
                 accessible = accessible.filter(v => {
                     const vCode = String(v.empCode || v.employeeCode || '').trim();
@@ -1816,12 +2085,12 @@
                 });
             }
 
-            // Step 3: Status Filter Pills (Submitted, Approved, Reimbursed, Rejected)
+            // Step 4: Status Filter Dropdown / Pills (Submitted, Approved, Reimbursed, Rejected)
             if (activeStatusFilter) {
                 accessible = accessible.filter(v => (v.status || 'Submitted').toLowerCase() === activeStatusFilter.toLowerCase());
             }
 
-            // Step 4: Search Filter
+            // Step 5: Search Filter
             const searchVal = (document.getElementById('voucherSearchInput')?.value || '').trim().toLowerCase();
             if (searchVal) {
                 accessible = accessible.filter(v => {
@@ -1865,18 +2134,33 @@
             const statusClass = `status-${statusLower}`;
             const borderClass = `border-${statusLower}`;
 
+            const isSup = isSupervisorOrDev();
+            const canEdit = canEditVoucher(v);
             const hasReceipt = Boolean(v.receiptUrl);
+
+            const statusClickAttr = isSup ? `onclick="event.stopPropagation(); cycleVoucherStatus('${escapeHTML(vId)}')"` : '';
+            const statusClickClass = isSup ? 'status-clickable' : '';
+            const statusTitle = isSup ? 'title="Click to cycle status (Submitted \u2192 Approved \u2192 Reimbursed \u2192 Rejected)"' : '';
+            const statusCaret = isSup ? '<i class="fas fa-caret-down status-caret"></i>' : '';
 
             return `
                 <div class="voucher-bill-card ${borderClass}" onclick="openVoucherDetailModal('${escapeHTML(vId)}')">
                     <div class="bill-card-header">
-                        <span class="bill-id-tag">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                            ${escapeHTML(vId)}
-                        </span>
-                        <span class="status-pill ${statusClass}">
+                        <div class="bill-header-left">
+                            <span class="bill-id-tag">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                                ${escapeHTML(vId)}
+                            </span>
+                            ${canEdit ? `
+                                <button type="button" class="bill-card-edit-btn" onclick="event.stopPropagation(); openEditModal('${escapeHTML(vId)}')" title="Edit this voucher">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                        <span class="status-pill ${statusClass} ${statusClickClass}" ${statusClickAttr} ${statusTitle}>
                             <i class="fas ${status === 'Approved' ? 'fa-check' : (status === 'Reimbursed' ? 'fa-money-bill-wave' : (status === 'Rejected' ? 'fa-times' : 'fa-clock'))}"></i>
-                            ${escapeHTML(status)}
+                            <span>${escapeHTML(status)}</span>
+                            ${statusCaret}
                         </span>
                     </div>
 
@@ -1962,13 +2246,18 @@
             const idEl = document.getElementById('detailVoucherId');
             if (idEl) idEl.textContent = vId;
 
-            // Status Badge
+            // Status Badge (Clickable for Supervisor & Developer with auto-save)
+            const isSup = isSupervisorOrDev();
             const status = v.status || 'Submitted';
             const statusContainer = document.getElementById('detailStatusBadgeContainer');
             if (statusContainer) {
                 const statusLower = status.toLowerCase();
                 const icon = status === 'Approved' ? 'fa-check' : (status === 'Reimbursed' ? 'fa-money-bill-wave' : (status === 'Rejected' ? 'fa-times' : 'fa-clock'));
-                statusContainer.innerHTML = `<span class="status-pill status-${statusLower}"><i class="fas ${icon}"></i> ${escapeHTML(status)}</span>`;
+                statusContainer.innerHTML = `
+                    <span class="status-pill status-${statusLower} ${isSup ? 'status-clickable' : ''}" ${isSup ? `onclick="cycleVoucherStatus('${escapeHTML(vId)}')"` : ''} ${isSup ? 'title="Click to cycle status"' : ''}>
+                        <i class="fas ${icon}"></i> <span>${escapeHTML(status)}</span> ${isSup ? '<i class="fas fa-caret-down status-caret"></i>' : ''}
+                    </span>
+                `;
             }
 
             // Amount
@@ -2024,17 +2313,16 @@
                 }
             }
 
-            // Permissions for Edit & Delete
-            const isSup = isSupervisorOrDev();
-            const curCode = currentUser ? String(currentUser.code || '').trim() : '';
+            // Permissions for Edit & Delete (Normal users can edit their vouchers)
+            const canEdit = canEditVoucher(v);
+            const curCode = currentUser ? String(currentUser.code || currentUser.empId || '').trim() : '';
             const isOwner = empCode && curCode && empCode === curCode;
-            const canEdit = isSup || (isOwner && status === 'Submitted');
 
             const btnEdit = document.getElementById('btnDetailEdit');
             if (btnEdit) btnEdit.style.display = canEdit ? 'inline-flex' : 'none';
 
             const btnDelete = document.getElementById('btnDetailDelete');
-            if (btnDelete) btnDelete.style.display = canEdit ? 'inline-flex' : 'none';
+            if (btnDelete) btnDelete.style.display = (isSup || (isOwner && status === 'Submitted')) ? 'inline-flex' : 'none';
 
             document.getElementById('voucherDetailModal').classList.add('active');
         }
@@ -2099,14 +2387,14 @@
             document.getElementById('voucherStatusSelect').value = 'Submitted';
             clearSelectedReceipt();
 
-            const userName = currentUser ? (currentUser.short || currentUser.full || 'Majeed') : 'Technician';
-            const empCode = currentUser ? (currentUser.code || '41764') : '';
+            // Dynamic User Badge from logged-in user credentials
+            const userName = currentUser ? (currentUser.short || currentUser.full || 'Technician') : 'Technician';
+            const empCode = currentUser ? (currentUser.code || currentUser.empId || '') : '';
             document.getElementById('loggedByUser').value = userName;
             document.getElementById('loggedByCode').value = empCode;
 
-            // Header User Badge: Majeed ~ 41764
             const headerBadgeEl = document.getElementById('modalHeaderUserBadge');
-            if (headerBadgeEl) headerBadgeEl.textContent = `${userName} ~ ${empCode || 'N/A'}`;
+            if (headerBadgeEl) headerBadgeEl.textContent = empCode ? `${userName} ~ ${empCode}` : userName;
 
             // Generate sequential ID preview PCV-DDMMYY-XX
             const nextId = generateSequentialVoucherId(today);
@@ -2139,8 +2427,9 @@
             document.getElementById('loggedByUser').value = userName;
             document.getElementById('loggedByCode').value = empCode;
 
+            // Dynamic User Badge for editing voucher
             const headerBadgeEl = document.getElementById('modalHeaderUserBadge');
-            if (headerBadgeEl) headerBadgeEl.textContent = `${userName} ~ ${empCode || 'N/A'}`;
+            if (headerBadgeEl) headerBadgeEl.textContent = empCode ? `${userName} ~ ${empCode}` : userName;
 
             document.getElementById('previewVoucherId').value = voucherId;
             const displayEl = document.getElementById('footerVoucherIdTag');
@@ -2343,7 +2632,7 @@
             activeTechFilter = val;
             const labelEl = document.getElementById('techFilterLabel');
             if (labelEl) {
-                if (val === 'all') labelEl.textContent = 'All Techs';
+                if (val === 'all') labelEl.textContent = 'Team';
                 else {
                     const select = document.getElementById('techFilterSelect');
                     const text = select.options[select.selectedIndex]?.text || val;
@@ -2364,7 +2653,7 @@
 
             const exportData = filteredVouchers.map(v => ({
                 "Voucher ID": v.voucherId || v.id || '',
-                "Date of Purchase": v.dateOfPurchase || v.date || '',
+                "Date of Purchase": formatDisplayDate(v.dateOfPurchase || v.date || ''),
                 "Amount (AED)": parseFloat(v.amount) || 0,
                 "Item / Description": v.item || v.description || '',
                 "Technician": v.userName || v.user || '',
@@ -2374,10 +2663,14 @@
                 "Timestamp": v.timestamp || ''
             }));
 
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const dateFormatted = `${pad(now.getDate())}.${pad(now.getMonth() + 1)}.${now.getFullYear()}`;
+
             const ws = XLSX.utils.json_to_sheet(exportData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Petty Cash");
-            XLSX.writeFile(wb, `Tabreed_Petty_Cash_${new Date().toISOString().slice(0,10)}.xlsx`);
+            XLSX.writeFile(wb, `Automation Petty Cash ${dateFormatted}.xlsx`);
             showToast('Exported to Excel successfully!', 'success');
         }
 
@@ -2493,6 +2786,15 @@
             window.addEventListener('focus', () => {
                 if (navigator.onLine) {
                     silentBackgroundSync();
+                }
+            });
+
+            // Close popups on ESC key
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+                    closeVoucherModal();
+                    closeDetailModal();
+                    closeReceiptModal();
                 }
             });
         });

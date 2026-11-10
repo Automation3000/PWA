@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+    <meta name="theme-color" content="#0f172a">
+    <title>Automation App - Nokia Edition</title>
+    <link rel="icon" href="../icon-192.png" type="image/png">
+    <style>
+        /* ═══════════════════════════════════════════════════════════
+           NOKIA KEYPAD EDITION — ULTRA-LIGHTWEIGHT & D-PAD OPTIMIZED
+           Designed for 240x320 QVGA & Small Keypad Screens + Desktop
+        ═══════════════════════════════════════════════════════════ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --surface: #e2e8f0;
+            --text: #0f172a;
+            --muted: #475569;
+            --primary: #1d4ed8;
+            --primary-bg: #dbeafe;
+            --focus-ring: #f59e0b;
+            --focus-bg: #fef3c7;
+            --border: #cbd5e1;
+            --success: #15803d;
+            --success-bg: #dcfce7;
+            --danger: #b91c1c;
+            --danger-bg: #fee2e2;
+            --warn: #b45309;
+            --warn-bg: #fef3c7;
+            --header-bg: #0f172a;
+            --header-text: #ffffff;
+        }
+
+        body.dark-mode {
+            --bg: #090d16;
+            --card: #111827;
+            --surface: #1e293b;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --primary: #38bdf8;
+            --primary-bg: #0c4a6e;
+            --focus-ring: #facc15;
+            --focus-bg: #1e293b;
+            --border: #334155;
+            --success: #4ade80;
+            --success-bg: #064e3b;
+            --danger: #f87171;
+            --danger-bg: #7f1d1d;
+            --warn: #fbbf24;
+            --warn-bg: #78350f;
+            --header-bg: #020617;
+            --header-text: #f8fafc;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            line-height: 1.35;
+            overflow-x: hidden;
+        }
+
+        .nokia-shell {
+            max-width: 420px;
+            margin: 0 auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg);
+            border-left: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+        }
+
+        /* ─── COMPACT NOKIA HEADER (No Login Button) ─── */
+        .nokia-header {
+            background: var(--header-bg);
+            color: var(--header-text);
+            padding: 7px 8px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .btn-back {
+            background: #1e293b;
+            color: #ffffff;
+            border: 1px solid #475569;
+            border-radius: 4px;
+            padding: 3px 7px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            flex-shrink: 0;
+        }
+
+        .header-logo {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #fff;
+            flex-shrink: 0;
+            object-fit: contain;
+        }
+
+        .header-title {
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            display: inline-block;
+        }
+        .status-dot.offline {
+            background: #ef4444;
+        }
+
+        .btn-theme {
+            background: #1e293b;
+            color: #facc15;
+            border: 1px solid #475569;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* ─── KEYPAD FOCUS HIGHLIGHT ─── */
+        [data-nav]:focus,
+        .nav-focused {
+            outline: 2.5px solid var(--focus-ring) !important;
+            outline-offset: 0px;
+            background-color: var(--focus-bg) !important;
+        }
+
+        /* ─── VIEWS ─── */
+        .view-section {
+            display: none;
+            padding: 6px;
+            flex: 1;
+        }
+        .view-section.active {
+            display: block;
+        }
+
+        /* ─── LAUNCHPAD TILES (5 MODULES) ─── */
+        .keypad-hint-bar {
+            background: var(--surface);
+            color: var(--muted);
+            font-size: 10px;
+            padding: 4px 6px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .module-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .module-tile {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            padding: 9px 10px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+            color: var(--text);
+        }
+
+        .key-badge {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            background: var(--primary);
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .module-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .module-name {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--text);
+            line-height: 1.2;
+        }
+
+        .module-sub {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .module-arrow {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--muted);
+            flex-shrink: 0;
+        }
+
+        /* ─── SEARCH & INPUTS ─── */
+        .search-bar {
+            margin-bottom: 6px;
+            display: flex;
+            gap: 4px;
+        }
+
+        .nokia-input {
+            width: 100%;
+            padding: 6px 8px;
+            font-size: 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 4px;
+            background: var(--card);
+            color: var(--text);
+        }
+
+        .count-bar {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2px;
+            font-weight: bold;
+        }
+
+        /* ─── COMPACT CARDS FOR NOKIA SCREEN ─── */
+        .item-list {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .nokia-card {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 5px;
+            padding: 7px 8px;
+            width: 100%;
+            text-align: left;
+            color: var(--text);
+        }
+
+        .nokia-card.expired {
+            border-left: 4px solid var(--danger);
+        }
+
+        .nokia-card.soon {
+            border-left: 4px solid var(--warn);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 4px;
+            margin-bottom: 3px;
+        }
+
+        .card-title {
+            font-weight: bold;
+            font-size: 12.5px;
+            color: var(--text);
+            word-break: break-word;
+            flex: 1;
+        }
+
+        .badge {
+            font-size: 10px;
+            font-weight: bold;
+            padding: 1px 5px;
+            border-radius: 3px;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .badge-loc {
+            background: var(--primary-bg);
+            color: var(--primary);
+        }
+
+        .badge-ok {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        .badge-danger {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .badge-warn {
+            background: var(--warn-bg);
+            color: var(--warn);
+        }
+
+        .card-meta {
+            font-size: 11px;
+            color: var(--muted);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        .card-note {
+            margin-top: 4px;
+            padding: 3px 5px;
+            background: var(--warn-bg);
+            color: var(--warn);
+            border-radius: 3px;
+            font-size: 10.5px;
+            font-weight: bold;
+            word-break: break-word;
+        }
+
+        /* ─── DOCUMENT LIBRARY (SIMPLE & SAAF PDF LIST + VIEWER) ─── */
+        .cat-filter-row {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 6px;
+        }
+
+        .cat-btn {
+            flex: 1;
+            padding: 5px 4px;
+            font-size: 11px;
+            font-weight: bold;
+            border: 1.5px solid var(--border);
+            border-radius: 4px;
+            background: var(--card);
+            color: var(--text);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .cat-btn.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .pdf-item {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 5px;
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            color: var(--text);
+        }
+
+        .pdf-icon {
+            background: var(--danger-bg);
+            color: var(--danger);
+            font-weight: bold;
+            font-size: 10px;
+            padding: 4px 5px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .pdf-title {
+            font-size: 12px;
+            font-weight: bold;
+            word-break: break-word;
+            flex: 1;
+        }
+
+        .pdf-viewer-box {
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .pdf-viewer-box.active {
+            display: flex;
+        }
+
+        .pdf-toolbar {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--card);
+            padding: 6px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        .btn-small {
+            padding: 5px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--primary);
+            color: #ffffff;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-small.secondary {
+            background: var(--surface);
+            color: var(--text);
+        }
+
+        .pdf-frame {
+            width: 100%;
+            height: 72vh;
+            min-height: 260px;
+            border: 1.5px solid var(--border);
+            border-radius: 4px;
+            background: #fff;
+        }
+
+        /* ─── TEAM CONTACTS ─── */
+        .contact-actions-row {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .contact-btn {
+            flex: 1;
+            padding: 4px 6px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 4px;
+            text-align: center;
+            text-decoration: none;
+            border: 1px solid var(--border);
+        }
+
+        .btn-call {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .btn-wa {
+            background: #15803d;
+            color: #ffffff;
+            border-color: #15803d;
+        }
+
+        /* ─── TEST PAGE (KEYPAD & NAVIGATION TESTER) ─── */
+        .tester-box {
+            background: var(--card);
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 7px;
+            text-align: center;
+        }
+
+        .key-big-display {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+            padding: 6px;
+            margin: 4px 0;
+            background: var(--primary-bg);
+            border-radius: 4px;
+            word-break: break-word;
+        }
+
+        .key-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            margin-top: 5px;
+            text-align: left;
+            font-size: 11px;
+        }
+
+        .key-stat-cell {
+            background: var(--surface);
+            padding: 4px 6px;
+            border-radius: 3px;
+        }
+
+        .dpad-visual {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            max-width: 180px;
+            margin: 6px auto;
+        }
+
+        .dpad-btn {
+            padding: 7px 4px;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 4px;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .dpad-btn.pressed {
+            background: var(--primary) !important;
+            color: #ffffff !important;
+            border-color: var(--focus-ring) !important;
+        }
+
+        .numpad-visual {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .key-log-list {
+            font-family: monospace;
+            font-size: 11px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 6px;
+            max-height: 110px;
+            overflow-y: auto;
+        }
+
+        /* ─── MODAL FOR QUICK UPDATE ─── */
+        .nokia-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+        .nokia-modal.active {
+            display: flex;
+        }
+        .nokia-modal-box {
+            background: var(--card);
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            width: 100%;
+            max-width: 320px;
+            padding: 10px;
+        }
+        .form-row {
+            margin-bottom: 7px;
+        }
+        .form-row label {
+            display: block;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 2px;
+            color: var(--muted);
+        }
+
+        /* ─── FOOTER ─── */
+        .nokia-footer {
+            margin-top: auto;
+            padding: 8px 6px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            background: var(--card);
+        }
+        .nokia-footer span {
+            color: var(--primary);
+        }
+
+        /* ─── SOFTKEY BOTTOM BAR FOR NOKIA ─── */
+        .softkey-bar {
+            position: sticky;
+            bottom: 0;
+            background: var(--header-bg);
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            border-top: 1px solid #334155;
+            z-index: 90;
+        }
+        .softkey-btn {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+        .softkey-center {
+            color: #facc15;
+            font-size: 10px;
+        }
+
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: #fff;
+            border: 1.5px solid #facc15;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 300;
+            display: none;
+            text-align: center;
+            max-width: 92%;
+        }
+    </style>
+</head>
+<body>
+<div class="nokia-shell">
+    <!-- ═══════════════════════════════════════════════════
+         COMPACT HEADER (NO LOGIN BUTTON)
+    ═══════════════════════════════════════════════════ -->
+    <header class="nokia-header">
+        <div class="header-left">
+            <button type="button" class="btn-back" id="headerBackBtn" data-nav onclick="goHome()">&#8592; Back</button>
+            <img src="../icon-192.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
+            <span class="header-title" id="headerTitle">Automation App</span>
+        </div>
+        <div class="header-right">
+            <span class="status-dot" id="netDot" title="Online"></span>
+            <button type="button" class="btn-theme" data-nav onclick="toggleDark()" id="themeBtn" title="Dark/Light">🌙</button>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════
+         1. HOME LAUNCHPAD (4 CORE MODULES + TEST PAGE)
+    ═══════════════════════════════════════════════════ -->
+    <main id="view-home" class="view-section active">
+        <div class="keypad-hint-bar">
+            Use ▲/▼ Keys + OK to Open (or Press 1 - 5)
+        </div>
+
+        <div class="module-list">
+            <button type="button" class="module-tile" data-nav onclick="openModule('instruments')">
+                <div class="key-badge">1</div>
+                <div class="module-info">
+                    <div class="module-name">Master Instrument List</div>
+                    <div class="module-sub" id="homeInstCount">AI1 Database &bull; Locations &amp; Expiry</div>
+                </div>
+                <div class="module-arrow">&rsaquo;</div>
+            </button>
+
+            <button type="button" class="module-tile" data-nav onclick="openModule('documents')">
+                <div class="key-badge">2</div>
+                <div class="module-info">
+                    <div class="module-name">Document Library</div>
+                    <div class="module-sub">Click PDF to View Directly</div>
+                </div>
+                <div class="module-arrow">&rsaquo;</div>
+            </button>
+
+            <button type="button" class="module-tile" data-nav onclick="openModule('operations')">
+                <div class="key-badge">3</div>
+                <div class="module-info">
+                    <div class="module-name">Operation Request</div>
+                    <div class="module-sub" id="homeOpCount">Work Orders &amp; Plant Status</div>
+                </div>
+                <div class="module-arrow">&rsaquo;</div>
+            </button>
+
+            <button type="button" class="module-tile" data-nav onclick="openModule('contacts')">
+                <div class="key-badge">4</div>
+                <div class="module-info">
+                    <div class="module-name">Team Contacts</div>
+                    <div class="module-sub">Direct Call &amp; Directory</div>
+                </div>
+                <div class="module-arrow">&rsaquo;</div>
+            </button>
+
+            <button type="button" class="module-tile" data-nav onclick="openModule('testpage')">
+                <div class="key-badge" style="background:#059669;">5</div>
+                <div class="module-info">
+                    <div class="module-name">Test Page</div>
+                    <div class="module-sub">Keypad &amp; Navigation Key Response Check</div>
+                </div>
+                <div class="module-arrow">&rsaquo;</div>
+            </button>
+        </div>
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════
+         2. MASTER INSTRUMENT LIST (NO QUICK-ACTIONS ROW)
+    ═══════════════════════════════════════════════════ -->
+    <section id="view-instruments" class="view-section">
+        <div class="search-bar">
+            <input type="text" id="instSearch" class="nokia-input" data-nav placeholder="Search instrument or location..." oninput="renderInstruments()">
+        </div>
+        <div class="count-bar">
+            <span id="instCountLabel">Loading instruments...</span>
+            <span id="instModeLabel" style="color:var(--primary);cursor:pointer;" onclick="toggleInstDays()">Tap item to update</span>
+        </div>
+        <div id="instList" class="item-list"></div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         3. DOCUMENT LIBRARY (SIMPLE & SAAF PDF VIEWER)
+    ═══════════════════════════════════════════════════ -->
+    <section id="view-documents" class="view-section">
+        <div id="docListSection">
+            <div class="cat-filter-row">
+                <button type="button" class="cat-btn active" id="catBtn-all" data-nav onclick="filterDocs('all')">All PDFs</button>
+                <button type="button" class="cat-btn" id="catBtn-pdf" data-nav onclick="filterDocs('pdf')">Manuals</button>
+                <button type="button" class="cat-btn" id="catBtn-drawings" data-nav onclick="filterDocs('drawings')">Drawings</button>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="docSearch" class="nokia-input" data-nav placeholder="Search PDF name..." oninput="renderDocs()">
+            </div>
+            <div class="count-bar">
+                <span id="docCountLabel">PDF Documents</span>
+                <span>Click to View</span>
+            </div>
+            <div id="docList" class="item-list"></div>
+        </div>
+
+        <!-- Embedded Clean PDF Viewer -->
+        <div id="docViewerSection" class="pdf-viewer-box">
+            <div class="pdf-toolbar">
+                <button type="button" class="btn-small secondary" data-nav onclick="closePdfViewer()">&#8592; PDF List</button>
+                <span id="activePdfTitle" style="font-size:11px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin:0 6px;">PDF</span>
+                <a id="directPdfLink" href="#" target="_blank" class="btn-small" data-nav>Full View</a>
+            </div>
+            <iframe id="pdfViewerFrame" class="pdf-frame" src="about:blank"></iframe>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         4. OPERATION REQUEST
+    ═══════════════════════════════════════════════════ -->
+    <section id="view-operations" class="view-section">
+        <div class="search-bar">
+            <input type="text" id="opSearch" class="nokia-input" data-nav placeholder="Search WO, Plant, Team..." oninput="renderOperations()">
+            <button type="button" class="btn-small" data-nav onclick="openNewOpModal()" style="white-space:nowrap;">+ New</button>
+        </div>
+        <div class="count-bar">
+            <span id="opCountLabel">Loading requests...</span>
+            <button type="button" class="btn-small secondary" style="padding:2px 6px;font-size:10px;" data-nav onclick="loadOperations(true)">Sync</button>
+        </div>
+        <div id="opList" class="item-list"></div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         5. TEAM CONTACTS
+    ═══════════════════════════════════════════════════ -->
+    <section id="view-contacts" class="view-section">
+        <div class="search-bar">
+            <input type="text" id="contactSearch" class="nokia-input" data-nav placeholder="Search name, code, phone..." oninput="renderContacts()">
+        </div>
+        <div class="count-bar">
+            <span id="contactCountLabel">Loading contacts...</span>
+            <span>Press OK to Call</span>
+        </div>
+        <div id="contactList" class="item-list"></div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         6. TEST PAGE (NOKIA KEYPAD & NAVIGATION TESTER)
+    ═══════════════════════════════════════════════════ -->
+    <section id="view-testpage" class="view-section">
+        <div class="tester-box">
+            <div style="font-size:11px;font-weight:bold;color:var(--muted);">PRESS ANY KEY ON NOKIA KEYPAD</div>
+            <div class="key-big-display" id="testKeyMain">Waiting for Key...</div>
+            <div class="key-stats-grid">
+                <div class="key-stat-cell"><b>Key:</b> <span id="testKeyName">-</span></div>
+                <div class="key-stat-cell"><b>KeyCode:</b> <span id="testKeyCode">-</span></div>
+                <div class="key-stat-cell"><b>Action:</b> <span id="testKeyAction">-</span></div>
+                <div class="key-stat-cell"><b>Screen:</b> <span id="testScreenSize">-</span></div>
+            </div>
+        </div>
+
+        <!-- Visual D-Pad Response -->
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:7px;">
+            <div style="font-size:11px;font-weight:bold;text-align:center;color:var(--muted);margin-bottom:4px;">
+                NAVIGATION &amp; KEYPAD VISUAL CHECK
+            </div>
+            <div class="dpad-visual">
+                <div></div>
+                <button type="button" class="dpad-btn" id="vkey-up" data-nav onclick="simulateTestKey('ArrowUp', 38, 'D-PAD UP ▲')">▲ UP</button>
+                <div></div>
+                <button type="button" class="dpad-btn" id="vkey-left" data-nav onclick="simulateTestKey('ArrowLeft', 37, 'D-PAD LEFT ◄')">◄ L</button>
+                <button type="button" class="dpad-btn" id="vkey-enter" data-nav onclick="simulateTestKey('Enter', 13, 'OK / CENTER ●')">● OK</button>
+                <button type="button" class="dpad-btn" id="vkey-right" data-nav onclick="simulateTestKey('ArrowRight', 39, 'D-PAD RIGHT ►')">R ►</button>
+                <div></div>
+                <button type="button" class="dpad-btn" id="vkey-down" data-nav onclick="simulateTestKey('ArrowDown', 40, 'D-PAD DOWN ▼')">▼ DN</button>
+                <div></div>
+            </div>
+
+            <div class="numpad-visual">
+                <button type="button" class="dpad-btn" id="vkey-1" data-nav onclick="simulateTestKey('1', 49, 'NUM 1')">1</button>
+                <button type="button" class="dpad-btn" id="vkey-2" data-nav onclick="simulateTestKey('2', 50, 'NUM 2 ABC')">2 abc</button>
+                <button type="button" class="dpad-btn" id="vkey-3" data-nav onclick="simulateTestKey('3', 51, 'NUM 3 DEF')">3 def</button>
+                <button type="button" class="dpad-btn" id="vkey-4" data-nav onclick="simulateTestKey('4', 52, 'NUM 4 GHI')">4 ghi</button>
+                <button type="button" class="dpad-btn" id="vkey-5" data-nav onclick="simulateTestKey('5', 53, 'NUM 5 JKL')">5 jkl</button>
+                <button type="button" class="dpad-btn" id="vkey-6" data-nav onclick="simulateTestKey('6', 54, 'NUM 6 MNO')">6 mno</button>
+                <button type="button" class="dpad-btn" id="vkey-7" data-nav onclick="simulateTestKey('7', 55, 'NUM 7 PQRS')">7 pqrs</button>
+                <button type="button" class="dpad-btn" id="vkey-8" data-nav onclick="simulateTestKey('8', 56, 'NUM 8 TUV')">8 tuv</button>
+                <button type="button" class="dpad-btn" id="vkey-9" data-nav onclick="simulateTestKey('9', 57, 'NUM 9 WXYZ')">9 wxyz</button>
+                <button type="button" class="dpad-btn" id="vkey-star" data-nav onclick="simulateTestKey('*', 42, 'STAR *')">*</button>
+                <button type="button" class="dpad-btn" id="vkey-0" data-nav onclick="simulateTestKey('0', 48, 'ZERO 0')">0</button>
+                <button type="button" class="dpad-btn" id="vkey-hash" data-nav onclick="simulateTestKey('#', 35, 'HASH #')">#</button>
+            </div>
+        </div>
+
+        <!-- Focus Navigation Test Items -->
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:7px;">
+            <div style="font-size:11px;font-weight:bold;color:var(--muted);margin-bottom:5px;">
+                FOCUS &amp; INPUT TEST (Use ▲/▼ &amp; OK)
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;">
+                <input type="text" class="nokia-input" data-nav placeholder="Type with Keypad here..." oninput="logTestEvent('Input: ' + this.value)">
+                <button type="button" class="nokia-card" data-nav onclick="logTestEvent('Clicked Test Button A');showToast('Button A Working!')">
+                    <b>Test Focus Row A</b> — Press OK / Enter to test click
+                </button>
+                <button type="button" class="nokia-card" data-nav onclick="logTestEvent('Clicked Test Button B');showToast('Button B Working!')">
+                    <b>Test Focus Row B</b> — Navigation working smoothly
+                </button>
+                <button type="button" class="btn-small secondary" data-nav onclick="clearKeyLog()">Clear Key History</button>
+            </div>
+        </div>
+
+        <div class="key-log-list" id="testKeyLog">
+            <div>Key history will appear here...</div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         FOOTER — "Code by Majeed"
+    ═══════════════════════════════════════════════════ -->
+    <footer class="nokia-footer">
+        Code by <span>Majeed</span>
+    </footer>
+
+    <!-- ═══════════════════════════════════════════════════
+         NOKIA SOFTKEY BAR
+    ═══════════════════════════════════════════════════ -->
+    <div class="softkey-bar">
+        <button type="button" class="softkey-btn" id="softkeyLeftBtn" onclick="handleLeftSoftkey()">[Main App]</button>
+        <span class="softkey-center" id="softkeyCenterText">▲▼ Navigate &bull; OK Select</span>
+        <button type="button" class="softkey-btn" onclick="handleRightSoftkey()" id="softkeyRightBtn">[Top]</button>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL: UPDATE INSTRUMENT LOCATION / REMARK
+═══════════════════════════════════════════════════ -->
+<div class="nokia-modal" id="instUpdateModal">
+    <div class="nokia-modal-box">
+        <div style="font-weight:bold;font-size:13px;margin-bottom:6px;color:var(--primary);" id="modalInstTitle">Update Instrument</div>
+        <div class="form-row">
+            <label>Location</label>
+            <select id="modalInstLoc" class="nokia-input" data-nav></select>
+        </div>
+        <div class="form-row">
+            <label>Updated By *</label>
+            <input type="text" id="modalInstUser" class="nokia-input" data-nav placeholder="Your Name (e.g. Majeed)">
+        </div>
+        <div class="form-row">
+            <label>Remark / Note (Optional)</label>
+            <input type="text" id="modalInstRemark" class="nokia-input" data-nav placeholder="Optional note...">
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+            <button type="button" class="btn-small" style="flex:1;" data-nav onclick="saveInstrumentUpdate()">Save</button>
+            <button type="button" class="btn-small secondary" style="flex:1;" data-nav onclick="closeInstModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL: NEW OPERATION REQUEST
+═══════════════════════════════════════════════════ -->
+<div class="nokia-modal" id="opCreateModal">
+    <div class="nokia-modal-box">
+        <div style="font-weight:bold;font-size:13px;margin-bottom:6px;color:var(--primary);">New Operation Request</div>
+        <div class="form-row">
+            <label>Work Order #</label>
+            <input type="text" id="newOpWo" class="nokia-input" data-nav placeholder="e.g. 12345">
+        </div>
+        <div class="form-row">
+            <label>Plant *</label>
+            <input type="text" id="newOpPlant" class="nokia-input" data-nav placeholder="e.g. AD-032">
+        </div>
+        <div class="form-row">
+            <label>Description *</label>
+            <input type="text" id="newOpDesc" class="nokia-input" data-nav placeholder="Work description">
+        </div>
+        <div class="form-row">
+            <label>Team / Requested By</label>
+            <input type="text" id="newOpTeam" class="nokia-input" data-nav placeholder="e.g. Majeed">
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+            <button type="button" class="btn-small" style="flex:1;" data-nav onclick="submitNewOp()">Submit</button>
+            <button type="button" class="btn-small secondary" style="flex:1;" data-nav onclick="closeNewOpModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div class="toast-msg" id="nokiaToast"></div>
+
+<script>
+    /* ═══════════════════════════════════════════════════════════
+       NOKIA EDITION APPLICATION LOGIC
+       Zero changes to Main Code — Connects to real backend APIs
+    ═══════════════════════════════════════════════════════════ */
+    var currentModule = 'home';
+    var instrumentsData = [];
+    var locationsList = ['AD-007', 'AD-027', 'AD-032', 'TM-003', 'Dubai', 'Calibration', 'Store'];
+    var showDaysMode = false;
+    var selectedInstrument = null;
+
+    var operationsData = [];
+    var contactsData = [];
+    var activeDocCategory = 'all';
+
+    // Real PDF Documents from Google Drive Folders (PDF Manuals & SOPs + Drawings & Schematics)
+    var DOCUMENT_LIBRARY_PDFS = [
+        // PDF Manuals & SOPs (Folder: 1CZIU9gxrpYA3gO1Kf6trVfkpilt7aOMJ)
+        { id: "10Egmrl2cpiD3Wu0LrREz-6EUxPzIwN9j", title: "ABB CALLMASTER sample terminal program.PDF", cat: "pdf", catLabel: "Manual" },
+        { id: "19uc_dQWiKw7NHxnm4Rgt2OyQX7QZwEHE", title: "AD32 Schematic.pdf", cat: "pdf", catLabel: "Manual" },
+        { id: "1m3rS0NVnZOd4VrbNef7mRMwB_mepSNiN", title: "AUMA PROFOX Actuator.pdf", cat: "pdf", catLabel: "Manual" },
+        { id: "1sEsHL-fZPCeEkucjuNzUgAHjiVoPX29b", title: "FEM Electric Actuator Series Catalogue 2022.pdf", cat: "pdf", catLabel: "Manual" },
+        { id: "1vnzuw4Ph7Lqdd4ERSrBB70F4ASMbNzEo", title: "Flowcon.pdf", cat: "pdf", catLabel: "Manual" },
+        { id: "17J_UoX09q8M5a4N5foIQhAGP878hqH7N", title: "Retrofit FEX631.pdf", cat: "pdf", catLabel: "Manual" },
+
+        // Drawings & Schematics PDFs (Folder: 1KUQpoKUJHbr9GjPwfpOIqSBmQZ1TrKSN)
+        { id: "1uRudnPzbJPh2IXD0zNgfP6taH5ovO3lL", title: "AD06 ModBus Communication Network Loop.pdf", cat: "drawings", catLabel: "Drawing" },
+        { id: "1ogXWxVMZnNXfkcbGFiVeSQmwA767u2BH", title: "AD07 and AD27 FOC Network 2.pdf", cat: "drawings", catLabel: "Drawing" },
+        { id: "15VAPhTGoVNCwvTk4eJwQFIlmG2fvsBQn", title: "AD07 and AD27 FOC Network.pdf", cat: "drawings", catLabel: "Drawing" },
+        { id: "15mxf2As_cFM65XDaEtk9W4H0LgjLVYPj", title: "AD07 and AD27.pdf", cat: "drawings", catLabel: "Drawing" },
+        { id: "15UQk-KqLnlzMIP8hQloIv7CQUt1zyYJA", title: "AD27 FOC Network.pdf", cat: "drawings", catLabel: "Drawing" },
+        { id: "1boGXmNeAuwVWH_tpm48p1qE2jaqcF7E4", title: "AD32 All ETS Map.pdf", cat: "drawings", catLabel: "Drawing" },
+        { id: "1SK5lsoHujPnZ0B2I9gyWqhKNaBnHvcAK", title: "AD32 FOC Network.pdf", cat: "drawings", catLabel: "Drawing" },
+        { id: "1bTcUdyLiUDlzJYtYMRRIA-TkB8gQbZYU", title: "T2 TES Tank Drawing.pdf", cat: "drawings", catLabel: "Drawing" },
+        { id: "1g10alZN8qfQ_9a-oKlL_7bzSbK-PUU32", title: "T5 ETS FOC Network.pdf", cat: "drawings", catLabel: "Drawing" },
+        { id: "1rzRtVjo6EguvjX-6wQPcKk85_A-KKcuJ", title: "T8 ETS Location & FOC Network.pdf", cat: "drawings", catLabel: "Drawing" }
+    ];
+
+    function escHtml(str) {
+        return String(str || '').replace(/[<>"'&]/g, function(c) {
+            return { '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '&': '&amp;' }[c];
+        });
+    }
+
+    function showToast(msg) {
+        var el = document.getElementById('nokiaToast');
+        if (!el) return;
+        el.textContent = msg;
+        el.style.display = 'block';
+        clearTimeout(window._nokiaToastTimer);
+        window._nokiaToastTimer = setTimeout(function() {
+            el.style.display = 'none';
+        }, 2200);
+    }
+
+    function toggleDark() {
+        var isDark = document.body.classList.toggle('dark-mode');
+        try { localStorage.setItem('nokia_dark_mode', isDark ? '1' : '0'); } catch (e) {}
+        document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+    }
+
+    /* ─── MODULE NAVIGATION ─── */
+    function openModule(mod) {
+        currentModule = mod;
+        var views = document.querySelectorAll('.view-section');
+        for (var i = 0; i < views.length; i++) {
+            views[i].classList.remove('active');
+        }
+        var target = document.getElementById('view-' + mod);
+        if (target) target.classList.add('active');
+
+        var backBtn = document.getElementById('headerBackBtn');
+        var titleEl = document.getElementById('headerTitle');
+        var leftSoft = document.getElementById('softkeyLeftBtn');
+        var rightSoft = document.getElementById('softkeyRightBtn');
+
+        if (mod === 'home') {
+            backBtn.style.display = 'none';
+            titleEl.textContent = 'Automation App';
+            if (leftSoft) leftSoft.textContent = '[Main App]';
+            rightSoft.textContent = '[Top]';
+        } else {
+            backBtn.style.display = 'inline-block';
+            if (leftSoft) leftSoft.textContent = '[Home]';
+            rightSoft.textContent = '[Back]';
+            if (mod === 'instruments') {
+                titleEl.textContent = 'Master Instrument List';
+                loadInstruments();
+            } else if (mod === 'documents') {
+                titleEl.textContent = 'Document Library';
+                closePdfViewer();
+                renderDocs();
+            } else if (mod === 'operations') {
+                titleEl.textContent = 'Operation Request';
+                loadOperations();
+            } else if (mod === 'contacts') {
+                titleEl.textContent = 'Team Contacts';
+                loadContacts();
+            } else if (mod === 'testpage') {
+                titleEl.textContent = 'Keypad Test Page';
+                updateTestScreenDimensions();
+            }
+        }
+        window.scrollTo(0, 0);
+        focusFirstNavItem();
+    }
+
+    function goHome() {
+        if (currentModule === 'documents') {
+            var viewer = document.getElementById('docViewerSection');
+            if (viewer && viewer.classList.contains('active')) {
+                closePdfViewer();
+                return;
+            }
+        }
+        openModule('home');
+    }
+
+    function handleLeftSoftkey() {
+        if (currentModule === 'home') {
+            window.location.href = '../index.html';
+        } else {
+            openModule('home');
+        }
+    }
+
+    function handleRightSoftkey() {
+        if (currentModule === 'home') {
+            window.scrollTo(0, 0);
+            focusFirstNavItem();
+        } else {
+            goHome();
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       1. MASTER INSTRUMENT LIST
+    ═══════════════════════════════════════════════════════════ */
+    function parseExpiryDays(expStr) {
+        if (!expStr || expStr === '-' || expStr === '—') return null;
+        var parts = String(expStr).trim().split(/[./-]/);
+        if (parts.length !== 3) return null;
+        var d, m, y;
+        if (parts[0].length === 4) {
+            y = parseInt(parts[0], 10);
+            m = parseInt(parts[1], 10) - 1;
+            d = parseInt(parts[2], 10);
+        } else {
+            d = parseInt(parts[0], 10);
+            m = parseInt(parts[1], 10) - 1;
+            y = parseInt(parts[2], 10);
+        }
+        var dt = new Date(y, m, d);
+        if (isNaN(dt.getTime())) return null;
+        return Math.ceil((dt.getTime() - Date.now()) / 86400000);
+    }
+
+    function toggleInstDays() {
+        showDaysMode = !showDaysMode;
+        renderInstruments();
+    }
+
+    function loadInstruments() {
+        try {
+            var cached = localStorage.getItem('localTabreedInventory');
+            if (cached) {
+                var parsed = JSON.parse(cached);
+                if (parsed && Array.isArray(parsed.data) && parsed.data.length > 0) {
+                    instrumentsData = parsed.data;
+                    if (Array.isArray(parsed.locations) && parsed.locations.length > 0) {
+                        locationsList = parsed.locations;
+                    }
+                    renderInstruments();
+                }
+            }
+        } catch (e) {}
+
+        fetch('/api/inventory?key=AI1&action=getItems&t=' + Date.now())
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (res && Array.isArray(res.data)) {
+                    instrumentsData = res.data;
+                    if (Array.isArray(res.locations) && res.locations.length > 0) {
+                        locationsList = res.locations;
+                    }
+                    try { localStorage.setItem('localTabreedInventory', JSON.stringify(res)); } catch (e) {}
+                    renderInstruments();
+                    var homeCnt = document.getElementById('homeInstCount');
+                    if (homeCnt) homeCnt.textContent = instrumentsData.length + ' Instruments • AI1 Database';
+                }
+            })
+            .catch(function() {
+                fetch('../data/inventory_cache.json')
+                    .then(function(r) { return r.json(); })
+                    .then(function(res) {
+                        if (res && Array.isArray(res.data)) {
+                            instrumentsData = res.data;
+                            renderInstruments();
+                        }
+                    })
+                    .catch(function() {});
+            });
+    }
+
+    function renderInstruments() {
+        var listEl = document.getElementById('instList');
+        var q = (document.getElementById('instSearch').value || '').toLowerCase().trim();
+        var filtered = instrumentsData.filter(function(item) {
+            if (!q) return true;
+            return (item.name || '').toLowerCase().indexOf(q) !== -1 ||
+                   (item.location || '').toLowerCase().indexOf(q) !== -1 ||
+                   (item.updatedBy || '').toLowerCase().indexOf(q) !== -1;
+        });
+
+        document.getElementById('instCountLabel').textContent = filtered.length + ' of ' + instrumentsData.length + ' Items';
+
+        if (filtered.length === 0) {
+            listEl.innerHTML = '<div class="nokia-card">No instruments matching search.</div>';
+            return;
+        }
+
+        var html = '';
+        for (var i = 0; i < filtered.length; i++) {
+            var it = filtered[i];
+            var diff = parseExpiryDays(it.expiry);
+            var isExp = diff !== null && diff < 0;
+            var isSoon = diff !== null && diff >= 0 && diff <= 30;
+            var cardCls = isExp ? 'nokia-card expired' : (isSoon ? 'nokia-card soon' : 'nokia-card');
+
+            var expBadge = '';
+            if (it.expiry) {
+                var expLabel = escHtml(it.expiry);
+                if (showDaysMode && diff !== null) {
+                    expLabel = diff < 0 ? ('Exp ' + Math.abs(diff) + 'd ago') : (diff + 'd left');
+                }
+                var expCls = isExp ? 'badge badge-danger' : (isSoon ? 'badge badge-warn' : 'badge badge-ok');
+                expBadge = '<span class="' + expCls + '">' + expLabel + '</span>';
+            } else {
+                expBadge = '<span class="badge" style="background:var(--surface);color:var(--muted);">No Exp</span>';
+            }
+
+            var remark = (it.remark || it.comment || '').trim();
+            var noteHtml = remark ? '<div class="card-note">Note: ' + escHtml(remark) + '</div>' : '';
+
+            html += '<button type="button" class="' + cardCls + '" data-nav onclick="openInstModal(' + i + ', \'' + escHtml(it.name).replace(/'/g, "\\'") + '\')">' +
+                '<div class="card-top">' +
+                    '<div class="card-title">' + escHtml(it.name) + '</div>' +
+                    '<span class="badge badge-loc">' + escHtml(it.location || '—') + '</span>' +
+                '</div>' +
+                '<div class="card-meta">' +
+                    '<span>By: <b>' + escHtml(it.updatedBy || '—') + '</b></span>' +
+                    expBadge +
+                '</div>' +
+                noteHtml +
+            '</button>';
+        }
+        listEl.innerHTML = html;
+    }
+
+    function openInstModal(idx, name) {
+        var item = null;
+        for (var i = 0; i < instrumentsData.length; i++) {
+            if (instrumentsData[i].name === name) {
+                item = instrumentsData[i];
+                break;
+            }
+        }
+        if (!item) return;
+        selectedInstrument = item;
+        document.getElementById('modalInstTitle').textContent = item.name;
+
+        var sel = document.getElementById('modalInstLoc');
+        var locSet = {};
+        for (var j = 0; j < locationsList.length; j++) locSet[locationsList[j]] = true;
+        for (var k = 0; k < instrumentsData.length; k++) {
+            if (instrumentsData[k].location) locSet[instrumentsData[k].location] = true;
+        }
+        var opts = '';
+        for (var loc in locSet) {
+            var isSel = (loc === item.location) ? ' selected' : '';
+            opts += '<option value="' + escHtml(loc) + '"' + isSel + '>' + escHtml(loc) + '</option>';
+        }
+        sel.innerHTML = opts;
+
+        document.getElementById('modalInstUser').value = item.updatedBy || '';
+        document.getElementById('modalInstRemark').value = item.remark || '';
+        document.getElementById('instUpdateModal').classList.add('active');
+        document.getElementById('modalInstLoc').focus();
+    }
+
+    function closeInstModal() {
+        document.getElementById('instUpdateModal').classList.remove('active');
+        selectedInstrument = null;
+    }
+
+    function saveInstrumentUpdate() {
+        if (!selectedInstrument) return;
+        var newLoc = document.getElementById('modalInstLoc').value;
+        var user = document.getElementById('modalInstUser').value.trim();
+        var remark = document.getElementById('modalInstRemark').value.trim();
+
+        if (!user) {
+            showToast('Please enter Updated By name');
+            document.getElementById('modalInstUser').focus();
+            return;
+        }
+
+        selectedInstrument.location = newLoc;
+        selectedInstrument.updatedBy = user;
+        selectedInstrument.remark = remark;
+        renderInstruments();
+        closeInstModal();
+        showToast('Saved ' + selectedInstrument.name);
+
+        var qs = new URLSearchParams({
+            key: 'AI1',
+            action: 'update',
+            name: selectedInstrument.name,
+            itemName: selectedInstrument.name,
+            location: newLoc,
+            newLocation: newLoc,
+            expiry: selectedInstrument.expiry || '',
+            newExpiry: selectedInstrument.expiry || '',
+            user: user,
+            updatedBy: user,
+            remark: remark
+        }).toString();
+
+        fetch('/api/inventory?' + qs, { method: 'POST' }).catch(function() {});
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       2. DOCUMENT LIBRARY (SIMPLE & SAAF DIRECT PDF VIEW)
+    ═══════════════════════════════════════════════════════════ */
+    function filterDocs(cat) {
+        activeDocCategory = cat;
+        var btns = ['all', 'pdf', 'drawings'];
+        for (var i = 0; i < btns.length; i++) {
+            var b = document.getElementById('catBtn-' + btns[i]);
+            if (b) b.classList.toggle('active', btns[i] === cat);
+        }
+        renderDocs();
+    }
+
+    function renderDocs() {
+        var q = (document.getElementById('docSearch').value || '').toLowerCase().trim();
+        var list = DOCUMENT_LIBRARY_PDFS.filter(function(d) {
+            var matchCat = (activeDocCategory === 'all') || (d.cat === activeDocCategory);
+            var matchSearch = !q || d.title.toLowerCase().indexOf(q) !== -1;
+            return matchCat && matchSearch;
+        });
+
+        document.getElementById('docCountLabel').textContent = list.length + ' PDF Files';
+        var container = document.getElementById('docList');
+
+        if (list.length === 0) {
+            container.innerHTML = '<div class="nokia-card">No PDFs found.</div>';
+            return;
+        }
+
+        var html = '';
+        for (var i = 0; i < list.length; i++) {
+            var doc = list[i];
+            html += '<button type="button" class="pdf-item" data-nav onclick="openPdfViewer(\'' + doc.id + '\', \'' + escHtml(doc.title).replace(/'/g, "\\'") + '\')">' +
+                '<span class="pdf-icon">PDF</span>' +
+                '<div class="pdf-title">' + escHtml(doc.title) + '</div>' +
+                '<span class="badge badge-loc">' + escHtml(doc.catLabel) + '</span>' +
+            '</button>';
+        }
+        container.innerHTML = html;
+    }
+
+    function openPdfViewer(fileId, title) {
+        document.getElementById('docListSection').style.display = 'none';
+        var viewer = document.getElementById('docViewerSection');
+        viewer.classList.add('active');
+        document.getElementById('activePdfTitle').textContent = title;
+        var previewUrl = 'https://drive.google.com/file/d/' + fileId + '/preview';
+        var viewUrl = 'https://drive.google.com/file/d/' + fileId + '/view';
+        document.getElementById('pdfViewerFrame').src = previewUrl;
+        document.getElementById('directPdfLink').href = viewUrl;
+        window.scrollTo(0, 0);
+    }
+
+    function closePdfViewer() {
+        var viewer = document.getElementById('docViewerSection');
+        if (viewer) viewer.classList.remove('active');
+        document.getElementById('pdfViewerFrame').src = 'about:blank';
+        document.getElementById('docListSection').style.display = 'block';
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       3. OPERATION REQUEST
+    ═══════════════════════════════════════════════════════════ */
+    function loadOperations(force) {
+        fetch('/api/operation-requests' + (force ? '?refresh=true' : ''))
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (res && Array.isArray(res.data)) {
+                    operationsData = res.data;
+                    renderOperations();
+                    var homeOp = document.getElementById('homeOpCount');
+                    if (homeOp) homeOp.textContent = operationsData.length + ' Active Work Orders';
+                }
+            })
+            .catch(function() {
+                fetch('../data/operation_requests.json')
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (Array.isArray(data)) {
+                            operationsData = data;
+                            renderOperations();
+                        }
+                    })
+                    .catch(function() {});
+            });
+    }
+
+    function renderOperations() {
+        var listEl = document.getElementById('opList');
+        var q = (document.getElementById('opSearch').value || '').toLowerCase().trim();
+        var filtered = operationsData.filter(function(item) {
+            var wo = String(item['Work Order'] || item.wo || '');
+            var desc = String(item['Description'] || item.desc || '');
+            var plant = String(item['Plant'] || item.plant || '');
+            var team = String(item['Team'] || item.team || '');
+            if (!q) return true;
+            return wo.toLowerCase().indexOf(q) !== -1 ||
+                   desc.toLowerCase().indexOf(q) !== -1 ||
+                   plant.toLowerCase().indexOf(q) !== -1 ||
+                   team.toLowerCase().indexOf(q) !== -1;
+        });
+
+        document.getElementById('opCountLabel').textContent = filtered.length + ' Operation Requests';
+
+        if (filtered.length === 0) {
+            listEl.innerHTML = '<div class="nokia-card">No operation requests found.</div>';
+            return;
+        }
+
+        var html = '';
+        for (var i = 0; i < filtered.length; i++) {
+            var r = filtered[i];
+            var wo = r['Work Order'] || r.wo || 'N/A';
+            var desc = r['Description'] || r.desc || '—';
+            var plant = r['Plant'] || r.plant || '—';
+            var date = r['Date'] || r.date || '';
+            var time = r['Time'] || r.time || '';
+            var team = r['Team'] || r.team || '—';
+            var status = r['Status'] || r.status || 'Requested';
+            var remarks = r['Remarks'] || r.remarks || '';
+
+            var stLower = status.toLowerCase();
+            var stBadge = stLower.indexOf('complete') !== -1 || stLower.indexOf('approve') !== -1
+                ? 'badge badge-ok'
+                : 'badge badge-warn';
+
+            html += '<div class="nokia-card" tabindex="0" data-nav>' +
+                '<div class="card-top">' +
+                    '<div class="card-title">WO #' + escHtml(wo) + ' &bull; ' + escHtml(plant) + '</div>' +
+                    '<span class="' + stBadge + '">' + escHtml(status) + '</span>' +
+                '</div>' +
+                '<div style="font-size:12px;margin:2px 0;color:var(--text);">' + escHtml(desc) + '</div>' +
+                '<div class="card-meta">' +
+                    '<span>Team: <b>' + escHtml(team) + '</b></span>' +
+                    '<span>' + escHtml((date + ' ' + time).trim()) + '</span>' +
+                '</div>' +
+                (remarks ? '<div class="card-note">' + escHtml(remarks) + '</div>' : '') +
+            '</div>';
+        }
+        listEl.innerHTML = html;
+    }
+
+    function openNewOpModal() {
+        document.getElementById('newOpWo').value = '';
+        document.getElementById('newOpPlant').value = '';
+        document.getElementById('newOpDesc').value = '';
+        document.getElementById('newOpTeam').value = '';
+        document.getElementById('opCreateModal').classList.add('active');
+        document.getElementById('newOpWo').focus();
+    }
+
+    function closeNewOpModal() {
+        document.getElementById('opCreateModal').classList.remove('active');
+    }
+
+    function submitNewOp() {
+        var wo = document.getElementById('newOpWo').value.trim();
+        var plant = document.getElementById('newOpPlant').value.trim();
+        var desc = document.getElementById('newOpDesc').value.trim();
+        var team = document.getElementById('newOpTeam').value.trim() || 'Majeed';
+
+        if (!plant && !desc) {
+            showToast('Enter Plant and Description');
+            return;
+        }
+
+        var now = new Date();
+        var dd = String(now.getDate()).padStart(2, '0');
+        var mm = String(now.getMonth() + 1).padStart(2, '0');
+        var yyyy = now.getFullYear();
+        var dateStr = dd + '.' + mm + '.' + yyyy;
+
+        var payload = {
+            action: 'create',
+            workOrder: wo,
+            plant: plant,
+            description: desc,
+            team: team,
+            date: dateStr,
+            time: '08:00 - 17:00',
+            status: 'Requested',
+            user: team
+        };
+
+        closeNewOpModal();
+        showToast('Submitting Request...');
+
+        fetch('/api/operation-requests', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(function(r) { return r.json(); })
+        .then(function() {
+            showToast('Operation Request Added!');
+            loadOperations(true);
+        })
+        .catch(function() {
+            showToast('Saved locally');
+        });
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       4. TEAM CONTACTS
+    ═══════════════════════════════════════════════════════════ */
+    function loadContacts() {
+        fetch('/api/team-contacts')
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (res && Array.isArray(res.data)) {
+                    contactsData = res.data;
+                    renderContacts();
+                }
+            })
+            .catch(function() {
+                fetch('../data/team_contacts.json')
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        if (Array.isArray(data)) {
+                            contactsData = data;
+                            renderContacts();
+                        }
+                    })
+                    .catch(function() {});
+            });
+    }
+
+    function renderContacts() {
+        var listEl = document.getElementById('contactList');
+        var q = (document.getElementById('contactSearch').value || '').toLowerCase().trim();
+        var filtered = contactsData.filter(function(c) {
+            if (!q) return true;
+            return (c.short || '').toLowerCase().indexOf(q) !== -1 ||
+                   (c.full || '').toLowerCase().indexOf(q) !== -1 ||
+                   String(c.code || '').toLowerCase().indexOf(q) !== -1 ||
+                   (c.phone || '').toLowerCase().indexOf(q) !== -1;
+        });
+
+        document.getElementById('contactCountLabel').textContent = filtered.length + ' Team Members';
+
+        if (filtered.length === 0) {
+            listEl.innerHTML = '<div class="nokia-card">No contacts found.</div>';
+            return;
+        }
+
+        var html = '';
+        for (var i = 0; i < filtered.length; i++) {
+            var c = filtered[i];
+            var phoneClean = String(c.phone || '').replace(/\s+/g, '');
+            var waClean = String(c.whatsapp || c.phone || '').replace(/[^0-9]/g, '');
+            var roleBadge = c.role === 'supervisor'
+                ? '<span class="badge badge-warn">Supervisor</span>'
+                : '<span class="badge badge-loc">#' + escHtml(c.code) + '</span>';
+
+            html += '<div class="nokia-card">' +
+                '<div class="card-top">' +
+                    '<div class="card-title">' + escHtml(c.short || c.full) + '</div>' +
+                    roleBadge +
+                '</div>' +
+                '<div style="font-size:11px;color:var(--muted);">' + escHtml(c.full) + '</div>' +
+                '<div class="card-meta" style="margin-top:3px;">' +
+                    '<span>Tel: <b>' + escHtml(c.phone || '—') + '</b></span>' +
+                '</div>' +
+                '<div class="contact-actions-row">' +
+                    (phoneClean ? '<a href="tel:' + escHtml(phoneClean) + '" class="contact-btn btn-call" data-nav>&#9742; Call</a>' : '') +
+                    (waClean ? '<a href="https://wa.me/' + escHtml(waClean) + '" target="_blank" class="contact-btn btn-wa" data-nav>WhatsApp</a>' : '') +
+                '</div>' +
+            '</div>';
+        }
+        listEl.innerHTML = html;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       5. TEST PAGE (KEYPAD & NAVIGATION RESPONSE CHECKER)
+    ═══════════════════════════════════════════════════════════ */
+    var keyLogEntries = [];
+
+    function updateTestScreenDimensions() {
+        var el = document.getElementById('testScreenSize');
+        if (el) {
+            el.textContent = window.innerWidth + 'x' + window.innerHeight;
+        }
+    }
+
+    function getFriendlyKeyAction(key, keyCode) {
+        if (key === 'ArrowUp' || keyCode === 38) return 'D-PAD UP ▲';
+        if (key === 'ArrowDown' || keyCode === 40) return 'D-PAD DOWN ▼';
+        if (key === 'ArrowLeft' || keyCode === 37) return 'D-PAD LEFT ◄';
+        if (key === 'ArrowRight' || keyCode === 39) return 'D-PAD RIGHT ►';
+        if (key === 'Enter' || keyCode === 13) return 'CENTER OK / SELECT ●';
+        if (key === 'SoftLeft' || key === 'F1') return 'LEFT SOFTKEY';
+        if (key === 'SoftRight' || key === 'F2') return 'RIGHT SOFTKEY';
+        if (key === 'Backspace' || key === 'Escape' || keyCode === 8 || keyCode === 27) return 'BACK / CLEAR';
+        if (/^[0-9*#]$/.test(key)) return 'KEYPAD [' + key + ']';
+        return 'KEY PRESS';
+    }
+
+    function highlightVirtualKey(key, keyCode) {
+        var map = {
+            'ArrowUp': 'vkey-up',
+            'ArrowDown': 'vkey-down',
+            'ArrowLeft': 'vkey-left',
+            'ArrowRight': 'vkey-right',
+            'Enter': 'vkey-enter',
+            '1': 'vkey-1', '2': 'vkey-2', '3': 'vkey-3',
+            '4': 'vkey-4', '5': 'vkey-5', '6': 'vkey-6',
+            '7': 'vkey-7', '8': 'vkey-8', '9': 'vkey-9',
+            '*': 'vkey-star', '0': 'vkey-0', '#': 'vkey-hash'
+        };
+        var id = map[key];
+        if (!id && keyCode === 38) id = 'vkey-up';
+        if (!id && keyCode === 40) id = 'vkey-down';
+        if (!id && keyCode === 37) id = 'vkey-left';
+        if (!id && keyCode === 39) id = 'vkey-right';
+        if (!id && keyCode === 13) id = 'vkey-enter';
+
+        var allBtns = document.querySelectorAll('.dpad-btn');
+        for (var i = 0; i < allBtns.length; i++) {
+            allBtns[i].classList.remove('pressed');
+        }
+        if (id) {
+            var target = document.getElementById(id);
+            if (target) {
+                target.classList.add('pressed');
+                setTimeout(function() { target.classList.remove('pressed'); }, 350);
+            }
+        }
+    }
+
+    function simulateTestKey(key, code, actionLabel) {
+        recordTestKeyPress(key, code, actionLabel);
+    }
+
+    function recordTestKeyPress(key, code, actionLabel) {
+        var mainEl = document.getElementById('testKeyMain');
+        var nameEl = document.getElementById('testKeyName');
+        var codeEl = document.getElementById('testKeyCode');
+        var actEl = document.getElementById('testKeyAction');
+
+        if (mainEl) mainEl.textContent = actionLabel + ' (' + key + ')';
+        if (nameEl) nameEl.textContent = key;
+        if (codeEl) codeEl.textContent = code;
+        if (actEl) actEl.textContent = actionLabel;
+
+        highlightVirtualKey(key, code);
+        logTestEvent('Key: ' + key + ' | Code: ' + code + ' -> ' + actionLabel);
+    }
+
+    function logTestEvent(text) {
+        var now = new Date();
+        var timeStr = String(now.getHours()).padStart(2, '0') + ':' +
+                      String(now.getMinutes()).padStart(2, '0') + ':' +
+                      String(now.getSeconds()).padStart(2, '0');
+        keyLogEntries.unshift('[' + timeStr + '] ' + text);
+        if (keyLogEntries.length > 12) keyLogEntries.pop();
+
+        var logEl = document.getElementById('testKeyLog');
+        if (logEl) {
+            logEl.innerHTML = keyLogEntries.map(function(e) {
+                return '<div style="padding:2px 0;border-bottom:1px dashed var(--border);">' + escHtml(e) + '</div>';
+            }).join('');
+        }
+    }
+
+    function clearKeyLog() {
+        keyLogEntries = [];
+        var logEl = document.getElementById('testKeyLog');
+        if (logEl) logEl.innerHTML = '<div>Key log cleared. Press any key...</div>';
+        document.getElementById('testKeyMain').textContent = 'Waiting for Key...';
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       NOKIA D-PAD & KEYPAD HARDWARE NAVIGATION ENGINE
+    ═══════════════════════════════════════════════════════════ */
+    function getVisibleNavItems() {
+        var modalInst = document.getElementById('instUpdateModal');
+        if (modalInst && modalInst.classList.contains('active')) {
+            return Array.prototype.slice.call(modalInst.querySelectorAll('[data-nav]'));
+        }
+        var modalOp = document.getElementById('opCreateModal');
+        if (modalOp && modalOp.classList.contains('active')) {
+            return Array.prototype.slice.call(modalOp.querySelectorAll('[data-nav]'));
+        }
+
+        var all = document.querySelectorAll('.nokia-header [data-nav], .view-section.active [data-nav]');
+        var visible = [];
+        for (var i = 0; i < all.length; i++) {
+            var el = all[i];
+            if (el.offsetParent !== null) {
+                visible.push(el);
+            }
+        }
+        return visible;
+    }
+
+    function focusFirstNavItem() {
+        setTimeout(function() {
+            var activeView = document.querySelector('.view-section.active');
+            if (!activeView) return;
+            var items = activeView.querySelectorAll('[data-nav]');
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].offsetParent !== null) {
+                    items[i].focus();
+                    break;
+                }
+            }
+        }, 40);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        var key = e.key || '';
+        var code = e.keyCode || e.which || 0;
+        var activeEl = document.activeElement;
+        var isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT');
+
+        // If on Test Page, always log the key response live!
+        if (currentModule === 'testpage') {
+            var actLabel = getFriendlyKeyAction(key, code);
+            recordTestKeyPress(key, code, actLabel);
+        }
+
+        // Number shortcuts 1-5 on Home Screen
+        if (currentModule === 'home' && !isInput) {
+            if (key === '1' || code === 49) { e.preventDefault(); openModule('instruments'); return; }
+            if (key === '2' || code === 50) { e.preventDefault(); openModule('documents'); return; }
+            if (key === '3' || code === 51) { e.preventDefault(); openModule('operations'); return; }
+            if (key === '4' || code === 52) { e.preventDefault(); openModule('contacts'); return; }
+            if (key === '5' || code === 53) { e.preventDefault(); openModule('testpage'); return; }
+        }
+
+        // D-Pad Up / Down Navigation
+        var isDown = (key === 'ArrowDown' || code === 40);
+        var isUp = (key === 'ArrowUp' || code === 38);
+
+        if (isDown || isUp) {
+            // Allow native select dropdown behavior when open
+            if (activeEl && activeEl.tagName === 'SELECT') return;
+
+            e.preventDefault();
+            var navItems = getVisibleNavItems();
+            if (navItems.length === 0) return;
+
+            var idx = navItems.indexOf(activeEl);
+            var nextIdx = 0;
+            if (idx === -1) {
+                nextIdx = 0;
+            } else if (isDown) {
+                nextIdx = (idx + 1) % navItems.length;
+            } else if (isUp) {
+                nextIdx = (idx - 1 + navItems.length) % navItems.length;
+            }
+
+            var target = navItems[nextIdx];
+            if (target) {
+                target.focus();
+                if (typeof target.scrollIntoView === 'function') {
+                    target.scrollIntoView({ block: 'nearest' });
+                }
+            }
+            return;
+        }
+
+        // Enter key inside search input -> move focus to first result
+        if ((key === 'Enter' || code === 13) && isInput && activeEl.tagName === 'INPUT') {
+            var navList = getVisibleNavItems();
+            var curIdx = navList.indexOf(activeEl);
+            if (curIdx !== -1 && curIdx + 1 < navList.length) {
+                e.preventDefault();
+                navList[curIdx + 1].focus();
+            }
+            return;
+        }
+
+        // Back / Escape / 0 (when not typing in an input)
+        if (!isInput && (key === 'Escape' || key === 'Backspace' || key === '0' || code === 27 || code === 8)) {
+            if (currentModule !== 'home') {
+                e.preventDefault();
+                goHome();
+            }
+        }
+    });
+
+    /* ─── INITIALIZATION ─── */
+    window.addEventListener('resize', updateTestScreenDimensions);
+    window.addEventListener('online', function() {
+        document.getElementById('netDot').classList.remove('offline');
+    });
+    window.addEventListener('offline', function() {
+        document.getElementById('netDot').classList.add('offline');
+    });
+
+    (function initNokiaApp() {
+        try {
+            if (localStorage.getItem('nokia_dark_mode') === '1') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeBtn').textContent = '☀️';
+            }
+        } catch (e) {}
+
+        if (!navigator.onLine) {
+            document.getElementById('netDot').classList.add('offline');
+        }
+
+        // Pre-fetch counts in background
+        loadInstruments();
+        loadOperations(false);
+        focusFirstNavItem();
+    })();
+</script>
+</body>
+</html>
