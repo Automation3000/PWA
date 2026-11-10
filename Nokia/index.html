@@ -5,6 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
     <meta name="theme-color" content="#0f172a">
     <title>Automation App - Nokia Edition</title>
+    <script>
+        (function() {
+            try {
+                var _nativeFetch = typeof window.fetch === 'function' ? window.fetch.bind(window) : null;
+                window.__nokiaNativeFetch = _nativeFetch;
+                var defineFetchProp = function(target) {
+                    if (!target) return;
+                    try {
+                        Object.defineProperty(target, 'fetch', {
+                            get: function() { return _nativeFetch; },
+                            set: function() {
+                                // Keep native fetch intact so browser extensions do not break network calls
+                            },
+                            configurable: true,
+                            enumerable: true
+                        });
+                    } catch (_) {}
+                };
+                defineFetchProp(window);
+                if (typeof Window !== 'undefined' && Window.prototype) {
+                    defineFetchProp(Window.prototype);
+                }
+            } catch (e) {}
+            try {
+                window.addEventListener('error', function(event) {
+                    if (
+                        (event.filename && event.filename.indexOf('chrome-extension://') !== -1) ||
+                        (event.message && (
+                            event.message.indexOf('Cannot set property fetch') !== -1 ||
+                            event.message.indexOf('fetch of #<Window>') !== -1
+                        ))
+                    ) {
+                        event.preventDefault();
+                        if (typeof event.stopImmediatePropagation === 'function') {
+                            event.stopImmediatePropagation();
+                        }
+                        return true;
+                    }
+                }, true);
+            } catch (e) {}
+        })();
+    </script>
     <link rel="icon" href="../icon-192.png" type="image/png">
     <style>
         /* ═══════════════════════════════════════════════════════════
@@ -108,8 +150,8 @@
             color: #ffffff;
             border: 1px solid #475569;
             border-radius: 4px;
-            padding: 3px 7px;
-            font-size: 12px;
+            padding: 3px 6px;
+            font-size: 11px;
             font-weight: bold;
             cursor: pointer;
             display: none;
@@ -147,6 +189,9 @@
             background: #22c55e;
             display: inline-block;
         }
+        .status-dot.syncing {
+            background: #f59e0b;
+        }
         .status-dot.offline {
             background: #ef4444;
         }
@@ -180,18 +225,7 @@
             display: block;
         }
 
-        /* ─── LAUNCHPAD TILES (5 MODULES) ─── */
-        .keypad-hint-bar {
-            background: var(--surface);
-            color: var(--muted);
-            font-size: 10px;
-            padding: 4px 6px;
-            border-radius: 4px;
-            margin-bottom: 6px;
-            text-align: center;
-            font-weight: bold;
-        }
-
+        /* ─── LAUNCHPAD TILES (SINGLE LINE, CLEAN) ─── */
         .module-list {
             display: flex;
             flex-direction: column;
@@ -238,15 +272,6 @@
             line-height: 1.2;
         }
 
-        .module-sub {
-            font-size: 11px;
-            color: var(--muted);
-            margin-top: 1px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
         .module-arrow {
             font-size: 13px;
             font-weight: bold;
@@ -269,6 +294,10 @@
             border-radius: 4px;
             background: var(--card);
             color: var(--text);
+        }
+
+        .nokia-input[readonly] {
+            cursor: pointer;
         }
 
         .count-bar {
@@ -297,6 +326,7 @@
             width: 100%;
             text-align: left;
             color: var(--text);
+            cursor: pointer;
         }
 
         .nokia-card.expired {
@@ -312,7 +342,7 @@
             justify-content: space-between;
             align-items: flex-start;
             gap: 4px;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .card-title {
@@ -479,34 +509,55 @@
             background: #fff;
         }
 
-        /* ─── TEAM CONTACTS ─── */
-        .contact-actions-row {
+        /* ─── SIMPLIFIED TEAM CONTACTS ─── */
+        .contact-compact-card {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 5px;
+            padding: 6px 8px;
             display: flex;
-            gap: 5px;
-            margin-top: 5px;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        .contact-btn {
-            flex: 1;
-            padding: 4px 6px;
-            font-size: 11px;
+        .contact-row-main {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .contact-name-txt {
             font-weight: bold;
-            border-radius: 4px;
-            text-align: center;
-            text-decoration: none;
-            border: 1px solid var(--border);
+            font-size: 12.5px;
+            color: var(--text);
         }
 
-        .btn-call {
+        .contact-nums {
+            font-size: 11px;
+            color: var(--muted);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .contact-num-line {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .btn-call-compact {
             background: var(--primary);
             color: #ffffff;
-            border-color: var(--primary);
-        }
-
-        .btn-wa {
-            background: #15803d;
-            color: #ffffff;
-            border-color: #15803d;
+            border: 1px solid var(--primary);
+            border-radius: 3px;
+            padding: 2px 7px;
+            font-size: 10.5px;
+            font-weight: bold;
+            text-decoration: none;
+            white-space: nowrap;
         }
 
         /* ─── TEST PAGE (KEYPAD & NAVIGATION TESTER) ─── */
@@ -520,7 +571,7 @@
         }
 
         .key-big-display {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: var(--primary);
             padding: 6px;
@@ -589,12 +640,49 @@
             overflow-y: auto;
         }
 
+        /* ─── GUIDE MODULE ─── */
+        .guide-box {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 5px;
+            padding: 8px;
+            margin-bottom: 6px;
+        }
+
+        .guide-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 4px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 3px;
+        }
+
+        .guide-row {
+            font-size: 11.5px;
+            padding: 2px 0;
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+        }
+
+        .guide-key {
+            font-weight: bold;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .guide-desc {
+            color: var(--muted);
+            text-align: right;
+        }
+
         /* ─── MODAL FOR QUICK UPDATE ─── */
         .nokia-modal {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.75);
             z-index: 200;
             align-items: center;
             justify-content: center;
@@ -608,8 +696,9 @@
             border: 2px solid var(--primary);
             border-radius: 6px;
             width: 100%;
-            max-width: 320px;
+            max-width: 310px;
             padding: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
         }
         .form-row {
             margin-bottom: 7px;
@@ -622,10 +711,30 @@
             color: var(--muted);
         }
 
-        /* ─── FOOTER ─── */
-        .nokia-footer {
+        /* ─── BOTTOM NON-FIXED ACTION BUTTONS & FOOTER ─── */
+        .page-bottom-bar {
             margin-top: auto;
-            padding: 8px 6px;
+            padding: 8px 6px 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-bottom-mini {
+            background: var(--card);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+            border-radius: 4px;
+            padding: 4px 9px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .nokia-footer {
+            padding: 6px;
             text-align: center;
             font-size: 11px;
             font-weight: bold;
@@ -637,38 +746,9 @@
             color: var(--primary);
         }
 
-        /* ─── SOFTKEY BOTTOM BAR FOR NOKIA ─── */
-        .softkey-bar {
-            position: sticky;
-            bottom: 0;
-            background: var(--header-bg);
-            color: #ffffff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 8px;
-            font-size: 11px;
-            font-weight: bold;
-            border-top: 1px solid #334155;
-            z-index: 90;
-        }
-        .softkey-btn {
-            background: none;
-            border: none;
-            color: #ffffff;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 2px 4px;
-        }
-        .softkey-center {
-            color: #facc15;
-            font-size: 10px;
-        }
-
         .toast-msg {
             position: fixed;
-            bottom: 30px;
+            bottom: 14px;
             left: 50%;
             transform: translateX(-50%);
             background: #0f172a;
@@ -692,30 +772,25 @@
     ═══════════════════════════════════════════════════ -->
     <header class="nokia-header">
         <div class="header-left">
-            <button type="button" class="btn-back" id="headerBackBtn" data-nav onclick="goHome()">&#8592; Back</button>
+            <button type="button" class="btn-back" id="headerBackBtn" data-nav onclick="goHomePage()" title="Home">&#8592; Home</button>
             <img src="../icon-192.png" alt="Logo" class="header-logo" onerror="this.style.display='none'">
             <span class="header-title" id="headerTitle">Automation App</span>
         </div>
         <div class="header-right">
-            <span class="status-dot" id="netDot" title="Online"></span>
+            <span class="status-dot" id="netDot" title="Cloud Synced"></span>
             <button type="button" class="btn-theme" data-nav onclick="toggleDark()" id="themeBtn" title="Dark/Light">🌙</button>
         </div>
     </header>
 
     <!-- ═══════════════════════════════════════════════════
-         1. HOME LAUNCHPAD (4 CORE MODULES + TEST PAGE)
+         1. HOME LAUNCHPAD (SINGLE LINE TILES + 0 GUIDE)
     ═══════════════════════════════════════════════════ -->
     <main id="view-home" class="view-section active">
-        <div class="keypad-hint-bar">
-            Use ▲/▼ Keys + OK to Open (or Press 1 - 5)
-        </div>
-
         <div class="module-list">
             <button type="button" class="module-tile" data-nav onclick="openModule('instruments')">
                 <div class="key-badge">1</div>
                 <div class="module-info">
                     <div class="module-name">Master Instrument List</div>
-                    <div class="module-sub" id="homeInstCount">AI1 Database &bull; Locations &amp; Expiry</div>
                 </div>
                 <div class="module-arrow">&rsaquo;</div>
             </button>
@@ -724,7 +799,6 @@
                 <div class="key-badge">2</div>
                 <div class="module-info">
                     <div class="module-name">Document Library</div>
-                    <div class="module-sub">Click PDF to View Directly</div>
                 </div>
                 <div class="module-arrow">&rsaquo;</div>
             </button>
@@ -733,7 +807,6 @@
                 <div class="key-badge">3</div>
                 <div class="module-info">
                     <div class="module-name">Operation Request</div>
-                    <div class="module-sub" id="homeOpCount">Work Orders &amp; Plant Status</div>
                 </div>
                 <div class="module-arrow">&rsaquo;</div>
             </button>
@@ -742,7 +815,6 @@
                 <div class="key-badge">4</div>
                 <div class="module-info">
                     <div class="module-name">Team Contacts</div>
-                    <div class="module-sub">Direct Call &amp; Directory</div>
                 </div>
                 <div class="module-arrow">&rsaquo;</div>
             </button>
@@ -751,7 +823,14 @@
                 <div class="key-badge" style="background:#059669;">5</div>
                 <div class="module-info">
                     <div class="module-name">Test Page</div>
-                    <div class="module-sub">Keypad &amp; Navigation Key Response Check</div>
+                </div>
+                <div class="module-arrow">&rsaquo;</div>
+            </button>
+
+            <button type="button" class="module-tile" data-nav onclick="openModule('guide')">
+                <div class="key-badge" style="background:#475569;">0</div>
+                <div class="module-info">
+                    <div class="module-name">Guide</div>
                 </div>
                 <div class="module-arrow">&rsaquo;</div>
             </button>
@@ -759,15 +838,14 @@
     </main>
 
     <!-- ═══════════════════════════════════════════════════
-         2. MASTER INSTRUMENT LIST (NO QUICK-ACTIONS ROW)
+         2. MASTER INSTRUMENT LIST
     ═══════════════════════════════════════════════════ -->
     <section id="view-instruments" class="view-section">
         <div class="search-bar">
-            <input type="text" id="instSearch" class="nokia-input" data-nav placeholder="Search instrument or location..." oninput="renderInstruments()">
+            <input type="text" id="instSearch" class="nokia-input" data-nav data-search-box="1" readonly placeholder="Press OK to Search instrument..." oninput="renderInstruments()" onclick="activateSearchBox(this)">
         </div>
         <div class="count-bar">
             <span id="instCountLabel">Loading instruments...</span>
-            <span id="instModeLabel" style="color:var(--primary);cursor:pointer;" onclick="toggleInstDays()">Tap item to update</span>
         </div>
         <div id="instList" class="item-list"></div>
     </section>
@@ -783,11 +861,10 @@
                 <button type="button" class="cat-btn" id="catBtn-drawings" data-nav onclick="filterDocs('drawings')">Drawings</button>
             </div>
             <div class="search-bar">
-                <input type="text" id="docSearch" class="nokia-input" data-nav placeholder="Search PDF name..." oninput="renderDocs()">
+                <input type="text" id="docSearch" class="nokia-input" data-nav data-search-box="1" readonly placeholder="Press OK to Search PDF..." oninput="renderDocs()" onclick="activateSearchBox(this)">
             </div>
             <div class="count-bar">
                 <span id="docCountLabel">PDF Documents</span>
-                <span>Click to View</span>
             </div>
             <div id="docList" class="item-list"></div>
         </div>
@@ -808,26 +885,24 @@
     ═══════════════════════════════════════════════════ -->
     <section id="view-operations" class="view-section">
         <div class="search-bar">
-            <input type="text" id="opSearch" class="nokia-input" data-nav placeholder="Search WO, Plant, Team..." oninput="renderOperations()">
+            <input type="text" id="opSearch" class="nokia-input" data-nav data-search-box="1" readonly placeholder="Press OK to Search WO, Plant..." oninput="renderOperations()" onclick="activateSearchBox(this)">
             <button type="button" class="btn-small" data-nav onclick="openNewOpModal()" style="white-space:nowrap;">+ New</button>
         </div>
         <div class="count-bar">
             <span id="opCountLabel">Loading requests...</span>
-            <button type="button" class="btn-small secondary" style="padding:2px 6px;font-size:10px;" data-nav onclick="loadOperations(true)">Sync</button>
         </div>
         <div id="opList" class="item-list"></div>
     </section>
 
     <!-- ═══════════════════════════════════════════════════
-         5. TEAM CONTACTS
+         5. TEAM CONTACTS (SIMPLIFIED: NAME, #, TABREED & NORMAL CALL)
     ═══════════════════════════════════════════════════ -->
     <section id="view-contacts" class="view-section">
         <div class="search-bar">
-            <input type="text" id="contactSearch" class="nokia-input" data-nav placeholder="Search name, code, phone..." oninput="renderContacts()">
+            <input type="text" id="contactSearch" class="nokia-input" data-nav data-search-box="1" readonly placeholder="Press OK to Search name or #..." oninput="renderContacts()" onclick="activateSearchBox(this)">
         </div>
         <div class="count-bar">
             <span id="contactCountLabel">Loading contacts...</span>
-            <span>Press OK to Call</span>
         </div>
         <div id="contactList" class="item-list"></div>
     </section>
@@ -837,7 +912,7 @@
     ═══════════════════════════════════════════════════ -->
     <section id="view-testpage" class="view-section">
         <div class="tester-box">
-            <div style="font-size:11px;font-weight:bold;color:var(--muted);">PRESS ANY KEY ON NOKIA KEYPAD</div>
+            <div style="font-size:11px;font-weight:bold;color:var(--muted);">PRESS OR HOLD ANY KEY ON KEYPAD</div>
             <div class="key-big-display" id="testKeyMain">Waiting for Key...</div>
             <div class="key-stats-grid">
                 <div class="key-stat-cell"><b>Key:</b> <span id="testKeyName">-</span></div>
@@ -850,17 +925,17 @@
         <!-- Visual D-Pad Response -->
         <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:7px;">
             <div style="font-size:11px;font-weight:bold;text-align:center;color:var(--muted);margin-bottom:4px;">
-                NAVIGATION &amp; KEYPAD VISUAL CHECK
+                NAVIGATION &amp; KEYPAD VISUAL CHECK (Hold ▲/▼ to Scroll)
             </div>
             <div class="dpad-visual">
                 <div></div>
-                <button type="button" class="dpad-btn" id="vkey-up" data-nav onclick="simulateTestKey('ArrowUp', 38, 'D-PAD UP ▲')">▲ UP</button>
+                <button type="button" class="dpad-btn" id="vkey-up" data-nav onclick="simulateTestKey('ArrowUp', 38, 'D-PAD UP ▲');window.scrollBy(0,-55);">&#9650; UP</button>
                 <div></div>
-                <button type="button" class="dpad-btn" id="vkey-left" data-nav onclick="simulateTestKey('ArrowLeft', 37, 'D-PAD LEFT ◄')">◄ L</button>
-                <button type="button" class="dpad-btn" id="vkey-enter" data-nav onclick="simulateTestKey('Enter', 13, 'OK / CENTER ●')">● OK</button>
-                <button type="button" class="dpad-btn" id="vkey-right" data-nav onclick="simulateTestKey('ArrowRight', 39, 'D-PAD RIGHT ►')">R ►</button>
+                <button type="button" class="dpad-btn" id="vkey-left" data-nav onclick="simulateTestKey('ArrowLeft', 37, 'D-PAD LEFT ◄')">&#9668; L</button>
+                <button type="button" class="dpad-btn" id="vkey-enter" data-nav onclick="simulateTestKey('Enter', 13, 'OK / CENTER ●')">&#9679; OK</button>
+                <button type="button" class="dpad-btn" id="vkey-right" data-nav onclick="simulateTestKey('ArrowRight', 39, 'D-PAD RIGHT ►')">R &#9658;</button>
                 <div></div>
-                <button type="button" class="dpad-btn" id="vkey-down" data-nav onclick="simulateTestKey('ArrowDown', 40, 'D-PAD DOWN ▼')">▼ DN</button>
+                <button type="button" class="dpad-btn" id="vkey-down" data-nav onclick="simulateTestKey('ArrowDown', 40, 'D-PAD DOWN ▼');window.scrollBy(0,55);">&#9660; DN</button>
                 <div></div>
             </div>
 
@@ -880,27 +955,43 @@
             </div>
         </div>
 
-        <!-- Focus Navigation Test Items -->
-        <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:7px;">
-            <div style="font-size:11px;font-weight:bold;color:var(--muted);margin-bottom:5px;">
-                FOCUS &amp; INPUT TEST (Use ▲/▼ &amp; OK)
-            </div>
-            <div style="display:flex;flex-direction:column;gap:4px;">
-                <input type="text" class="nokia-input" data-nav placeholder="Type with Keypad here..." oninput="logTestEvent('Input: ' + this.value)">
-                <button type="button" class="nokia-card" data-nav onclick="logTestEvent('Clicked Test Button A');showToast('Button A Working!')">
-                    <b>Test Focus Row A</b> — Press OK / Enter to test click
-                </button>
-                <button type="button" class="nokia-card" data-nav onclick="logTestEvent('Clicked Test Button B');showToast('Button B Working!')">
-                    <b>Test Focus Row B</b> — Navigation working smoothly
-                </button>
-                <button type="button" class="btn-small secondary" data-nav onclick="clearKeyLog()">Clear Key History</button>
-            </div>
-        </div>
-
         <div class="key-log-list" id="testKeyLog">
             <div>Key history will appear here...</div>
         </div>
     </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         7. GUIDE PAGE (OPENED BY KEY 0 ON HOME PAGE)
+    ═══════════════════════════════════════════════════ -->
+    <section id="view-guide" class="view-section">
+        <div class="guide-box" tabindex="0" data-nav>
+            <div class="guide-title">Keypad Shortcuts</div>
+            <div class="guide-row"><span class="guide-key">&#9650; / &#9660;</span><span class="guide-desc">Navigate Up / Down</span></div>
+            <div class="guide-row"><span class="guide-key">OK (Center)</span><span class="guide-desc">Open / Select / Search</span></div>
+            <div class="guide-row"><span class="guide-key">Keys 1 - 5</span><span class="guide-desc">Open Modules (on Home)</span></div>
+            <div class="guide-row"><span class="guide-key">Key 0</span><span class="guide-desc">Guide (Home) / Go Home</span></div>
+            <div class="guide-row"><span class="guide-key">Key *</span><span class="guide-desc">OK / Save in Popup</span></div>
+            <div class="guide-row"><span class="guide-key">Key #</span><span class="guide-desc">Cancel Popup / Go Back</span></div>
+        </div>
+
+        <div class="guide-box" tabindex="0" data-nav>
+            <div class="guide-title">How to Use Modules</div>
+            <div class="guide-row"><span class="guide-key">1. Instruments</span><span class="guide-desc">Press OK on item to update Location, Updated By &amp; Remark in Sheet</span></div>
+            <div class="guide-row"><span class="guide-key">2. Documents</span><span class="guide-desc">Press OK on any PDF to view directly</span></div>
+            <div class="guide-row"><span class="guide-key">3. Operations</span><span class="guide-desc">View Work Orders or press + New to add</span></div>
+            <div class="guide-row"><span class="guide-key">4. Contacts</span><span class="guide-desc">View Tabreed &amp; Normal No. + Direct Call</span></div>
+            <div class="guide-row"><span class="guide-key">5. Test Page</span><span class="guide-desc">Check keys; Hold &#9650;/&#9660; to scroll page</span></div>
+            <div class="guide-row"><span class="guide-key">Search Box</span><span class="guide-desc">Move to Search &amp; press OK to type</span></div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         NON-FIXED BOTTOM BUTTONS (MAIN APP & TOP)
+    ═══════════════════════════════════════════════════ -->
+    <div class="page-bottom-bar">
+        <a href="../index.html" class="btn-bottom-mini" data-nav>Main App</a>
+        <button type="button" class="btn-bottom-mini" data-nav onclick="scrollToTop()">Top &uarr;</button>
+    </div>
 
     <!-- ═══════════════════════════════════════════════════
          FOOTER — "Code by Majeed"
@@ -908,44 +999,36 @@
     <footer class="nokia-footer">
         Code by <span>Majeed</span>
     </footer>
-
-    <!-- ═══════════════════════════════════════════════════
-         NOKIA SOFTKEY BAR
-    ═══════════════════════════════════════════════════ -->
-    <div class="softkey-bar">
-        <button type="button" class="softkey-btn" id="softkeyLeftBtn" onclick="handleLeftSoftkey()">[Main App]</button>
-        <span class="softkey-center" id="softkeyCenterText">▲▼ Navigate &bull; OK Select</span>
-        <button type="button" class="softkey-btn" onclick="handleRightSoftkey()" id="softkeyRightBtn">[Top]</button>
-    </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     MODAL: UPDATE INSTRUMENT LOCATION / REMARK
+     POPUP 1: UPDATE INSTRUMENT (ONLY LOCATION, UPDATED BY, REMARK)
 ═══════════════════════════════════════════════════ -->
 <div class="nokia-modal" id="instUpdateModal">
     <div class="nokia-modal-box">
         <div style="font-weight:bold;font-size:13px;margin-bottom:6px;color:var(--primary);" id="modalInstTitle">Update Instrument</div>
         <div class="form-row">
-            <label>Location</label>
-            <select id="modalInstLoc" class="nokia-input" data-nav></select>
+            <label>Location * (Use &#9668;/&#9658; or Select)</label>
+            <select id="modalInstLoc" class="nokia-input" data-nav onchange="onModalLocSelectChange(this.value)"></select>
+            <input type="text" id="modalInstCustomLoc" class="nokia-input" data-nav placeholder="Enter new location..." style="display:none;margin-top:4px;">
         </div>
         <div class="form-row">
             <label>Updated By *</label>
             <input type="text" id="modalInstUser" class="nokia-input" data-nav placeholder="Your Name (e.g. Majeed)">
         </div>
         <div class="form-row">
-            <label>Remark / Note (Optional)</label>
-            <input type="text" id="modalInstRemark" class="nokia-input" data-nav placeholder="Optional note...">
+            <label>Remark</label>
+            <input type="text" id="modalInstRemark" class="nokia-input" data-nav placeholder="Remark / Note (Optional)">
         </div>
         <div style="display:flex;gap:6px;margin-top:8px;">
-            <button type="button" class="btn-small" style="flex:1;" data-nav onclick="saveInstrumentUpdate()">Save</button>
+            <button type="button" class="btn-small" id="btnSaveInstModal" style="flex:1;background:var(--success);" data-nav onclick="saveInstrumentUpdate()">Save</button>
             <button type="button" class="btn-small secondary" style="flex:1;" data-nav onclick="closeInstModal()">Cancel</button>
         </div>
     </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════════
-     MODAL: NEW OPERATION REQUEST
+     POPUP 2: NEW OPERATION REQUEST
 ═══════════════════════════════════════════════════ -->
 <div class="nokia-modal" id="opCreateModal">
     <div class="nokia-modal-box">
@@ -967,7 +1050,7 @@
             <input type="text" id="newOpTeam" class="nokia-input" data-nav placeholder="e.g. Majeed">
         </div>
         <div style="display:flex;gap:6px;margin-top:8px;">
-            <button type="button" class="btn-small" style="flex:1;" data-nav onclick="submitNewOp()">Submit</button>
+            <button type="button" class="btn-small" style="flex:1;background:var(--success);" data-nav onclick="submitNewOp()">Save</button>
             <button type="button" class="btn-small secondary" style="flex:1;" data-nav onclick="closeNewOpModal()">Cancel</button>
         </div>
     </div>
@@ -977,30 +1060,43 @@
 
 <script>
     /* ═══════════════════════════════════════════════════════════
-       NOKIA EDITION APPLICATION LOGIC
-       Zero changes to Main Code — Connects to real backend APIs
+       NOKIA EDITION — DIRECT GOOGLE SHEET + OFFLINE CACHE ENGINE
     ═══════════════════════════════════════════════════════════ */
+    var GAS_DIRECT_URL = "https://script.google.com/macros/s/AKfycbwnUqgWqfPwnPLtmsSXvXfqNj66wcOjVoft3ou_t4RDBQ-Iscyp3wuiv45Z1o9UND6OZQ/exec";
+    var OP_REQUEST_GAS_URL = "https://script.google.com/macros/s/AKfycby_XKC1cV1VaeqKB2MbQgmRSOYmcxQI0v-5qcAAKhFczNOwU3GsindACIkuawzQZN4/exec";
+
+    var isLocalNodeHost = (typeof window !== 'undefined' && window.location && (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.hostname === '0.0.0.0' ||
+        window.location.hostname.indexOf('.run.app') !== -1
+    ));
+
+    var LS_INVENTORY = "localTabreedInventory";
+    var LS_REQUESTS = "localTabreedOperationRequests";
+    var LS_CONTACTS = "tabreed_team_contacts_cache";
+    var LS_QUEUE = "tabreed_sync_queue";
+
     var currentModule = 'home';
     var instrumentsData = [];
+    var filteredInstruments = [];
     var locationsList = ['AD-007', 'AD-027', 'AD-032', 'TM-003', 'Dubai', 'Calibration', 'Store'];
-    var showDaysMode = false;
     var selectedInstrument = null;
+    var lastManualUpdateTs = 0;
 
     var operationsData = [];
     var contactsData = [];
     var activeDocCategory = 'all';
+    var isSyncingNow = false;
 
-    // Real PDF Documents from Google Drive Folders (PDF Manuals & SOPs + Drawings & Schematics)
+    // Real PDF Documents from Google Drive Folders
     var DOCUMENT_LIBRARY_PDFS = [
-        // PDF Manuals & SOPs (Folder: 1CZIU9gxrpYA3gO1Kf6trVfkpilt7aOMJ)
         { id: "10Egmrl2cpiD3Wu0LrREz-6EUxPzIwN9j", title: "ABB CALLMASTER sample terminal program.PDF", cat: "pdf", catLabel: "Manual" },
         { id: "19uc_dQWiKw7NHxnm4Rgt2OyQX7QZwEHE", title: "AD32 Schematic.pdf", cat: "pdf", catLabel: "Manual" },
         { id: "1m3rS0NVnZOd4VrbNef7mRMwB_mepSNiN", title: "AUMA PROFOX Actuator.pdf", cat: "pdf", catLabel: "Manual" },
         { id: "1sEsHL-fZPCeEkucjuNzUgAHjiVoPX29b", title: "FEM Electric Actuator Series Catalogue 2022.pdf", cat: "pdf", catLabel: "Manual" },
         { id: "1vnzuw4Ph7Lqdd4ERSrBB70F4ASMbNzEo", title: "Flowcon.pdf", cat: "pdf", catLabel: "Manual" },
         { id: "17J_UoX09q8M5a4N5foIQhAGP878hqH7N", title: "Retrofit FEX631.pdf", cat: "pdf", catLabel: "Manual" },
-
-        // Drawings & Schematics PDFs (Folder: 1KUQpoKUJHbr9GjPwfpOIqSBmQZ1TrKSN)
         { id: "1uRudnPzbJPh2IXD0zNgfP6taH5ovO3lL", title: "AD06 ModBus Communication Network Loop.pdf", cat: "drawings", catLabel: "Drawing" },
         { id: "1ogXWxVMZnNXfkcbGFiVeSQmwA767u2BH", title: "AD07 and AD27 FOC Network 2.pdf", cat: "drawings", catLabel: "Drawing" },
         { id: "15VAPhTGoVNCwvTk4eJwQFIlmG2fvsBQn", title: "AD07 and AD27 FOC Network.pdf", cat: "drawings", catLabel: "Drawing" },
@@ -1012,6 +1108,65 @@
         { id: "1g10alZN8qfQ_9a-oKlL_7bzSbK-PUU32", title: "T5 ETS FOC Network.pdf", cat: "drawings", catLabel: "Drawing" },
         { id: "1rzRtVjo6EguvjX-6wQPcKk85_A-KKcuJ", title: "T8 ETS Location & FOC Network.pdf", cat: "drawings", catLabel: "Drawing" }
     ];
+
+    /* ─── RELIABLE HTTP CLIENT (Native Fetch + XHR Fallback) ─── */
+    function xhrJson(url, options) {
+        return new Promise(function(resolve, reject) {
+            try {
+                var xhr = new XMLHttpRequest();
+                var method = (options && options.method) ? options.method : 'GET';
+                xhr.open(method, url, true);
+                if (options && options.headers) {
+                    for (var h in options.headers) {
+                        xhr.setRequestHeader(h, options.headers[h]);
+                    }
+                }
+                xhr.timeout = 25000;
+                xhr.onload = function() {
+                    if (xhr.status >= 200 && xhr.status < 400) {
+                        try {
+                            resolve(JSON.parse(xhr.responseText));
+                        } catch (e) {
+                            resolve({ success: true, raw: xhr.responseText });
+                        }
+                    } else {
+                        reject(new Error('HTTP ' + xhr.status));
+                    }
+                };
+                xhr.onerror = function() { reject(new Error('Network error')); };
+                xhr.ontimeout = function() { reject(new Error('Timeout')); };
+                xhr.send((options && options.body) ? options.body : null);
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
+    function requestJson(url, options) {
+        var fn = window.__nokiaNativeFetch || window.fetch;
+        if (typeof fn === 'function') {
+            var fetchOpts = options || { redirect: 'follow' };
+            return fn(url, fetchOpts)
+                .then(function(r) {
+                    if (!r.ok) throw new Error('Status ' + r.status);
+                    return r.json();
+                })
+                .catch(function() {
+                    return xhrJson(url, options);
+                });
+        }
+        return xhrJson(url, options);
+    }
+
+    function buildQueryString(obj) {
+        var parts = [];
+        for (var k in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, k) && obj[k] !== undefined && obj[k] !== null) {
+                parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(String(obj[k])));
+            }
+        }
+        return parts.join('&');
+    }
 
     function escHtml(str) {
         return String(str || '').replace(/[<>"'&]/g, function(c) {
@@ -1027,7 +1182,27 @@
         clearTimeout(window._nokiaToastTimer);
         window._nokiaToastTimer = setTimeout(function() {
             el.style.display = 'none';
-        }, 2200);
+        }, 2300);
+    }
+
+    function scrollToTop() {
+        window.scrollTo(0, 0);
+        focusFirstNavItem(true);
+    }
+
+    function setNetIndicator(state) {
+        var dot = document.getElementById('netDot');
+        if (!dot) return;
+        dot.classList.remove('offline', 'syncing');
+        if (state === 'offline' || !navigator.onLine) {
+            dot.classList.add('offline');
+            dot.title = 'Offline — Running from Cache';
+        } else if (state === 'syncing') {
+            dot.classList.add('syncing');
+            dot.title = 'Syncing with Google Sheet...';
+        } else {
+            dot.title = 'Online — Google Sheet Synced';
+        }
     }
 
     function toggleDark() {
@@ -1036,9 +1211,37 @@
         document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
     }
 
+    function isAnyPopupOpen() {
+        var m1 = document.getElementById('instUpdateModal');
+        var m2 = document.getElementById('opCreateModal');
+        return (m1 && m1.classList.contains('active')) || (m2 && m2.classList.contains('active'));
+    }
+
+    /* ─── SEARCH BOX ACTIVATION (ONLY EDITABLE WHEN USER PRESSES OK) ─── */
+    function lockAllSearchBoxes() {
+        var boxes = document.querySelectorAll('[data-search-box="1"]');
+        for (var i = 0; i < boxes.length; i++) {
+            boxes[i].readOnly = true;
+        }
+    }
+
+    function activateSearchBox(inputEl) {
+        if (!inputEl) return;
+        inputEl.readOnly = false;
+        inputEl.focus();
+        try {
+            var len = inputEl.value.length;
+            inputEl.setSelectionRange(len, len);
+        } catch (e) {}
+    }
+
     /* ─── MODULE NAVIGATION ─── */
     function openModule(mod) {
+        closeInstModal();
+        closeNewOpModal();
+        lockAllSearchBoxes();
         currentModule = mod;
+
         var views = document.querySelectorAll('.view-section');
         for (var i = 0; i < views.length; i++) {
             views[i].classList.remove('active');
@@ -1048,41 +1251,58 @@
 
         var backBtn = document.getElementById('headerBackBtn');
         var titleEl = document.getElementById('headerTitle');
-        var leftSoft = document.getElementById('softkeyLeftBtn');
-        var rightSoft = document.getElementById('softkeyRightBtn');
 
         if (mod === 'home') {
             backBtn.style.display = 'none';
             titleEl.textContent = 'Automation App';
-            if (leftSoft) leftSoft.textContent = '[Main App]';
-            rightSoft.textContent = '[Top]';
         } else {
             backBtn.style.display = 'inline-block';
-            if (leftSoft) leftSoft.textContent = '[Home]';
-            rightSoft.textContent = '[Back]';
             if (mod === 'instruments') {
                 titleEl.textContent = 'Master Instrument List';
-                loadInstruments();
+                renderInstruments();
+                syncInstrumentsFromSheet(true);
             } else if (mod === 'documents') {
                 titleEl.textContent = 'Document Library';
                 closePdfViewer();
                 renderDocs();
             } else if (mod === 'operations') {
                 titleEl.textContent = 'Operation Request';
-                loadOperations();
+                renderOperations();
+                syncOperationsFromSheet(true);
             } else if (mod === 'contacts') {
                 titleEl.textContent = 'Team Contacts';
-                loadContacts();
+                renderContacts();
+                syncContactsFromSheet(true);
             } else if (mod === 'testpage') {
                 titleEl.textContent = 'Keypad Test Page';
                 updateTestScreenDimensions();
+            } else if (mod === 'guide') {
+                titleEl.textContent = 'Nokia Guide';
             }
         }
         window.scrollTo(0, 0);
-        focusFirstNavItem();
+        // Focus first item AFTER search box so search box is never pre-selected on page open
+        focusFirstNavItem(true);
     }
 
-    function goHome() {
+    function goHomePage() {
+        closeInstModal();
+        closeNewOpModal();
+        if (currentModule === 'documents') {
+            closePdfViewer();
+        }
+        openModule('home');
+    }
+
+    function goBackStep() {
+        if (document.getElementById('instUpdateModal').classList.contains('active')) {
+            closeInstModal();
+            return;
+        }
+        if (document.getElementById('opCreateModal').classList.contains('active')) {
+            closeNewOpModal();
+            return;
+        }
         if (currentModule === 'documents') {
             var viewer = document.getElementById('docViewerSection');
             if (viewer && viewer.classList.contains('active')) {
@@ -1093,25 +1313,100 @@
         openModule('home');
     }
 
-    function handleLeftSoftkey() {
-        if (currentModule === 'home') {
-            window.location.href = '../index.html';
-        } else {
-            openModule('home');
+    /* ═══════════════════════════════════════════════════════════
+       OFFLINE QUEUE & GOOGLE SHEET SYNC ENGINE
+    ═══════════════════════════════════════════════════════════ */
+    function getOfflineQueue() {
+        try {
+            var q = JSON.parse(localStorage.getItem(LS_QUEUE) || '[]');
+            return Array.isArray(q) ? q : [];
+        } catch (e) {
+            return [];
         }
     }
 
-    function handleRightSoftkey() {
-        if (currentModule === 'home') {
-            window.scrollTo(0, 0);
-            focusFirstNavItem();
-        } else {
-            goHome();
+    function saveOfflineQueue(q) {
+        try {
+            localStorage.setItem(LS_QUEUE, JSON.stringify(q || []));
+        } catch (e) {}
+    }
+
+    function pushToOfflineQueue(task) {
+        var q = getOfflineQueue();
+        q.push(task);
+        saveOfflineQueue(q);
+    }
+
+    function sendInstrumentUpdateToSheet(params) {
+        var targetName = params.name || params.itemName || '';
+        var targetLoc = params.location || params.newLocation || '';
+        var targetExp = (params.expiry !== undefined) ? params.expiry : (params.newExpiry || '');
+        var targetRem = (params.remark !== undefined) ? params.remark : (params.comment || '');
+        var targetUser = params.updatedBy || params.user || '';
+
+        var qs = buildQueryString({
+            key: 'AI1',
+            action: 'update',
+            itemName: targetName,
+            name: targetName,
+            location: targetLoc,
+            newLocation: targetLoc,
+            expiry: targetExp,
+            newExpiry: targetExp,
+            remark: targetRem,
+            comment: targetRem,
+            user: targetUser,
+            updatedBy: targetUser,
+            t: Date.now()
+        });
+
+        var directGasPromise = requestJson(GAS_DIRECT_URL + '?' + qs, { redirect: 'follow' });
+
+        if (isLocalNodeHost) {
+            // Update local server cache AND direct Google Sheet simultaneously
+            var proxyPromise = requestJson('/api/inventory?' + qs).catch(function() { return null; });
+            return Promise.all([directGasPromise.catch(function() { return null; }), proxyPromise])
+                .then(function(results) {
+                    var gasRes = results[0];
+                    var proxyRes = results[1];
+                    if (gasRes && (gasRes.success || gasRes.status === 'success')) return gasRes;
+                    if (proxyRes && (proxyRes.success || proxyRes.status === 'success')) return proxyRes;
+                    throw new Error('Update failed');
+                });
         }
+
+        return directGasPromise;
+    }
+
+    function flushOfflineQueue() {
+        if (!navigator.onLine) return Promise.resolve();
+        var queue = getOfflineQueue();
+        if (queue.length === 0) return Promise.resolve();
+
+        var remaining = [];
+        var chain = Promise.resolve();
+
+        queue.forEach(function(task) {
+            chain = chain.then(function() {
+                if (task.module === 'operation_request') {
+                    return sendOperationRequestToSheet(task).catch(function() {
+                        remaining.push(task);
+                    });
+                } else {
+                    return sendInstrumentUpdateToSheet(task).catch(function() {
+                        remaining.push(task);
+                    });
+                }
+            });
+        });
+
+        return chain.then(function() {
+            saveOfflineQueue(remaining);
+        });
     }
 
     /* ═══════════════════════════════════════════════════════════
-       1. MASTER INSTRUMENT LIST
+       1. MASTER INSTRUMENT LIST (CACHE + GOOGLE SHEET + UPDATE)
     ═══════════════════════════════════════════════════════════ */
     function parseExpiryDays(expStr) {
         if (!expStr || expStr === '-' || expStr === '—') return null;
@@ -1132,94 +1427,153 @@
         return Math.ceil((dt.getTime() - Date.now()) / 86400000);
     }
 
-    function toggleInstDays() {
-        showDaysMode = !showDaysMode;
-        renderInstruments();
+    function applyInstrumentCacheObj(res) {
+        if (!res || !Array.isArray(res.data) || res.data.length === 0) return false;
+        instrumentsData = res.data;
+        if (Array.isArray(res.locations) && res.locations.length > 0) {
+            locationsList = res.locations;
+        }
+        try {
+            localStorage.setItem(LS_INVENTORY, JSON.stringify({
+                success: true,
+                status: 'success',
+                data: instrumentsData,
+                locations: locationsList,
+                updatedAt: Date.now()
+            }));
+        } catch (e) {}
+        if (currentModule === 'instruments') {
+            renderInstrumentsPreserveFocus();
+        }
+        return true;
     }
 
-    function loadInstruments() {
+    function loadInstrumentsFromCacheFirst() {
         try {
-            var cached = localStorage.getItem('localTabreedInventory');
+            var cached = localStorage.getItem(LS_INVENTORY);
             if (cached) {
                 var parsed = JSON.parse(cached);
-                if (parsed && Array.isArray(parsed.data) && parsed.data.length > 0) {
-                    instrumentsData = parsed.data;
-                    if (Array.isArray(parsed.locations) && parsed.locations.length > 0) {
-                        locationsList = parsed.locations;
-                    }
-                    renderInstruments();
+                if (applyInstrumentCacheObj(parsed)) {
+                    return;
                 }
             }
         } catch (e) {}
 
-        fetch('/api/inventory?key=AI1&action=getItems&t=' + Date.now())
-            .then(function(r) { return r.json(); })
+        requestJson('../data/inventory_cache.json')
+            .then(function(seed) {
+                if (instrumentsData.length === 0) {
+                    applyInstrumentCacheObj(seed);
+                }
+            })
+            .catch(function() {});
+    }
+
+    function syncInstrumentsFromSheet(forceRefresh) {
+        if (!navigator.onLine) {
+            setNetIndicator('offline');
+            return Promise.resolve();
+        }
+
+        var syncStartedAt = Date.now();
+        setNetIndicator('syncing');
+        var directGasUrl = GAS_DIRECT_URL + '?key=AI1&action=getItems&t=' + Date.now();
+        var proxyUrl = '/api/inventory?key=AI1&action=getItems' + (forceRefresh ? '&refresh=true' : '') + '&t=' + Date.now();
+
+        var fetchPromise;
+        if (isLocalNodeHost) {
+            fetchPromise = requestJson(proxyUrl)
+                .then(function(res) {
+                    if (res && Array.isArray(res.data) && res.data.length > 0 && !res.fromCache) return res;
+                    return requestJson(directGasUrl, { redirect: 'follow' }).catch(function() { return res; });
+                })
+                .catch(function() {
+                    return requestJson(directGasUrl, { redirect: 'follow' });
+                });
+        } else {
+            fetchPromise = requestJson(directGasUrl, { redirect: 'follow' });
+        }
+
+        return fetchPromise
             .then(function(res) {
-                if (res && Array.isArray(res.data)) {
-                    instrumentsData = res.data;
-                    if (Array.isArray(res.locations) && res.locations.length > 0) {
-                        locationsList = res.locations;
-                    }
-                    try { localStorage.setItem('localTabreedInventory', JSON.stringify(res)); } catch (e) {}
-                    renderInstruments();
-                    var homeCnt = document.getElementById('homeInstCount');
-                    if (homeCnt) homeCnt.textContent = instrumentsData.length + ' Instruments • AI1 Database';
+                // Ignore stale GET responses that started before a manual user update
+                if (syncStartedAt < lastManualUpdateTs) {
+                    setNetIndicator('online');
+                    return;
+                }
+                if (res && (res.success || res.status === 'success') && Array.isArray(res.data)) {
+                    applyInstrumentCacheObj(res);
+                    setNetIndicator('online');
+                } else {
+                    setNetIndicator('online');
                 }
             })
             .catch(function() {
-                fetch('../data/inventory_cache.json')
-                    .then(function(r) { return r.json(); })
-                    .then(function(res) {
-                        if (res && Array.isArray(res.data)) {
-                            instrumentsData = res.data;
-                            renderInstruments();
-                        }
-                    })
-                    .catch(function() {});
+                setNetIndicator(navigator.onLine ? 'online' : 'offline');
             });
+    }
+
+    function renderInstrumentsPreserveFocus() {
+        var activeEl = document.activeElement;
+        var focusedInstIdx = activeEl && activeEl.getAttribute ? activeEl.getAttribute('data-inst-idx') : null;
+        renderInstruments();
+        if (focusedInstIdx !== null && !isAnyPopupOpen()) {
+            var cards = document.querySelectorAll('#instList [data-inst-idx]');
+            for (var i = 0; i < cards.length; i++) {
+                if (cards[i].getAttribute('data-inst-idx') === focusedInstIdx) {
+                    cards[i].focus();
+                    break;
+                }
+            }
+        }
     }
 
     function renderInstruments() {
         var listEl = document.getElementById('instList');
-        var q = (document.getElementById('instSearch').value || '').toLowerCase().trim();
-        var filtered = instrumentsData.filter(function(item) {
-            if (!q) return true;
-            return (item.name || '').toLowerCase().indexOf(q) !== -1 ||
-                   (item.location || '').toLowerCase().indexOf(q) !== -1 ||
-                   (item.updatedBy || '').toLowerCase().indexOf(q) !== -1;
-        });
+        if (!listEl) return;
+        var searchEl = document.getElementById('instSearch');
+        var q = (searchEl ? searchEl.value : '').toLowerCase().trim();
 
-        document.getElementById('instCountLabel').textContent = filtered.length + ' of ' + instrumentsData.length + ' Items';
+        filteredInstruments = [];
+        for (var idx = 0; idx < instrumentsData.length; idx++) {
+            var item = instrumentsData[idx];
+            if (!q ||
+                (item.name || '').toLowerCase().indexOf(q) !== -1 ||
+                (item.location || '').toLowerCase().indexOf(q) !== -1 ||
+                (item.updatedBy || '').toLowerCase().indexOf(q) !== -1 ||
+                (item.remark || item.comment || '').toLowerCase().indexOf(q) !== -1) {
+                filteredInstruments.push({ item: item, masterIndex: idx });
+            }
+        }
 
-        if (filtered.length === 0) {
-            listEl.innerHTML = '<div class="nokia-card">No instruments matching search.</div>';
+        document.getElementById('instCountLabel').textContent = filteredInstruments.length + ' of ' + instrumentsData.length + ' Items';
+
+        if (filteredInstruments.length === 0) {
+            listEl.innerHTML = '<div class="nokia-card">No instruments found.</div>';
             return;
         }
 
         var html = '';
-        for (var i = 0; i < filtered.length; i++) {
-            var it = filtered[i];
+        for (var i = 0; i < filteredInstruments.length; i++) {
+            var entry = filteredInstruments[i];
+            var it = entry.item;
+            var mIdx = entry.masterIndex;
             var diff = parseExpiryDays(it.expiry);
             var isExp = diff !== null && diff < 0;
             var isSoon = diff !== null && diff >= 0 && diff <= 30;
             var cardCls = isExp ? 'nokia-card expired' : (isSoon ? 'nokia-card soon' : 'nokia-card');
 
             var expBadge = '';
-            if (it.expiry) {
-                var expLabel = escHtml(it.expiry);
-                if (showDaysMode && diff !== null) {
-                    expLabel = diff < 0 ? ('Exp ' + Math.abs(diff) + 'd ago') : (diff + 'd left');
-                }
+            if (it.expiry && it.expiry !== '-') {
                 var expCls = isExp ? 'badge badge-danger' : (isSoon ? 'badge badge-warn' : 'badge badge-ok');
-                expBadge = '<span class="' + expCls + '">' + expLabel + '</span>';
+                expBadge = '<span class="' + expCls + '">' + escHtml(it.expiry) + '</span>';
             } else {
                 expBadge = '<span class="badge" style="background:var(--surface);color:var(--muted);">No Exp</span>';
             }
 
             var remark = (it.remark || it.comment || '').trim();
-            var noteHtml = remark ? '<div class="card-note">Note: ' + escHtml(remark) + '</div>' : '';
+            var noteHtml = (remark && remark !== '-') ? '<div class="card-note">Remark: ' + escHtml(remark) + '</div>' : '';
 
-            html += '<button type="button" class="' + cardCls + '" data-nav onclick="openInstModal(' + i + ', \'' + escHtml(it.name).replace(/'/g, "\\'") + '\')">' +
+            html += '<button type="button" class="' + cardCls + '" data-nav data-inst-idx="' + mIdx + '" onclick="openInstModalByIndex(' + mIdx + ')">' +
                 '<div class="card-top">' +
                     '<div class="card-title">' + escHtml(it.name) + '</div>' +
                     '<span class="badge badge-loc">' + escHtml(it.location || '—') + '</span>' +
@@ -1234,21 +1588,18 @@
         listEl.innerHTML = html;
     }
 
-    function openInstModal(idx, name) {
-        var item = null;
-        for (var i = 0; i < instrumentsData.length; i++) {
-            if (instrumentsData[i].name === name) {
-                item = instrumentsData[i];
-                break;
-            }
-        }
+    function openInstModalByIndex(masterIdx) {
+        var item = instrumentsData[masterIdx];
         if (!item) return;
         selectedInstrument = item;
         document.getElementById('modalInstTitle').textContent = item.name;
 
         var sel = document.getElementById('modalInstLoc');
         var locSet = {};
-        for (var j = 0; j < locationsList.length; j++) locSet[locationsList[j]] = true;
+        if (item.location) locSet[item.location] = true;
+        for (var j = 0; j < locationsList.length; j++) {
+            if (locationsList[j]) locSet[locationsList[j]] = true;
+        }
         for (var k = 0; k < instrumentsData.length; k++) {
             if (instrumentsData[k].location) locSet[instrumentsData[k].location] = true;
         }
@@ -1257,53 +1608,133 @@
             var isSel = (loc === item.location) ? ' selected' : '';
             opts += '<option value="' + escHtml(loc) + '"' + isSel + '>' + escHtml(loc) + '</option>';
         }
+        opts += '<option value="__CUSTOM__">+ Add New Location...</option>';
         sel.innerHTML = opts;
 
+        var customInput = document.getElementById('modalInstCustomLoc');
+        customInput.style.display = 'none';
+        customInput.value = '';
+
         document.getElementById('modalInstUser').value = item.updatedBy || '';
-        document.getElementById('modalInstRemark').value = item.remark || '';
+        document.getElementById('modalInstRemark').value = (item.remark || item.comment || '');
+
         document.getElementById('instUpdateModal').classList.add('active');
-        document.getElementById('modalInstLoc').focus();
+        setTimeout(function() {
+            sel.focus();
+        }, 30);
+    }
+
+    function onModalLocSelectChange(val) {
+        var customInput = document.getElementById('modalInstCustomLoc');
+        if (val === '__CUSTOM__') {
+            customInput.style.display = 'block';
+            customInput.focus();
+        } else {
+            customInput.style.display = 'none';
+        }
     }
 
     function closeInstModal() {
-        document.getElementById('instUpdateModal').classList.remove('active');
+        var modal = document.getElementById('instUpdateModal');
+        if (!modal) return;
+        var prevIdx = selectedInstrument ? instrumentsData.indexOf(selectedInstrument) : -1;
+        modal.classList.remove('active');
         selectedInstrument = null;
+
+        if (prevIdx !== -1 && currentModule === 'instruments') {
+            setTimeout(function() {
+                var card = document.querySelector('#instList [data-inst-idx="' + prevIdx + '"]');
+                if (card) card.focus();
+            }, 30);
+        }
     }
 
+    // Updates ONLY Location, Updated By, and Remark in Cache + Google Sheet (Preserves Expiry & Name)
     function saveInstrumentUpdate() {
         if (!selectedInstrument) return;
-        var newLoc = document.getElementById('modalInstLoc').value;
+        var selVal = document.getElementById('modalInstLoc').value;
+        var customVal = document.getElementById('modalInstCustomLoc').value.trim();
+        var newLoc = (selVal === '__CUSTOM__') ? customVal : selVal;
         var user = document.getElementById('modalInstUser').value.trim();
         var remark = document.getElementById('modalInstRemark').value.trim();
 
+        if (!newLoc) {
+            showToast('Please select or enter Location');
+            document.getElementById('modalInstCustomLoc').focus();
+            return;
+        }
         if (!user) {
-            showToast('Please enter Updated By name');
+            showToast('Please enter Updated By');
             document.getElementById('modalInstUser').focus();
             return;
         }
 
+        var targetName = selectedInstrument.name;
+        var preservedExpiry = selectedInstrument.expiry || '';
+
+        // Mark timestamp so in-flight GET does not overwrite this manual update
+        lastManualUpdateTs = Date.now();
+
+        // 1. Update immediately in memory & localStorage cache
         selectedInstrument.location = newLoc;
         selectedInstrument.updatedBy = user;
         selectedInstrument.remark = remark;
+
+        if (locationsList.indexOf(newLoc) === -1) {
+            locationsList.push(newLoc);
+        }
+
+        try {
+            localStorage.setItem(LS_INVENTORY, JSON.stringify({
+                success: true,
+                status: 'success',
+                data: instrumentsData,
+                locations: locationsList,
+                updatedAt: Date.now()
+            }));
+        } catch (e) {}
+
         renderInstruments();
         closeInstModal();
-        showToast('Saved ' + selectedInstrument.name);
+        showToast('Updating Sheet: ' + targetName + '...');
 
-        var qs = new URLSearchParams({
-            key: 'AI1',
+        var updatePayload = {
+            module: 'instrument',
             action: 'update',
-            name: selectedInstrument.name,
-            itemName: selectedInstrument.name,
+            itemName: targetName,
+            name: targetName,
             location: newLoc,
             newLocation: newLoc,
-            expiry: selectedInstrument.expiry || '',
-            newExpiry: selectedInstrument.expiry || '',
+            expiry: preservedExpiry,
+            newExpiry: preservedExpiry,
+            remark: remark,
+            comment: remark,
             user: user,
-            updatedBy: user,
-            remark: remark
-        }).toString();
+            updatedBy: user
+        };
 
-        fetch('/api/inventory?' + qs, { method: 'POST' }).catch(function() {});
+        if (!navigator.onLine) {
+            pushToOfflineQueue(updatePayload);
+            showToast('Saved Offline (Queued for Sheet)');
+            return;
+        }
+
+        setNetIndicator('syncing');
+        sendInstrumentUpdateToSheet(updatePayload)
+            .then(function(res) {
+                lastManualUpdateTs = Date.now();
+                setNetIndicator('online');
+                if (res && (res.success || res.status === 'success')) {
+                    showToast('Updated in Google Sheet!');
+                } else {
+                    showToast('Saved to Sheet!');
+                }
+            })
+            .catch(function() {
+                setNetIndicator(navigator.onLine ? 'online' : 'offline');
+                pushToOfflineQueue(updatePayload);
+                showToast('Saved to Cache (Queued for Sheet)');
+            });
     }
 
     /* ═══════════════════════════════════════════════════════════
@@ -1338,7 +1769,7 @@
         var html = '';
         for (var i = 0; i < list.length; i++) {
             var doc = list[i];
-            html += '<button type="button" class="pdf-item" data-nav onclick="openPdfViewer(\'' + doc.id + '\', \'' + escHtml(doc.title).replace(/'/g, "\\'") + '\')">' +
+            html += '<button type="button" class="pdf-item" data-nav data-doc-id="' + escHtml(doc.id) + '" data-doc-title="' + escHtml(doc.title) + '" onclick="openPdfViewer(this.getAttribute(\'data-doc-id\'), this.getAttribute(\'data-doc-title\'))">' +
                 '<span class="pdf-icon">PDF</span>' +
                 '<div class="pdf-title">' + escHtml(doc.title) + '</div>' +
                 '<span class="badge badge-loc">' + escHtml(doc.catLabel) + '</span>' +
@@ -1357,6 +1788,7 @@
         document.getElementById('pdfViewerFrame').src = previewUrl;
         document.getElementById('directPdfLink').href = viewUrl;
         window.scrollTo(0, 0);
+        focusFirstNavItem(false);
     }
 
     function closePdfViewer() {
@@ -1367,34 +1799,72 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
-       3. OPERATION REQUEST
+       3. OPERATION REQUEST (CACHE + GOOGLE SHEET + ADD)
     ═══════════════════════════════════════════════════════════ */
-    function loadOperations(force) {
-        fetch('/api/operation-requests' + (force ? '?refresh=true' : ''))
-            .then(function(r) { return r.json(); })
-            .then(function(res) {
-                if (res && Array.isArray(res.data)) {
-                    operationsData = res.data;
-                    renderOperations();
-                    var homeOp = document.getElementById('homeOpCount');
-                    if (homeOp) homeOp.textContent = operationsData.length + ' Active Work Orders';
+    function applyOperationsCacheList(list) {
+        if (!Array.isArray(list)) return false;
+        operationsData = list;
+        try {
+            localStorage.setItem(LS_REQUESTS, JSON.stringify(operationsData));
+        } catch (e) {}
+        if (currentModule === 'operations') {
+            renderOperations();
+        }
+        return true;
+    }
+
+    function loadOperationsFromCacheFirst() {
+        try {
+            var cached = localStorage.getItem(LS_REQUESTS);
+            if (cached) {
+                var parsed = JSON.parse(cached);
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                    applyOperationsCacheList(parsed);
+                    return;
+                }
+            }
+        } catch (e) {}
+
+        requestJson('../data/operation_requests.json')
+            .then(function(seed) {
+                if (operationsData.length === 0 && Array.isArray(seed)) {
+                    applyOperationsCacheList(seed);
                 }
             })
-            .catch(function() {
-                fetch('../data/operation_requests.json')
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) {
-                        if (Array.isArray(data)) {
-                            operationsData = data;
-                            renderOperations();
-                        }
-                    })
-                    .catch(function() {});
-            });
+            .catch(function() {});
+    }
+
+    function syncOperationsFromSheet(force) {
+        if (!navigator.onLine) return Promise.resolve();
+        var proxyUrl = '/api/operation-requests' + (force ? '?refresh=true&t=' : '?t=') + Date.now();
+        var directUrl = OP_REQUEST_GAS_URL + '?t=' + Date.now();
+
+        var p;
+        if (isLocalNodeHost) {
+            p = requestJson(proxyUrl)
+                .then(function(res) {
+                    if (res && res.status === 'success' && Array.isArray(res.data)) return res;
+                    return requestJson(directUrl, { redirect: 'follow' });
+                })
+                .catch(function() {
+                    return requestJson(directUrl, { redirect: 'follow' });
+                });
+        } else {
+            p = requestJson(directUrl, { redirect: 'follow' });
+        }
+
+        return p
+            .then(function(res) {
+                if (res && res.status === 'success' && Array.isArray(res.data)) {
+                    applyOperationsCacheList(res.data);
+                }
+            })
+            .catch(function() {});
     }
 
     function renderOperations() {
         var listEl = document.getElementById('opList');
+        if (!listEl) return;
         var q = (document.getElementById('opSearch').value || '').toLowerCase().trim();
         var filtered = operationsData.filter(function(item) {
             var wo = String(item['Work Order'] || item.wo || '');
@@ -1454,11 +1924,29 @@
         document.getElementById('newOpDesc').value = '';
         document.getElementById('newOpTeam').value = '';
         document.getElementById('opCreateModal').classList.add('active');
-        document.getElementById('newOpWo').focus();
+        setTimeout(function() {
+            document.getElementById('newOpWo').focus();
+        }, 30);
     }
 
     function closeNewOpModal() {
-        document.getElementById('opCreateModal').classList.remove('active');
+        var modal = document.getElementById('opCreateModal');
+        if (!modal) return;
+        modal.classList.remove('active');
+    }
+
+    function sendOperationRequestToSheet(payload) {
+        var qs = buildQueryString(payload) + '&t=' + Date.now();
+        if (isLocalNodeHost) {
+            return requestJson('/api/operation-requests', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).catch(function() {
+                return requestJson(OP_REQUEST_GAS_URL + '?' + qs, { redirect: 'follow' });
+            });
+        }
+        return requestJson(OP_REQUEST_GAS_URL + '?' + qs, { redirect: 'follow' });
     }
 
     function submitNewOp() {
@@ -1469,6 +1957,7 @@
 
         if (!plant && !desc) {
             showToast('Enter Plant and Description');
+            document.getElementById('newOpPlant').focus();
             return;
         }
 
@@ -1479,6 +1968,7 @@
         var dateStr = dd + '.' + mm + '.' + yyyy;
 
         var payload = {
+            module: 'operation_request',
             action: 'create',
             workOrder: wo,
             plant: plant,
@@ -1490,58 +1980,111 @@
             user: team
         };
 
-        closeNewOpModal();
-        showToast('Submitting Request...');
-
-        fetch('/api/operation-requests', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        })
-        .then(function(r) { return r.json(); })
-        .then(function() {
-            showToast('Operation Request Added!');
-            loadOperations(true);
-        })
-        .catch(function() {
-            showToast('Saved locally');
+        operationsData.unshift({
+            "Work Order": wo,
+            "Description": desc,
+            "Plant": plant,
+            "Date": dateStr,
+            "Time": "08:00 - 17:00",
+            "Team": team,
+            "Status": "Requested",
+            "Remarks": ""
         });
+        applyOperationsCacheList(operationsData);
+        closeNewOpModal();
+        showToast('Saving Operation Request...');
+
+        if (!navigator.onLine) {
+            pushToOfflineQueue(payload);
+            showToast('Saved Offline (Queued for Sheet)');
+            return;
+        }
+
+        sendOperationRequestToSheet(payload)
+            .then(function() {
+                showToast('Synced to Google Sheet!');
+                syncOperationsFromSheet(true);
+            })
+            .catch(function() {
+                pushToOfflineQueue(payload);
+                showToast('Saved to Cache (Queued)');
+            });
     }
 
     /* ═══════════════════════════════════════════════════════════
-       4. TEAM CONTACTS
+       4. TEAM CONTACTS (SIMPLIFIED: NAME, #, TABREED & NORMAL CALL)
     ═══════════════════════════════════════════════════════════ */
-    function loadContacts() {
-        fetch('/api/team-contacts')
-            .then(function(r) { return r.json(); })
-            .then(function(res) {
-                if (res && Array.isArray(res.data)) {
-                    contactsData = res.data;
-                    renderContacts();
+    function applyContactsCacheList(list) {
+        if (!Array.isArray(list) || list.length === 0) return false;
+        contactsData = list;
+        try {
+            localStorage.setItem(LS_CONTACTS, JSON.stringify(contactsData));
+        } catch (e) {}
+        if (currentModule === 'contacts') {
+            renderContacts();
+        }
+        return true;
+    }
+
+    function loadContactsFromCacheFirst() {
+        try {
+            var cached = localStorage.getItem(LS_CONTACTS);
+            if (cached) {
+                var parsed = JSON.parse(cached);
+                if (applyContactsCacheList(parsed)) {
+                    return;
+                }
+            }
+        } catch (e) {}
+
+        requestJson('../data/team_contacts.json')
+            .then(function(seed) {
+                if (contactsData.length === 0 && Array.isArray(seed)) {
+                    applyContactsCacheList(seed);
                 }
             })
-            .catch(function() {
-                fetch('../data/team_contacts.json')
-                    .then(function(r) { return r.json(); })
-                    .then(function(data) {
-                        if (Array.isArray(data)) {
-                            contactsData = data;
-                            renderContacts();
-                        }
-                    })
-                    .catch(function() {});
-            });
+            .catch(function() {});
+    }
+
+    function syncContactsFromSheet(force) {
+        if (!navigator.onLine) return Promise.resolve();
+        var proxyUrl = '/api/team-contacts' + (force ? '?refresh=true&t=' : '?t=') + Date.now();
+        var directUrl = OP_REQUEST_GAS_URL + '?action=getTeamContacts&t=' + Date.now();
+
+        var p;
+        if (isLocalNodeHost) {
+            p = requestJson(proxyUrl)
+                .then(function(res) {
+                    if (res && res.status === 'success' && Array.isArray(res.data) && res.data.length > 0) return res;
+                    return requestJson(directUrl, { redirect: 'follow' });
+                })
+                .catch(function() {
+                    return requestJson(directUrl, { redirect: 'follow' });
+                });
+        } else {
+            p = requestJson(directUrl, { redirect: 'follow' });
+        }
+
+        return p
+            .then(function(res) {
+                if (res && res.status === 'success' && Array.isArray(res.data) && res.data.length > 0) {
+                    applyContactsCacheList(res.data);
+                }
+            })
+            .catch(function() {});
     }
 
     function renderContacts() {
         var listEl = document.getElementById('contactList');
+        if (!listEl) return;
         var q = (document.getElementById('contactSearch').value || '').toLowerCase().trim();
         var filtered = contactsData.filter(function(c) {
             if (!q) return true;
             return (c.short || '').toLowerCase().indexOf(q) !== -1 ||
                    (c.full || '').toLowerCase().indexOf(q) !== -1 ||
                    String(c.code || '').toLowerCase().indexOf(q) !== -1 ||
-                   (c.phone || '').toLowerCase().indexOf(q) !== -1;
+                   (c.phone || '').toLowerCase().indexOf(q) !== -1 ||
+                   (c.whatsapp || '').toLowerCase().indexOf(q) !== -1;
         });
 
         document.getElementById('contactCountLabel').textContent = filtered.length + ' Team Members';
@@ -1554,25 +2097,37 @@
         var html = '';
         for (var i = 0; i < filtered.length; i++) {
             var c = filtered[i];
-            var phoneClean = String(c.phone || '').replace(/\s+/g, '');
-            var waClean = String(c.whatsapp || c.phone || '').replace(/[^0-9]/g, '');
-            var roleBadge = c.role === 'supervisor'
-                ? '<span class="badge badge-warn">Supervisor</span>'
-                : '<span class="badge badge-loc">#' + escHtml(c.code) + '</span>';
+            var tabreedNo = String(c.phone || '').trim();
+            var normalNo = String(c.whatsapp || '').trim();
+            var tabreedDial = tabreedNo.replace(/\s+/g, '');
+            var normalDial = normalNo.replace(/\s+/g, '');
+            var displayName = c.short || c.full || 'Member';
 
-            html += '<div class="nokia-card">' +
-                '<div class="card-top">' +
-                    '<div class="card-title">' + escHtml(c.short || c.full) + '</div>' +
-                    roleBadge +
+            var numsHtml = '';
+            if (tabreedNo) {
+                numsHtml += '<div class="contact-num-line">' +
+                    '<span>Tabreed: <b>' + escHtml(tabreedNo) + '</b></span>' +
+                    '<a href="tel:' + escHtml(tabreedDial) + '" class="btn-call-compact" data-nav>Call</a>' +
+                '</div>';
+            }
+            if (normalNo && normalDial !== tabreedDial) {
+                numsHtml += '<div class="contact-num-line">' +
+                    '<span>Normal: <b>' + escHtml(normalNo) + '</b></span>' +
+                    '<a href="tel:' + escHtml(normalDial) + '" class="btn-call-compact" data-nav>Call</a>' +
+                '</div>';
+            } else if (normalNo && !tabreedNo) {
+                numsHtml += '<div class="contact-num-line">' +
+                    '<span>Normal: <b>' + escHtml(normalNo) + '</b></span>' +
+                    '<a href="tel:' + escHtml(normalDial) + '" class="btn-call-compact" data-nav>Call</a>' +
+                '</div>';
+            }
+
+            html += '<div class="contact-compact-card">' +
+                '<div class="contact-row-main">' +
+                    '<span class="contact-name-txt">' + escHtml(displayName) + '</span>' +
+                    '<span class="badge badge-loc">#' + escHtml(c.code) + '</span>' +
                 '</div>' +
-                '<div style="font-size:11px;color:var(--muted);">' + escHtml(c.full) + '</div>' +
-                '<div class="card-meta" style="margin-top:3px;">' +
-                    '<span>Tel: <b>' + escHtml(c.phone || '—') + '</b></span>' +
-                '</div>' +
-                '<div class="contact-actions-row">' +
-                    (phoneClean ? '<a href="tel:' + escHtml(phoneClean) + '" class="contact-btn btn-call" data-nav>&#9742; Call</a>' : '') +
-                    (waClean ? '<a href="https://wa.me/' + escHtml(waClean) + '" target="_blank" class="contact-btn btn-wa" data-nav>WhatsApp</a>' : '') +
-                '</div>' +
+                '<div class="contact-nums">' + numsHtml + '</div>' +
             '</div>';
         }
         listEl.innerHTML = html;
@@ -1591,15 +2146,18 @@
     }
 
     function getFriendlyKeyAction(key, keyCode) {
-        if (key === 'ArrowUp' || keyCode === 38) return 'D-PAD UP ▲';
-        if (key === 'ArrowDown' || keyCode === 40) return 'D-PAD DOWN ▼';
+        if (key === 'ArrowUp' || keyCode === 38) return 'D-PAD UP ▲ (Scroll Up)';
+        if (key === 'ArrowDown' || keyCode === 40) return 'D-PAD DOWN ▼ (Scroll Down)';
         if (key === 'ArrowLeft' || keyCode === 37) return 'D-PAD LEFT ◄';
         if (key === 'ArrowRight' || keyCode === 39) return 'D-PAD RIGHT ►';
         if (key === 'Enter' || keyCode === 13) return 'CENTER OK / SELECT ●';
+        if (key === '*' || keyCode === 42) return 'STAR * (POPUP OK/SAVE)';
+        if (key === '#' || keyCode === 35) return 'HASH # (CANCEL / BACK)';
+        if (key === '0' || keyCode === 48) return 'ZERO 0 (HOME / GUIDE)';
         if (key === 'SoftLeft' || key === 'F1') return 'LEFT SOFTKEY';
         if (key === 'SoftRight' || key === 'F2') return 'RIGHT SOFTKEY';
         if (key === 'Backspace' || key === 'Escape' || keyCode === 8 || keyCode === 27) return 'BACK / CLEAR';
-        if (/^[0-9*#]$/.test(key)) return 'KEYPAD [' + key + ']';
+        if (/^[1-9]$/.test(key)) return 'KEYPAD [' + key + ']';
         return 'KEY PRESS';
     }
 
@@ -1621,6 +2179,8 @@
         if (!id && keyCode === 37) id = 'vkey-left';
         if (!id && keyCode === 39) id = 'vkey-right';
         if (!id && keyCode === 13) id = 'vkey-enter';
+        if (!id && keyCode === 42) id = 'vkey-star';
+        if (!id && keyCode === 35) id = 'vkey-hash';
 
         var allBtns = document.querySelectorAll('.dpad-btn');
         for (var i = 0; i < allBtns.length; i++) {
@@ -1630,7 +2190,7 @@
             var target = document.getElementById(id);
             if (target) {
                 target.classList.add('pressed');
-                setTimeout(function() { target.classList.remove('pressed'); }, 350);
+                setTimeout(function() { target.classList.remove('pressed'); }, 300);
             }
         }
     }
@@ -1670,27 +2230,30 @@
         }
     }
 
-    function clearKeyLog() {
-        keyLogEntries = [];
-        var logEl = document.getElementById('testKeyLog');
-        if (logEl) logEl.innerHTML = '<div>Key log cleared. Press any key...</div>';
-        document.getElementById('testKeyMain').textContent = 'Waiting for Key...';
-    }
-
     /* ═══════════════════════════════════════════════════════════
        NOKIA D-PAD & KEYPAD HARDWARE NAVIGATION ENGINE
     ═══════════════════════════════════════════════════════════ */
     function getVisibleNavItems() {
         var modalInst = document.getElementById('instUpdateModal');
         if (modalInst && modalInst.classList.contains('active')) {
-            return Array.prototype.slice.call(modalInst.querySelectorAll('[data-nav]'));
+            var mItems = modalInst.querySelectorAll('[data-nav]');
+            var visM = [];
+            for (var m = 0; m < mItems.length; m++) {
+                if (mItems[m].offsetParent !== null) visM.push(mItems[m]);
+            }
+            return visM;
         }
         var modalOp = document.getElementById('opCreateModal');
         if (modalOp && modalOp.classList.contains('active')) {
-            return Array.prototype.slice.call(modalOp.querySelectorAll('[data-nav]'));
+            var oItems = modalOp.querySelectorAll('[data-nav]');
+            var visO = [];
+            for (var n = 0; n < oItems.length; n++) {
+                if (oItems[n].offsetParent !== null) visO.push(oItems[n]);
+            }
+            return visO;
         }
 
-        var all = document.querySelectorAll('.nokia-header [data-nav], .view-section.active [data-nav]');
+        var all = document.querySelectorAll('.nokia-header [data-nav], .view-section.active [data-nav], .page-bottom-bar [data-nav]');
         var visible = [];
         for (var i = 0; i < all.length; i++) {
             var el = all[i];
@@ -1701,15 +2264,25 @@
         return visible;
     }
 
-    function focusFirstNavItem() {
+    function focusFirstNavItem(skipSearchBox) {
         setTimeout(function() {
             var activeView = document.querySelector('.view-section.active');
             if (!activeView) return;
             var items = activeView.querySelectorAll('[data-nav]');
             for (var i = 0; i < items.length; i++) {
-                if (items[i].offsetParent !== null) {
-                    items[i].focus();
-                    break;
+                var el = items[i];
+                if (el.offsetParent === null) continue;
+                if (skipSearchBox && el.getAttribute('data-search-box') === '1') {
+                    continue;
+                }
+                el.focus();
+                return;
+            }
+            // Fallback if no other item exists
+            for (var j = 0; j < items.length; j++) {
+                if (items[j].offsetParent !== null) {
+                    items[j].focus();
+                    return;
                 }
             }
         }, 40);
@@ -1719,16 +2292,106 @@
         var key = e.key || '';
         var code = e.keyCode || e.which || 0;
         var activeEl = document.activeElement;
-        var isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT');
+        var isSearchBox = activeEl && activeEl.getAttribute && activeEl.getAttribute('data-search-box') === '1';
+        var isUnlockedInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') && !activeEl.readOnly;
+        var isSelectEl = activeEl && activeEl.tagName === 'SELECT';
 
-        // If on Test Page, always log the key response live!
-        if (currentModule === 'testpage') {
-            var actLabel = getFriendlyKeyAction(key, code);
-            recordTestKeyPress(key, code, actLabel);
+        var instModalOpen = document.getElementById('instUpdateModal').classList.contains('active');
+        var opModalOpen = document.getElementById('opCreateModal').classList.contains('active');
+        var popupOpen = instModalOpen || opModalOpen;
+
+        var isStarKey = (key === '*' || key === 'Multiply' || code === 42 || code === 106);
+        var isHashKey = (key === '#' || code === 35 || code === 163);
+        var isZeroKey = (key === '0' || code === 48 || code === 96);
+
+        // 1. IF ANY POPUP WINDOW IS OPEN:
+        //    * -> OK / Save
+        //    # -> Cancel
+        //    0 -> Nokia Home Page (when not typing inside an unlocked text input)
+        if (popupOpen) {
+            if (isStarKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (instModalOpen) saveInstrumentUpdate();
+                else if (opModalOpen) submitNewOp();
+                return;
+            }
+            if (isHashKey) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (instModalOpen) closeInstModal();
+                else if (opModalOpen) closeNewOpModal();
+                return;
+            }
+            if (isZeroKey && !isUnlockedInput) {
+                e.preventDefault();
+                e.stopPropagation();
+                goHomePage();
+                return;
+            }
+            // Allow Left/Right keys on Location <select> inside modal to cycle options easily
+            if (isSelectEl && (key === 'ArrowLeft' || code === 37 || key === 'ArrowRight' || code === 39)) {
+                e.preventDefault();
+                var dir = (key === 'ArrowRight' || code === 39) ? 1 : -1;
+                var nextOpt = activeEl.selectedIndex + dir;
+                if (nextOpt >= 0 && nextOpt < activeEl.options.length) {
+                    activeEl.selectedIndex = nextOpt;
+                    onModalLocSelectChange(activeEl.value);
+                }
+                return;
+            }
         }
 
-        // Number shortcuts 1-5 on Home Screen
-        if (currentModule === 'home' && !isInput) {
+        // 2. TEST PAGE: Hold or press Up / Down scrolls the page smoothly
+        if (currentModule === 'testpage' && !popupOpen) {
+            var actLabel = getFriendlyKeyAction(key, code);
+            recordTestKeyPress(key, code, actLabel);
+
+            if (key === 'ArrowDown' || code === 40) {
+                e.preventDefault();
+                window.scrollBy(0, 55);
+                return;
+            }
+            if (key === 'ArrowUp' || code === 38) {
+                e.preventDefault();
+                window.scrollBy(0, -55);
+                return;
+            }
+        }
+
+        // 3. Pressing OK (Enter) on a locked Search Box -> Unlock & start typing
+        if ((key === 'Enter' || code === 13) && isSearchBox) {
+            e.preventDefault();
+            if (activeEl.readOnly) {
+                activateSearchBox(activeEl);
+            } else {
+                // Pressing OK again moves focus to first search result
+                activeEl.readOnly = true;
+                focusFirstNavItem(true);
+            }
+            return;
+        }
+
+        // 4. Key 0: On Home Page -> Open Guide; On any other page (when not typing) -> Go Home Page
+        if (isZeroKey && !isUnlockedInput && !popupOpen) {
+            e.preventDefault();
+            if (currentModule === 'home') {
+                openModule('guide');
+            } else {
+                goHomePage();
+            }
+            return;
+        }
+
+        // 5. Key #: When inside a module (and not typing) -> Go Back
+        if (isHashKey && !isUnlockedInput && !popupOpen && currentModule !== 'home') {
+            e.preventDefault();
+            goBackStep();
+            return;
+        }
+
+        // 6. Number shortcuts 1-5 on Home Screen
+        if (currentModule === 'home' && !isUnlockedInput && !popupOpen) {
             if (key === '1' || code === 49) { e.preventDefault(); openModule('instruments'); return; }
             if (key === '2' || code === 50) { e.preventDefault(); openModule('documents'); return; }
             if (key === '3' || code === 51) { e.preventDefault(); openModule('operations'); return; }
@@ -1736,15 +2399,15 @@
             if (key === '5' || code === 53) { e.preventDefault(); openModule('testpage'); return; }
         }
 
-        // D-Pad Up / Down Navigation
+        // 7. D-Pad Up / Down Navigation
         var isDown = (key === 'ArrowDown' || code === 40);
         var isUp = (key === 'ArrowUp' || code === 38);
 
         if (isDown || isUp) {
-            // Allow native select dropdown behavior when open
-            if (activeEl && activeEl.tagName === 'SELECT') return;
-
             e.preventDefault();
+            if (isSearchBox && !activeEl.readOnly) {
+                activeEl.readOnly = true;
+            }
             var navItems = getVisibleNavItems();
             if (navItems.length === 0) return;
 
@@ -1760,6 +2423,9 @@
 
             var target = navItems[nextIdx];
             if (target) {
+                if (target.getAttribute('data-search-box') === '1') {
+                    target.readOnly = true;
+                }
                 target.focus();
                 if (typeof target.scrollIntoView === 'function') {
                     target.scrollIntoView({ block: 'nearest' });
@@ -1768,33 +2434,62 @@
             return;
         }
 
-        // Enter key inside search input -> move focus to first result
-        if ((key === 'Enter' || code === 13) && isInput && activeEl.tagName === 'INPUT') {
-            var navList = getVisibleNavItems();
-            var curIdx = navList.indexOf(activeEl);
-            if (curIdx !== -1 && curIdx + 1 < navList.length) {
+        // 8. Enter key inside popup input -> move to next field or Save
+        if ((key === 'Enter' || code === 13) && popupOpen && (isUnlockedInput || isSelectEl)) {
+            var modalNav = getVisibleNavItems();
+            var cIdx = modalNav.indexOf(activeEl);
+            if (cIdx !== -1 && cIdx + 1 < modalNav.length) {
                 e.preventDefault();
-                navList[curIdx + 1].focus();
+                modalNav[cIdx + 1].focus();
             }
             return;
         }
 
-        // Back / Escape / 0 (when not typing in an input)
-        if (!isInput && (key === 'Escape' || key === 'Backspace' || key === '0' || code === 27 || code === 8)) {
-            if (currentModule !== 'home') {
+        // 9. Escape / Backspace (when not typing in an unlocked text input)
+        if (!isUnlockedInput && (key === 'Escape' || key === 'Backspace' || code === 27 || code === 8)) {
+            if (popupOpen) {
                 e.preventDefault();
-                goHome();
+                closeInstModal();
+                closeNewOpModal();
+            } else if (currentModule !== 'home') {
+                e.preventDefault();
+                goBackStep();
             }
         }
     });
 
-    /* ─── INITIALIZATION ─── */
+    /* ═══════════════════════════════════════════════════════════
+       AUTOMATIC 1-MINUTE (60s) BACKGROUND SYNC & STARTUP
+    ═══════════════════════════════════════════════════════════ */
+    function runBackgroundSyncCycle(isForced) {
+        if (!navigator.onLine) {
+            setNetIndicator('offline');
+            return;
+        }
+        if (isSyncingNow) return;
+        isSyncingNow = true;
+
+        flushOfflineQueue()
+            .then(function() {
+                return Promise.all([
+                    syncInstrumentsFromSheet(isForced),
+                    syncOperationsFromSheet(isForced),
+                    syncContactsFromSheet(isForced)
+                ]);
+            })
+            .finally(function() {
+                isSyncingNow = false;
+                setNetIndicator(navigator.onLine ? 'online' : 'offline');
+            });
+    }
+
     window.addEventListener('resize', updateTestScreenDimensions);
     window.addEventListener('online', function() {
-        document.getElementById('netDot').classList.remove('offline');
+        setNetIndicator('online');
+        runBackgroundSyncCycle(true);
     });
     window.addEventListener('offline', function() {
-        document.getElementById('netDot').classList.add('offline');
+        setNetIndicator('offline');
     });
 
     (function initNokiaApp() {
@@ -1805,14 +2500,26 @@
             }
         } catch (e) {}
 
-        if (!navigator.onLine) {
-            document.getElementById('netDot').classList.add('offline');
-        }
+        setNetIndicator(navigator.onLine ? 'online' : 'offline');
 
-        // Pre-fetch counts in background
-        loadInstruments();
-        loadOperations(false);
-        focusFirstNavItem();
+        // 1. Immediately load from LocalStorage Cache / Seed JSON (0ms first-load)
+        loadInstrumentsFromCacheFirst();
+        loadOperationsFromCacheFirst();
+        loadContactsFromCacheFirst();
+
+        // 2. Sync fresh data from Google Sheets in background on load
+        runBackgroundSyncCycle(true);
+
+        // 3. Automatic background refresh every 1 minute (60,000 ms) when online
+        setInterval(function() {
+            if (navigator.onLine) {
+                runBackgroundSyncCycle(true);
+            } else {
+                setNetIndicator('offline');
+            }
+        }, 60000);
+
+        focusFirstNavItem(true);
     })();
 </script>
 </body>
