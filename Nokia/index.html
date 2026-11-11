@@ -470,14 +470,14 @@
 
         .pdf-actions-row {
             display: flex;
-            gap: 5px;
+            gap: 4px;
             width: 100%;
         }
 
         .btn-pdf-act {
             flex: 1;
-            padding: 4px 6px;
-            font-size: 11px;
+            padding: 4px 5px;
+            font-size: 10.5px;
             font-weight: bold;
             border-radius: 4px;
             text-align: center;
@@ -485,6 +485,13 @@
             cursor: pointer;
             border: 1px solid var(--primary);
             background: var(--primary);
+            color: #ffffff;
+            font-family: inherit;
+        }
+
+        .btn-pdf-act.fullpage {
+            background: #0f766e;
+            border-color: #0f766e;
             color: #ffffff;
         }
 
@@ -511,10 +518,20 @@
             flex: 1;
         }
 
+        /* ─── FULL PAGE PDF & WHATSAPP DESKTOP VIEWER OVERLAYS ─── */
         .pdf-viewer-box {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 950;
+            background: #0f172a;
             flex-direction: column;
-            gap: 5px;
+            gap: 0;
         }
 
         .pdf-viewer-box.active {
@@ -523,19 +540,45 @@
 
         .pdf-toolbar {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             align-items: center;
             justify-content: space-between;
-            background: var(--card);
-            padding: 5px 6px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 4px 5px;
+            border-bottom: 1.5px solid var(--primary);
             flex-wrap: wrap;
+            flex-shrink: 0;
+            z-index: 20;
+        }
+
+        .pdf-viewer-box.pure-fullpage .pdf-toolbar {
+            display: none !important;
+        }
+
+        .floating-exit-full {
+            display: none;
+            position: fixed;
+            top: 4px;
+            right: 4px;
+            z-index: 980;
+            background: rgba(15, 23, 42, 0.88);
+            color: #facc15;
+            border: 1.5px solid #facc15;
+            border-radius: 4px;
+            padding: 3px 7px;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .pdf-viewer-box.pure-fullpage .floating-exit-full {
+            display: inline-block;
         }
 
         .btn-small {
-            padding: 4px 7px;
-            font-size: 11px;
+            padding: 3px 6px;
+            font-size: 10.5px;
             font-weight: bold;
             border-radius: 4px;
             border: 1px solid var(--border);
@@ -545,6 +588,7 @@
             cursor: pointer;
             display: inline-block;
             text-align: center;
+            font-family: inherit;
         }
 
         .btn-small.secondary {
@@ -554,10 +598,9 @@
 
         .pdf-viewport {
             width: 100%;
-            height: 74vh;
-            min-height: 260px;
-            border: 1.5px solid var(--border);
-            border-radius: 4px;
+            flex: 1;
+            height: 100%;
+            border: 0;
             background: #1e293b;
             overflow: auto;
             position: relative;
@@ -592,6 +635,69 @@
             inset: 0;
             z-index: 5;
             background: transparent;
+        }
+
+        /* ─── WHATSAPP WEB DESKTOP LAB (INSIDE TEST MODULE) ─── */
+        .wa-lab-box {
+            background: var(--card);
+            border: 2px solid #16a34a;
+            border-radius: 6px;
+            padding: 7px 8px;
+            margin-bottom: 7px;
+        }
+
+        .wa-lab-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+            margin-bottom: 5px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .wa-lab-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #15803d;
+        }
+
+        body.dark-mode .wa-lab-title {
+            color: #4ade80;
+        }
+
+        .wa-subopt-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 5px;
+        }
+
+        .wa-subopt-btn {
+            width: 100%;
+            text-align: left;
+            padding: 6px 7px;
+            border-radius: 4px;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            font-family: inherit;
+        }
+
+        .wa-subopt-badge {
+            background: #16a34a;
+            color: #fff;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            flex-shrink: 0;
         }
 
         /* ─── SIMPLIFIED TEAM CONTACTS ─── */
@@ -937,7 +1043,7 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════
-         3. DOCUMENT LIBRARY (SIMPLE & SAAF PDF VIEWER)
+         3. DOCUMENT LIBRARY (SIMPLE & SAAF FULL PAGE PDF VIEWER)
     ═══════════════════════════════════════════════════ -->
     <section id="view-documents" class="view-section">
         <div id="docListSection">
@@ -956,26 +1062,27 @@
             <div id="docList" class="item-list"></div>
         </div>
 
-        <!-- Embedded Clean PDF Viewer with Keypad Zoom & 4-Way Scroll -->
+        <!-- Full-Page PDF Viewer with Full Page Preview Option, Keypad Zoom (* / #) & 4-Way Scroll -->
         <div id="docViewerSection" class="pdf-viewer-box">
-            <div class="pdf-toolbar">
-                <button type="button" class="btn-small secondary" data-nav onclick="closePdfViewer()">&#8592; Close</button>
-                <span id="activePdfTitle" style="font-size:11px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin:0 4px;">PDF</span>
+            <div class="pdf-toolbar" id="pdfToolbar">
+                <button type="button" class="btn-small secondary" data-nav onclick="closePdfViewer()">&#8592; Back</button>
+                <span id="activePdfTitle" style="font-size:10.5px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin:0 3px;color:#fff;">PDF</span>
                 <button type="button" class="btn-small secondary" data-nav onclick="zoomPdf(-0.25)" title="Zoom Out (#)">-</button>
                 <span id="pdfZoomBadge" class="badge badge-loc" style="font-size:10px;">100%</span>
                 <button type="button" class="btn-small secondary" data-nav onclick="zoomPdf(0.25)" title="Zoom In (*)">+</button>
-                <a id="directPdfDownloadBtn" href="#" download target="pdfDownloadSink" class="btn-small" style="background:var(--success);border-color:var(--success);" data-nav onclick="showToast('Downloading PDF...')">Download</a>
+                <button type="button" class="btn-small" id="btnPdfFullPage" style="background:#0f766e;border-color:#0f766e;" data-nav onclick="togglePdfFullPage()">Full Page</button>
+                <button type="button" id="directPdfDownloadBtn" class="btn-small" style="background:var(--success);border-color:var(--success);" data-nav onclick="downloadCurrentViewedPdf()">Download</button>
             </div>
+            <button type="button" class="floating-exit-full" id="btnExitPdfFull" data-nav onclick="togglePdfFullPage()">Exit Full</button>
             <div id="pdfViewport" class="pdf-viewport" tabindex="0" data-nav>
                 <div id="pdfCanvasStage" class="pdf-canvas-stage">
                     <div id="pdfScaleInner" class="pdf-scale-inner">
-                        <iframe id="pdfViewerFrame" class="pdf-frame" src="about:blank"></iframe>
+                        <iframe id="pdfViewerFrame" class="pdf-frame" src="about:blank" allow="fullscreen"></iframe>
                         <div id="pdfKeyShield" class="pdf-key-shield"></div>
                     </div>
                 </div>
             </div>
         </div>
-        <iframe id="pdfDownloadSink" name="pdfDownloadSink" style="display:none;"></iframe>
     </section>
 
     <!-- ═══════════════════════════════════════════════════
@@ -1008,9 +1115,81 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════
-         6. TEST PAGE (NOKIA KEYPAD & NAVIGATION TESTER)
+         6. TEST PAGE (WHATSAPP WEB DESKTOP LAB + KEYPAD TESTER)
     ═══════════════════════════════════════════════════ -->
     <section id="view-testpage" class="view-section">
+        <!-- WhatsApp Web Desktop Mode & Multi-Link Tester -->
+        <div class="wa-lab-box">
+            <div class="wa-lab-header">
+                <span class="wa-lab-title">WhatsApp Web &mdash; Nokia Desktop Lab</span>
+                <span class="badge" style="background:#dcfce7;color:#15803d;">6 Test Modes</span>
+            </div>
+            <div style="font-size:10.5px;color:var(--muted);margin-bottom:5px;">
+                Test which link opens WhatsApp on Nokia. Iframe modes use <b>Desktop Spoof (Win10 Chrome 1024px)</b> + Fullscreen Zoom (<b>*</b>/<b>#</b>), Scroll (<b>2/4/6/8</b>) &amp; Close (<b>0</b>).
+            </div>
+
+            <!-- Optional Team Contact / Phone Number Picker for WA Chat Sub-Options -->
+            <div style="display:flex;gap:4px;margin-bottom:5px;">
+                <select id="waTestContactSelect" class="nokia-input" style="flex:1;padding:4px;font-size:11px;" data-nav onchange="onWaContactSelect(this.value)">
+                    <option value="">Select Team Contact (Optional)...</option>
+                </select>
+                <input type="text" id="waTestPhoneInput" class="nokia-input" style="width:44%;padding:4px 6px;font-size:11px;" data-nav placeholder="Phone e.g. 9715..." value="97150">
+            </div>
+
+            <div class="wa-subopt-list">
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(1)">
+                    <span>1. WA Web Desktop Bridge Iframe (Bypass Frame + Win10 UA)</span>
+                    <span class="wa-subopt-badge">Iframe 1</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(2)">
+                    <span>2. WA Web Direct Desktop Iframe (web.whatsapp.com 1024px)</span>
+                    <span class="wa-subopt-badge">Iframe 2</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(3)">
+                    <span>3. WA API Send Fullscreen Iframe (api.whatsapp.com/send)</span>
+                    <span class="wa-subopt-badge">Iframe 3</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(4)">
+                    <span>4. WA Gateway Proxy Iframe (translate.goog Desktop)</span>
+                    <span class="wa-subopt-badge">Iframe 4</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(5)">
+                    <span>5. WA.ME Quick Chat Link &amp; Native App (wa.me / whatsapp://)</span>
+                    <span class="wa-subopt-badge" style="background:#0284c7;">Direct 5</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(6)">
+                    <span>6. Desktop Viewport Meta (1280px) + Top Window WA Web</span>
+                    <span class="wa-subopt-badge" style="background:#7c3aed;">Desktop 6</span>
+                </button>
+            </div>
+            <div id="waTestStatusLine" style="margin-top:5px;font-size:10.5px;color:var(--primary);font-weight:bold;">
+                Mode: Ready &bull; Select any option above to test on Nokia
+            </div>
+        </div>
+
+        <!-- Full-Screen Customised Desktop WhatsApp Iframe Viewer (Same Controls as Document Library) -->
+        <div id="waViewerSection" class="pdf-viewer-box">
+            <div class="pdf-toolbar" id="waToolbar">
+                <button type="button" class="btn-small secondary" data-nav onclick="closeWaViewer()">&#8592; Back</button>
+                <span id="activeWaTitle" style="font-size:10.5px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin:0 3px;color:#4ade80;">WA Desktop</span>
+                <button type="button" class="btn-small secondary" data-nav onclick="zoomWa(-0.15)" title="Zoom Out (#)">-</button>
+                <span id="waZoomBadge" class="badge badge-loc" style="font-size:10px;">100%</span>
+                <button type="button" class="btn-small secondary" data-nav onclick="zoomWa(0.15)" title="Zoom In (*)">+</button>
+                <button type="button" class="btn-small" id="btnWaInteract" style="background:#d97706;border-color:#d97706;" data-nav onclick="toggleWaInteractMode()">OK: Pan</button>
+                <button type="button" class="btn-small" id="btnWaFullPage" style="background:#0f766e;border-color:#0f766e;" data-nav onclick="toggleWaFullPage()">Full Page</button>
+                <button type="button" class="btn-small" style="background:#16a34a;border-color:#16a34a;" data-nav onclick="switchWaFrameEngine()">Switch</button>
+            </div>
+            <button type="button" class="floating-exit-full" id="btnExitWaFull" data-nav onclick="toggleWaFullPage()">Exit Full</button>
+            <div id="waViewport" class="pdf-viewport" tabindex="0" data-nav style="background:#0b141a;">
+                <div id="waCanvasStage" class="pdf-canvas-stage" style="width:1024px;height:780px;background:#0b141a;">
+                    <div id="waScaleInner" class="pdf-scale-inner" style="width:1024px;height:780px;">
+                        <iframe id="waViewerFrame" class="pdf-frame" style="width:1024px;height:780px;background:#fff;" src="about:blank" referrerpolicy="no-referrer"></iframe>
+                        <div id="waKeyShield" class="pdf-key-shield"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="tester-box">
             <div style="font-size:11px;font-weight:bold;color:var(--muted);">PRESS OR HOLD ANY KEY ON KEYPAD</div>
             <div class="key-big-display" id="testKeyMain">Waiting for Key...</div>
@@ -1075,21 +1254,22 @@
         </div>
 
         <div class="guide-box" tabindex="0" data-nav>
-            <div class="guide-title">PDF Viewer Keys (While Viewing PDF)</div>
+            <div class="guide-title">PDF &amp; WhatsApp Fullscreen Viewer Keys</div>
             <div class="guide-row"><span class="guide-key">Key * / #</span><span class="guide-desc">Zoom In (*) / Zoom Out (#)</span></div>
             <div class="guide-row"><span class="guide-key">Key 2 / 8</span><span class="guide-desc">Scroll Up (2) / Down (8)</span></div>
             <div class="guide-row"><span class="guide-key">Key 4 / 6</span><span class="guide-desc">Scroll Left (4) / Right (6)</span></div>
-            <div class="guide-row"><span class="guide-key">&#9650; &#9660; &#9668; &#9658;</span><span class="guide-desc">Move / Scroll PDF in 4 ways</span></div>
-            <div class="guide-row"><span class="guide-key">Key 0</span><span class="guide-desc">Close PDF Viewer</span></div>
+            <div class="guide-row"><span class="guide-key">&#9650; &#9660; &#9668; &#9658;</span><span class="guide-desc">Move / Scroll in 4 ways</span></div>
+            <div class="guide-row"><span class="guide-key">Full Page</span><span class="guide-desc">Pure 100% Full Screen Preview</span></div>
+            <div class="guide-row"><span class="guide-key">Key 0</span><span class="guide-desc">Close Viewer / Back</span></div>
         </div>
 
         <div class="guide-box" tabindex="0" data-nav>
             <div class="guide-title">How to Use Modules</div>
             <div class="guide-row"><span class="guide-key">1. Instruments</span><span class="guide-desc">Press OK on item to update Location, Updated By &amp; Remark in Sheet</span></div>
-            <div class="guide-row"><span class="guide-key">2. Documents</span><span class="guide-desc">View PDF in page or Direct Download</span></div>
+            <div class="guide-row"><span class="guide-key">2. Documents</span><span class="guide-desc">Full Page PDF View or Direct Download</span></div>
             <div class="guide-row"><span class="guide-key">3. Operations</span><span class="guide-desc">View Work Orders or press + New to add</span></div>
             <div class="guide-row"><span class="guide-key">4. Contacts</span><span class="guide-desc">View Tabreed &amp; Normal No. + Direct Call</span></div>
-            <div class="guide-row"><span class="guide-key">5. Test Page</span><span class="guide-desc">Check keys; Hold &#9650;/&#9660; to scroll page</span></div>
+            <div class="guide-row"><span class="guide-key">5. Test Page</span><span class="guide-desc">WhatsApp Web Desktop Modes + Key Tester</span></div>
             <div class="guide-row"><span class="guide-key">Search Box</span><span class="guide-desc">Move to Search &amp; press OK to type</span></div>
         </div>
     </section>
@@ -1425,7 +1605,9 @@
                 renderContacts();
                 syncContactsFromSheet(true);
             } else if (mod === 'testpage') {
-                titleEl.textContent = 'Keypad Test Page';
+                titleEl.textContent = 'Keypad & WA Test Page';
+                closeWaViewer();
+                populateWaContactDropdown();
                 updateTestScreenDimensions();
             } else if (mod === 'guide') {
                 titleEl.textContent = 'Nokia Guide';
@@ -1442,6 +1624,9 @@
         if (currentModule === 'documents') {
             closePdfViewer();
         }
+        if (currentModule === 'testpage') {
+            closeWaViewer();
+        }
         openModule('home');
     }
 
@@ -1454,12 +1639,13 @@
             closeNewOpModal();
             return;
         }
-        if (currentModule === 'documents') {
-            var viewer = document.getElementById('docViewerSection');
-            if (viewer && viewer.classList.contains('active')) {
-                closePdfViewer();
-                return;
-            }
+        if (currentModule === 'documents' && isPdfViewerOpen()) {
+            closePdfViewer();
+            return;
+        }
+        if (currentModule === 'testpage' && isWaViewerOpen()) {
+            closeWaViewer();
+            return;
         }
         openModule('home');
     }
@@ -1889,19 +2075,90 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
-       2. DOCUMENT LIBRARY (VIEW IN PAGE + DIRECT DOWNLOAD + ZOOM/PAN)
+       2. DOCUMENT LIBRARY (FULL PAGE PREVIEW + DIRECT PDF DOWNLOAD)
     ═══════════════════════════════════════════════════════════ */
     var pdfZoomLevel = 1;
     var lastViewedDocId = null;
+    var lastViewedDocTitle = 'document.pdf';
     var PDF_BASE_HEIGHT = 2600;
+    var isPdfDownloading = false;
 
     function isPdfViewerOpen() {
         var viewer = document.getElementById('docViewerSection');
         return currentModule === 'documents' && viewer && viewer.classList.contains('active');
     }
 
+    // Direct binary PDF endpoint on Google Drive UserContent (returns HTTP 200 + Content-Disposition: attachment + CORS *)
     function getDirectDownloadUrl(fileId) {
-        return 'https://drive.google.com/uc?export=download&id=' + encodeURIComponent(fileId);
+        return 'https://drive.usercontent.google.com/download?id=' + encodeURIComponent(fileId) + '&export=download&confirm=t';
+    }
+
+    function triggerAnchorDownload(hrefUrl, fileName) {
+        var a = document.createElement('a');
+        a.href = hrefUrl;
+        a.setAttribute('download', fileName || 'document.pdf');
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function() {
+            if (a.parentNode) a.parentNode.removeChild(a);
+        }, 1200);
+    }
+
+    function downloadPdfDirect(fileId, title) {
+        if (!fileId) return;
+        var cleanTitle = (title || 'document.pdf').trim();
+        if (!/\.pdf$/i.test(cleanTitle)) {
+            cleanTitle += '.pdf';
+        }
+        var directUrl = getDirectDownloadUrl(fileId);
+        showToast('Downloading: ' + cleanTitle + '...');
+
+        // Method 1: Fetch binary PDF Blob via CORS (drive.usercontent.google.com allows Access-Control-Allow-Origin: *)
+        // and save via same-origin Blob URL so <a download> works inside iframes and mobile browsers without getting blocked by frame-ancestors 'none'.
+        var fn = window.__nokiaNativeFetch || window.fetch;
+        if (typeof fn === 'function' && typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function' && typeof Blob !== 'undefined') {
+            if (isPdfDownloading) return;
+            isPdfDownloading = true;
+            fn(directUrl, { method: 'GET', mode: 'cors', credentials: 'omit' })
+                .then(function(res) {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.blob();
+                })
+                .then(function(blob) {
+                    isPdfDownloading = false;
+                    var pdfBlob = new Blob([blob], { type: 'application/pdf' });
+                    var blobUrl = URL.createObjectURL(pdfBlob);
+                    triggerAnchorDownload(blobUrl, cleanTitle);
+                    showToast('Downloaded: ' + cleanTitle);
+                    setTimeout(function() {
+                        try { URL.revokeObjectURL(blobUrl); } catch (e) {}
+                    }, 30000);
+                })
+                .catch(function() {
+                    isPdfDownloading = false;
+                    // Fallback for Nokia S30+ / KaiOS / Opera Mini native OS Download Manager
+                    // Since directUrl returns Content-Disposition: attachment, top-level navigation downloads the file without leaving the page.
+                    try {
+                        window.location.assign(directUrl);
+                    } catch (e) {
+                        triggerAnchorDownload(directUrl, cleanTitle);
+                    }
+                });
+            return;
+        }
+
+        // Method 2: Direct top-level attachment handoff for basic Nokia keypad browsers
+        try {
+            window.location.assign(directUrl);
+        } catch (e) {
+            triggerAnchorDownload(directUrl, cleanTitle);
+        }
+    }
+
+    function downloadCurrentViewedPdf() {
+        if (!lastViewedDocId) return;
+        downloadPdfDirect(lastViewedDocId, lastViewedDocTitle);
     }
 
     function filterDocs(cat) {
@@ -1933,7 +2190,6 @@
         var html = '';
         for (var i = 0; i < list.length; i++) {
             var doc = list[i];
-            var dlUrl = getDirectDownloadUrl(doc.id);
             html += '<div class="pdf-item">' +
                 '<div class="pdf-item-top">' +
                     '<span class="pdf-icon">PDF</span>' +
@@ -1941,8 +2197,9 @@
                     '<span class="badge badge-loc">' + escHtml(doc.catLabel) + '</span>' +
                 '</div>' +
                 '<div class="pdf-actions-row">' +
-                    '<button type="button" class="btn-pdf-act" data-nav data-doc-view-id="' + escHtml(doc.id) + '" data-doc-title="' + escHtml(doc.title) + '" onclick="openPdfViewer(this.getAttribute(\'data-doc-view-id\'), this.getAttribute(\'data-doc-title\'))">View</button>' +
-                    '<a href="' + escHtml(dlUrl) + '" download="' + escHtml(doc.title) + '" target="pdfDownloadSink" class="btn-pdf-act download" data-nav onclick="showToast(\'Downloading: \' + this.getAttribute(\'download\'))">Download</a>' +
+                    '<button type="button" class="btn-pdf-act" data-nav data-doc-view-id="' + escHtml(doc.id) + '" data-doc-title="' + escHtml(doc.title) + '" onclick="openPdfViewer(this.getAttribute(\'data-doc-view-id\'), this.getAttribute(\'data-doc-title\'), false)">View</button>' +
+                    '<button type="button" class="btn-pdf-act fullpage" data-nav data-doc-full-id="' + escHtml(doc.id) + '" data-doc-title="' + escHtml(doc.title) + '" onclick="openPdfViewer(this.getAttribute(\'data-doc-full-id\'), this.getAttribute(\'data-doc-title\'), true)">Full Page</button>' +
+                    '<button type="button" class="btn-pdf-act download" data-nav data-doc-dl-id="' + escHtml(doc.id) + '" data-doc-title="' + escHtml(doc.title) + '" onclick="downloadPdfDirect(this.getAttribute(\'data-doc-dl-id\'), this.getAttribute(\'data-doc-title\'))">Download</button>' +
                 '</div>' +
             '</div>';
         }
@@ -1956,7 +2213,7 @@
         var badge = document.getElementById('pdfZoomBadge');
         if (!vp || !stage || !inner) return;
 
-        var baseW = vp.clientWidth || 300;
+        var baseW = vp.clientWidth || window.innerWidth || 300;
         var prevZoom = oldZoom || pdfZoomLevel;
         var centerX = (vp.scrollLeft + vp.clientWidth / 2) / prevZoom;
         var centerY = (vp.scrollTop + vp.clientHeight / 2) / prevZoom;
@@ -1999,30 +2256,63 @@
             vp.scrollLeft += dx;
         }
         if (dy !== 0) {
-            var beforeTop = vp.scrollTop;
             vp.scrollTop += dy;
-            if (vp.scrollTop === beforeTop) {
-                window.scrollBy(0, dy);
-            }
         }
     }
 
-    function openPdfViewer(fileId, title) {
+    function togglePdfFullPage(forceState) {
+        var viewer = document.getElementById('docViewerSection');
+        if (!viewer) return;
+        var isFull = (typeof forceState === 'boolean')
+            ? forceState
+            : !viewer.classList.contains('pure-fullpage');
+
+        viewer.classList.toggle('pure-fullpage', isFull);
+        var btn = document.getElementById('btnPdfFullPage');
+        if (btn) {
+            btn.textContent = isFull ? 'Normal' : 'Full Page';
+        }
+        if (isFull) {
+            try {
+                if (viewer.requestFullscreen) viewer.requestFullscreen();
+                else if (viewer.webkitRequestFullscreen) viewer.webkitRequestFullscreen();
+            } catch (e) {}
+            showToast('Full Page Preview (Press 0 to Close)');
+        } else {
+            try {
+                if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+            } catch (e) {}
+        }
+        setTimeout(function() {
+            applyPdfZoom(pdfZoomLevel);
+            var vp = document.getElementById('pdfViewport');
+            if (vp) vp.focus();
+        }, 40);
+    }
+
+    function openPdfViewer(fileId, title, startPureFullPage) {
         lastViewedDocId = fileId;
+        lastViewedDocTitle = title || 'document.pdf';
         pdfZoomLevel = 1;
         document.getElementById('docListSection').style.display = 'none';
         var viewer = document.getElementById('docViewerSection');
         viewer.classList.add('active');
-        document.getElementById('activePdfTitle').textContent = title;
+        viewer.classList.toggle('pure-fullpage', !!startPureFullPage);
+
+        var btnFull = document.getElementById('btnPdfFullPage');
+        if (btnFull) btnFull.textContent = startPureFullPage ? 'Normal' : 'Full Page';
+
+        document.getElementById('activePdfTitle').textContent = title || 'PDF';
 
         var previewUrl = 'https://drive.google.com/file/d/' + fileId + '/preview';
-        var dlUrl = getDirectDownloadUrl(fileId);
         document.getElementById('pdfViewerFrame').src = previewUrl;
 
-        var dlBtn = document.getElementById('directPdfDownloadBtn');
-        if (dlBtn) {
-            dlBtn.href = dlUrl;
-            dlBtn.setAttribute('download', title || 'document.pdf');
+        if (startPureFullPage) {
+            try {
+                if (viewer.requestFullscreen) viewer.requestFullscreen();
+                else if (viewer.webkitRequestFullscreen) viewer.webkitRequestFullscreen();
+            } catch (e) {}
         }
 
         window.scrollTo(0, 0);
@@ -2040,9 +2330,17 @@
     function closePdfViewer() {
         var viewer = document.getElementById('docViewerSection');
         var wasOpen = viewer && viewer.classList.contains('active');
-        if (viewer) viewer.classList.remove('active');
-        document.getElementById('pdfViewerFrame').src = 'about:blank';
-        document.getElementById('docListSection').style.display = 'block';
+        if (viewer) {
+            viewer.classList.remove('active', 'pure-fullpage');
+        }
+        try {
+            if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+        } catch (e) {}
+        var frame = document.getElementById('pdfViewerFrame');
+        if (frame) frame.src = 'about:blank';
+        var listSec = document.getElementById('docListSection');
+        if (listSec) listSec.style.display = 'block';
         if (wasOpen && currentModule === 'documents') {
             setTimeout(function() {
                 if (lastViewedDocId) {
@@ -2282,6 +2580,9 @@
         if (currentModule === 'contacts') {
             renderContacts();
         }
+        if (currentModule === 'testpage') {
+            populateWaContactDropdown();
+        }
         return true;
     }
 
@@ -2393,9 +2694,411 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
-       5. TEST PAGE (KEYPAD & NAVIGATION RESPONSE CHECKER)
+       5. TEST PAGE — WHATSAPP WEB DESKTOP LAB + KEYPAD TESTER
     ═══════════════════════════════════════════════════════════ */
     var keyLogEntries = [];
+    var waZoomLevel = 0.35;
+    var WA_BASE_W = 1024;
+    var WA_BASE_H = 780;
+    var waInteractMode = false;
+    var currentWaOption = 1;
+    var currentWaTargetUrl = 'https://web.whatsapp.com/?lang=en';
+    var currentWaUseBridge = true;
+    var DESKTOP_CHROME_UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
+
+    function enableDesktopNavigatorSpoof() {
+        try {
+            var spoofProps = {
+                userAgent: DESKTOP_CHROME_UA,
+                appVersion: '5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+                platform: 'Win32',
+                vendor: 'Google Inc.',
+                maxTouchPoints: 0,
+                hardwareConcurrency: 8,
+                deviceMemory: 8
+            };
+            for (var prop in spoofProps) {
+                try {
+                    Object.defineProperty(window.navigator, prop, {
+                        get: (function(v) { return function() { return v; }; })(spoofProps[prop]),
+                        configurable: true
+                    });
+                } catch (e) {}
+            }
+            try {
+                Object.defineProperty(window.navigator, 'userAgentData', {
+                    get: function() {
+                        return {
+                            brands: [
+                                { brand: 'Not/A)Brand', version: '8' },
+                                { brand: 'Chromium', version: '126' },
+                                { brand: 'Google Chrome', version: '126' }
+                            ],
+                            mobile: false,
+                            platform: 'Windows',
+                            getHighEntropyValues: function() {
+                                return Promise.resolve({
+                                    architecture: 'x86',
+                                    bitness: '64',
+                                    mobile: false,
+                                    model: '',
+                                    platform: 'Windows',
+                                    platformVersion: '15.0.0',
+                                    uaFullVersion: '126.0.6478.127'
+                                });
+                            }
+                        };
+                    },
+                    configurable: true
+                });
+            } catch (e) {}
+        } catch (e) {}
+    }
+
+    function setViewportMetaDesktop(isDesktop) {
+        var meta = document.querySelector('meta[name="viewport"]');
+        if (!meta) return;
+        if (isDesktop) {
+            meta.setAttribute('content', 'width=1280, initial-scale=0.25, minimum-scale=0.1, maximum-scale=5.0, user-scalable=yes');
+        } else {
+            meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes');
+        }
+    }
+
+    function populateWaContactDropdown() {
+        var sel = document.getElementById('waTestContactSelect');
+        if (!sel) return;
+        var html = '<option value="">Select Team Contact (Optional)...</option>';
+        for (var i = 0; i < contactsData.length; i++) {
+            var c = contactsData[i];
+            var rawNo = String(c.whatsapp || c.phone || '').replace(/[^0-9]/g, '');
+            if (rawNo.indexOf('00') === 0) rawNo = rawNo.slice(2);
+            if (rawNo.indexOf('05') === 0) rawNo = '971' + rawNo.slice(1);
+            var name = c.short || c.full || ('#' + c.code);
+            if (rawNo) {
+                html += '<option value="' + escHtml(rawNo) + '">' + escHtml(name + ' (' + rawNo + ')') + '</option>';
+            }
+        }
+        sel.innerHTML = html;
+    }
+
+    function onWaContactSelect(phoneVal) {
+        var inp = document.getElementById('waTestPhoneInput');
+        if (inp && phoneVal) {
+            inp.value = phoneVal;
+        }
+    }
+
+    function getWaCleanPhone() {
+        var inp = document.getElementById('waTestPhoneInput');
+        var raw = inp ? inp.value.replace(/[^0-9]/g, '') : '';
+        if (raw.indexOf('00') === 0) raw = raw.slice(2);
+        if (raw.indexOf('05') === 0) raw = '971' + raw.slice(1);
+        return raw || '971500000000';
+    }
+
+    function isWaViewerOpen() {
+        var viewer = document.getElementById('waViewerSection');
+        return currentModule === 'testpage' && viewer && viewer.classList.contains('active');
+    }
+
+    function applyWaZoom(oldZoom) {
+        var vp = document.getElementById('waViewport');
+        var stage = document.getElementById('waCanvasStage');
+        var inner = document.getElementById('waScaleInner');
+        var frame = document.getElementById('waViewerFrame');
+        var badge = document.getElementById('waZoomBadge');
+        if (!vp || !stage || !inner || !frame) return;
+
+        var prevZoom = oldZoom || waZoomLevel;
+        var centerX = (vp.scrollLeft + vp.clientWidth / 2) / prevZoom;
+        var centerY = (vp.scrollTop + vp.clientHeight / 2) / prevZoom;
+
+        inner.style.width = WA_BASE_W + 'px';
+        inner.style.height = WA_BASE_H + 'px';
+        inner.style.transform = 'scale(' + waZoomLevel + ')';
+
+        frame.style.width = WA_BASE_W + 'px';
+        frame.style.height = WA_BASE_H + 'px';
+
+        stage.style.width = Math.round(WA_BASE_W * waZoomLevel) + 'px';
+        stage.style.height = Math.round(WA_BASE_H * waZoomLevel) + 'px';
+
+        if (badge) {
+            badge.textContent = Math.round(waZoomLevel * 100) + '%';
+        }
+
+        if (oldZoom) {
+            vp.scrollLeft = Math.max(0, Math.round(centerX * waZoomLevel - vp.clientWidth / 2));
+            vp.scrollTop = Math.max(0, Math.round(centerY * waZoomLevel - vp.clientHeight / 2));
+        }
+    }
+
+    function zoomWa(delta) {
+        var prev = waZoomLevel;
+        var next = Math.round((waZoomLevel + delta) * 100) / 100;
+        if (next < 0.22) next = 0.22;
+        if (next > 2.5) next = 2.5;
+        if (next === prev) {
+            showToast('WA Zoom: ' + Math.round(waZoomLevel * 100) + '%');
+            return;
+        }
+        waZoomLevel = next;
+        applyWaZoom(prev);
+        showToast('WA Zoom: ' + Math.round(waZoomLevel * 100) + '%');
+    }
+
+    function panWa(dx, dy) {
+        var vp = document.getElementById('waViewport');
+        if (!vp) return;
+        if (dx !== 0) vp.scrollLeft += dx;
+        if (dy !== 0) vp.scrollTop += dy;
+    }
+
+    function toggleWaInteractMode(forceState) {
+        waInteractMode = (typeof forceState === 'boolean') ? forceState : !waInteractMode;
+        var shield = document.getElementById('waKeyShield');
+        var frame = document.getElementById('waViewerFrame');
+        var btn = document.getElementById('btnWaInteract');
+        if (shield) {
+            shield.style.display = waInteractMode ? 'none' : 'block';
+        }
+        if (frame) {
+            frame.style.pointerEvents = waInteractMode ? 'auto' : 'none';
+        }
+        if (btn) {
+            btn.textContent = waInteractMode ? 'OK: Click' : 'OK: Pan';
+            btn.style.background = waInteractMode ? '#16a34a' : '#d97706';
+        }
+        showToast(waInteractMode ? 'Interact Mode ON (Click inside WA)' : 'Pan/Zoom Mode (* # Zoom, 2/4/6/8 Scroll)');
+    }
+
+    function toggleWaFullPage(forceState) {
+        var viewer = document.getElementById('waViewerSection');
+        if (!viewer) return;
+        var isFull = (typeof forceState === 'boolean')
+            ? forceState
+            : !viewer.classList.contains('pure-fullpage');
+        viewer.classList.toggle('pure-fullpage', isFull);
+        var btn = document.getElementById('btnWaFullPage');
+        if (btn) btn.textContent = isFull ? 'Normal' : 'Full Page';
+        if (isFull) {
+            try {
+                if (viewer.requestFullscreen) viewer.requestFullscreen();
+                else if (viewer.webkitRequestFullscreen) viewer.webkitRequestFullscreen();
+            } catch (e) {}
+            showToast('Full Page WA Mode (Press 0 to Close)');
+        } else {
+            try {
+                if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+            } catch (e) {}
+        }
+        setTimeout(function() {
+            applyWaZoom(waZoomLevel);
+            var vp = document.getElementById('waViewport');
+            if (vp) vp.focus();
+        }, 40);
+    }
+
+    function buildDesktopBridgeHtml(targetUrl) {
+        var originMatch = targetUrl.match(/^https?:\/\/[^/]+/i);
+        var baseHref = (originMatch ? originMatch[0] : 'https://web.whatsapp.com') + '/';
+        var spoofScript = '<script>' +
+            '(function(){' +
+                'try{' +
+                    'var ua=' + JSON.stringify(DESKTOP_CHROME_UA) + ';' +
+                    'Object.defineProperty(navigator,"userAgent",{get:function(){return ua;}});' +
+                    'Object.defineProperty(navigator,"appVersion",{get:function(){return "5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36";}});' +
+                    'Object.defineProperty(navigator,"platform",{get:function(){return "Win32";}});' +
+                    'Object.defineProperty(navigator,"vendor",{get:function(){return "Google Inc.";}});' +
+                    'Object.defineProperty(navigator,"maxTouchPoints",{get:function(){return 0;}});' +
+                    'Object.defineProperty(screen,"width",{get:function(){return 1366;}});' +
+                    'Object.defineProperty(screen,"height",{get:function(){return 768;}});' +
+                '}catch(e){}' +
+            '})();' +
+        '<\/script>';
+        return { baseHref: baseHref, spoofScript: spoofScript };
+    }
+
+    function loadWaUrlInIframe(targetUrl, useBridge, labelText) {
+        enableDesktopNavigatorSpoof();
+        currentWaTargetUrl = targetUrl;
+        currentWaUseBridge = !!useBridge;
+
+        var frame = document.getElementById('waViewerFrame');
+        var titleEl = document.getElementById('activeWaTitle');
+        var statusEl = document.getElementById('waTestStatusLine');
+        if (titleEl) titleEl.textContent = labelText || 'WA Desktop';
+        if (statusEl) statusEl.textContent = 'Testing: ' + (labelText || targetUrl);
+        if (!frame) return;
+
+        frame.removeAttribute('srcdoc');
+        if (!useBridge) {
+            frame.src = targetUrl;
+            return;
+        }
+
+        // Desktop Bridge Mode: Fetch remote HTML via CORS proxy, inject Desktop Windows 10 UA & <base> tag, and render in Fullscreen Desktop Iframe
+        var bridgeInfo = buildDesktopBridgeHtml(targetUrl);
+        var loadingHtml = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#0b141a;color:#4ade80;font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center;padding:20px;} .box{border:2px solid #16a34a;border-radius:8px;padding:18px;max-width:520px;background:#111b21;} a{color:#38bdf8;font-weight:bold;}</style></head><body><div class="box"><h2 style="margin:0 0 8px;">Loading WhatsApp Desktop Bridge...</h2><p style="color:#cbd5e1;font-size:14px;">Spoofing Windows 10 Desktop Chrome (1024x780) for Nokia...</p><p style="font-size:12px;color:#94a3b8;">Target: ' + escHtml(targetUrl) + '</p></div></body></html>';
+        frame.srcdoc = loadingHtml;
+
+        var proxyUrls = [
+            'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl),
+            'https://corsproxy.io/?' + encodeURIComponent(targetUrl)
+        ];
+
+        var fn = window.__nokiaNativeFetch || window.fetch;
+        if (typeof fn !== 'function') {
+            frame.removeAttribute('srcdoc');
+            frame.src = targetUrl;
+            return;
+        }
+
+        fn(proxyUrls[0])
+            .then(function(r) {
+                if (!r.ok) throw new Error('Proxy 1 status ' + r.status);
+                return r.text();
+            })
+            .catch(function() {
+                return fn(proxyUrls[1]).then(function(r2) {
+                    if (!r2.ok) throw new Error('Proxy 2 status ' + r2.status);
+                    return r2.text();
+                });
+            })
+            .then(function(rawHtml) {
+                if (!rawHtml || rawHtml.length < 80) throw new Error('Empty response');
+                // Strip any meta CSP or frame busting headers in HTML
+                var cleaned = rawHtml
+                    .replace(/http-equiv=["']?Content-Security-Policy["']?/gi, 'data-CSP-disabled="1"')
+                    .replace(/http-equiv=["']?X-Frame-Options["']?/gi, 'data-XFO-disabled="1"');
+                var headInject = '<head><base href="' + bridgeInfo.baseHref + '">' + bridgeInfo.spoofScript;
+                if (/<head[^>]*>/i.test(cleaned)) {
+                    cleaned = cleaned.replace(/<head[^>]*>/i, headInject);
+                } else {
+                    cleaned = headInject + '</head>' + cleaned;
+                }
+                frame.srcdoc = cleaned;
+                showToast('Loaded Desktop Bridge! Use * / # to Zoom');
+            })
+            .catch(function() {
+                // Fallback directly to URL if proxy is unreachable
+                frame.removeAttribute('srcdoc');
+                frame.src = targetUrl;
+                showToast('Switched to Direct Desktop Frame');
+            });
+    }
+
+    function switchWaFrameEngine() {
+        currentWaUseBridge = !currentWaUseBridge;
+        var modeName = currentWaUseBridge ? 'Bridge Mode' : 'Direct Frame';
+        showToast('Switched to ' + modeName);
+        loadWaUrlInIframe(currentWaTargetUrl, currentWaUseBridge, 'WA (' + modeName + ')');
+    }
+
+    function openWaFullscreenViewer(targetUrl, useBridge, titleLabel) {
+        enableDesktopNavigatorSpoof();
+        var viewer = document.getElementById('waViewerSection');
+        if (!viewer) return;
+        viewer.classList.add('active');
+        viewer.classList.remove('pure-fullpage');
+        var btnFull = document.getElementById('btnWaFullPage');
+        if (btnFull) btnFull.textContent = 'Full Page';
+
+        toggleWaInteractMode(false);
+
+        // Calculate fit-to-screen initial scale for Nokia screen (e.g. 240px-360px wide -> ~0.32-0.40 scale of 1024px desktop)
+        var screenW = window.innerWidth || 320;
+        var autoScale = Math.round((screenW / WA_BASE_W) * 100) / 100;
+        if (autoScale < 0.28) autoScale = 0.28;
+        if (autoScale > 1.0) autoScale = 1.0;
+        waZoomLevel = autoScale;
+
+        loadWaUrlInIframe(targetUrl, useBridge, titleLabel);
+
+        setTimeout(function() {
+            var vp = document.getElementById('waViewport');
+            if (vp) {
+                vp.scrollTop = 0;
+                vp.scrollLeft = 0;
+                applyWaZoom(null);
+                vp.focus();
+            }
+        }, 40);
+    }
+
+    function closeWaViewer() {
+        var viewer = document.getElementById('waViewerSection');
+        var wasOpen = viewer && viewer.classList.contains('active');
+        if (viewer) {
+            viewer.classList.remove('active', 'pure-fullpage');
+        }
+        setViewportMetaDesktop(false);
+        try {
+            if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+        } catch (e) {}
+        var frame = document.getElementById('waViewerFrame');
+        if (frame) {
+            frame.removeAttribute('srcdoc');
+            frame.src = 'about:blank';
+        }
+        if (wasOpen && currentModule === 'testpage') {
+            setTimeout(function() {
+                focusFirstNavItem(true);
+            }, 30);
+        }
+    }
+
+    function openWhatsAppTestOption(optNum) {
+        currentWaOption = optNum;
+        enableDesktopNavigatorSpoof();
+        var phone = getWaCleanPhone();
+        var statusEl = document.getElementById('waTestStatusLine');
+
+        if (optNum === 1) {
+            // Sub-Option 1: WA Web Desktop Bridge Iframe (Bypasses X-Frame-Options + Injects Win10 Chrome UA)
+            logTestEvent('WA Option 1: Desktop Bridge Iframe (web.whatsapp.com)');
+            openWaFullscreenViewer('https://web.whatsapp.com/?lang=en', true, '1. WA Desktop Bridge');
+        } else if (optNum === 2) {
+            // Sub-Option 2: WA Web Direct Desktop Iframe (1024x780 Desktop Canvas)
+            logTestEvent('WA Option 2: Direct Desktop Iframe (web.whatsapp.com)');
+            openWaFullscreenViewer('https://web.whatsapp.com/?lang=en', false, '2. WA Direct 1024px');
+        } else if (optNum === 3) {
+            // Sub-Option 3: WA API Send Endpoint inside Fullscreen Desktop Iframe
+            var apiSendUrl = 'https://api.whatsapp.com/send?phone=' + encodeURIComponent(phone) + '&text=Hello';
+            logTestEvent('WA Option 3: API Send Iframe (' + phone + ')');
+            openWaFullscreenViewer(apiSendUrl, true, '3. WA API Send (' + phone + ')');
+        } else if (optNum === 4) {
+            // Sub-Option 4: Google Translate Gateway Proxy Iframe for WhatsApp Web
+            var gwUrl = 'https://api-whatsapp-com.translate.goog/send?phone=' + encodeURIComponent(phone) + '&text=Hello&_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en';
+            logTestEvent('WA Option 4: Gateway Proxy Iframe');
+            openWaFullscreenViewer(gwUrl, false, '4. WA Gateway Proxy');
+        } else if (optNum === 5) {
+            // Sub-Option 5: WA.ME & Native whatsapp:// Protocol Direct Launch
+            var wameUrl = 'https://wa.me/' + encodeURIComponent(phone) + '?text=Hello';
+            var nativeProtocol = 'whatsapp://send?phone=' + encodeURIComponent(phone) + '&text=Hello';
+            logTestEvent('WA Option 5: Direct wa.me / whatsapp:// (' + phone + ')');
+            if (statusEl) statusEl.textContent = 'Opening wa.me/' + phone + ' & native whatsapp://...';
+            showToast('Opening WA Chat: +' + phone);
+            try {
+                window.location.href = nativeProtocol;
+            } catch (e) {}
+            setTimeout(function() {
+                window.location.href = wameUrl;
+            }, 450);
+        } else if (optNum === 6) {
+            // Sub-Option 6: Switch Viewport Meta to 1280px Desktop + Open web.whatsapp.com in Top Window
+            logTestEvent('WA Option 6: Desktop Viewport 1280px + Top Window');
+            setViewportMetaDesktop(true);
+            if (statusEl) statusEl.textContent = 'Viewport set to 1280px Desktop! Opening web.whatsapp.com...';
+            showToast('Desktop 1280px Mode Activated! Opening WA Web...');
+            setTimeout(function() {
+                window.location.href = 'https://web.whatsapp.com/?lang=en';
+            }, 350);
+        }
+    }
 
     function updateTestScreenDimensions() {
         var el = document.getElementById('testScreenSize');
@@ -2410,9 +3113,9 @@
         if (key === 'ArrowLeft' || keyCode === 37) return 'D-PAD LEFT ◄';
         if (key === 'ArrowRight' || keyCode === 39) return 'D-PAD RIGHT ►';
         if (key === 'Enter' || keyCode === 13) return 'CENTER OK / SELECT ●';
-        if (key === '*' || keyCode === 42) return 'STAR * (POPUP OK/SAVE)';
-        if (key === '#' || keyCode === 35) return 'HASH # (CANCEL / BACK)';
-        if (key === '0' || keyCode === 48) return 'ZERO 0 (HOME / GUIDE)';
+        if (key === '*' || keyCode === 42) return 'STAR * (ZOOM IN / SAVE)';
+        if (key === '#' || keyCode === 35) return 'HASH # (ZOOM OUT / BACK)';
+        if (key === '0' || keyCode === 48) return 'ZERO 0 (CLOSE / HOME)';
         if (key === 'SoftLeft' || key === 'F1') return 'LEFT SOFTKEY';
         if (key === 'SoftRight' || key === 'F2') return 'RIGHT SOFTKEY';
         if (key === 'Backspace' || key === 'Escape' || keyCode === 8 || keyCode === 27) return 'BACK / CLEAR';
@@ -2646,20 +3349,70 @@
             }
         }
 
-        // 2. TEST PAGE: Hold or press Up / Down scrolls the page smoothly
-        if (currentModule === 'testpage' && !popupOpen) {
+        // 1C. IF WHATSAPP FULLSCREEN VIEWER IS CURRENTLY OPEN IN TEST PAGE:
+        //     * -> Zoom In
+        //     # -> Zoom Out
+        //     2 or ArrowUp -> Scroll Up
+        //     8 or ArrowDown -> Scroll Down
+        //     6 or ArrowRight -> Scroll Right
+        //     4 or ArrowLeft -> Scroll Left
+        //     OK (Enter) -> Toggle Pan / Interact Mode
+        //     0 -> Close WhatsApp Viewer
+        if (isWaViewerOpen() && !popupOpen) {
+            if (isStarKey) {
+                e.preventDefault();
+                zoomWa(0.15);
+                return;
+            }
+            if (isHashKey) {
+                e.preventDefault();
+                zoomWa(-0.15);
+                return;
+            }
+            if (isZeroKey) {
+                e.preventDefault();
+                closeWaViewer();
+                return;
+            }
+            if ((key === 'Enter' || code === 13) && activeEl && activeEl.id === 'waViewport') {
+                e.preventDefault();
+                toggleWaInteractMode();
+                return;
+            }
+            if (key === '2' || code === 50 || code === 98 || key === 'ArrowUp' || code === 38) {
+                e.preventDefault();
+                panWa(0, -85);
+                return;
+            }
+            if (key === '8' || code === 56 || code === 104 || key === 'ArrowDown' || code === 40) {
+                e.preventDefault();
+                panWa(0, 85);
+                return;
+            }
+            if (key === '6' || code === 54 || code === 102 || key === 'ArrowRight' || code === 39) {
+                e.preventDefault();
+                panWa(85, 0);
+                return;
+            }
+            if (key === '4' || code === 52 || code === 100 || key === 'ArrowLeft' || code === 37) {
+                e.preventDefault();
+                panWa(-85, 0);
+                return;
+            }
+        }
+
+        // 2. TEST PAGE: Record key press; when focused on keypad tester, Up/Down scrolls page
+        if (currentModule === 'testpage' && !popupOpen && !isWaViewerOpen() && !isUnlockedInput && !isSelectEl) {
             var actLabel = getFriendlyKeyAction(key, code);
             recordTestKeyPress(key, code, actLabel);
 
-            if (key === 'ArrowDown' || code === 40) {
-                e.preventDefault();
-                window.scrollBy(0, 55);
-                return;
-            }
-            if (key === 'ArrowUp' || code === 38) {
-                e.preventDefault();
-                window.scrollBy(0, -55);
-                return;
+            var inWaLab = activeEl && activeEl.closest && activeEl.closest('.wa-lab-box');
+            if (!inWaLab) {
+                if (key === 'ArrowDown' || code === 40) {
+                    window.scrollBy(0, 55);
+                } else if (key === 'ArrowUp' || code === 38) {
+                    window.scrollBy(0, -55);
+                }
             }
         }
 
