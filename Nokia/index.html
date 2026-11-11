@@ -452,53 +452,16 @@
             background: var(--card);
             border: 1.5px solid var(--border);
             border-radius: 5px;
-            padding: 7px 8px;
+            padding: 8px;
             display: flex;
-            flex-direction: column;
-            gap: 5px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
             width: 100%;
             text-align: left;
             color: var(--text);
-        }
-
-        .pdf-item-top {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            width: 100%;
-        }
-
-        .pdf-actions-row {
-            display: flex;
-            gap: 4px;
-            width: 100%;
-        }
-
-        .btn-pdf-act {
-            flex: 1;
-            padding: 4px 5px;
-            font-size: 10.5px;
-            font-weight: bold;
-            border-radius: 4px;
-            text-align: center;
-            text-decoration: none;
             cursor: pointer;
-            border: 1px solid var(--primary);
-            background: var(--primary);
-            color: #ffffff;
             font-family: inherit;
-        }
-
-        .btn-pdf-act.fullpage {
-            background: #0f766e;
-            border-color: #0f766e;
-            color: #ffffff;
-        }
-
-        .btn-pdf-act.download {
-            background: var(--success);
-            border-color: var(--success);
-            color: #ffffff;
         }
 
         .pdf-icon {
@@ -518,7 +481,103 @@
             flex: 1;
         }
 
-        /* ─── FULL PAGE PDF & WHATSAPP DESKTOP VIEWER OVERLAYS ─── */
+        /* ─── FULL PAGE DOCUMENT ACTION POPUP (VIEW / FULL PAGE / DOWNLOAD) ─── */
+        .doc-fullpage-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: var(--bg);
+            color: var(--text);
+            z-index: 920;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px 8px;
+        }
+
+        .doc-fullpage-popup.active {
+            display: flex;
+        }
+
+        .doc-popup-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1.5px solid var(--border);
+            padding-bottom: 6px;
+        }
+
+        .doc-popup-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 12px 8px;
+            gap: 8px;
+        }
+
+        .doc-popup-icon-big {
+            background: var(--danger-bg);
+            color: var(--danger);
+            border: 2px solid var(--danger);
+            font-weight: bold;
+            font-size: 16px;
+            padding: 10px 16px;
+            border-radius: 8px;
+        }
+
+        .doc-popup-title-big {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text);
+            word-break: break-word;
+            line-height: 1.35;
+            max-width: 95%;
+        }
+
+        .doc-popup-bottom-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-top: 8px;
+            border-top: 1.5px solid var(--border);
+        }
+
+        .doc-popup-three-opts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            width: 100%;
+        }
+
+        .btn-doc-popup-opt {
+            padding: 10px 4px;
+            font-size: 11.5px;
+            font-weight: bold;
+            border-radius: 5px;
+            border: 1.5px solid var(--primary);
+            background: var(--primary);
+            color: #ffffff;
+            text-align: center;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .btn-doc-popup-opt.fullpage {
+            background: #0f766e;
+            border-color: #0f766e;
+        }
+
+        .btn-doc-popup-opt.download {
+            background: var(--success);
+            border-color: var(--success);
+        }
         .pdf-viewer-box {
             display: none;
             position: fixed;
@@ -933,8 +992,105 @@
             border-top: 1px solid var(--border);
             background: var(--card);
         }
-        .nokia-footer span {
+        .majeed-secret-btn {
+            background: transparent;
+            border: 1px solid transparent;
             color: var(--primary);
+            font-weight: bold;
+            font-size: 11px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        /* ─── NOKIA GAMES ARCADE (OPENED BY 3x OK ON MAJEED) ─── */
+        .game-menu-box {
+            background: var(--card);
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 7px;
+        }
+        .game-tile-btn {
+            width: 100%;
+            text-align: left;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1.5px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            margin-bottom: 5px;
+            font-family: inherit;
+        }
+        .game-stage-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #0f172a;
+            color: #fff;
+            z-index: 960;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px;
+        }
+        .game-stage-overlay.active {
+            display: flex;
+        }
+        .game-top-bar {
+            width: 100%;
+            max-width: 340px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .game-canvas-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+        #nokiaGameCanvas {
+            background: #9bbc0f;
+            border: 3px solid #306230;
+            border-radius: 4px;
+            max-width: 100%;
+            max-height: 64vh;
+            image-rendering: pixelated;
+        }
+        .game-controls-bar {
+            width: 100%;
+            max-width: 340px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            padding-top: 4px;
+        }
+        .game-ctrl-btn {
+            background: #1e293b;
+            color: #f8fafc;
+            border: 1.5px solid #475569;
+            border-radius: 4px;
+            padding: 7px 2px;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
         }
 
         .toast-msg {
@@ -949,7 +1105,7 @@
             border-radius: 4px;
             font-size: 11px;
             font-weight: bold;
-            z-index: 300;
+            z-index: 990;
             display: none;
             text-align: center;
             max-width: 92%;
@@ -1051,7 +1207,7 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════
-         3. DOCUMENT LIBRARY (SIMPLE & SAAF FULL PAGE PDF VIEWER)
+         3. DOCUMENT LIBRARY (CLEAN ENTRIES + FULL PAGE ACTION POPUP)
     ═══════════════════════════════════════════════════ -->
     <section id="view-documents" class="view-section">
         <div id="docListSection">
@@ -1068,6 +1224,25 @@
                 <span id="docCountLabel">PDF Documents</span>
             </div>
             <div id="docList" class="item-list"></div>
+        </div>
+
+        <!-- Full-Page Popup when clicking any PDF Entry (Bottom 3 Options: View, Full Page, Download) -->
+        <div id="docActionModal" class="doc-fullpage-popup">
+            <div class="doc-popup-top">
+                <button type="button" class="btn-small secondary" data-nav onclick="closeDocActionPopup()">&#8592; Back</button>
+                <span id="docPopupCatBadge" class="badge badge-loc">PDF Document</span>
+            </div>
+            <div class="doc-popup-center">
+                <div class="doc-popup-icon-big">PDF</div>
+                <div id="docPopupTitle" class="doc-popup-title-big">Select Document</div>
+            </div>
+            <div class="doc-popup-bottom-bar">
+                <div class="doc-popup-three-opts">
+                    <button type="button" id="btnDocPopupView" class="btn-doc-popup-opt" data-nav onclick="triggerDocPopupAction('view')">View</button>
+                    <button type="button" id="btnDocPopupFull" class="btn-doc-popup-opt fullpage" data-nav onclick="triggerDocPopupAction('fullpage')">Full Page</button>
+                    <button type="button" id="btnDocPopupDownload" class="btn-doc-popup-opt download" data-nav onclick="triggerDocPopupAction('download')">Download</button>
+                </div>
+            </div>
         </div>
 
         <!-- Full-Page PDF Viewer with Full Page Preview Option, Keypad Zoom (* / #) & 4-Way Scroll -->
@@ -1370,12 +1545,67 @@
         <div class="guide-box" tabindex="0" data-nav>
             <div class="guide-title">How to Use Modules</div>
             <div class="guide-row"><span class="guide-key">1. Instruments</span><span class="guide-desc">Press OK on item to update Location, Updated By &amp; Remark in Sheet</span></div>
-            <div class="guide-row"><span class="guide-key">2. Documents</span><span class="guide-desc">Full Page PDF View or Direct Download</span></div>
+            <div class="guide-row"><span class="guide-key">2. Documents</span><span class="guide-desc">Press OK on PDF for View / Full Page / Download</span></div>
             <div class="guide-row"><span class="guide-key">3. Operations</span><span class="guide-desc">View Work Orders or press + New to add</span></div>
             <div class="guide-row"><span class="guide-key">4. Contacts</span><span class="guide-desc">View Tabreed &amp; Normal No. + Direct Call</span></div>
             <div class="guide-row"><span class="guide-key">5. Test Page</span><span class="guide-desc">Keypad &amp; D-Pad Navigation Response Tester</span></div>
             <div class="guide-row"><span class="guide-key">6. Lab</span><span class="guide-desc">24 WhatsApp Test Modes + Custom URL Tester</span></div>
             <div class="guide-row"><span class="guide-key">Search Box</span><span class="guide-desc">Move to Search &amp; press OK to type</span></div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         9. SECRET NOKIA GAMES MENU (3x OK ON "MAJEED")
+    ═══════════════════════════════════════════════════ -->
+    <section id="view-games" class="view-section">
+        <div class="game-menu-box">
+            <div style="font-size:12.5px;font-weight:bold;color:var(--primary);margin-bottom:3px;">
+                Nokia Classic Games Arcade
+            </div>
+            <div style="font-size:10.5px;color:var(--muted);margin-bottom:7px;">
+                Play with Keypad <b>2/8/4/6</b> or <b>&#9650;/&#9660;/&#9668;/&#9658;</b> &bull; <b>5 / OK</b> Action &bull; <b>0 / #</b> Exit Game
+            </div>
+
+            <button type="button" class="game-tile-btn" data-nav onclick="startNokiaGame('snake')">
+                <span>1. Snake Xenzia (Classic Nokia Snake)</span>
+                <span class="badge" style="background:#16a34a;color:#fff;">Play &rsaquo;</span>
+            </button>
+            <button type="button" class="game-tile-btn" data-nav onclick="startNokiaGame('flappy')">
+                <span>2. Flappy Bird (Nokia Keypad Edition)</span>
+                <span class="badge" style="background:#0284c7;color:#fff;">Play &rsaquo;</span>
+            </button>
+            <button type="button" class="game-tile-btn" data-nav onclick="startNokiaGame('brick')">
+                <span>3. Brick Breaker (Classic Bounce Paddle)</span>
+                <span class="badge" style="background:#d97706;color:#fff;">Play &rsaquo;</span>
+            </button>
+            <button type="button" class="game-tile-btn" data-nav onclick="startNokiaGame('racer')">
+                <span>4. Road Racer (Nokia Highway Dodge)</span>
+                <span class="badge" style="background:#dc2626;color:#fff;">Play &rsaquo;</span>
+            </button>
+            <button type="button" class="game-tile-btn" data-nav onclick="startNokiaGame('space')">
+                <span>5. Space Impact (Nokia Star Shooter)</span>
+                <span class="badge" style="background:#7c3aed;color:#fff;">Play &rsaquo;</span>
+            </button>
+        </div>
+
+        <!-- Full-Screen Nokia Game Stage -->
+        <div id="nokiaGameStage" class="game-stage-overlay">
+            <div class="game-top-bar">
+                <button type="button" class="btn-small secondary" data-nav onclick="stopNokiaGame()">&#8592; Exit</button>
+                <span id="activeGameTitle" style="color:#4ade80;">Snake</span>
+                <span id="activeGameScore" class="badge badge-loc">Score: 0</span>
+                <button type="button" class="btn-small" style="background:#16a34a;border-color:#16a34a;" data-nav onclick="restartCurrentNokiaGame()">Restart</button>
+            </div>
+            <div class="game-canvas-wrap">
+                <canvas id="nokiaGameCanvas" width="220" height="240"></canvas>
+            </div>
+            <div class="game-controls-bar">
+                <button type="button" class="game-ctrl-btn" onclick="handleGameInput('LEFT')">&#9668; 4</button>
+                <button type="button" class="game-ctrl-btn" onclick="handleGameInput('UP')">&#9650; 2</button>
+                <button type="button" class="game-ctrl-btn" style="background:#16a34a;border-color:#4ade80;" onclick="handleGameInput('ACTION')">OK / 5</button>
+                <button type="button" class="game-ctrl-btn" onclick="handleGameInput('DOWN')">&#9660; 8</button>
+                <button type="button" class="game-ctrl-btn" onclick="handleGameInput('RIGHT')">6 &#9658;</button>
+            </div>
         </div>
     </section>
 
@@ -1388,10 +1618,10 @@
     </div>
 
     <!-- ═══════════════════════════════════════════════════
-         FOOTER — "Code by Majeed"
+         FOOTER — "Code by Majeed" (Press OK 3x on Majeed for Games)
     ═══════════════════════════════════════════════════ -->
     <footer class="nokia-footer">
-        Code by <span>Majeed</span>
+        Code by <button type="button" id="majeedSecretBtn" class="majeed-secret-btn" data-nav onclick="onMajeedClick()">Majeed</button>
     </footer>
 </div>
 
@@ -1402,7 +1632,6 @@
     <div class="nokia-modal-box">
         <div style="font-weight:bold;font-size:13px;margin-bottom:6px;color:var(--primary);" id="modalInstTitle">Update Instrument</div>
         <div class="form-row">
-            <label>Location * (Use &#9668;/&#9658; or Select)</label>
             <select id="modalInstLoc" class="nokia-input" data-nav onchange="onModalLocSelectChange(this.value)"></select>
             <input type="text" id="modalInstCustomLoc" class="nokia-input" data-nav placeholder="Enter new location..." style="display:none;margin-top:4px;">
         </div>
@@ -1675,6 +1904,8 @@
         }
         closeInstModal();
         closeNewOpModal();
+        closeDocActionPopup();
+        stopNokiaGame();
         lockAllSearchBoxes();
         currentModule = mod;
 
@@ -1716,6 +1947,8 @@
                 titleEl.textContent = 'Nokia WhatsApp Lab';
                 closeWaViewer();
                 populateWaContactDropdown();
+            } else if (mod === 'games') {
+                titleEl.textContent = 'Nokia Games Arcade';
             } else if (mod === 'guide') {
                 titleEl.textContent = 'Nokia Guide';
             }
@@ -1728,6 +1961,8 @@
     function goHomePage() {
         closeInstModal();
         closeNewOpModal();
+        closeDocActionPopup();
+        stopNokiaGame();
         if (currentModule === 'documents') {
             closePdfViewer();
         }
@@ -1744,6 +1979,14 @@
         }
         if (document.getElementById('opCreateModal').classList.contains('active')) {
             closeNewOpModal();
+            return;
+        }
+        if (isDocActionPopupOpen()) {
+            closeDocActionPopup();
+            return;
+        }
+        if (isNokiaGameStageOpen()) {
+            stopNokiaGame();
             return;
         }
         if (currentModule === 'documents' && isPdfViewerOpen()) {
@@ -2278,6 +2521,76 @@
         renderDocs();
     }
 
+    var selectedPopupDocId = null;
+    var selectedPopupDocTitle = '';
+
+    function isDocActionPopupOpen() {
+        var pop = document.getElementById('docActionModal');
+        return !!(pop && pop.classList.contains('active'));
+    }
+
+    function openDocActionPopup(btnEl) {
+        if (!btnEl) return;
+        var docId = btnEl.getAttribute('data-doc-id');
+        var docTitle = btnEl.getAttribute('data-doc-title') || 'Document.pdf';
+        var docCat = btnEl.getAttribute('data-doc-cat') || 'PDF';
+        if (!docId) return;
+
+        selectedPopupDocId = docId;
+        selectedPopupDocTitle = docTitle;
+        lastViewedDocId = docId;
+        lastViewedDocTitle = docTitle;
+
+        var titleEl = document.getElementById('docPopupTitle');
+        var catEl = document.getElementById('docPopupCatBadge');
+        var pop = document.getElementById('docActionModal');
+        if (titleEl) titleEl.textContent = docTitle;
+        if (catEl) catEl.textContent = docCat;
+        if (pop) {
+            pop.classList.add('active');
+            setTimeout(function() {
+                var vBtn = document.getElementById('btnDocPopupView');
+                if (vBtn) vBtn.focus();
+            }, 30);
+        }
+    }
+
+    function closeDocActionPopup(restoreFocus) {
+        var pop = document.getElementById('docActionModal');
+        var wasOpen = pop && pop.classList.contains('active');
+        if (pop) pop.classList.remove('active');
+        if (wasOpen && restoreFocus !== false && currentModule === 'documents') {
+            setTimeout(function() {
+                if (selectedPopupDocId) {
+                    var entryBtn = document.querySelector('#docList [data-doc-id="' + selectedPopupDocId + '"]');
+                    if (entryBtn) {
+                        entryBtn.focus();
+                        return;
+                    }
+                }
+                focusFirstNavItem(true);
+            }, 30);
+        }
+    }
+
+    function triggerDocPopupAction(mode) {
+        var id = selectedPopupDocId;
+        var title = selectedPopupDocTitle || 'document.pdf';
+        if (!id) return;
+        closeDocActionPopup(false);
+        if (mode === 'view') {
+            openPdfViewer(id, title, false);
+        } else if (mode === 'fullpage') {
+            openPdfViewer(id, title, true);
+        } else if (mode === 'download') {
+            downloadPdfDirect(id, title);
+            setTimeout(function() {
+                var entryBtn = document.querySelector('#docList [data-doc-id="' + id + '"]');
+                if (entryBtn) entryBtn.focus();
+            }, 40);
+        }
+    }
+
     function renderDocs() {
         var q = (document.getElementById('docSearch').value || '').toLowerCase().trim();
         var list = DOCUMENT_LIBRARY_PDFS.filter(function(d) {
@@ -2297,18 +2610,11 @@
         var html = '';
         for (var i = 0; i < list.length; i++) {
             var doc = list[i];
-            html += '<div class="pdf-item">' +
-                '<div class="pdf-item-top">' +
-                    '<span class="pdf-icon">PDF</span>' +
-                    '<div class="pdf-title">' + escHtml(doc.title) + '</div>' +
-                    '<span class="badge badge-loc">' + escHtml(doc.catLabel) + '</span>' +
-                '</div>' +
-                '<div class="pdf-actions-row">' +
-                    '<button type="button" class="btn-pdf-act" data-nav data-doc-view-id="' + escHtml(doc.id) + '" data-doc-title="' + escHtml(doc.title) + '" onclick="openPdfViewer(this.getAttribute(\'data-doc-view-id\'), this.getAttribute(\'data-doc-title\'), false)">View</button>' +
-                    '<button type="button" class="btn-pdf-act fullpage" data-nav data-doc-full-id="' + escHtml(doc.id) + '" data-doc-title="' + escHtml(doc.title) + '" onclick="openPdfViewer(this.getAttribute(\'data-doc-full-id\'), this.getAttribute(\'data-doc-title\'), true)">Full Page</button>' +
-                    '<button type="button" class="btn-pdf-act download" data-nav data-doc-dl-id="' + escHtml(doc.id) + '" data-doc-title="' + escHtml(doc.title) + '" onclick="downloadPdfDirect(this.getAttribute(\'data-doc-dl-id\'), this.getAttribute(\'data-doc-title\'))">Download</button>' +
-                '</div>' +
-            '</div>';
+            html += '<button type="button" class="pdf-item" data-nav data-doc-id="' + escHtml(doc.id) + '" data-doc-title="' + escHtml(doc.title) + '" data-doc-cat="' + escHtml(doc.catLabel) + '" onclick="openDocActionPopup(this)">' +
+                '<span class="pdf-icon">PDF</span>' +
+                '<div class="pdf-title">' + escHtml(doc.title) + '</div>' +
+                '<span class="badge badge-loc">' + escHtml(doc.catLabel) + '</span>' +
+            '</button>';
         }
         container.innerHTML = html;
     }
@@ -2451,7 +2757,7 @@
         if (wasOpen && currentModule === 'documents') {
             setTimeout(function() {
                 if (lastViewedDocId) {
-                    var btn = document.querySelector('#docList [data-doc-view-id="' + lastViewedDocId + '"]');
+                    var btn = document.querySelector('#docList [data-doc-id="' + lastViewedDocId + '"]');
                     if (btn) {
                         btn.focus();
                         return;
@@ -3606,6 +3912,495 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
+       SECRET NOKIA GAMES ARCADE (OPENED BY 3x OK ON "MAJEED")
+    ═══════════════════════════════════════════════════════════ */
+    var majeedClickCount = 0;
+    var majeedClickTimer = null;
+    var currentNokiaGame = null;
+    var nokiaGameLoopTimer = null;
+    var gameState = null;
+
+    function onMajeedClick() {
+        majeedClickCount++;
+        clearTimeout(majeedClickTimer);
+        if (majeedClickCount >= 3) {
+            majeedClickCount = 0;
+            showToast('Nokia Games Unlocked!');
+            openModule('games');
+            return;
+        }
+        majeedClickTimer = setTimeout(function() {
+            majeedClickCount = 0;
+        }, 2200);
+    }
+
+    function isNokiaGameStageOpen() {
+        var st = document.getElementById('nokiaGameStage');
+        return !!(st && st.classList.contains('active'));
+    }
+
+    function stopNokiaGame() {
+        if (nokiaGameLoopTimer) {
+            clearInterval(nokiaGameLoopTimer);
+            nokiaGameLoopTimer = null;
+        }
+        var st = document.getElementById('nokiaGameStage');
+        var wasOpen = st && st.classList.contains('active');
+        if (st) st.classList.remove('active');
+        if (wasOpen && currentModule === 'games') {
+            setTimeout(function() {
+                focusFirstNavItem(true);
+            }, 30);
+        }
+    }
+
+    function restartCurrentNokiaGame() {
+        if (currentNokiaGame) {
+            startNokiaGame(currentNokiaGame);
+        }
+    }
+
+    function updateGameScoreLabel(sc) {
+        var el = document.getElementById('activeGameScore');
+        if (el) el.textContent = 'Score: ' + sc;
+    }
+
+    function startNokiaGame(gameType) {
+        currentNokiaGame = gameType;
+        if (nokiaGameLoopTimer) {
+            clearInterval(nokiaGameLoopTimer);
+            nokiaGameLoopTimer = null;
+        }
+        var st = document.getElementById('nokiaGameStage');
+        if (st) st.classList.add('active');
+
+        var titleMap = {
+            'snake': '1. Snake Xenzia',
+            'flappy': '2. Flappy Bird',
+            'brick': '3. Brick Breaker',
+            'racer': '4. Road Racer',
+            'space': '5. Space Impact'
+        };
+        var tEl = document.getElementById('activeGameTitle');
+        if (tEl) tEl.textContent = titleMap[gameType] || 'Nokia Game';
+        updateGameScoreLabel(0);
+
+        if (gameType === 'snake') {
+            initSnakeGame();
+        } else if (gameType === 'flappy') {
+            initFlappyGame();
+        } else if (gameType === 'brick') {
+            initBrickGame();
+        } else if (gameType === 'racer') {
+            initRacerGame();
+        } else if (gameType === 'space') {
+            initSpaceGame();
+        }
+    }
+
+    function handleGameInput(dir) {
+        if (!isNokiaGameStageOpen() || !gameState) return;
+        if (gameState.gameOver && dir === 'ACTION') {
+            restartCurrentNokiaGame();
+            return;
+        }
+        if (currentNokiaGame === 'snake') {
+            if (dir === 'UP' && gameState.dy === 0) { gameState.nextDx = 0; gameState.nextDy = -1; }
+            else if (dir === 'DOWN' && gameState.dy === 0) { gameState.nextDx = 0; gameState.nextDy = 1; }
+            else if (dir === 'LEFT' && gameState.dx === 0) { gameState.nextDx = -1; gameState.nextDy = 0; }
+            else if (dir === 'RIGHT' && gameState.dx === 0) { gameState.nextDx = 1; gameState.nextDy = 0; }
+        } else if (currentNokiaGame === 'flappy') {
+            if (dir === 'ACTION' || dir === 'UP') {
+                gameState.vy = -4.6;
+            }
+        } else if (currentNokiaGame === 'brick') {
+            if (dir === 'LEFT') gameState.paddleX = Math.max(0, gameState.paddleX - 24);
+            else if (dir === 'RIGHT') gameState.paddleX = Math.min(220 - gameState.paddleW, gameState.paddleX + 24);
+        } else if (currentNokiaGame === 'racer') {
+            if (dir === 'LEFT') gameState.lane = Math.max(0, gameState.lane - 1);
+            else if (dir === 'RIGHT') gameState.lane = Math.min(2, gameState.lane + 1);
+        } else if (currentNokiaGame === 'space') {
+            if (dir === 'UP') gameState.shipY = Math.max(16, gameState.shipY - 18);
+            else if (dir === 'DOWN') gameState.shipY = Math.min(220, gameState.shipY + 18);
+            else if (dir === 'LEFT') gameState.shipX = Math.max(10, gameState.shipX - 18);
+            else if (dir === 'RIGHT') gameState.shipX = Math.min(180, gameState.shipX + 18);
+            else if (dir === 'ACTION') {
+                gameState.bullets.push({ x: gameState.shipX + 16, y: gameState.shipY });
+            }
+        }
+    }
+
+    function drawGameOverOverlay(ctx, score) {
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
+        ctx.fillRect(15, 75, 190, 90);
+        ctx.strokeStyle = '#facc15';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(15, 75, 190, 90);
+        ctx.fillStyle = '#facc15';
+        ctx.font = 'bold 15px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('GAME OVER', 110, 102);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 12px monospace';
+        ctx.fillText('Score: ' + score, 110, 124);
+        ctx.fillStyle = '#4ade80';
+        ctx.font = 'bold 11px monospace';
+        ctx.fillText('Press OK / 5 to Play', 110, 148);
+    }
+
+    /* 1. SNAKE XENZIA */
+    function initSnakeGame() {
+        var cols = 22, rows = 24;
+        gameState = {
+            snake: [{ x: 10, y: 12 }, { x: 9, y: 12 }, { x: 8, y: 12 }],
+            dx: 1, dy: 0, nextDx: 1, nextDy: 0,
+            food: { x: 15, y: 12 },
+            score: 0,
+            gameOver: false
+        };
+        function placeFood() {
+            gameState.food = {
+                x: Math.floor(Math.random() * cols),
+                y: Math.floor(Math.random() * rows)
+            };
+        }
+        nokiaGameLoopTimer = setInterval(function() {
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+                return;
+            }
+            gameState.dx = gameState.nextDx;
+            gameState.dy = gameState.nextDy;
+            var head = {
+                x: (gameState.snake[0].x + gameState.dx + cols) % cols,
+                y: (gameState.snake[0].y + gameState.dy + rows) % rows
+            };
+            for (var i = 0; i < gameState.snake.length; i++) {
+                if (gameState.snake[i].x === head.x && gameState.snake[i].y === head.y) {
+                    gameState.gameOver = true;
+                    drawGameOverOverlay(ctx, gameState.score);
+                    return;
+                }
+            }
+            gameState.snake.unshift(head);
+            if (head.x === gameState.food.x && head.y === gameState.food.y) {
+                gameState.score += 10;
+                updateGameScoreLabel(gameState.score);
+                placeFood();
+            } else {
+                gameState.snake.pop();
+            }
+            ctx.fillStyle = '#9bbc0f';
+            ctx.fillRect(0, 0, 220, 240);
+            ctx.fillStyle = '#0f380f';
+            ctx.fillRect(gameState.food.x * 10 + 1, gameState.food.y * 10 + 1, 8, 8);
+            for (var s = 0; s < gameState.snake.length; s++) {
+                ctx.fillStyle = (s === 0) ? '#0f380f' : '#306230';
+                ctx.fillRect(gameState.snake[s].x * 10, gameState.snake[s].y * 10, 9, 9);
+            }
+        }, 135);
+    }
+
+    /* 2. FLAPPY BIRD (NOKIA EDITION) */
+    function initFlappyGame() {
+        gameState = {
+            birdY: 110,
+            vy: 0,
+            pipes: [{ x: 220, gapY: 75 }],
+            score: 0,
+            tick: 0,
+            gameOver: false
+        };
+        nokiaGameLoopTimer = setInterval(function() {
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+                return;
+            }
+            gameState.tick++;
+            gameState.vy += 0.38;
+            gameState.birdY += gameState.vy;
+
+            if (gameState.tick % 65 === 0) {
+                gameState.pipes.push({
+                    x: 220,
+                    gapY: 35 + Math.floor(Math.random() * 110),
+                    passed: false
+                });
+            }
+
+            ctx.fillStyle = '#0ea5e9';
+            ctx.fillRect(0, 0, 220, 240);
+            ctx.fillStyle = '#15803d';
+            ctx.fillRect(0, 226, 220, 14);
+
+            for (var i = gameState.pipes.length - 1; i >= 0; i--) {
+                var p = gameState.pipes[i];
+                p.x -= 2.4;
+                ctx.fillStyle = '#16a34a';
+                ctx.fillRect(p.x, 0, 26, p.gapY);
+                ctx.fillRect(p.x, p.gapY + 64, 26, 226 - (p.gapY + 64));
+
+                if (!p.passed && p.x + 26 < 42) {
+                    p.passed = true;
+                    gameState.score++;
+                    updateGameScoreLabel(gameState.score);
+                }
+                if (42 + 12 > p.x && 42 < p.x + 26) {
+                    if (gameState.birdY < p.gapY || gameState.birdY + 12 > p.gapY + 64) {
+                        gameState.gameOver = true;
+                    }
+                }
+                if (p.x < -30) gameState.pipes.splice(i, 1);
+            }
+
+            if (gameState.birdY < 0 || gameState.birdY + 12 > 226) {
+                gameState.gameOver = true;
+            }
+
+            ctx.fillStyle = '#facc15';
+            ctx.fillRect(42, gameState.birdY, 14, 12);
+            ctx.fillStyle = '#000';
+            ctx.fillRect(51, gameState.birdY + 2, 3, 3);
+
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+            }
+        }, 40);
+    }
+
+    /* 3. BRICK BREAKER (BOUNCE PADDLE) */
+    function initBrickGame() {
+        var bricks = [];
+        for (var r = 0; r < 4; r++) {
+            for (var c = 0; c < 6; c++) {
+                bricks.push({ x: 8 + c * 34, y: 18 + r * 14, w: 30, h: 10, alive: true, row: r });
+            }
+        }
+        gameState = {
+            paddleX: 80, paddleW: 56,
+            ballX: 110, ballY: 190,
+            vx: 2.6, vy: -2.8,
+            bricks: bricks,
+            score: 0,
+            gameOver: false
+        };
+        var rowColors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6'];
+        nokiaGameLoopTimer = setInterval(function() {
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+                return;
+            }
+            gameState.ballX += gameState.vx;
+            gameState.ballY += gameState.vy;
+
+            if (gameState.ballX <= 4 || gameState.ballX >= 216) gameState.vx = -gameState.vx;
+            if (gameState.ballY <= 4) gameState.vy = -gameState.vy;
+
+            if (gameState.ballY >= 214 && gameState.ballY <= 224 &&
+                gameState.ballX >= gameState.paddleX - 4 && gameState.ballX <= gameState.paddleX + gameState.paddleW + 4) {
+                gameState.vy = -Math.abs(gameState.vy);
+            }
+
+            if (gameState.ballY > 236) {
+                gameState.gameOver = true;
+            }
+
+            var anyAlive = false;
+            for (var i = 0; i < gameState.bricks.length; i++) {
+                var b = gameState.bricks[i];
+                if (!b.alive) continue;
+                anyAlive = true;
+                if (gameState.ballX >= b.x && gameState.ballX <= b.x + b.w &&
+                    gameState.ballY >= b.y && gameState.ballY <= b.y + b.h) {
+                    b.alive = false;
+                    gameState.vy = -gameState.vy;
+                    gameState.score += 15;
+                    updateGameScoreLabel(gameState.score);
+                    break;
+                }
+            }
+            if (!anyAlive) {
+                for (var j = 0; j < gameState.bricks.length; j++) gameState.bricks[j].alive = true;
+            }
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, 220, 240);
+
+            for (var k = 0; k < gameState.bricks.length; k++) {
+                var br = gameState.bricks[k];
+                if (!br.alive) continue;
+                ctx.fillStyle = rowColors[br.row % 4];
+                ctx.fillRect(br.x, br.y, br.w, br.h);
+            }
+
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(gameState.paddleX, 218, gameState.paddleW, 8);
+
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            ctx.arc(gameState.ballX, gameState.ballY, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+            }
+        }, 35);
+    }
+
+    /* 4. ROAD RACER (HIGHWAY CAR DODGE) */
+    function initRacerGame() {
+        gameState = {
+            lane: 1,
+            cars: [],
+            tick: 0,
+            score: 0,
+            gameOver: false
+        };
+        var laneX = [35, 95, 155];
+        nokiaGameLoopTimer = setInterval(function() {
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+                return;
+            }
+            gameState.tick++;
+            if (gameState.tick % 32 === 0) {
+                gameState.cars.push({
+                    lane: Math.floor(Math.random() * 3),
+                    y: -30
+                });
+            }
+
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(0, 0, 220, 240);
+            ctx.fillStyle = '#16a34a';
+            ctx.fillRect(0, 0, 18, 240);
+            ctx.fillRect(202, 0, 18, 240);
+
+            ctx.strokeStyle = '#cbd5e1';
+            ctx.setLineDash([10, 10]);
+            ctx.beginPath();
+            ctx.moveTo(78, 0); ctx.lineTo(78, 240);
+            ctx.moveTo(142, 0); ctx.lineTo(142, 240);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            var playerX = laneX[gameState.lane];
+            ctx.fillStyle = '#22c55e';
+            ctx.fillRect(playerX, 192, 28, 36);
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(playerX + 4, 198, 20, 10);
+
+            for (var i = gameState.cars.length - 1; i >= 0; i--) {
+                var c = gameState.cars[i];
+                c.y += 4.2;
+                var cx = laneX[c.lane];
+                ctx.fillStyle = '#ef4444';
+                ctx.fillRect(cx, c.y, 28, 34);
+                ctx.fillStyle = '#fde047';
+                ctx.fillRect(cx + 4, c.y + 24, 20, 6);
+
+                if (c.lane === gameState.lane && c.y + 32 > 192 && c.y < 226) {
+                    gameState.gameOver = true;
+                }
+                if (c.y > 240) {
+                    gameState.cars.splice(i, 1);
+                    gameState.score += 10;
+                    updateGameScoreLabel(gameState.score);
+                }
+            }
+
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+            }
+        }, 40);
+    }
+
+    /* 5. SPACE IMPACT (NOKIA STAR SHOOTER) */
+    function initSpaceGame() {
+        gameState = {
+            shipX: 16, shipY: 110,
+            bullets: [],
+            enemies: [],
+            tick: 0,
+            score: 0,
+            gameOver: false
+        };
+        nokiaGameLoopTimer = setInterval(function() {
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+                return;
+            }
+            gameState.tick++;
+            if (gameState.tick % 14 === 0) {
+                gameState.bullets.push({ x: gameState.shipX + 18, y: gameState.shipY + 5 });
+            }
+            if (gameState.tick % 28 === 0) {
+                gameState.enemies.push({ x: 220, y: 18 + Math.floor(Math.random() * 195) });
+            }
+
+            ctx.fillStyle = '#090d16';
+            ctx.fillRect(0, 0, 220, 240);
+
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(gameState.shipX, gameState.shipY, 18, 12);
+            ctx.fillRect(gameState.shipX + 12, gameState.shipY + 3, 8, 6);
+
+            ctx.fillStyle = '#facc15';
+            for (var b = gameState.bullets.length - 1; b >= 0; b--) {
+                var bul = gameState.bullets[b];
+                bul.x += 6;
+                ctx.fillRect(bul.x, bul.y, 6, 3);
+                if (bul.x > 225) gameState.bullets.splice(b, 1);
+            }
+
+            for (var e = gameState.enemies.length - 1; e >= 0; e--) {
+                var en = gameState.enemies[e];
+                en.x -= 2.6;
+                ctx.fillStyle = '#f43f5e';
+                ctx.fillRect(en.x, en.y, 16, 14);
+
+                if (en.x < gameState.shipX + 18 && en.x + 16 > gameState.shipX &&
+                    en.y < gameState.shipY + 12 && en.y + 14 > gameState.shipY) {
+                    gameState.gameOver = true;
+                }
+
+                for (var kb = gameState.bullets.length - 1; kb >= 0; kb--) {
+                    var bl = gameState.bullets[kb];
+                    if (bl.x >= en.x && bl.x <= en.x + 16 && bl.y >= en.y && bl.y <= en.y + 14) {
+                        gameState.enemies.splice(e, 1);
+                        gameState.bullets.splice(kb, 1);
+                        gameState.score += 20;
+                        updateGameScoreLabel(gameState.score);
+                        break;
+                    }
+                }
+                if (en && en.x < -18) {
+                    gameState.enemies.splice(e, 1);
+                }
+            }
+
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+            }
+        }, 40);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
        NOKIA D-PAD & KEYPAD HARDWARE NAVIGATION ENGINE
     ═══════════════════════════════════════════════════════════ */
     function getVisibleNavItems() {
@@ -3627,8 +4422,17 @@
             }
             return visO;
         }
+        var docPop = document.getElementById('docActionModal');
+        if (docPop && docPop.classList.contains('active')) {
+            var dItems = docPop.querySelectorAll('[data-nav]');
+            var visD = [];
+            for (var d = 0; d < dItems.length; d++) {
+                if (dItems[d].offsetParent !== null) visD.push(dItems[d]);
+            }
+            return visD;
+        }
 
-        var all = document.querySelectorAll('.nokia-header [data-nav], .view-section.active [data-nav], .page-bottom-bar [data-nav]');
+        var all = document.querySelectorAll('.nokia-header [data-nav], .view-section.active [data-nav], .page-bottom-bar [data-nav], .nokia-footer [data-nav]');
         var visible = [];
         for (var i = 0; i < all.length; i++) {
             var el = all[i];
@@ -3672,11 +4476,87 @@
 
         var instModalOpen = document.getElementById('instUpdateModal').classList.contains('active');
         var opModalOpen = document.getElementById('opCreateModal').classList.contains('active');
+        var docPopupOpen = isDocActionPopupOpen();
         var popupOpen = instModalOpen || opModalOpen;
 
         var isStarKey = (key === '*' || key === 'Multiply' || code === 42 || code === 106);
         var isHashKey = (key === '#' || code === 35 || code === 163);
         var isZeroKey = (key === '0' || code === 48 || code === 96);
+
+        // 0. IF NOKIA GAME STAGE IS ACTIVE:
+        if (isNokiaGameStageOpen()) {
+            if (isZeroKey || isHashKey || key === 'Escape' || code === 27) {
+                e.preventDefault();
+                stopNokiaGame();
+                return;
+            }
+            if (key === '2' || code === 50 || code === 98 || key === 'ArrowUp' || code === 38) {
+                e.preventDefault();
+                handleGameInput('UP');
+                return;
+            }
+            if (key === '8' || code === 56 || code === 104 || key === 'ArrowDown' || code === 40) {
+                e.preventDefault();
+                handleGameInput('DOWN');
+                return;
+            }
+            if (key === '4' || code === 52 || code === 100 || key === 'ArrowLeft' || code === 37) {
+                e.preventDefault();
+                handleGameInput('LEFT');
+                return;
+            }
+            if (key === '6' || code === 54 || code === 102 || key === 'ArrowRight' || code === 39) {
+                e.preventDefault();
+                handleGameInput('RIGHT');
+                return;
+            }
+            if (key === '5' || code === 53 || code === 101 || key === 'Enter' || code === 13 || isStarKey) {
+                e.preventDefault();
+                handleGameInput('ACTION');
+                return;
+            }
+            return;
+        }
+
+        // 0B. IF FULL-PAGE DOCUMENT ACTION POPUP IS OPEN (View / Full Page / Download):
+        if (docPopupOpen) {
+            if (isHashKey || key === 'Escape' || code === 27) {
+                e.preventDefault();
+                closeDocActionPopup(true);
+                return;
+            }
+            if (isZeroKey) {
+                e.preventDefault();
+                closeDocActionPopup(true);
+                return;
+            }
+            if (key === '1' || code === 49) {
+                e.preventDefault();
+                triggerDocPopupAction('view');
+                return;
+            }
+            if (key === '2' || code === 50) {
+                e.preventDefault();
+                triggerDocPopupAction('fullpage');
+                return;
+            }
+            if (key === '3' || code === 51) {
+                e.preventDefault();
+                triggerDocPopupAction('download');
+                return;
+            }
+            if (key === 'ArrowLeft' || code === 37 || key === 'ArrowRight' || code === 39) {
+                e.preventDefault();
+                var popNav = getVisibleNavItems();
+                if (popNav.length > 0) {
+                    var pIdx = popNav.indexOf(activeEl);
+                    var step = (key === 'ArrowRight' || code === 39) ? 1 : -1;
+                    var nIdx = (pIdx === -1) ? 0 : (pIdx + step + popNav.length) % popNav.length;
+                    popNav[nIdx].focus();
+                }
+                return;
+            }
+        }
 
         // 1. IF ANY POPUP WINDOW IS OPEN:
         //    * -> OK / Save
@@ -3860,7 +4740,7 @@
             return;
         }
 
-        // 6. Number shortcuts 1-6 on Home Screen
+        // 6. Number shortcuts 1-6 on Home Screen (and 1-5 on Games Screen)
         if (currentModule === 'home' && !isUnlockedInput && !popupOpen) {
             if (key === '1' || code === 49) { e.preventDefault(); openModule('instruments'); return; }
             if (key === '2' || code === 50) { e.preventDefault(); openModule('documents'); return; }
@@ -3868,6 +4748,13 @@
             if (key === '4' || code === 52) { e.preventDefault(); openModule('contacts'); return; }
             if (key === '5' || code === 53) { e.preventDefault(); openModule('testpage'); return; }
             if (key === '6' || code === 54) { e.preventDefault(); openModule('lab'); return; }
+        }
+        if (currentModule === 'games' && !isNokiaGameStageOpen() && !isUnlockedInput && !popupOpen) {
+            if (key === '1' || code === 49) { e.preventDefault(); startNokiaGame('snake'); return; }
+            if (key === '2' || code === 50) { e.preventDefault(); startNokiaGame('flappy'); return; }
+            if (key === '3' || code === 51) { e.preventDefault(); startNokiaGame('brick'); return; }
+            if (key === '4' || code === 52) { e.preventDefault(); startNokiaGame('racer'); return; }
+            if (key === '5' || code === 53) { e.preventDefault(); startNokiaGame('space'); return; }
         }
 
         // 7. D-Pad Up / Down Navigation
