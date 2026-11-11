@@ -1018,6 +1018,14 @@
                 <div class="module-arrow">&rsaquo;</div>
             </button>
 
+            <button type="button" class="module-tile" data-nav onclick="openModule('lab')">
+                <div class="key-badge" style="background:#16a34a;">6</div>
+                <div class="module-info">
+                    <div class="module-name">Lab</div>
+                </div>
+                <div class="module-arrow">&rsaquo;</div>
+            </button>
+
             <button type="button" class="module-tile" data-nav onclick="openModule('guide')">
                 <div class="key-badge" style="background:#475569;">0</div>
                 <div class="module-info">
@@ -1115,81 +1123,9 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════
-         6. TEST PAGE (WHATSAPP WEB DESKTOP LAB + KEYPAD TESTER)
+         6. TEST PAGE (KEYPAD & NAVIGATION TESTER ONLY)
     ═══════════════════════════════════════════════════ -->
     <section id="view-testpage" class="view-section">
-        <!-- WhatsApp Web Desktop Mode & Multi-Link Tester -->
-        <div class="wa-lab-box">
-            <div class="wa-lab-header">
-                <span class="wa-lab-title">WhatsApp Web &mdash; Nokia Desktop Lab</span>
-                <span class="badge" style="background:#dcfce7;color:#15803d;">6 Test Modes</span>
-            </div>
-            <div style="font-size:10.5px;color:var(--muted);margin-bottom:5px;">
-                Test which link opens WhatsApp on Nokia. Iframe modes use <b>Desktop Spoof (Win10 Chrome 1024px)</b> + Fullscreen Zoom (<b>*</b>/<b>#</b>), Scroll (<b>2/4/6/8</b>) &amp; Close (<b>0</b>).
-            </div>
-
-            <!-- Optional Team Contact / Phone Number Picker for WA Chat Sub-Options -->
-            <div style="display:flex;gap:4px;margin-bottom:5px;">
-                <select id="waTestContactSelect" class="nokia-input" style="flex:1;padding:4px;font-size:11px;" data-nav onchange="onWaContactSelect(this.value)">
-                    <option value="">Select Team Contact (Optional)...</option>
-                </select>
-                <input type="text" id="waTestPhoneInput" class="nokia-input" style="width:44%;padding:4px 6px;font-size:11px;" data-nav placeholder="Phone e.g. 9715..." value="97150">
-            </div>
-
-            <div class="wa-subopt-list">
-                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(1)">
-                    <span>1. WA Web Desktop Bridge Iframe (Bypass Frame + Win10 UA)</span>
-                    <span class="wa-subopt-badge">Iframe 1</span>
-                </button>
-                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(2)">
-                    <span>2. WA Web Direct Desktop Iframe (web.whatsapp.com 1024px)</span>
-                    <span class="wa-subopt-badge">Iframe 2</span>
-                </button>
-                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(3)">
-                    <span>3. WA API Send Fullscreen Iframe (api.whatsapp.com/send)</span>
-                    <span class="wa-subopt-badge">Iframe 3</span>
-                </button>
-                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(4)">
-                    <span>4. WA Gateway Proxy Iframe (translate.goog Desktop)</span>
-                    <span class="wa-subopt-badge">Iframe 4</span>
-                </button>
-                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(5)">
-                    <span>5. WA.ME Quick Chat Link &amp; Native App (wa.me / whatsapp://)</span>
-                    <span class="wa-subopt-badge" style="background:#0284c7;">Direct 5</span>
-                </button>
-                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(6)">
-                    <span>6. Desktop Viewport Meta (1280px) + Top Window WA Web</span>
-                    <span class="wa-subopt-badge" style="background:#7c3aed;">Desktop 6</span>
-                </button>
-            </div>
-            <div id="waTestStatusLine" style="margin-top:5px;font-size:10.5px;color:var(--primary);font-weight:bold;">
-                Mode: Ready &bull; Select any option above to test on Nokia
-            </div>
-        </div>
-
-        <!-- Full-Screen Customised Desktop WhatsApp Iframe Viewer (Same Controls as Document Library) -->
-        <div id="waViewerSection" class="pdf-viewer-box">
-            <div class="pdf-toolbar" id="waToolbar">
-                <button type="button" class="btn-small secondary" data-nav onclick="closeWaViewer()">&#8592; Back</button>
-                <span id="activeWaTitle" style="font-size:10.5px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin:0 3px;color:#4ade80;">WA Desktop</span>
-                <button type="button" class="btn-small secondary" data-nav onclick="zoomWa(-0.15)" title="Zoom Out (#)">-</button>
-                <span id="waZoomBadge" class="badge badge-loc" style="font-size:10px;">100%</span>
-                <button type="button" class="btn-small secondary" data-nav onclick="zoomWa(0.15)" title="Zoom In (*)">+</button>
-                <button type="button" class="btn-small" id="btnWaInteract" style="background:#d97706;border-color:#d97706;" data-nav onclick="toggleWaInteractMode()">OK: Pan</button>
-                <button type="button" class="btn-small" id="btnWaFullPage" style="background:#0f766e;border-color:#0f766e;" data-nav onclick="toggleWaFullPage()">Full Page</button>
-                <button type="button" class="btn-small" style="background:#16a34a;border-color:#16a34a;" data-nav onclick="switchWaFrameEngine()">Switch</button>
-            </div>
-            <button type="button" class="floating-exit-full" id="btnExitWaFull" data-nav onclick="toggleWaFullPage()">Exit Full</button>
-            <div id="waViewport" class="pdf-viewport" tabindex="0" data-nav style="background:#0b141a;">
-                <div id="waCanvasStage" class="pdf-canvas-stage" style="width:1024px;height:780px;background:#0b141a;">
-                    <div id="waScaleInner" class="pdf-scale-inner" style="width:1024px;height:780px;">
-                        <iframe id="waViewerFrame" class="pdf-frame" style="width:1024px;height:780px;background:#fff;" src="about:blank" referrerpolicy="no-referrer"></iframe>
-                        <div id="waKeyShield" class="pdf-key-shield"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="tester-box">
             <div style="font-size:11px;font-weight:bold;color:var(--muted);">PRESS OR HOLD ANY KEY ON KEYPAD</div>
             <div class="key-big-display" id="testKeyMain">Waiting for Key...</div>
@@ -1204,7 +1140,7 @@
         <!-- Visual D-Pad Response -->
         <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px;margin-bottom:7px;">
             <div style="font-size:11px;font-weight:bold;text-align:center;color:var(--muted);margin-bottom:4px;">
-                NAVIGATION &amp; KEYPAD VISUAL CHECK (Hold ▲/▼ to Scroll)
+                NAVIGATION &amp; KEYPAD VISUAL CHECK (Hold &#9650;/&#9660; to Scroll)
             </div>
             <div class="dpad-visual">
                 <div></div>
@@ -1240,21 +1176,189 @@
     </section>
 
     <!-- ═══════════════════════════════════════════════════
-         7. GUIDE PAGE (OPENED BY KEY 0 ON HOME PAGE)
+         7. LAB MODULE (24 WHATSAPP TEST MODES + CUSTOM URL LAB)
+    ═══════════════════════════════════════════════════ -->
+    <section id="view-lab" class="view-section">
+        <div class="wa-lab-box">
+            <div class="wa-lab-header">
+                <span class="wa-lab-title">Nokia WhatsApp Lab &mdash; All Engines</span>
+                <span class="badge" style="background:#dcfce7;color:#15803d;">24 Test Options</span>
+            </div>
+            <div style="font-size:10.5px;color:var(--muted);margin-bottom:5px;">
+                Test which method works on your Nokia browser/OS. Viewer controls: <b>*</b> Zoom In, <b>#</b> Zoom Out, <b>2/4/6/8</b> Scroll, <b>OK</b> Pan/Click, <b>0</b> Close.
+            </div>
+
+            <!-- Team Contact + Phone Number + Message Text Picker -->
+            <div style="display:flex;gap:4px;margin-bottom:4px;">
+                <select id="waTestContactSelect" class="nokia-input" style="flex:1;padding:4px;font-size:11px;" data-nav onchange="onWaContactSelect(this.value)">
+                    <option value="">Select Team Contact...</option>
+                </select>
+                <input type="text" id="waTestPhoneInput" class="nokia-input" style="width:44%;padding:4px 6px;font-size:11px;" data-nav placeholder="Phone 9715..." value="97150">
+            </div>
+            <div style="display:flex;gap:4px;margin-bottom:6px;">
+                <input type="text" id="waTestMsgInput" class="nokia-input" style="flex:1;padding:4px 6px;font-size:11px;" data-nav placeholder="Message text..." value="Salam from Nokia App">
+            </div>
+
+            <!-- Custom URL / Gateway Tester inside Lab -->
+            <div style="background:#fff;border:1px solid #86efac;border-radius:5px;padding:5px;margin-bottom:6px;">
+                <div style="font-size:10px;font-weight:bold;color:#15803d;margin-bottom:3px;">Custom URL / Gateway Tester:</div>
+                <input type="text" id="waCustomUrlInput" class="nokia-input" style="padding:4px 6px;font-size:10.5px;margin-bottom:4px;" data-nav value="https://web.whatsapp.com">
+                <div style="display:flex;gap:3px;flex-wrap:wrap;">
+                    <button type="button" class="btn-small" style="flex:1;background:#16a34a;border-color:#16a34a;" data-nav onclick="openCustomWaUrl('bridge')">Bridge Iframe</button>
+                    <button type="button" class="btn-small" style="flex:1;background:#0284c7;border-color:#0284c7;" data-nav onclick="openCustomWaUrl('direct')">Direct Iframe</button>
+                    <button type="button" class="btn-small" style="flex:1;background:#7c3aed;border-color:#7c3aed;" data-nav onclick="openCustomWaUrl('top')">Top Window</button>
+                </div>
+            </div>
+
+            <div class="wa-subopt-list">
+                <!-- ORIGINAL 6 OPTIONS (PRESERVED AS REQUESTED) -->
+                <div style="font-size:10px;font-weight:bold;color:#15803d;padding:2px 2px 0;">Original 6 Modes (1 &ndash; 6)</div>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(1)">
+                    <span>1. WA Web Desktop Bridge Iframe (Bypass Frame + Win10 UA)</span>
+                    <span class="wa-subopt-badge">Opt 1</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(2)">
+                    <span>2. WA Web Direct Desktop Iframe (web.whatsapp.com 1024px)</span>
+                    <span class="wa-subopt-badge">Opt 2</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(3)">
+                    <span>3. WA API Send Fullscreen Iframe (api.whatsapp.com/send)</span>
+                    <span class="wa-subopt-badge">Opt 3</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(4)">
+                    <span>4. WA Gateway Proxy Iframe (translate.goog Desktop)</span>
+                    <span class="wa-subopt-badge">Opt 4</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(5)">
+                    <span>5. WA.ME Quick Chat Link &amp; Native App (wa.me / whatsapp://)</span>
+                    <span class="wa-subopt-badge" style="background:#0284c7;">Opt 5</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(6)">
+                    <span>6. Desktop Viewport Meta (1280px) + Top Window WA Web</span>
+                    <span class="wa-subopt-badge" style="background:#7c3aed;">Opt 6</span>
+                </button>
+
+                <!-- NEW EXTENDED OPTIONS (7 - 24) FOR MAXIMUM NOKIA COMPATIBILITY -->
+                <div style="font-size:10px;font-weight:bold;color:#0f766e;padding:5px 2px 0;">Extended Nokia &amp; Desktop Bypass Modes (7 &ndash; 24)</div>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(7)">
+                    <span>7. In-App Nokia WA Lite Composer &amp; Multi-Gateway Hub (Works Offline/All)</span>
+                    <span class="wa-subopt-badge" style="background:#059669;">Lite 7</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(8)">
+                    <span>8. WA Web Direct Chat Send Iframe (web.whatsapp.com/send?phone=...)</span>
+                    <span class="wa-subopt-badge">Iframe 8</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(9)">
+                    <span>9. WA Web Direct Chat Send &mdash; Top Window (app_absent=1)</span>
+                    <span class="wa-subopt-badge" style="background:#7c3aed;">Top 9</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(10)">
+                    <span>10. WA API Web Fallback Bypass Iframe (type=phone_number&amp;app_absent=1)</span>
+                    <span class="wa-subopt-badge">Iframe 10</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(11)">
+                    <span>11. WA API Web Fallback &mdash; Direct Top Window (app_absent=1)</span>
+                    <span class="wa-subopt-badge" style="background:#0284c7;">Top 11</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(12)">
+                    <span>12. Sandboxed Desktop Iframe (Blocks &ldquo;Device Not Supported&rdquo; Redirect)</span>
+                    <span class="wa-subopt-badge" style="background:#d97706;">Sandbox 12</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(13)">
+                    <span>13. HTML Rewriter Proxy (Strips Unsupported Browser Check Scripts)</span>
+                    <span class="wa-subopt-badge" style="background:#0f766e;">Rewrite 13</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(14)">
+                    <span>14. CodeTabs CORS Desktop Proxy Iframe (api.codetabs.com)</span>
+                    <span class="wa-subopt-badge">Proxy 14</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(15)">
+                    <span>15. HTML &lt;object type="text/html"&gt; Desktop 1024px Container</span>
+                    <span class="wa-subopt-badge" style="background:#4f46e5;">Object 15</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(16)">
+                    <span>16. HTML &lt;embed&gt; Desktop Plugin Container (1024x780)</span>
+                    <span class="wa-subopt-badge" style="background:#4f46e5;">Embed 16</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(17)">
+                    <span>17. Google Translate Web App Proxy Iframe (web-whatsapp-com.translate.goog)</span>
+                    <span class="wa-subopt-badge">G-Proxy 17</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(18)">
+                    <span>18. Google Translate WA Web &mdash; Direct Top Window (_x_tr_pto=wapp)</span>
+                    <span class="wa-subopt-badge" style="background:#0284c7;">G-Top 18</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(19)">
+                    <span>19. Google Translate API Send &mdash; Direct Top Window (api-whatsapp-com)</span>
+                    <span class="wa-subopt-badge" style="background:#0284c7;">G-Send 19</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(20)">
+                    <span>20. Android / Nokia 4G Intent URI (intent://send...package=com.whatsapp)</span>
+                    <span class="wa-subopt-badge" style="background:#ea580c;">Intent 20</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(21)">
+                    <span>21. WhatsApp Business Intent URI (package=com.whatsapp.w4b)</span>
+                    <span class="wa-subopt-badge" style="background:#ea580c;">WA Biz 21</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(22)">
+                    <span>22. KaiOS / JioPhone MozActivity Native App Trigger</span>
+                    <span class="wa-subopt-badge" style="background:#9333ea;">KaiOS 22</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(23)">
+                    <span>23. Legacy Nokia Symbian / S40 / S60 URI (whatsapp://chat?number=...)</span>
+                    <span class="wa-subopt-badge" style="background:#475569;">Symbian 23</span>
+                </button>
+                <button type="button" class="wa-subopt-btn" data-nav onclick="openWhatsAppTestOption(24)">
+                    <span>24. All Direct Clickable Links &amp; Companion QR Sheet in Viewer</span>
+                    <span class="wa-subopt-badge" style="background:#059669;">All Links 24</span>
+                </button>
+            </div>
+            <div id="waTestStatusLine" style="margin-top:5px;font-size:10.5px;color:var(--primary);font-weight:bold;">
+                Mode: Ready &bull; Select any of the 24 options above to test on Nokia
+            </div>
+        </div>
+
+        <!-- Full-Screen Customised Desktop WhatsApp Viewer (Same Controls as Document Library) -->
+        <div id="waViewerSection" class="pdf-viewer-box">
+            <div class="pdf-toolbar" id="waToolbar">
+                <button type="button" class="btn-small secondary" data-nav onclick="closeWaViewer()">&#8592; Back</button>
+                <span id="activeWaTitle" style="font-size:10.5px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin:0 3px;color:#4ade80;">WA Lab</span>
+                <button type="button" class="btn-small secondary" data-nav onclick="zoomWa(-0.15)" title="Zoom Out (#)">-</button>
+                <span id="waZoomBadge" class="badge badge-loc" style="font-size:10px;">100%</span>
+                <button type="button" class="btn-small secondary" data-nav onclick="zoomWa(0.15)" title="Zoom In (*)">+</button>
+                <button type="button" class="btn-small" id="btnWaInteract" style="background:#d97706;border-color:#d97706;" data-nav onclick="toggleWaInteractMode()">OK: Pan</button>
+                <button type="button" class="btn-small" id="btnWaFullPage" style="background:#0f766e;border-color:#0f766e;" data-nav onclick="toggleWaFullPage()">Full Page</button>
+                <button type="button" class="btn-small" style="background:#16a34a;border-color:#16a34a;" data-nav onclick="switchWaFrameEngine()">Switch</button>
+            </div>
+            <button type="button" class="floating-exit-full" id="btnExitWaFull" data-nav onclick="toggleWaFullPage()">Exit Full</button>
+            <div id="waViewport" class="pdf-viewport" tabindex="0" data-nav style="background:#0b141a;">
+                <div id="waCanvasStage" class="pdf-canvas-stage" style="width:1024px;height:780px;background:#0b141a;">
+                    <div id="waScaleInner" class="pdf-scale-inner" style="width:1024px;height:780px;">
+                        <iframe id="waViewerFrame" class="pdf-frame" style="width:1024px;height:780px;background:#fff;" src="about:blank" referrerpolicy="no-referrer"></iframe>
+                        <div id="waAltContainer" style="display:none;width:1024px;height:780px;background:#fff;"></div>
+                        <div id="waKeyShield" class="pdf-key-shield"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════
+         8. GUIDE PAGE (OPENED BY KEY 0 ON HOME PAGE)
     ═══════════════════════════════════════════════════ -->
     <section id="view-guide" class="view-section">
         <div class="guide-box" tabindex="0" data-nav>
             <div class="guide-title">Keypad Shortcuts</div>
             <div class="guide-row"><span class="guide-key">&#9650; / &#9660;</span><span class="guide-desc">Navigate Up / Down</span></div>
             <div class="guide-row"><span class="guide-key">OK (Center)</span><span class="guide-desc">Open / Select / Search</span></div>
-            <div class="guide-row"><span class="guide-key">Keys 1 - 5</span><span class="guide-desc">Open Modules (on Home)</span></div>
+            <div class="guide-row"><span class="guide-key">Keys 1 - 6</span><span class="guide-desc">Open Modules (on Home)</span></div>
             <div class="guide-row"><span class="guide-key">Key 0</span><span class="guide-desc">Guide (Home) / Go Home</span></div>
             <div class="guide-row"><span class="guide-key">Key *</span><span class="guide-desc">OK / Save in Popup</span></div>
             <div class="guide-row"><span class="guide-key">Key #</span><span class="guide-desc">Cancel Popup / Go Back</span></div>
         </div>
 
         <div class="guide-box" tabindex="0" data-nav>
-            <div class="guide-title">PDF &amp; WhatsApp Fullscreen Viewer Keys</div>
+            <div class="guide-title">PDF &amp; Lab Fullscreen Viewer Keys</div>
             <div class="guide-row"><span class="guide-key">Key * / #</span><span class="guide-desc">Zoom In (*) / Zoom Out (#)</span></div>
             <div class="guide-row"><span class="guide-key">Key 2 / 8</span><span class="guide-desc">Scroll Up (2) / Down (8)</span></div>
             <div class="guide-row"><span class="guide-key">Key 4 / 6</span><span class="guide-desc">Scroll Left (4) / Right (6)</span></div>
@@ -1269,7 +1373,8 @@
             <div class="guide-row"><span class="guide-key">2. Documents</span><span class="guide-desc">Full Page PDF View or Direct Download</span></div>
             <div class="guide-row"><span class="guide-key">3. Operations</span><span class="guide-desc">View Work Orders or press + New to add</span></div>
             <div class="guide-row"><span class="guide-key">4. Contacts</span><span class="guide-desc">View Tabreed &amp; Normal No. + Direct Call</span></div>
-            <div class="guide-row"><span class="guide-key">5. Test Page</span><span class="guide-desc">WhatsApp Web Desktop Modes + Key Tester</span></div>
+            <div class="guide-row"><span class="guide-key">5. Test Page</span><span class="guide-desc">Keypad &amp; D-Pad Navigation Response Tester</span></div>
+            <div class="guide-row"><span class="guide-key">6. Lab</span><span class="guide-desc">24 WhatsApp Test Modes + Custom URL Tester</span></div>
             <div class="guide-row"><span class="guide-key">Search Box</span><span class="guide-desc">Move to Search &amp; press OK to type</span></div>
         </div>
     </section>
@@ -1605,10 +1710,12 @@
                 renderContacts();
                 syncContactsFromSheet(true);
             } else if (mod === 'testpage') {
-                titleEl.textContent = 'Keypad & WA Test Page';
+                titleEl.textContent = 'Keypad Test Page';
+                updateTestScreenDimensions();
+            } else if (mod === 'lab') {
+                titleEl.textContent = 'Nokia WhatsApp Lab';
                 closeWaViewer();
                 populateWaContactDropdown();
-                updateTestScreenDimensions();
             } else if (mod === 'guide') {
                 titleEl.textContent = 'Nokia Guide';
             }
@@ -1624,7 +1731,7 @@
         if (currentModule === 'documents') {
             closePdfViewer();
         }
-        if (currentModule === 'testpage') {
+        if (currentModule === 'lab' || currentModule === 'testpage') {
             closeWaViewer();
         }
         openModule('home');
@@ -1643,7 +1750,7 @@
             closePdfViewer();
             return;
         }
-        if (currentModule === 'testpage' && isWaViewerOpen()) {
+        if ((currentModule === 'lab' || currentModule === 'testpage') && isWaViewerOpen()) {
             closeWaViewer();
             return;
         }
@@ -2797,9 +2904,29 @@
         return raw || '971500000000';
     }
 
+    function getWaMessageText() {
+        var inp = document.getElementById('waTestMsgInput');
+        var txt = inp && inp.value ? inp.value.trim() : 'Hello';
+        return txt || 'Hello';
+    }
+
     function isWaViewerOpen() {
         var viewer = document.getElementById('waViewerSection');
-        return currentModule === 'testpage' && viewer && viewer.classList.contains('active');
+        return (currentModule === 'lab' || currentModule === 'testpage') && viewer && viewer.classList.contains('active');
+    }
+
+    function resetWaViewerContainers() {
+        var frame = document.getElementById('waViewerFrame');
+        var alt = document.getElementById('waAltContainer');
+        if (frame) {
+            frame.style.display = 'block';
+            frame.removeAttribute('sandbox');
+            frame.removeAttribute('srcdoc');
+        }
+        if (alt) {
+            alt.style.display = 'none';
+            alt.innerHTML = '';
+        }
     }
 
     function applyWaZoom(oldZoom) {
@@ -2807,6 +2934,7 @@
         var stage = document.getElementById('waCanvasStage');
         var inner = document.getElementById('waScaleInner');
         var frame = document.getElementById('waViewerFrame');
+        var alt = document.getElementById('waAltContainer');
         var badge = document.getElementById('waZoomBadge');
         if (!vp || !stage || !inner || !frame) return;
 
@@ -2820,6 +2948,10 @@
 
         frame.style.width = WA_BASE_W + 'px';
         frame.style.height = WA_BASE_H + 'px';
+        if (alt) {
+            alt.style.width = WA_BASE_W + 'px';
+            alt.style.height = WA_BASE_H + 'px';
+        }
 
         stage.style.width = Math.round(WA_BASE_W * waZoomLevel) + 'px';
         stage.style.height = Math.round(WA_BASE_H * waZoomLevel) + 'px';
@@ -2859,12 +2991,16 @@
         waInteractMode = (typeof forceState === 'boolean') ? forceState : !waInteractMode;
         var shield = document.getElementById('waKeyShield');
         var frame = document.getElementById('waViewerFrame');
+        var alt = document.getElementById('waAltContainer');
         var btn = document.getElementById('btnWaInteract');
         if (shield) {
             shield.style.display = waInteractMode ? 'none' : 'block';
         }
         if (frame) {
             frame.style.pointerEvents = waInteractMode ? 'auto' : 'none';
+        }
+        if (alt) {
+            alt.style.pointerEvents = waInteractMode ? 'auto' : 'none';
         }
         if (btn) {
             btn.textContent = waInteractMode ? 'OK: Click' : 'OK: Pan';
@@ -2915,6 +3051,7 @@
                     'Object.defineProperty(navigator,"maxTouchPoints",{get:function(){return 0;}});' +
                     'Object.defineProperty(screen,"width",{get:function(){return 1366;}});' +
                     'Object.defineProperty(screen,"height",{get:function(){return 768;}});' +
+                    'window.chrome={runtime:{}};'+
                 '}catch(e){}' +
             '})();' +
         '<\/script>';
@@ -2923,6 +3060,7 @@
 
     function loadWaUrlInIframe(targetUrl, useBridge, labelText) {
         enableDesktopNavigatorSpoof();
+        resetWaViewerContainers();
         currentWaTargetUrl = targetUrl;
         currentWaUseBridge = !!useBridge;
 
@@ -2939,13 +3077,14 @@
             return;
         }
 
-        // Desktop Bridge Mode: Fetch remote HTML via CORS proxy, inject Desktop Windows 10 UA & <base> tag, and render in Fullscreen Desktop Iframe
+        // Desktop Bridge Mode: Fetch remote HTML via multi-proxy chain, inject Desktop Windows 10 UA & <base> tag, and render in Fullscreen Desktop Iframe
         var bridgeInfo = buildDesktopBridgeHtml(targetUrl);
         var loadingHtml = '<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;background:#0b141a;color:#4ade80;font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;text-align:center;padding:20px;} .box{border:2px solid #16a34a;border-radius:8px;padding:18px;max-width:520px;background:#111b21;} a{color:#38bdf8;font-weight:bold;}</style></head><body><div class="box"><h2 style="margin:0 0 8px;">Loading WhatsApp Desktop Bridge...</h2><p style="color:#cbd5e1;font-size:14px;">Spoofing Windows 10 Desktop Chrome (1024x780) for Nokia...</p><p style="font-size:12px;color:#94a3b8;">Target: ' + escHtml(targetUrl) + '</p></div></body></html>';
         frame.srcdoc = loadingHtml;
 
         var proxyUrls = [
             'https://api.allorigins.win/raw?url=' + encodeURIComponent(targetUrl),
+            'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(targetUrl),
             'https://corsproxy.io/?' + encodeURIComponent(targetUrl)
         ];
 
@@ -2967,12 +3106,19 @@
                     return r2.text();
                 });
             })
+            .catch(function() {
+                return fn(proxyUrls[2]).then(function(r3) {
+                    if (!r3.ok) throw new Error('Proxy 3 status ' + r3.status);
+                    return r3.text();
+                });
+            })
             .then(function(rawHtml) {
                 if (!rawHtml || rawHtml.length < 80) throw new Error('Empty response');
-                // Strip any meta CSP or frame busting headers in HTML
+                // Strip any meta CSP, frame busting, or unsupported browser redirect scripts
                 var cleaned = rawHtml
                     .replace(/http-equiv=["']?Content-Security-Policy["']?/gi, 'data-CSP-disabled="1"')
-                    .replace(/http-equiv=["']?X-Frame-Options["']?/gi, 'data-XFO-disabled="1"');
+                    .replace(/http-equiv=["']?X-Frame-Options["']?/gi, 'data-XFO-disabled="1"')
+                    .replace(/window\.top\.location/gi, 'window.__blockedTopLoc');
                 var headInject = '<head><base href="' + bridgeInfo.baseHref + '">' + bridgeInfo.spoofScript;
                 if (/<head[^>]*>/i.test(cleaned)) {
                     cleaned = cleaned.replace(/<head[^>]*>/i, headInject);
@@ -2983,7 +3129,6 @@
                 showToast('Loaded Desktop Bridge! Use * / # to Zoom');
             })
             .catch(function() {
-                // Fallback directly to URL if proxy is unreachable
                 frame.removeAttribute('srcdoc');
                 frame.src = targetUrl;
                 showToast('Switched to Direct Desktop Frame');
@@ -2997,7 +3142,7 @@
         loadWaUrlInIframe(currentWaTargetUrl, currentWaUseBridge, 'WA (' + modeName + ')');
     }
 
-    function openWaFullscreenViewer(targetUrl, useBridge, titleLabel) {
+    function prepareWaViewerShell(titleLabel, initialInteract) {
         enableDesktopNavigatorSpoof();
         var viewer = document.getElementById('waViewerSection');
         if (!viewer) return;
@@ -3005,17 +3150,16 @@
         viewer.classList.remove('pure-fullpage');
         var btnFull = document.getElementById('btnWaFullPage');
         if (btnFull) btnFull.textContent = 'Full Page';
+        var titleEl = document.getElementById('activeWaTitle');
+        if (titleEl) titleEl.textContent = titleLabel || 'WA Lab';
 
-        toggleWaInteractMode(false);
+        toggleWaInteractMode(!!initialInteract);
 
-        // Calculate fit-to-screen initial scale for Nokia screen (e.g. 240px-360px wide -> ~0.32-0.40 scale of 1024px desktop)
         var screenW = window.innerWidth || 320;
         var autoScale = Math.round((screenW / WA_BASE_W) * 100) / 100;
         if (autoScale < 0.28) autoScale = 0.28;
         if (autoScale > 1.0) autoScale = 1.0;
         waZoomLevel = autoScale;
-
-        loadWaUrlInIframe(targetUrl, useBridge, titleLabel);
 
         setTimeout(function() {
             var vp = document.getElementById('waViewport');
@@ -3026,6 +3170,162 @@
                 vp.focus();
             }
         }, 40);
+    }
+
+    function openWaFullscreenViewer(targetUrl, useBridge, titleLabel) {
+        prepareWaViewerShell(titleLabel, false);
+        loadWaUrlInIframe(targetUrl, useBridge, titleLabel);
+    }
+
+    function openWaSandboxedViewer(targetUrl, titleLabel) {
+        prepareWaViewerShell(titleLabel, false);
+        resetWaViewerContainers();
+        var frame = document.getElementById('waViewerFrame');
+        var statusEl = document.getElementById('waTestStatusLine');
+        if (statusEl) statusEl.textContent = 'Sandboxed Desktop Iframe: ' + targetUrl;
+        if (frame) {
+            // sandbox without allow-top-navigation prevents WhatsApp from redirecting to "Device/Browser not supported"
+            frame.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups');
+            frame.src = targetUrl;
+        }
+    }
+
+    function openWaObjectEmbedViewer(targetUrl, tagType, titleLabel) {
+        prepareWaViewerShell(titleLabel, true);
+        var frame = document.getElementById('waViewerFrame');
+        var alt = document.getElementById('waAltContainer');
+        var statusEl = document.getElementById('waTestStatusLine');
+        if (statusEl) statusEl.textContent = 'Testing <' + tagType + '> Desktop Container: ' + targetUrl;
+        if (frame) frame.style.display = 'none';
+        if (alt) {
+            alt.style.display = 'block';
+            if (tagType === 'object') {
+                alt.innerHTML = '<object type="text/html" data="' + escHtml(targetUrl) + '" style="width:1024px;height:780px;border:0;background:#fff;"></object>';
+            } else {
+                alt.innerHTML = '<embed type="text/html" src="' + escHtml(targetUrl) + '" style="width:1024px;height:780px;border:0;background:#fff;">';
+            }
+        }
+    }
+
+    function openWaHtmlRewriterViewer(targetUrl, titleLabel) {
+        prepareWaViewerShell(titleLabel, true);
+        resetWaViewerContainers();
+        var frame = document.getElementById('waViewerFrame');
+        var statusEl = document.getElementById('waTestStatusLine');
+        if (statusEl) statusEl.textContent = 'Rewriting HTML & stripping browser check: ' + targetUrl;
+        if (!frame) return;
+
+        var phone = getWaCleanPhone();
+        var msg = getWaMessageText();
+        var bridgeInfo = buildDesktopBridgeHtml(targetUrl);
+        frame.srcdoc = '<!DOCTYPE html><html><body style="background:#0b141a;color:#4ade80;font-family:Arial;padding:30px;text-align:center;"><h2>Rewriting WhatsApp Page for Nokia...</h2><p>Removing Unsupported Browser / Device Check Scripts...</p></body></html>';
+
+        var fn = window.__nokiaNativeFetch || window.fetch;
+        var getUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(targetUrl);
+        fn(getUrl)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var html = (data && data.contents) ? data.contents : '';
+                if (!html || html.length < 60) throw new Error('No HTML');
+                // Strip scripts that check browser support or redirect to /unsupported
+                var stripped = html
+                    .replace(/<script[^>]*src=["'][^"']*unsupported[^"']*["'][^>]*><\/script>/gi, '')
+                    .replace(/http-equiv=["']?Content-Security-Policy["']?/gi, 'data-csp-off="1"')
+                    .replace(/http-equiv=["']?refresh["']?/gi, 'data-refresh-off="1"');
+                var helperBanner = '<div style="background:#075e54;color:#fff;padding:12px;font-family:Arial;font-size:16px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;">' +
+                    '<b>Nokia WA Desktop Rewriter (+' + escHtml(phone) + ')</b>' +
+                    '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+                        '<a href="whatsapp://send?phone=' + encodeURIComponent(phone) + '&text=' + encodeURIComponent(msg) + '" target="_top" style="background:#25d366;color:#fff;padding:6px 12px;border-radius:5px;text-decoration:none;font-weight:bold;">Open Native WA</a>' +
+                        '<a href="https://api.whatsapp.com/send/?phone=' + encodeURIComponent(phone) + '&text=' + encodeURIComponent(msg) + '&type=phone_number&app_absent=1" target="_top" style="background:#128c7e;color:#fff;padding:6px 12px;border-radius:5px;text-decoration:none;font-weight:bold;">API Send Direct</a>' +
+                        '<a href="https://wa.me/' + encodeURIComponent(phone) + '?text=' + encodeURIComponent(msg) + '" target="_top" style="background:#0284c7;color:#fff;padding:6px 12px;border-radius:5px;text-decoration:none;font-weight:bold;">wa.me Direct</a>' +
+                    '</div>' +
+                '</div>';
+                var injectHead = '<head><base href="' + bridgeInfo.baseHref + '">' + bridgeInfo.spoofScript;
+                if (/<head[^>]*>/i.test(stripped)) {
+                    stripped = stripped.replace(/<head[^>]*>/i, injectHead);
+                } else {
+                    stripped = injectHead + '</head>' + stripped;
+                }
+                if (/<body[^>]*>/i.test(stripped)) {
+                    stripped = stripped.replace(/<body[^>]*>/i, '$&' + helperBanner);
+                } else {
+                    stripped = helperBanner + stripped;
+                }
+                frame.srcdoc = stripped;
+                showToast('HTML Rewriter Ready!');
+            })
+            .catch(function() {
+                openWaLiteComposer();
+            });
+    }
+
+    function openWaLiteComposer() {
+        var phone = getWaCleanPhone();
+        var msg = getWaMessageText();
+        prepareWaViewerShell('7. Nokia WA Lite Hub', true);
+        resetWaViewerContainers();
+        waZoomLevel = 1.0;
+        applyWaZoom(1.0);
+
+        var frame = document.getElementById('waViewerFrame');
+        if (!frame) return;
+
+        var encPhone = encodeURIComponent(phone);
+        var encMsg = encodeURIComponent(msg);
+        var qrTarget = 'https://wa.me/' + encPhone + '?text=' + encMsg;
+        var qrImg = 'https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=' + encodeURIComponent(qrTarget);
+
+        var liteHtml = '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+            '<style>' +
+                'body{margin:0;padding:10px;background:#ece5dd;font-family:Arial,sans-serif;color:#111b21;}' +
+                '.hdr{background:#075e54;color:#fff;padding:10px;border-radius:6px;margin-bottom:8px;}' +
+                '.hdr h3{margin:0;font-size:15px;}' +
+                '.hdr p{margin:3px 0 0;font-size:11px;color:#d9fdd3;}' +
+                '.card{background:#fff;border-radius:6px;padding:10px;margin-bottom:8px;border:1px solid #cbd5e1;}' +
+                '.btn{display:block;width:100%;box-sizing:border-box;text-align:left;padding:9px 10px;margin-bottom:5px;border-radius:5px;text-decoration:none;font-weight:bold;font-size:12px;color:#fff;background:#128c7e;border:none;cursor:pointer;}' +
+                '.btn.alt{background:#0284c7;} .btn.intent{background:#ea580c;} .btn.sms{background:#475569;}' +
+            '</style></head><body>' +
+            '<div class="hdr"><h3>WhatsApp Nokia Lite Gateway</h3><p>Target: +' + escHtml(phone) + ' &bull; Msg: ' + escHtml(msg) + '</p></div>' +
+            '<div class="card">' +
+                '<div style="font-size:12px;font-weight:bold;margin-bottom:6px;color:#075e54;">Tap / Press OK on any Gateway Link below:</div>' +
+                '<a class="btn" target="_top" href="whatsapp://send?phone=' + encPhone + '&text=' + encMsg + '">1. Native App Protocol (whatsapp://send?phone=+' + escHtml(phone) + ')</a>' +
+                '<a class="btn" target="_top" href="whatsapp://chat?number=' + encPhone + '">2. Symbian / S40 / S60 Chat URI (whatsapp://chat?number=+' + escHtml(phone) + ')</a>' +
+                '<a class="btn intent" target="_top" href="intent://send?phone=' + encPhone + '&text=' + encMsg + '#Intent;scheme=whatsapp;package=com.whatsapp;end">3. Nokia 4G / Android Intent (com.whatsapp)</a>' +
+                '<a class="btn intent" target="_top" href="intent://send/' + encPhone + '#Intent;scheme=smsto;package=com.whatsapp;action=android.intent.action.SENDTO;end">4. Android SENDTO smsto Intent (com.whatsapp)</a>' +
+                '<a class="btn alt" target="_top" href="https://api.whatsapp.com/send/?phone=' + encPhone + '&text=' + encMsg + '&type=phone_number&app_absent=1">5. API Send Web Fallback (app_absent=1)</a>' +
+                '<a class="btn alt" target="_top" href="https://web.whatsapp.com/send?phone=' + encPhone + '&text=' + encMsg + '&app_absent=1">6. WA Web Direct Chat Send (web.whatsapp.com/send)</a>' +
+                '<a class="btn alt" target="_top" href="https://wa.me/' + encPhone + '?text=' + encMsg + '">7. Official Short Link (wa.me/' + escHtml(phone) + ')</a>' +
+                '<a class="btn alt" target="_top" href="https://web-whatsapp-com.translate.goog/?_x_tr_sl=es&_x_tr_tl=en&_x_tr_pto=wapp">8. Google Translate Web App Proxy (web.whatsapp.com)</a>' +
+                '<a class="btn alt" target="_top" href="https://api-whatsapp-com.translate.goog/send?phone=' + encPhone + '&text=' + encMsg + '&_x_tr_sl=es&_x_tr_tl=en&_x_tr_pto=wapp">9. Google Translate API Send Proxy</a>' +
+                '<a class="btn sms" target="_top" href="sms:+' + encPhone + '?body=' + encMsg + '">10. Direct SMS Fallback (+' + escHtml(phone) + ')</a>' +
+                '<a class="btn sms" target="_top" href="tel:+' + encPhone + '">11. Direct Voice Call (+' + escHtml(phone) + ')</a>' +
+            '</div>' +
+            '<div class="card" style="text-align:center;">' +
+                '<div style="font-size:11px;font-weight:bold;margin-bottom:4px;">Scan QR from Secondary Phone to Open Chat:</div>' +
+                '<img src="' + qrImg + '" alt="WA QR" style="width:140px;height:140px;border:1px solid #cbd5e1;padding:4px;background:#fff;">' +
+            '</div>' +
+            '</body></html>';
+        frame.srcdoc = liteHtml;
+        showToast('Nokia WA Lite Hub Opened!');
+    }
+
+    function openCustomWaUrl(mode) {
+        enableDesktopNavigatorSpoof();
+        var inp = document.getElementById('waCustomUrlInput');
+        var rawUrl = (inp && inp.value) ? inp.value.trim() : 'https://web.whatsapp.com';
+        if (!/^https?:\/\//i.test(rawUrl) && !/^whatsapp:\/\//i.test(rawUrl) && !/^intent:\/\//i.test(rawUrl)) {
+            rawUrl = 'https://' + rawUrl;
+        }
+        logTestEvent('Custom WA URL (' + mode + '): ' + rawUrl);
+        if (mode === 'bridge') {
+            openWaFullscreenViewer(rawUrl, true, 'Custom Bridge');
+        } else if (mode === 'direct') {
+            openWaFullscreenViewer(rawUrl, false, 'Custom Direct');
+        } else {
+            setViewportMetaDesktop(true);
+            showToast('Opening Custom URL in Top Window...');
+            window.location.href = rawUrl;
+        }
     }
 
     function closeWaViewer() {
@@ -3039,12 +3339,12 @@
             if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
             else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
         } catch (e) {}
+        resetWaViewerContainers();
         var frame = document.getElementById('waViewerFrame');
         if (frame) {
-            frame.removeAttribute('srcdoc');
             frame.src = 'about:blank';
         }
-        if (wasOpen && currentModule === 'testpage') {
+        if (wasOpen && (currentModule === 'lab' || currentModule === 'testpage')) {
             setTimeout(function() {
                 focusFirstNavItem(true);
             }, 30);
@@ -3055,30 +3355,33 @@
         currentWaOption = optNum;
         enableDesktopNavigatorSpoof();
         var phone = getWaCleanPhone();
+        var msg = getWaMessageText();
+        var encPhone = encodeURIComponent(phone);
+        var encMsg = encodeURIComponent(msg);
         var statusEl = document.getElementById('waTestStatusLine');
 
         if (optNum === 1) {
-            // Sub-Option 1: WA Web Desktop Bridge Iframe (Bypasses X-Frame-Options + Injects Win10 Chrome UA)
+            // Original Option 1: WA Web Desktop Bridge Iframe (Bypasses X-Frame-Options + Injects Win10 Chrome UA)
             logTestEvent('WA Option 1: Desktop Bridge Iframe (web.whatsapp.com)');
             openWaFullscreenViewer('https://web.whatsapp.com/?lang=en', true, '1. WA Desktop Bridge');
         } else if (optNum === 2) {
-            // Sub-Option 2: WA Web Direct Desktop Iframe (1024x780 Desktop Canvas)
+            // Original Option 2: WA Web Direct Desktop Iframe (1024x780 Desktop Canvas)
             logTestEvent('WA Option 2: Direct Desktop Iframe (web.whatsapp.com)');
             openWaFullscreenViewer('https://web.whatsapp.com/?lang=en', false, '2. WA Direct 1024px');
         } else if (optNum === 3) {
-            // Sub-Option 3: WA API Send Endpoint inside Fullscreen Desktop Iframe
-            var apiSendUrl = 'https://api.whatsapp.com/send?phone=' + encodeURIComponent(phone) + '&text=Hello';
+            // Original Option 3: WA API Send Endpoint inside Fullscreen Desktop Iframe
+            var apiSendUrl = 'https://api.whatsapp.com/send?phone=' + encPhone + '&text=' + encMsg;
             logTestEvent('WA Option 3: API Send Iframe (' + phone + ')');
             openWaFullscreenViewer(apiSendUrl, true, '3. WA API Send (' + phone + ')');
         } else if (optNum === 4) {
-            // Sub-Option 4: Google Translate Gateway Proxy Iframe for WhatsApp Web
-            var gwUrl = 'https://api-whatsapp-com.translate.goog/send?phone=' + encodeURIComponent(phone) + '&text=Hello&_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en';
+            // Original Option 4: Google Translate Gateway Proxy Iframe for WhatsApp Web
+            var gwUrl = 'https://api-whatsapp-com.translate.goog/send?phone=' + encPhone + '&text=' + encMsg + '&_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en';
             logTestEvent('WA Option 4: Gateway Proxy Iframe');
             openWaFullscreenViewer(gwUrl, false, '4. WA Gateway Proxy');
         } else if (optNum === 5) {
-            // Sub-Option 5: WA.ME & Native whatsapp:// Protocol Direct Launch
-            var wameUrl = 'https://wa.me/' + encodeURIComponent(phone) + '?text=Hello';
-            var nativeProtocol = 'whatsapp://send?phone=' + encodeURIComponent(phone) + '&text=Hello';
+            // Original Option 5: WA.ME & Native whatsapp:// Protocol Direct Launch
+            var wameUrl = 'https://wa.me/' + encPhone + '?text=' + encMsg;
+            var nativeProtocol = 'whatsapp://send?phone=' + encPhone + '&text=' + encMsg;
             logTestEvent('WA Option 5: Direct wa.me / whatsapp:// (' + phone + ')');
             if (statusEl) statusEl.textContent = 'Opening wa.me/' + phone + ' & native whatsapp://...';
             showToast('Opening WA Chat: +' + phone);
@@ -3089,7 +3392,7 @@
                 window.location.href = wameUrl;
             }, 450);
         } else if (optNum === 6) {
-            // Sub-Option 6: Switch Viewport Meta to 1280px Desktop + Open web.whatsapp.com in Top Window
+            // Original Option 6: Switch Viewport Meta to 1280px Desktop + Open web.whatsapp.com in Top Window
             logTestEvent('WA Option 6: Desktop Viewport 1280px + Top Window');
             setViewportMetaDesktop(true);
             if (statusEl) statusEl.textContent = 'Viewport set to 1280px Desktop! Opening web.whatsapp.com...';
@@ -3097,6 +3400,116 @@
             setTimeout(function() {
                 window.location.href = 'https://web.whatsapp.com/?lang=en';
             }, 350);
+        } else if (optNum === 7) {
+            // Option 7: In-App Nokia WA Lite Composer & Multi-Gateway Hub
+            logTestEvent('WA Option 7: In-App Nokia WA Lite Hub');
+            openWaLiteComposer();
+        } else if (optNum === 8) {
+            // Option 8: WA Web Direct Chat Send Iframe (web.whatsapp.com/send?phone=...&app_absent=0)
+            var webSendUrl = 'https://web.whatsapp.com/send?phone=' + encPhone + '&text=' + encMsg + '&type=phone_number&app_absent=0';
+            logTestEvent('WA Option 8: web.whatsapp.com/send Bridge Iframe');
+            openWaFullscreenViewer(webSendUrl, true, '8. WA Web Send Iframe');
+        } else if (optNum === 9) {
+            // Option 9: WA Web Direct Chat Send — Top Window (app_absent=1)
+            var webSendTop = 'https://web.whatsapp.com/send?phone=' + encPhone + '&text=' + encMsg + '&type=phone_number&app_absent=1';
+            logTestEvent('WA Option 9: web.whatsapp.com/send Top Window');
+            setViewportMetaDesktop(true);
+            showToast('Opening web.whatsapp.com/send in Top Window...');
+            window.location.href = webSendTop;
+        } else if (optNum === 10) {
+            // Option 10: WA API Web Fallback Bypass Iframe (type=phone_number&app_absent=1)
+            var apiAbsentUrl = 'https://api.whatsapp.com/send/?phone=' + encPhone + '&text=' + encMsg + '&type=phone_number&app_absent=1';
+            logTestEvent('WA Option 10: API Send app_absent=1 Iframe');
+            openWaFullscreenViewer(apiAbsentUrl, false, '10. API app_absent=1');
+        } else if (optNum === 11) {
+            // Option 11: WA API Web Fallback — Direct Top Window (app_absent=1)
+            var apiAbsentTop = 'https://api.whatsapp.com/send/?phone=' + encPhone + '&text=' + encMsg + '&type=phone_number&app_absent=1';
+            logTestEvent('WA Option 11: API Send app_absent=1 Top Window');
+            showToast('Opening API Send (app_absent=1)...');
+            window.location.href = apiAbsentTop;
+        } else if (optNum === 12) {
+            // Option 12: Sandboxed Desktop Iframe (Blocks "Device Not Supported" top-navigation redirect)
+            logTestEvent('WA Option 12: Sandboxed Desktop Iframe');
+            openWaSandboxedViewer('https://web.whatsapp.com/?lang=en', '12. Sandboxed WA Web');
+        } else if (optNum === 13) {
+            // Option 13: HTML Rewriter Proxy (Strips Unsupported Browser Check Scripts)
+            logTestEvent('WA Option 13: HTML Rewriter Desktop Proxy');
+            openWaHtmlRewriterViewer('https://api.whatsapp.com/send/?phone=' + encPhone + '&text=' + encMsg + '&type=phone_number&app_absent=1', '13. Rewriter Proxy');
+        } else if (optNum === 14) {
+            // Option 14: CodeTabs CORS Desktop Proxy Iframe
+            var ctProxyUrl = 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent('https://api.whatsapp.com/send?phone=' + phone + '&text=' + msg);
+            logTestEvent('WA Option 14: CodeTabs Proxy Iframe');
+            openWaFullscreenViewer(ctProxyUrl, false, '14. CodeTabs Proxy');
+        } else if (optNum === 15) {
+            // Option 15: HTML <object type="text/html"> Desktop 1024px Container
+            logTestEvent('WA Option 15: <object> Desktop Container');
+            openWaObjectEmbedViewer('https://api.whatsapp.com/send/?phone=' + encPhone + '&text=' + encMsg + '&type=phone_number&app_absent=1', 'object', '15. <object> Container');
+        } else if (optNum === 16) {
+            // Option 16: HTML <embed> Desktop Plugin Container
+            logTestEvent('WA Option 16: <embed> Desktop Container');
+            openWaObjectEmbedViewer('https://web.whatsapp.com/?lang=en', 'embed', '16. <embed> Container');
+        } else if (optNum === 17) {
+            // Option 17: Google Translate Web App Proxy Iframe (web-whatsapp-com.translate.goog)
+            var gWebAppIframe = 'https://web-whatsapp-com.translate.goog/?_x_tr_sl=es&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp';
+            logTestEvent('WA Option 17: Google Translate WebApp Iframe');
+            openWaFullscreenViewer(gWebAppIframe, false, '17. G-Translate WebApp');
+        } else if (optNum === 18) {
+            // Option 18: Google Translate WA Web — Direct Top Window (_x_tr_pto=wapp)
+            var gWebAppTop = 'https://web-whatsapp-com.translate.goog/?_x_tr_sl=es&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp';
+            logTestEvent('WA Option 18: Google Translate WebApp Top Window');
+            setViewportMetaDesktop(true);
+            showToast('Opening Google Translate WA Web Proxy...');
+            window.location.href = gWebAppTop;
+        } else if (optNum === 19) {
+            // Option 19: Google Translate API Send — Direct Top Window
+            var gApiSendTop = 'https://api-whatsapp-com.translate.goog/send?phone=' + encPhone + '&text=' + encMsg + '&_x_tr_sl=es&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp';
+            logTestEvent('WA Option 19: Google Translate API Send Top Window');
+            showToast('Opening Google Translate API Send...');
+            window.location.href = gApiSendTop;
+        } else if (optNum === 20) {
+            // Option 20: Android / Nokia 4G Intent URI (package=com.whatsapp)
+            var intentUri = 'intent://send?phone=' + encPhone + '&text=' + encMsg + '#Intent;scheme=whatsapp;package=com.whatsapp;S.browser_fallback_url=' + encodeURIComponent('https://wa.me/' + phone + '?text=' + msg) + ';end';
+            logTestEvent('WA Option 20: Android/Nokia 4G Intent URI');
+            if (statusEl) statusEl.textContent = 'Triggering intent://send (com.whatsapp)...';
+            showToast('Launching Android/Nokia 4G WA Intent...');
+            window.location.href = intentUri;
+        } else if (optNum === 21) {
+            // Option 21: WhatsApp Business Intent URI (package=com.whatsapp.w4b)
+            var bizIntentUri = 'intent://send?phone=' + encPhone + '&text=' + encMsg + '#Intent;scheme=whatsapp;package=com.whatsapp.w4b;S.browser_fallback_url=' + encodeURIComponent('https://wa.me/' + phone + '?text=' + msg) + ';end';
+            logTestEvent('WA Option 21: WA Business Intent URI');
+            if (statusEl) statusEl.textContent = 'Triggering intent://send (com.whatsapp.w4b)...';
+            showToast('Launching WA Business Intent...');
+            window.location.href = bizIntentUri;
+        } else if (optNum === 22) {
+            // Option 22: KaiOS / JioPhone MozActivity Native App Trigger
+            logTestEvent('WA Option 22: KaiOS MozActivity Trigger');
+            if (statusEl) statusEl.textContent = 'Attempting KaiOS MozActivity + whatsapp://...';
+            try {
+                if (typeof MozActivity !== 'undefined') {
+                    new MozActivity({
+                        name: 'view',
+                        data: {
+                            type: 'url',
+                            url: 'whatsapp://send?phone=' + encPhone + '&text=' + encMsg
+                        }
+                    });
+                    showToast('KaiOS MozActivity Dispatched!');
+                    return;
+                }
+            } catch (e) {}
+            showToast('Fallback to whatsapp://send for KaiOS...');
+            window.location.href = 'whatsapp://send?phone=' + encPhone + '&text=' + encMsg;
+        } else if (optNum === 23) {
+            // Option 23: Legacy Nokia Symbian / S40 / S60 URI (whatsapp://chat?number=...)
+            var symbianUri = 'whatsapp://chat?number=' + encPhone;
+            logTestEvent('WA Option 23: Symbian/S40 whatsapp://chat?number=' + phone);
+            if (statusEl) statusEl.textContent = 'Opening ' + symbianUri;
+            showToast('Opening Symbian/S40 WA URI...');
+            window.location.href = symbianUri;
+        } else if (optNum === 24) {
+            // Option 24: All Direct Clickable Links & Companion QR Sheet in Viewer
+            logTestEvent('WA Option 24: All Direct Links & QR Sheet');
+            openWaLiteComposer();
         }
     }
 
@@ -3349,7 +3762,7 @@
             }
         }
 
-        // 1C. IF WHATSAPP FULLSCREEN VIEWER IS CURRENTLY OPEN IN TEST PAGE:
+        // 1C. IF WHATSAPP FULLSCREEN VIEWER IS CURRENTLY OPEN IN LAB:
         //     * -> Zoom In
         //     # -> Zoom Out
         //     2 or ArrowUp -> Scroll Up
@@ -3401,18 +3814,15 @@
             }
         }
 
-        // 2. TEST PAGE: Record key press; when focused on keypad tester, Up/Down scrolls page
-        if (currentModule === 'testpage' && !popupOpen && !isWaViewerOpen() && !isUnlockedInput && !isSelectEl) {
+        // 2. TEST PAGE: Record key press and scroll page on Up/Down hold
+        if (currentModule === 'testpage' && !popupOpen && !isUnlockedInput && !isSelectEl) {
             var actLabel = getFriendlyKeyAction(key, code);
             recordTestKeyPress(key, code, actLabel);
 
-            var inWaLab = activeEl && activeEl.closest && activeEl.closest('.wa-lab-box');
-            if (!inWaLab) {
-                if (key === 'ArrowDown' || code === 40) {
-                    window.scrollBy(0, 55);
-                } else if (key === 'ArrowUp' || code === 38) {
-                    window.scrollBy(0, -55);
-                }
+            if (key === 'ArrowDown' || code === 40) {
+                window.scrollBy(0, 55);
+            } else if (key === 'ArrowUp' || code === 38) {
+                window.scrollBy(0, -55);
             }
         }
 
@@ -3450,13 +3860,14 @@
             return;
         }
 
-        // 6. Number shortcuts 1-5 on Home Screen
+        // 6. Number shortcuts 1-6 on Home Screen
         if (currentModule === 'home' && !isUnlockedInput && !popupOpen) {
             if (key === '1' || code === 49) { e.preventDefault(); openModule('instruments'); return; }
             if (key === '2' || code === 50) { e.preventDefault(); openModule('documents'); return; }
             if (key === '3' || code === 51) { e.preventDefault(); openModule('operations'); return; }
             if (key === '4' || code === 52) { e.preventDefault(); openModule('contacts'); return; }
             if (key === '5' || code === 53) { e.preventDefault(); openModule('testpage'); return; }
+            if (key === '6' || code === 54) { e.preventDefault(); openModule('lab'); return; }
         }
 
         // 7. D-Pad Up / Down Navigation
