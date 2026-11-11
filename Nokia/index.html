@@ -481,7 +481,7 @@
             flex: 1;
         }
 
-        /* ─── FULL PAGE DOCUMENT ACTION POPUP (VIEW / FULL PAGE / DOWNLOAD) ─── */
+        /* ─── FULL PAGE DOCUMENT ACTION POPUP (VIEW / FULL SCREEN / DOWNLOAD) ─── */
         .doc-fullpage-popup {
             display: none;
             position: fixed;
@@ -489,18 +489,33 @@
             left: 0;
             right: 0;
             bottom: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             background: var(--bg);
             color: var(--text);
-            z-index: 920;
+            z-index: 940;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
             padding: 10px 8px;
+            overflow-y: auto;
         }
 
         .doc-fullpage-popup.active {
             display: flex;
+        }
+
+        .doc-popup-inner {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            background: var(--card);
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
         }
 
         .doc-popup-top {
@@ -512,14 +527,15 @@
         }
 
         .doc-popup-center {
-            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 12px 8px;
-            gap: 8px;
+            padding: 8px 6px;
+            gap: 6px;
+            background: var(--surface);
+            border-radius: 6px;
         }
 
         .doc-popup-icon-big {
@@ -527,32 +543,32 @@
             color: var(--danger);
             border: 2px solid var(--danger);
             font-weight: bold;
-            font-size: 16px;
-            padding: 10px 16px;
-            border-radius: 8px;
+            font-size: 14px;
+            padding: 6px 14px;
+            border-radius: 6px;
         }
 
         .doc-popup-title-big {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: var(--text);
             word-break: break-word;
             line-height: 1.35;
-            max-width: 95%;
+            max-width: 98%;
         }
 
         .doc-popup-bottom-bar {
             display: flex;
             flex-direction: column;
             gap: 6px;
-            padding-top: 8px;
+            padding-top: 6px;
             border-top: 1.5px solid var(--border);
         }
 
         .doc-popup-three-opts {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
+            gap: 6px;
             width: 100%;
         }
 
@@ -561,7 +577,7 @@
             font-size: 11.5px;
             font-weight: bold;
             border-radius: 5px;
-            border: 1.5px solid var(--primary);
+            border: 2px solid var(--primary);
             background: var(--primary);
             color: #ffffff;
             text-align: center;
@@ -1012,53 +1028,86 @@
             padding: 8px;
             margin-bottom: 7px;
         }
+        .game-row-wrap {
+            display: flex;
+            align-items: stretch;
+            gap: 4px;
+            margin-bottom: 5px;
+        }
         .game-tile-btn {
-            width: 100%;
+            flex: 1;
             text-align: left;
-            padding: 8px;
+            padding: 7px 8px;
             border-radius: 5px;
             border: 1.5px solid var(--border);
             background: var(--card);
             color: var(--text);
-            font-size: 12px;
+            font-size: 11.5px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
+            flex-direction: column;
+            gap: 2px;
+            font-family: inherit;
+        }
+        .game-tile-top {
+            display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 6px;
-            margin-bottom: 5px;
+            gap: 4px;
+            width: 100%;
+        }
+        .game-tile-meta {
+            font-size: 9.5px;
+            color: var(--muted);
+            font-weight: bold;
+        }
+        .btn-game-star-cfg {
+            background: #1e293b;
+            color: #facc15;
+            border: 1.5px solid #475569;
+            border-radius: 5px;
+            padding: 0 8px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            flex-shrink: 0;
             font-family: inherit;
         }
         .game-stage-overlay {
             display: none;
             position: fixed;
-            inset: 0;
-            width: 100vw;
-            height: 100vh;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
             background: #0f172a;
             color: #fff;
             z-index: 960;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            padding: 6px;
+            justify-content: flex-start;
+            padding: 4px;
+            gap: 4px;
+            overflow-y: auto;
         }
         .game-stage-overlay.active {
             display: flex;
         }
         .game-top-bar {
             width: 100%;
-            max-width: 340px;
+            max-width: 380px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 4px;
-            font-size: 11px;
+            gap: 3px;
+            font-size: 10.5px;
             font-weight: bold;
+            flex-shrink: 0;
         }
         .game-canvas-wrap {
-            flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1066,31 +1115,71 @@
         }
         #nokiaGameCanvas {
             background: #9bbc0f;
-            border: 3px solid #306230;
+            border: 2px solid #306230;
             border-radius: 4px;
+            width: 220px;
+            height: 240px;
             max-width: 100%;
-            max-height: 64vh;
             image-rendering: pixelated;
+        }
+        .game-stage-overlay.fullscreen-game {
+            padding: 2px;
+            background: #020617;
+        }
+        .game-stage-overlay.fullscreen-game .game-top-bar {
+            max-width: 100%;
+            padding: 2px 4px;
+            background: #0f172a;
+            border-bottom: 1px solid #334155;
+        }
+        .game-stage-overlay.fullscreen-game .game-canvas-wrap {
+            flex: 1;
+            width: 100%;
+            min-height: 0;
+        }
+        .game-stage-overlay.fullscreen-game #nokiaGameCanvas {
+            width: 100%;
+            height: 100%;
+            max-width: 420px;
+            max-height: calc(100vh - 68px);
+            object-fit: contain;
+            border-width: 2px;
         }
         .game-controls-bar {
             width: 100%;
-            max-width: 340px;
+            max-width: 380px;
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 4px;
-            padding-top: 4px;
+            gap: 3px;
+            flex-shrink: 0;
         }
         .game-ctrl-btn {
             background: #1e293b;
             color: #f8fafc;
             border: 1.5px solid #475569;
             border-radius: 4px;
-            padding: 7px 2px;
-            font-size: 11px;
+            padding: 6px 2px;
+            font-size: 10.5px;
             font-weight: bold;
             text-align: center;
             cursor: pointer;
             user-select: none;
+        }
+        .game-setting-opt-btn {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            border: 1.5px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 11.5px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            font-family: inherit;
         }
 
         .toast-msg {
@@ -1226,21 +1315,25 @@
             <div id="docList" class="item-list"></div>
         </div>
 
-        <!-- Full-Page Popup when clicking any PDF Entry (Bottom 3 Options: View, Full Page, Download) -->
+        <!-- Full-Page Popup when clicking any PDF Entry (Bottom 3 Options: View, Full Screen, Download) -->
         <div id="docActionModal" class="doc-fullpage-popup">
-            <div class="doc-popup-top">
-                <button type="button" class="btn-small secondary" data-nav onclick="closeDocActionPopup()">&#8592; Back</button>
-                <span id="docPopupCatBadge" class="badge badge-loc">PDF Document</span>
-            </div>
-            <div class="doc-popup-center">
-                <div class="doc-popup-icon-big">PDF</div>
-                <div id="docPopupTitle" class="doc-popup-title-big">Select Document</div>
-            </div>
-            <div class="doc-popup-bottom-bar">
-                <div class="doc-popup-three-opts">
-                    <button type="button" id="btnDocPopupView" class="btn-doc-popup-opt" data-nav onclick="triggerDocPopupAction('view')">View</button>
-                    <button type="button" id="btnDocPopupFull" class="btn-doc-popup-opt fullpage" data-nav onclick="triggerDocPopupAction('fullpage')">Full Page</button>
-                    <button type="button" id="btnDocPopupDownload" class="btn-doc-popup-opt download" data-nav onclick="triggerDocPopupAction('download')">Download</button>
+            <div class="doc-popup-inner">
+                <div class="doc-popup-top">
+                    <button type="button" class="btn-small secondary" data-nav onclick="closeDocActionPopup()">&#8592; Back</button>
+                    <span id="docPopupCatBadge" class="badge badge-loc">PDF Document</span>
+                </div>
+                <div class="doc-popup-center">
+                    <div class="doc-popup-icon-big">PDF</div>
+                    <div id="docPopupTitle" class="doc-popup-title-big">Select Document</div>
+                    <div style="font-size:10.5px;color:var(--muted);font-weight:bold;">Select Option (OK or 1 / 2 / 3):</div>
+                </div>
+                <div class="doc-popup-bottom-bar">
+                    <div class="doc-popup-three-opts">
+                        <button type="button" id="btnDocPopupView" class="btn-doc-popup-opt" data-nav onclick="triggerDocPopupAction('view')">1. View</button>
+                        <button type="button" id="btnDocPopupFull" class="btn-doc-popup-opt fullpage" data-nav onclick="triggerDocPopupAction('fullpage')">2. Full Screen</button>
+                        <button type="button" id="btnDocPopupDownload" class="btn-doc-popup-opt download" data-nav onclick="triggerDocPopupAction('download')">3. Download</button>
+                    </div>
+                    <button type="button" class="btn-small secondary" style="width:100%;padding:6px;" data-nav onclick="closeDocActionPopup()">Cancel (#)</button>
                 </div>
             </div>
         </div>
@@ -1559,41 +1652,24 @@
     ═══════════════════════════════════════════════════ -->
     <section id="view-games" class="view-section">
         <div class="game-menu-box">
-            <div style="font-size:12.5px;font-weight:bold;color:var(--primary);margin-bottom:3px;">
-                Nokia Classic Games Arcade
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:4px;margin-bottom:3px;">
+                <span style="font-size:12.5px;font-weight:bold;color:var(--primary);">Nokia Arcade (15 Games)</span>
+                <span class="badge badge-loc">Press * for Game Setting</span>
             </div>
-            <div style="font-size:10.5px;color:var(--muted);margin-bottom:7px;">
-                Play with Keypad <b>2/8/4/6</b> or <b>&#9650;/&#9660;/&#9668;/&#9658;</b> &bull; <b>5 / OK</b> Action &bull; <b>0 / #</b> Exit Game
+            <div style="font-size:10px;color:var(--muted);margin-bottom:7px;">
+                Keys <b>2/8/4/6</b> or <b>&#9650;/&#9660;/&#9668;/&#9658;</b> Move &bull; <b>5 / OK</b> Action &bull; <b>*</b> Game Setting &bull; <b>0 / #</b> Exit
             </div>
 
-            <button type="button" class="game-tile-btn" data-nav onclick="startNokiaGame('snake')">
-                <span>1. Snake Xenzia (Classic Nokia Snake)</span>
-                <span class="badge" style="background:#16a34a;color:#fff;">Play &rsaquo;</span>
-            </button>
-            <button type="button" class="game-tile-btn" data-nav onclick="startNokiaGame('flappy')">
-                <span>2. Flappy Bird (Nokia Keypad Edition)</span>
-                <span class="badge" style="background:#0284c7;color:#fff;">Play &rsaquo;</span>
-            </button>
-            <button type="button" class="game-tile-btn" data-nav onclick="startNokiaGame('brick')">
-                <span>3. Brick Breaker (Classic Bounce Paddle)</span>
-                <span class="badge" style="background:#d97706;color:#fff;">Play &rsaquo;</span>
-            </button>
-            <button type="button" class="game-tile-btn" data-nav onclick="startNokiaGame('racer')">
-                <span>4. Road Racer (Nokia Highway Dodge)</span>
-                <span class="badge" style="background:#dc2626;color:#fff;">Play &rsaquo;</span>
-            </button>
-            <button type="button" class="game-tile-btn" data-nav onclick="startNokiaGame('space')">
-                <span>5. Space Impact (Nokia Star Shooter)</span>
-                <span class="badge" style="background:#7c3aed;color:#fff;">Play &rsaquo;</span>
-            </button>
+            <div id="nokiaGamesMenuList"></div>
         </div>
 
-        <!-- Full-Screen Nokia Game Stage -->
-        <div id="nokiaGameStage" class="game-stage-overlay">
+        <!-- Full-Screen Nokia Game Stage (Full Screen ON by Default) -->
+        <div id="nokiaGameStage" class="game-stage-overlay fullscreen-game">
             <div class="game-top-bar">
                 <button type="button" class="btn-small secondary" data-nav onclick="stopNokiaGame()">&#8592; Exit</button>
-                <span id="activeGameTitle" style="color:#4ade80;">Snake</span>
+                <span id="activeGameTitle" style="color:#4ade80;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Snake</span>
                 <span id="activeGameScore" class="badge badge-loc">Score: 0</span>
+                <button type="button" class="btn-small" style="background:#d97706;border-color:#d97706;" data-nav onclick="openGameSettingsModal(currentNokiaGame)">* Setting</button>
                 <button type="button" class="btn-small" style="background:#16a34a;border-color:#16a34a;" data-nav onclick="restartCurrentNokiaGame()">Restart</button>
             </div>
             <div class="game-canvas-wrap">
@@ -1605,6 +1681,36 @@
                 <button type="button" class="game-ctrl-btn" style="background:#16a34a;border-color:#4ade80;" onclick="handleGameInput('ACTION')">OK / 5</button>
                 <button type="button" class="game-ctrl-btn" onclick="handleGameInput('DOWN')">&#9660; 8</button>
                 <button type="button" class="game-ctrl-btn" onclick="handleGameInput('RIGHT')">6 &#9658;</button>
+            </div>
+        </div>
+
+        <!-- Per-Game Separate Settings Modal (Opened by pressing * on Game Page or Inside Game) -->
+        <div class="nokia-modal" id="gameSettingsModal" style="z-index:975;">
+            <div class="nokia-modal-box">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                    <span style="font-weight:bold;font-size:12.5px;color:var(--primary);" id="gameSettingModalTitle">Game Settings</span>
+                    <span class="badge badge-loc">Key *</span>
+                </div>
+                <div class="form-row">
+                    <label>Select Game</label>
+                    <select id="gameSettingSelectGame" class="nokia-input" data-nav onchange="onGameSettingTargetChange(this.value)"></select>
+                </div>
+                <button type="button" id="btnGameSetDiff" class="game-setting-opt-btn" data-nav onclick="cycleGameSettingDifficulty(1)">
+                    <span>1. Difficulty</span>
+                    <span id="valGameSetDiff" class="badge badge-loc">Normal</span>
+                </button>
+                <button type="button" id="btnGameSetSound" class="game-setting-opt-btn" data-nav onclick="toggleGameSettingSound()">
+                    <span>2. Sound</span>
+                    <span id="valGameSetSound" class="badge badge-ok">ON</span>
+                </button>
+                <button type="button" id="btnGameSetFull" class="game-setting-opt-btn" data-nav onclick="toggleGameSettingFullScreen()">
+                    <span>3. Full Screen</span>
+                    <span id="valGameSetFull" class="badge badge-ok">ON (Default)</span>
+                </button>
+                <div style="display:flex;gap:6px;margin-top:8px;">
+                    <button type="button" class="btn-small" style="flex:1;background:var(--success);padding:7px;" data-nav onclick="saveAndApplyGameSettings()">OK / Save</button>
+                    <button type="button" class="btn-small secondary" style="flex:1;padding:7px;" data-nav onclick="closeGameSettingsModal()">Close (#)</button>
+                </div>
             </div>
         </div>
     </section>
@@ -1904,7 +2010,8 @@
         }
         closeInstModal();
         closeNewOpModal();
-        closeDocActionPopup();
+        closeDocActionPopup(false);
+        closeGameSettingsModal();
         stopNokiaGame();
         lockAllSearchBoxes();
         currentModule = mod;
@@ -1949,6 +2056,7 @@
                 populateWaContactDropdown();
             } else if (mod === 'games') {
                 titleEl.textContent = 'Nokia Games Arcade';
+                renderNokiaGamesMenu();
             } else if (mod === 'guide') {
                 titleEl.textContent = 'Nokia Guide';
             }
@@ -1961,7 +2069,8 @@
     function goHomePage() {
         closeInstModal();
         closeNewOpModal();
-        closeDocActionPopup();
+        closeDocActionPopup(false);
+        closeGameSettingsModal();
         stopNokiaGame();
         if (currentModule === 'documents') {
             closePdfViewer();
@@ -1973,6 +2082,10 @@
     }
 
     function goBackStep() {
+        if (isGameSettingsModalOpen()) {
+            closeGameSettingsModal();
+            return;
+        }
         if (document.getElementById('instUpdateModal').classList.contains('active')) {
             closeInstModal();
             return;
@@ -1982,7 +2095,7 @@
             return;
         }
         if (isDocActionPopupOpen()) {
-            closeDocActionPopup();
+            closeDocActionPopup(true);
             return;
         }
         if (isNokiaGameStageOpen()) {
@@ -2541,6 +2654,9 @@
         lastViewedDocId = docId;
         lastViewedDocTitle = docTitle;
 
+        var listSec = document.getElementById('docListSection');
+        if (listSec) listSec.style.display = 'none';
+
         var titleEl = document.getElementById('docPopupTitle');
         var catEl = document.getElementById('docPopupCatBadge');
         var pop = document.getElementById('docActionModal');
@@ -2548,6 +2664,7 @@
         if (catEl) catEl.textContent = docCat;
         if (pop) {
             pop.classList.add('active');
+            window.scrollTo(0, 0);
             setTimeout(function() {
                 var vBtn = document.getElementById('btnDocPopupView');
                 if (vBtn) vBtn.focus();
@@ -2559,7 +2676,11 @@
         var pop = document.getElementById('docActionModal');
         var wasOpen = pop && pop.classList.contains('active');
         if (pop) pop.classList.remove('active');
-        if (wasOpen && restoreFocus !== false && currentModule === 'documents') {
+        if (!isPdfViewerOpen()) {
+            var listSec = document.getElementById('docListSection');
+            if (listSec) listSec.style.display = 'block';
+        }
+        if (wasOpen && restoreFocus !== false && currentModule === 'documents' && !isPdfViewerOpen()) {
             setTimeout(function() {
                 if (selectedPopupDocId) {
                     var entryBtn = document.querySelector('#docList [data-doc-id="' + selectedPopupDocId + '"]');
@@ -2577,17 +2698,15 @@
         var id = selectedPopupDocId;
         var title = selectedPopupDocTitle || 'document.pdf';
         if (!id) return;
-        closeDocActionPopup(false);
         if (mode === 'view') {
+            closeDocActionPopup(false);
             openPdfViewer(id, title, false);
         } else if (mode === 'fullpage') {
+            closeDocActionPopup(false);
             openPdfViewer(id, title, true);
         } else if (mode === 'download') {
+            closeDocActionPopup(true);
             downloadPdfDirect(id, title);
-            setTimeout(function() {
-                var entryBtn = document.querySelector('#docList [data-doc-id="' + id + '"]');
-                if (entryBtn) entryBtn.focus();
-            }, 40);
         }
     }
 
@@ -3912,20 +4031,313 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
-       SECRET NOKIA GAMES ARCADE (OPENED BY 3x OK ON "MAJEED")
+       SECRET NOKIA GAMES ARCADE (15 GAMES + PER-GAME * SETTINGS)
     ═══════════════════════════════════════════════════════════ */
     var majeedClickCount = 0;
     var majeedClickTimer = null;
     var currentNokiaGame = null;
     var nokiaGameLoopTimer = null;
     var gameState = null;
+    var gamePausedForSettings = false;
+    var focusedGameMenuId = 'snake';
+    var currentSettingsGameId = 'snake';
+    var LS_GAME_SETTINGS = 'nokia_per_game_settings_v2';
+    var nokiaAudioCtx = null;
+
+    var NOKIA_GAMES_CATALOG = [
+        { id: 'snake', num: 1, name: 'Snake Xenzia', sub: 'Classic Nokia Snake', color: '#16a34a' },
+        { id: 'flappy', num: 2, name: 'Flappy Bird', sub: 'Nokia Keypad Edition', color: '#0284c7' },
+        { id: 'brick', num: 3, name: 'Brick Breaker', sub: 'Bounce Paddle', color: '#d97706' },
+        { id: 'racer', num: 4, name: 'Road Racer', sub: 'Highway Car Dodge', color: '#dc2626' },
+        { id: 'space', num: 5, name: 'Space Impact', sub: 'Nokia Star Shooter', color: '#7c3aed' },
+        { id: 'bounce', num: 6, name: 'Bounce Red Ball', sub: 'Classic Nokia Bounce', color: '#e11d48' },
+        { id: 'tetris', num: 7, name: 'Tetris Block Drop', sub: 'Classic Block Puzzle', color: '#2563eb' },
+        { id: 'pacman', num: 8, name: 'Pac-Maze', sub: 'Arcade Dot Muncher', color: '#ca8a04' },
+        { id: 'cricket', num: 9, name: 'Cricket Champion', sub: 'Hit 4s & 6s', color: '#059669' },
+        { id: 'penalty', num: 10, name: 'Penalty Shootout', sub: 'Football Goal Striker', color: '#0d9488' },
+        { id: 'copter', num: 11, name: 'Helicopter Cave', sub: 'Tunnel Flyer', color: '#4f46e5' },
+        { id: 'g2048', num: 12, name: '2048 Nokia Puzzle', sub: 'Number Tile Merge', color: '#b45309' },
+        { id: 'tictactoe', num: 13, name: 'Tic-Tac-Toe AI', sub: '3x3 Smart CPU Battle', color: '#9333ea' },
+        { id: 'memory', num: 14, name: 'Memory Match', sub: 'Flip & Match Pairs', color: '#0891b2' },
+        { id: 'jumper', num: 15, name: 'Sky Jumper', sub: 'Endless Platform Jump', color: '#15803d' }
+    ];
+
+    var nokiaPerGameSettings = {};
+
+    function loadAllGameSettings() {
+        try {
+            var raw = localStorage.getItem(LS_GAME_SETTINGS);
+            if (raw) {
+                var parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === 'object') {
+                    nokiaPerGameSettings = parsed;
+                }
+            }
+        } catch (e) {}
+        for (var i = 0; i < NOKIA_GAMES_CATALOG.length; i++) {
+            var gid = NOKIA_GAMES_CATALOG[i].id;
+            if (!nokiaPerGameSettings[gid] || typeof nokiaPerGameSettings[gid] !== 'object') {
+                nokiaPerGameSettings[gid] = {
+                    difficulty: 'normal',
+                    sound: true,
+                    fullScreen: true // By default Full Screen ON as requested
+                };
+            } else {
+                if (['easy', 'normal', 'hard'].indexOf(nokiaPerGameSettings[gid].difficulty) === -1) {
+                    nokiaPerGameSettings[gid].difficulty = 'normal';
+                }
+                if (typeof nokiaPerGameSettings[gid].sound !== 'boolean') {
+                    nokiaPerGameSettings[gid].sound = true;
+                }
+                if (typeof nokiaPerGameSettings[gid].fullScreen !== 'boolean') {
+                    nokiaPerGameSettings[gid].fullScreen = true;
+                }
+            }
+        }
+    }
+
+    function saveAllGameSettings() {
+        try {
+            localStorage.setItem(LS_GAME_SETTINGS, JSON.stringify(nokiaPerGameSettings));
+        } catch (e) {}
+    }
+
+    function getGameSettings(gameId) {
+        loadAllGameSettings();
+        var gid = gameId || currentNokiaGame || focusedGameMenuId || 'snake';
+        if (!nokiaPerGameSettings[gid]) {
+            nokiaPerGameSettings[gid] = { difficulty: 'normal', sound: true, fullScreen: true };
+        }
+        return nokiaPerGameSettings[gid];
+    }
+
+    function getDifficultyFactor(gameId) {
+        var cfg = getGameSettings(gameId);
+        if (cfg.difficulty === 'easy') return 0.72;
+        if (cfg.difficulty === 'hard') return 1.38;
+        return 1.0;
+    }
+
+    function getGameMetaById(gameId) {
+        for (var i = 0; i < NOKIA_GAMES_CATALOG.length; i++) {
+            if (NOKIA_GAMES_CATALOG[i].id === gameId) return NOKIA_GAMES_CATALOG[i];
+        }
+        return NOKIA_GAMES_CATALOG[0];
+    }
+
+    function playNokiaSound(type) {
+        var gid = currentNokiaGame || currentSettingsGameId || 'snake';
+        var cfg = getGameSettings(gid);
+        if (!cfg || !cfg.sound) return;
+        try {
+            var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return;
+            if (!nokiaAudioCtx) {
+                nokiaAudioCtx = new AudioContextClass();
+            }
+            if (nokiaAudioCtx.state === 'suspended') {
+                nokiaAudioCtx.resume();
+            }
+            var osc = nokiaAudioCtx.createOscillator();
+            var gain = nokiaAudioCtx.createGain();
+            osc.type = 'square';
+            var now = nokiaAudioCtx.currentTime;
+            var freq = 660;
+            var dur = 0.055;
+            if (type === 'eat' || type === 'score') { freq = 880; dur = 0.07; }
+            else if (type === 'flap' || type === 'move') { freq = 520; dur = 0.04; }
+            else if (type === 'hit') { freq = 740; dur = 0.06; }
+            else if (type === 'shoot') { freq = 980; dur = 0.045; }
+            else if (type === 'win') { freq = 1046; dur = 0.12; }
+            else if (type === 'gameover') { freq = 220; dur = 0.22; }
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.06, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+            osc.connect(gain);
+            gain.connect(nokiaAudioCtx.destination);
+            osc.start(now);
+            osc.stop(now + dur);
+        } catch (e) {}
+    }
+
+    function renderNokiaGamesMenu() {
+        loadAllGameSettings();
+        var listEl = document.getElementById('nokiaGamesMenuList');
+        if (!listEl) return;
+        var html = '';
+        for (var i = 0; i < NOKIA_GAMES_CATALOG.length; i++) {
+            var g = NOKIA_GAMES_CATALOG[i];
+            var cfg = getGameSettings(g.id);
+            var diffLabel = cfg.difficulty.charAt(0).toUpperCase() + cfg.difficulty.slice(1);
+            var sndLabel = cfg.sound ? 'Sound:ON' : 'Sound:OFF';
+            var fsLabel = cfg.fullScreen ? 'FullScreen:ON' : 'FullScreen:OFF';
+            html += '<div class="game-row-wrap">' +
+                '<button type="button" class="game-tile-btn" data-nav data-game-id="' + g.id + '" onfocus="focusedGameMenuId=\'' + g.id + '\'" onclick="startNokiaGame(\'' + g.id + '\')">' +
+                    '<div class="game-tile-top">' +
+                        '<span>' + g.num + '. ' + escHtml(g.name) + '</span>' +
+                        '<span class="badge" style="background:' + g.color + ';color:#fff;">Play &rsaquo;</span>' +
+                    '</div>' +
+                    '<div class="game-tile-meta">' + escHtml(g.sub) + ' &bull; [' + diffLabel + ' | ' + sndLabel + ' | ' + fsLabel + ']</div>' +
+                '</button>' +
+                '<button type="button" class="btn-game-star-cfg" data-nav data-game-id="' + g.id + '" onfocus="focusedGameMenuId=\'' + g.id + '\'" onclick="openGameSettingsModal(\'' + g.id + '\')" title="Press * for Game Settings">*</button>' +
+            '</div>';
+        }
+        listEl.innerHTML = html;
+    }
+
+    /* ─── PER-GAME SEPARATE SETTINGS MODAL (OPENED BY * KEY) ─── */
+    function isGameSettingsModalOpen() {
+        var m = document.getElementById('gameSettingsModal');
+        return !!(m && m.classList.contains('active'));
+    }
+
+    function refreshGameSettingsModalUI() {
+        var meta = getGameMetaById(currentSettingsGameId);
+        var cfg = getGameSettings(currentSettingsGameId);
+
+        var titleEl = document.getElementById('gameSettingModalTitle');
+        if (titleEl) {
+            titleEl.textContent = 'Setting: ' + meta.num + '. ' + meta.name;
+        }
+
+        var sel = document.getElementById('gameSettingSelectGame');
+        if (sel) {
+            var opts = '';
+            for (var i = 0; i < NOKIA_GAMES_CATALOG.length; i++) {
+                var g = NOKIA_GAMES_CATALOG[i];
+                var s = (g.id === currentSettingsGameId) ? ' selected' : '';
+                opts += '<option value="' + g.id + '"' + s + '>' + g.num + '. ' + escHtml(g.name) + '</option>';
+            }
+            sel.innerHTML = opts;
+        }
+
+        var diffEl = document.getElementById('valGameSetDiff');
+        if (diffEl) {
+            var dTxt = cfg.difficulty.toUpperCase();
+            diffEl.textContent = dTxt;
+            diffEl.className = cfg.difficulty === 'hard' ? 'badge badge-danger' : (cfg.difficulty === 'easy' ? 'badge badge-ok' : 'badge badge-loc');
+        }
+
+        var sndEl = document.getElementById('valGameSetSound');
+        if (sndEl) {
+            sndEl.textContent = cfg.sound ? 'ON' : 'OFF';
+            sndEl.className = cfg.sound ? 'badge badge-ok' : 'badge badge-danger';
+        }
+
+        var fullEl = document.getElementById('valGameSetFull');
+        if (fullEl) {
+            fullEl.textContent = cfg.fullScreen ? 'ON (Full Screen)' : 'OFF (Normal)';
+            fullEl.className = cfg.fullScreen ? 'badge badge-ok' : 'badge badge-warn';
+        }
+    }
+
+    function openGameSettingsModal(targetGameId) {
+        loadAllGameSettings();
+        var gid = targetGameId || (isNokiaGameStageOpen() ? currentNokiaGame : focusedGameMenuId) || 'snake';
+        currentSettingsGameId = gid;
+        gamePausedForSettings = true;
+        refreshGameSettingsModalUI();
+
+        var modal = document.getElementById('gameSettingsModal');
+        if (modal) {
+            modal.classList.add('active');
+            setTimeout(function() {
+                var diffBtn = document.getElementById('btnGameSetDiff');
+                if (diffBtn) diffBtn.focus();
+            }, 30);
+        }
+    }
+
+    function onGameSettingTargetChange(newGameId) {
+        if (!newGameId) return;
+        currentSettingsGameId = newGameId;
+        refreshGameSettingsModalUI();
+    }
+
+    function cycleGameSettingDifficulty(dir) {
+        var cfg = getGameSettings(currentSettingsGameId);
+        var levels = ['easy', 'normal', 'hard'];
+        var idx = levels.indexOf(cfg.difficulty);
+        var step = (dir === -1) ? -1 : 1;
+        cfg.difficulty = levels[(idx + step + levels.length) % levels.length];
+        saveAllGameSettings();
+        refreshGameSettingsModalUI();
+        renderNokiaGamesMenu();
+        playNokiaSound('move');
+    }
+
+    function toggleGameSettingSound() {
+        var cfg = getGameSettings(currentSettingsGameId);
+        cfg.sound = !cfg.sound;
+        saveAllGameSettings();
+        refreshGameSettingsModalUI();
+        renderNokiaGamesMenu();
+        if (cfg.sound) playNokiaSound('score');
+    }
+
+    function toggleGameSettingFullScreen() {
+        var cfg = getGameSettings(currentSettingsGameId);
+        cfg.fullScreen = !cfg.fullScreen;
+        saveAllGameSettings();
+        refreshGameSettingsModalUI();
+        renderNokiaGamesMenu();
+        applyGameStageFullScreen(currentNokiaGame || currentSettingsGameId);
+        playNokiaSound('move');
+    }
+
+    function applyGameStageFullScreen(gameId) {
+        var st = document.getElementById('nokiaGameStage');
+        if (!st) return;
+        var cfg = getGameSettings(gameId || currentNokiaGame || 'snake');
+        st.classList.toggle('fullscreen-game', !!cfg.fullScreen);
+        if (st.classList.contains('active')) {
+            if (cfg.fullScreen) {
+                try {
+                    if (st.requestFullscreen) st.requestFullscreen();
+                    else if (st.webkitRequestFullscreen) st.webkitRequestFullscreen();
+                } catch (e) {}
+            } else {
+                try {
+                    if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
+                    else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+                } catch (e) {}
+            }
+        }
+    }
+
+    function saveAndApplyGameSettings() {
+        saveAllGameSettings();
+        var meta = getGameMetaById(currentSettingsGameId);
+        var cfg = getGameSettings(currentSettingsGameId);
+        closeGameSettingsModal();
+        showToast(meta.name + ': ' + cfg.difficulty.toUpperCase() + ' | Sound ' + (cfg.sound ? 'ON' : 'OFF') + ' | FullScreen ' + (cfg.fullScreen ? 'ON' : 'OFF'));
+        if (isNokiaGameStageOpen() && currentNokiaGame) {
+            applyGameStageFullScreen(currentNokiaGame);
+            restartCurrentNokiaGame();
+        }
+    }
+
+    function closeGameSettingsModal() {
+        var modal = document.getElementById('gameSettingsModal');
+        var wasOpen = modal && modal.classList.contains('active');
+        if (modal) modal.classList.remove('active');
+        gamePausedForSettings = false;
+        if (wasOpen && currentModule === 'games' && !isNokiaGameStageOpen()) {
+            renderNokiaGamesMenu();
+            setTimeout(function() {
+                var btn = document.querySelector('#nokiaGamesMenuList .game-tile-btn[data-game-id="' + currentSettingsGameId + '"]');
+                if (btn) btn.focus();
+                else focusFirstNavItem(true);
+            }, 30);
+        }
+    }
 
     function onMajeedClick() {
         majeedClickCount++;
         clearTimeout(majeedClickTimer);
         if (majeedClickCount >= 3) {
             majeedClickCount = 0;
-            showToast('Nokia Games Unlocked!');
+            showToast('Nokia Games Arcade Unlocked!');
             openModule('games');
             return;
         }
@@ -3944,12 +4356,20 @@
             clearInterval(nokiaGameLoopTimer);
             nokiaGameLoopTimer = null;
         }
+        gamePausedForSettings = false;
+        try {
+            if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen();
+            else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+        } catch (e) {}
         var st = document.getElementById('nokiaGameStage');
         var wasOpen = st && st.classList.contains('active');
         if (st) st.classList.remove('active');
         if (wasOpen && currentModule === 'games') {
+            renderNokiaGamesMenu();
             setTimeout(function() {
-                focusFirstNavItem(true);
+                var prevBtn = currentNokiaGame ? document.querySelector('#nokiaGamesMenuList .game-tile-btn[data-game-id="' + currentNokiaGame + '"]') : null;
+                if (prevBtn) prevBtn.focus();
+                else focusFirstNavItem(true);
             }, 30);
         }
     }
@@ -3966,91 +4386,140 @@
     }
 
     function startNokiaGame(gameType) {
+        loadAllGameSettings();
         currentNokiaGame = gameType;
+        currentSettingsGameId = gameType;
+        focusedGameMenuId = gameType;
+        gamePausedForSettings = false;
+
         if (nokiaGameLoopTimer) {
             clearInterval(nokiaGameLoopTimer);
             nokiaGameLoopTimer = null;
         }
         var st = document.getElementById('nokiaGameStage');
-        if (st) st.classList.add('active');
+        if (st) {
+            st.classList.add('active');
+            applyGameStageFullScreen(gameType);
+        }
 
-        var titleMap = {
-            'snake': '1. Snake Xenzia',
-            'flappy': '2. Flappy Bird',
-            'brick': '3. Brick Breaker',
-            'racer': '4. Road Racer',
-            'space': '5. Space Impact'
-        };
+        var meta = getGameMetaById(gameType);
+        var cfg = getGameSettings(gameType);
         var tEl = document.getElementById('activeGameTitle');
-        if (tEl) tEl.textContent = titleMap[gameType] || 'Nokia Game';
+        if (tEl) {
+            tEl.textContent = meta.num + '. ' + meta.name + ' (' + cfg.difficulty.charAt(0).toUpperCase() + ')';
+        }
         updateGameScoreLabel(0);
 
-        if (gameType === 'snake') {
-            initSnakeGame();
-        } else if (gameType === 'flappy') {
-            initFlappyGame();
-        } else if (gameType === 'brick') {
-            initBrickGame();
-        } else if (gameType === 'racer') {
-            initRacerGame();
-        } else if (gameType === 'space') {
-            initSpaceGame();
-        }
+        if (gameType === 'snake') initSnakeGame();
+        else if (gameType === 'flappy') initFlappyGame();
+        else if (gameType === 'brick') initBrickGame();
+        else if (gameType === 'racer') initRacerGame();
+        else if (gameType === 'space') initSpaceGame();
+        else if (gameType === 'bounce') initBounceGame();
+        else if (gameType === 'tetris') initTetrisGame();
+        else if (gameType === 'pacman') initPacmanGame();
+        else if (gameType === 'cricket') initCricketGame();
+        else if (gameType === 'penalty') initPenaltyGame();
+        else if (gameType === 'copter') initCopterGame();
+        else if (gameType === 'g2048') init2048Game();
+        else if (gameType === 'tictactoe') initTicTacToeGame();
+        else if (gameType === 'memory') initMemoryGame();
+        else if (gameType === 'jumper') initJumperGame();
     }
 
     function handleGameInput(dir) {
-        if (!isNokiaGameStageOpen() || !gameState) return;
+        if (!isNokiaGameStageOpen() || !gameState || gamePausedForSettings) return;
         if (gameState.gameOver && dir === 'ACTION') {
             restartCurrentNokiaGame();
             return;
         }
         if (currentNokiaGame === 'snake') {
-            if (dir === 'UP' && gameState.dy === 0) { gameState.nextDx = 0; gameState.nextDy = -1; }
-            else if (dir === 'DOWN' && gameState.dy === 0) { gameState.nextDx = 0; gameState.nextDy = 1; }
-            else if (dir === 'LEFT' && gameState.dx === 0) { gameState.nextDx = -1; gameState.nextDy = 0; }
-            else if (dir === 'RIGHT' && gameState.dx === 0) { gameState.nextDx = 1; gameState.nextDy = 0; }
+            if (dir === 'UP' && gameState.dy === 0) { gameState.nextDx = 0; gameState.nextDy = -1; playNokiaSound('move'); }
+            else if (dir === 'DOWN' && gameState.dy === 0) { gameState.nextDx = 0; gameState.nextDy = 1; playNokiaSound('move'); }
+            else if (dir === 'LEFT' && gameState.dx === 0) { gameState.nextDx = -1; gameState.nextDy = 0; playNokiaSound('move'); }
+            else if (dir === 'RIGHT' && gameState.dx === 0) { gameState.nextDx = 1; gameState.nextDy = 0; playNokiaSound('move'); }
         } else if (currentNokiaGame === 'flappy') {
             if (dir === 'ACTION' || dir === 'UP') {
                 gameState.vy = -4.6;
+                playNokiaSound('flap');
             }
         } else if (currentNokiaGame === 'brick') {
-            if (dir === 'LEFT') gameState.paddleX = Math.max(0, gameState.paddleX - 24);
-            else if (dir === 'RIGHT') gameState.paddleX = Math.min(220 - gameState.paddleW, gameState.paddleX + 24);
+            if (dir === 'LEFT') { gameState.paddleX = Math.max(0, gameState.paddleX - 24); playNokiaSound('move'); }
+            else if (dir === 'RIGHT') { gameState.paddleX = Math.min(220 - gameState.paddleW, gameState.paddleX + 24); playNokiaSound('move'); }
         } else if (currentNokiaGame === 'racer') {
-            if (dir === 'LEFT') gameState.lane = Math.max(0, gameState.lane - 1);
-            else if (dir === 'RIGHT') gameState.lane = Math.min(2, gameState.lane + 1);
+            if (dir === 'LEFT') { gameState.lane = Math.max(0, gameState.lane - 1); playNokiaSound('move'); }
+            else if (dir === 'RIGHT') { gameState.lane = Math.min(2, gameState.lane + 1); playNokiaSound('move'); }
         } else if (currentNokiaGame === 'space') {
             if (dir === 'UP') gameState.shipY = Math.max(16, gameState.shipY - 18);
             else if (dir === 'DOWN') gameState.shipY = Math.min(220, gameState.shipY + 18);
             else if (dir === 'LEFT') gameState.shipX = Math.max(10, gameState.shipX - 18);
             else if (dir === 'RIGHT') gameState.shipX = Math.min(180, gameState.shipX + 18);
             else if (dir === 'ACTION') {
-                gameState.bullets.push({ x: gameState.shipX + 16, y: gameState.shipY });
+                gameState.bullets.push({ x: gameState.shipX + 16, y: gameState.shipY + 4 });
+                playNokiaSound('shoot');
             }
+        } else if (currentNokiaGame === 'bounce') {
+            if (dir === 'LEFT') gameState.ballX = Math.max(12, gameState.ballX - 14);
+            else if (dir === 'RIGHT') gameState.ballX = Math.min(190, gameState.ballX + 14);
+            else if ((dir === 'UP' || dir === 'ACTION') && gameState.onGround) {
+                gameState.vy = -7.2;
+                gameState.onGround = false;
+                playNokiaSound('flap');
+            }
+        } else if (currentNokiaGame === 'tetris') {
+            if (gameState.stepInput) gameState.stepInput(dir);
+        } else if (currentNokiaGame === 'pacman') {
+            if (dir === 'UP') { gameState.dx = 0; gameState.dy = -1; }
+            else if (dir === 'DOWN') { gameState.dx = 0; gameState.dy = 1; }
+            else if (dir === 'LEFT') { gameState.dx = -1; gameState.dy = 0; }
+            else if (dir === 'RIGHT') { gameState.dx = 1; gameState.dy = 0; }
+        } else if (currentNokiaGame === 'cricket') {
+            if (gameState.swingInput) gameState.swingInput(dir);
+        } else if (currentNokiaGame === 'penalty') {
+            if (gameState.kickInput) gameState.kickInput(dir);
+        } else if (currentNokiaGame === 'copter') {
+            if (dir === 'UP' || dir === 'ACTION') {
+                gameState.vy = -3.8;
+                playNokiaSound('flap');
+            }
+        } else if (currentNokiaGame === 'g2048') {
+            if (gameState.slideInput) gameState.slideInput(dir);
+        } else if (currentNokiaGame === 'tictactoe') {
+            if (gameState.tttInput) gameState.tttInput(dir);
+        } else if (currentNokiaGame === 'memory') {
+            if (gameState.memInput) gameState.memInput(dir);
+        } else if (currentNokiaGame === 'jumper') {
+            if (dir === 'LEFT') gameState.px = (gameState.px - 18 + 220) % 220;
+            else if (dir === 'RIGHT') gameState.px = (gameState.px + 18) % 220;
         }
     }
 
-    function drawGameOverOverlay(ctx, score) {
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
-        ctx.fillRect(15, 75, 190, 90);
+    function drawGameOverOverlay(ctx, score, customTitle) {
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.86)';
+        ctx.fillRect(14, 70, 192, 100);
         ctx.strokeStyle = '#facc15';
         ctx.lineWidth = 2;
-        ctx.strokeRect(15, 75, 190, 90);
+        ctx.strokeRect(14, 70, 192, 100);
         ctx.fillStyle = '#facc15';
-        ctx.font = 'bold 15px monospace';
+        ctx.font = 'bold 14px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('GAME OVER', 110, 102);
+        ctx.fillText(customTitle || 'GAME OVER', 110, 95);
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 12px monospace';
-        ctx.fillText('Score: ' + score, 110, 124);
+        ctx.fillText('Score: ' + score, 110, 118);
         ctx.fillStyle = '#4ade80';
-        ctx.font = 'bold 11px monospace';
-        ctx.fillText('Press OK / 5 to Play', 110, 148);
+        ctx.font = 'bold 10.5px monospace';
+        ctx.fillText('OK/5: Play Again | *: Setting', 110, 140);
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = 'bold 10px monospace';
+        ctx.fillText('Press 0 or # to Exit', 110, 158);
     }
 
     /* 1. SNAKE XENZIA */
     function initSnakeGame() {
         var cols = 22, rows = 24;
+        var df = getDifficultyFactor('snake');
+        var intervalMs = Math.round(135 / df);
         gameState = {
             snake: [{ x: 10, y: 12 }, { x: 9, y: 12 }, { x: 8, y: 12 }],
             dx: 1, dy: 0, nextDx: 1, nextDy: 0,
@@ -4065,6 +4534,7 @@
             };
         }
         nokiaGameLoopTimer = setInterval(function() {
+            if (gamePausedForSettings) return;
             var canvas = document.getElementById('nokiaGameCanvas');
             if (!canvas) return;
             var ctx = canvas.getContext('2d');
@@ -4081,6 +4551,7 @@
             for (var i = 0; i < gameState.snake.length; i++) {
                 if (gameState.snake[i].x === head.x && gameState.snake[i].y === head.y) {
                     gameState.gameOver = true;
+                    playNokiaSound('gameover');
                     drawGameOverOverlay(ctx, gameState.score);
                     return;
                 }
@@ -4089,6 +4560,7 @@
             if (head.x === gameState.food.x && head.y === gameState.food.y) {
                 gameState.score += 10;
                 updateGameScoreLabel(gameState.score);
+                playNokiaSound('eat');
                 placeFood();
             } else {
                 gameState.snake.pop();
@@ -4101,11 +4573,14 @@
                 ctx.fillStyle = (s === 0) ? '#0f380f' : '#306230';
                 ctx.fillRect(gameState.snake[s].x * 10, gameState.snake[s].y * 10, 9, 9);
             }
-        }, 135);
+        }, intervalMs);
     }
 
     /* 2. FLAPPY BIRD (NOKIA EDITION) */
     function initFlappyGame() {
+        var df = getDifficultyFactor('flappy');
+        var gapSize = df < 0.9 ? 76 : (df > 1.1 ? 54 : 64);
+        var pipeSpeed = 2.3 * df;
         gameState = {
             birdY: 110,
             vy: 0,
@@ -4115,6 +4590,7 @@
             gameOver: false
         };
         nokiaGameLoopTimer = setInterval(function() {
+            if (gamePausedForSettings) return;
             var canvas = document.getElementById('nokiaGameCanvas');
             if (!canvas) return;
             var ctx = canvas.getContext('2d');
@@ -4123,13 +4599,13 @@
                 return;
             }
             gameState.tick++;
-            gameState.vy += 0.38;
+            gameState.vy += 0.36;
             gameState.birdY += gameState.vy;
 
-            if (gameState.tick % 65 === 0) {
+            if (gameState.tick % Math.max(42, Math.round(65 / df)) === 0) {
                 gameState.pipes.push({
                     x: 220,
-                    gapY: 35 + Math.floor(Math.random() * 110),
+                    gapY: 30 + Math.floor(Math.random() * 115),
                     passed: false
                 });
             }
@@ -4141,19 +4617,21 @@
 
             for (var i = gameState.pipes.length - 1; i >= 0; i--) {
                 var p = gameState.pipes[i];
-                p.x -= 2.4;
+                p.x -= pipeSpeed;
                 ctx.fillStyle = '#16a34a';
                 ctx.fillRect(p.x, 0, 26, p.gapY);
-                ctx.fillRect(p.x, p.gapY + 64, 26, 226 - (p.gapY + 64));
+                ctx.fillRect(p.x, p.gapY + gapSize, 26, 226 - (p.gapY + gapSize));
 
                 if (!p.passed && p.x + 26 < 42) {
                     p.passed = true;
                     gameState.score++;
                     updateGameScoreLabel(gameState.score);
+                    playNokiaSound('score');
                 }
                 if (42 + 12 > p.x && 42 < p.x + 26) {
-                    if (gameState.birdY < p.gapY || gameState.birdY + 12 > p.gapY + 64) {
+                    if (gameState.birdY < p.gapY || gameState.birdY + 12 > p.gapY + gapSize) {
                         gameState.gameOver = true;
+                        playNokiaSound('gameover');
                     }
                 }
                 if (p.x < -30) gameState.pipes.splice(i, 1);
@@ -4161,6 +4639,7 @@
 
             if (gameState.birdY < 0 || gameState.birdY + 12 > 226) {
                 gameState.gameOver = true;
+                playNokiaSound('gameover');
             }
 
             ctx.fillStyle = '#facc15';
@@ -4176,6 +4655,7 @@
 
     /* 3. BRICK BREAKER (BOUNCE PADDLE) */
     function initBrickGame() {
+        var df = getDifficultyFactor('brick');
         var bricks = [];
         for (var r = 0; r < 4; r++) {
             for (var c = 0; c < 6; c++) {
@@ -4183,15 +4663,17 @@
             }
         }
         gameState = {
-            paddleX: 80, paddleW: 56,
+            paddleX: 80,
+            paddleW: df < 0.9 ? 68 : (df > 1.1 ? 44 : 56),
             ballX: 110, ballY: 190,
-            vx: 2.6, vy: -2.8,
+            vx: 2.5 * df, vy: -2.7 * df,
             bricks: bricks,
             score: 0,
             gameOver: false
         };
         var rowColors = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6'];
         nokiaGameLoopTimer = setInterval(function() {
+            if (gamePausedForSettings) return;
             var canvas = document.getElementById('nokiaGameCanvas');
             if (!canvas) return;
             var ctx = canvas.getContext('2d');
@@ -4208,10 +4690,12 @@
             if (gameState.ballY >= 214 && gameState.ballY <= 224 &&
                 gameState.ballX >= gameState.paddleX - 4 && gameState.ballX <= gameState.paddleX + gameState.paddleW + 4) {
                 gameState.vy = -Math.abs(gameState.vy);
+                playNokiaSound('hit');
             }
 
             if (gameState.ballY > 236) {
                 gameState.gameOver = true;
+                playNokiaSound('gameover');
             }
 
             var anyAlive = false;
@@ -4225,6 +4709,7 @@
                     gameState.vy = -gameState.vy;
                     gameState.score += 15;
                     updateGameScoreLabel(gameState.score);
+                    playNokiaSound('score');
                     break;
                 }
             }
@@ -4258,6 +4743,7 @@
 
     /* 4. ROAD RACER (HIGHWAY CAR DODGE) */
     function initRacerGame() {
+        var df = getDifficultyFactor('racer');
         gameState = {
             lane: 1,
             cars: [],
@@ -4267,6 +4753,7 @@
         };
         var laneX = [35, 95, 155];
         nokiaGameLoopTimer = setInterval(function() {
+            if (gamePausedForSettings) return;
             var canvas = document.getElementById('nokiaGameCanvas');
             if (!canvas) return;
             var ctx = canvas.getContext('2d');
@@ -4275,7 +4762,7 @@
                 return;
             }
             gameState.tick++;
-            if (gameState.tick % 32 === 0) {
+            if (gameState.tick % Math.max(20, Math.round(32 / df)) === 0) {
                 gameState.cars.push({
                     lane: Math.floor(Math.random() * 3),
                     y: -30
@@ -4304,7 +4791,7 @@
 
             for (var i = gameState.cars.length - 1; i >= 0; i--) {
                 var c = gameState.cars[i];
-                c.y += 4.2;
+                c.y += 4.1 * df;
                 var cx = laneX[c.lane];
                 ctx.fillStyle = '#ef4444';
                 ctx.fillRect(cx, c.y, 28, 34);
@@ -4313,11 +4800,13 @@
 
                 if (c.lane === gameState.lane && c.y + 32 > 192 && c.y < 226) {
                     gameState.gameOver = true;
+                    playNokiaSound('gameover');
                 }
                 if (c.y > 240) {
                     gameState.cars.splice(i, 1);
                     gameState.score += 10;
                     updateGameScoreLabel(gameState.score);
+                    playNokiaSound('score');
                 }
             }
 
@@ -4329,6 +4818,7 @@
 
     /* 5. SPACE IMPACT (NOKIA STAR SHOOTER) */
     function initSpaceGame() {
+        var df = getDifficultyFactor('space');
         gameState = {
             shipX: 16, shipY: 110,
             bullets: [],
@@ -4338,6 +4828,7 @@
             gameOver: false
         };
         nokiaGameLoopTimer = setInterval(function() {
+            if (gamePausedForSettings) return;
             var canvas = document.getElementById('nokiaGameCanvas');
             if (!canvas) return;
             var ctx = canvas.getContext('2d');
@@ -4349,7 +4840,7 @@
             if (gameState.tick % 14 === 0) {
                 gameState.bullets.push({ x: gameState.shipX + 18, y: gameState.shipY + 5 });
             }
-            if (gameState.tick % 28 === 0) {
+            if (gameState.tick % Math.max(18, Math.round(28 / df)) === 0) {
                 gameState.enemies.push({ x: 220, y: 18 + Math.floor(Math.random() * 195) });
             }
 
@@ -4370,13 +4861,14 @@
 
             for (var e = gameState.enemies.length - 1; e >= 0; e--) {
                 var en = gameState.enemies[e];
-                en.x -= 2.6;
+                en.x -= 2.5 * df;
                 ctx.fillStyle = '#f43f5e';
                 ctx.fillRect(en.x, en.y, 16, 14);
 
                 if (en.x < gameState.shipX + 18 && en.x + 16 > gameState.shipX &&
                     en.y < gameState.shipY + 12 && en.y + 14 > gameState.shipY) {
                     gameState.gameOver = true;
+                    playNokiaSound('gameover');
                 }
 
                 for (var kb = gameState.bullets.length - 1; kb >= 0; kb--) {
@@ -4386,6 +4878,7 @@
                         gameState.bullets.splice(kb, 1);
                         gameState.score += 20;
                         updateGameScoreLabel(gameState.score);
+                        playNokiaSound('eat');
                         break;
                     }
                 }
@@ -4400,10 +4893,970 @@
         }, 40);
     }
 
+    /* 6. BOUNCE RED BALL (CLASSIC NOKIA PLATFORMER) */
+    function initBounceGame() {
+        var df = getDifficultyFactor('bounce');
+        gameState = {
+            ballX: 40,
+            ballY: 188,
+            vy: 0,
+            onGround: true,
+            obstacles: [{ x: 220, type: 'spike' }, { x: 330, type: 'ring' }],
+            tick: 0,
+            score: 0,
+            gameOver: false
+        };
+        nokiaGameLoopTimer = setInterval(function() {
+            if (gamePausedForSettings) return;
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+                return;
+            }
+            gameState.tick++;
+            gameState.vy += 0.44;
+            gameState.ballY += gameState.vy;
+            if (gameState.ballY >= 188) {
+                gameState.ballY = 188;
+                gameState.vy = 0;
+                gameState.onGround = true;
+            }
+
+            if (gameState.tick % Math.max(38, Math.round(55 / df)) === 0) {
+                gameState.obstacles.push({
+                    x: 230,
+                    type: Math.random() < 0.45 ? 'ring' : 'spike',
+                    collected: false
+                });
+            }
+
+            ctx.fillStyle = '#bae6fd';
+            ctx.fillRect(0, 0, 220, 240);
+            ctx.fillStyle = '#b91c1c';
+            ctx.fillRect(0, 200, 220, 40);
+            ctx.fillStyle = '#f87171';
+            for (var bx = 0; bx < 220; bx += 22) {
+                ctx.strokeStyle = '#7f1d1d';
+                ctx.strokeRect(bx, 200, 22, 20);
+            }
+
+            for (var i = gameState.obstacles.length - 1; i >= 0; i--) {
+                var ob = gameState.obstacles[i];
+                ob.x -= 2.8 * df;
+                if (ob.type === 'spike') {
+                    ctx.fillStyle = '#1e293b';
+                    ctx.beginPath();
+                    ctx.moveTo(ob.x, 200);
+                    ctx.lineTo(ob.x + 8, 174);
+                    ctx.lineTo(ob.x + 16, 200);
+                    ctx.fill();
+                    if (Math.abs(gameState.ballX - (ob.x + 8)) < 12 && gameState.ballY > 168) {
+                        gameState.gameOver = true;
+                        playNokiaSound('gameover');
+                    }
+                } else {
+                    ctx.strokeStyle = ob.collected ? '#94a3b8' : '#eab308';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(ob.x, 132, 12, 34);
+                    if (!ob.collected && Math.abs(gameState.ballX - (ob.x + 6)) < 14 && gameState.ballY < 168 && gameState.ballY > 118) {
+                        ob.collected = true;
+                        gameState.score += 25;
+                        updateGameScoreLabel(gameState.score);
+                        playNokiaSound('score');
+                    }
+                }
+                if (ob.x < -25) {
+                    if (ob.type === 'spike') {
+                        gameState.score += 10;
+                        updateGameScoreLabel(gameState.score);
+                    }
+                    gameState.obstacles.splice(i, 1);
+                }
+            }
+
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(gameState.ballX, gameState.ballY, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#fca5a5';
+            ctx.beginPath();
+            ctx.arc(gameState.ballX - 3, gameState.ballY - 3, 3, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+            }
+        }, 38);
+    }
+
+    /* 7. TETRIS BLOCK DROP */
+    function initTetrisGame() {
+        var cols = 10, rows = 18, cell = 12;
+        var df = getDifficultyFactor('tetris');
+        var board = [];
+        for (var r = 0; r < rows; r++) {
+            var rowArr = [];
+            for (var c = 0; c < cols; c++) rowArr.push(0);
+            board.push(rowArr);
+        }
+        var shapes = [
+            [[1, 1, 1, 1]],
+            [[1, 1], [1, 1]],
+            [[0, 1, 0], [1, 1, 1]],
+            [[1, 0, 0], [1, 1, 1]],
+            [[0, 0, 1], [1, 1, 1]],
+            [[1, 1, 0], [0, 1, 1]]
+        ];
+        var colors = ['#000', '#38bdf8', '#facc15', '#a855f7', '#f97316', '#22c55e', '#ef4444'];
+
+        function spawnPiece() {
+            var idx = Math.floor(Math.random() * shapes.length);
+            return {
+                mat: shapes[idx],
+                color: idx + 1,
+                x: 3,
+                y: 0
+            };
+        }
+
+        function collides(mat, px, py) {
+            for (var r = 0; r < mat.length; r++) {
+                for (var c = 0; c < mat[r].length; c++) {
+                    if (!mat[r][c]) continue;
+                    var nx = px + c, ny = py + r;
+                    if (nx < 0 || nx >= cols || ny >= rows) return true;
+                    if (ny >= 0 && board[ny][nx]) return true;
+                }
+            }
+            return false;
+        }
+
+        function rotateMat(mat) {
+            var res = [];
+            for (var c = 0; c < mat[0].length; c++) {
+                var newRow = [];
+                for (var r = mat.length - 1; r >= 0; r--) {
+                    newRow.push(mat[r][c]);
+                }
+                res.push(newRow);
+            }
+            return res;
+        }
+
+        gameState = {
+            piece: spawnPiece(),
+            score: 0,
+            gameOver: false,
+            stepInput: function(dir) {
+                if (gameState.gameOver) return;
+                var p = gameState.piece;
+                if (dir === 'LEFT' && !collides(p.mat, p.x - 1, p.y)) { p.x--; playNokiaSound('move'); }
+                else if (dir === 'RIGHT' && !collides(p.mat, p.x + 1, p.y)) { p.x++; playNokiaSound('move'); }
+                else if (dir === 'DOWN' && !collides(p.mat, p.x, p.y + 1)) { p.y++; }
+                else if (dir === 'UP' || dir === 'ACTION') {
+                    var rot = rotateMat(p.mat);
+                    if (!collides(rot, p.x, p.y)) { p.mat = rot; playNokiaSound('hit'); }
+                }
+                drawTetris();
+            }
+        };
+
+        function drawTetris() {
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, 220, 240);
+            var ox = 50, oy = 12;
+            ctx.strokeStyle = '#334155';
+            ctx.strokeRect(ox - 2, oy - 2, cols * cell + 4, rows * cell + 4);
+
+            for (var r = 0; r < rows; r++) {
+                for (var c = 0; c < cols; c++) {
+                    if (board[r][c]) {
+                        ctx.fillStyle = colors[board[r][c]];
+                        ctx.fillRect(ox + c * cell, oy + r * cell, cell - 1, cell - 1);
+                    }
+                }
+            }
+            var p = gameState.piece;
+            for (var pr = 0; pr < p.mat.length; pr++) {
+                for (var pc = 0; pc < p.mat[pr].length; pc++) {
+                    if (p.mat[pr][pc]) {
+                        ctx.fillStyle = colors[p.color];
+                        ctx.fillRect(ox + (p.x + pc) * cell, oy + (p.y + pr) * cell, cell - 1, cell - 1);
+                    }
+                }
+            }
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+            }
+        }
+
+        nokiaGameLoopTimer = setInterval(function() {
+            if (gamePausedForSettings) return;
+            if (gameState.gameOver) {
+                drawTetris();
+                return;
+            }
+            var p = gameState.piece;
+            if (!collides(p.mat, p.x, p.y + 1)) {
+                p.y++;
+            } else {
+                for (var r = 0; r < p.mat.length; r++) {
+                    for (var c = 0; c < p.mat[r].length; c++) {
+                        if (p.mat[r][c] && p.y + r >= 0) {
+                            board[p.y + r][p.x + c] = p.color;
+                        }
+                    }
+                }
+                for (var row = rows - 1; row >= 0; row--) {
+                    var full = true;
+                    for (var col = 0; col < cols; col++) {
+                        if (!board[row][col]) { full = false; break; }
+                    }
+                    if (full) {
+                        board.splice(row, 1);
+                        var emptyRow = [];
+                        for (var ec = 0; ec < cols; ec++) emptyRow.push(0);
+                        board.unshift(emptyRow);
+                        gameState.score += 50;
+                        updateGameScoreLabel(gameState.score);
+                        playNokiaSound('score');
+                        row++;
+                    }
+                }
+                gameState.piece = spawnPiece();
+                if (collides(gameState.piece.mat, gameState.piece.x, gameState.piece.y)) {
+                    gameState.gameOver = true;
+                    playNokiaSound('gameover');
+                }
+            }
+            drawTetris();
+        }, Math.round(340 / df));
+    }
+
+    /* 8. PAC-MAZE (DOT MUNCHER) */
+    function initPacmanGame() {
+        var df = getDifficultyFactor('pacman');
+        var cols = 11, rows = 12, cell = 18;
+        var walls = [
+            "11111111111",
+            "10000100001",
+            "10110101101",
+            "10000000001",
+            "10101110101",
+            "10001010001",
+            "10101110101",
+            "10000000001",
+            "10110101101",
+            "10000100001",
+            "10111111101",
+            "11111111111"
+        ];
+        var dots = [];
+        var totalDots = 0;
+        for (var r = 0; r < rows; r++) {
+            var dRow = [];
+            for (var c = 0; c < cols; c++) {
+                var isDot = walls[r].charAt(c) === '0';
+                if (isDot) totalDots++;
+                dRow.push(isDot);
+            }
+            dots.push(dRow);
+        }
+        dots[1][1] = false;
+        totalDots--;
+
+        gameState = {
+            px: 1, py: 1, dx: 1, dy: 0,
+            ghosts: [{ x: 9, y: 1, color: '#ef4444' }, { x: 9, y: 9, color: '#ec4899' }],
+            dots: dots,
+            remaining: totalDots,
+            score: 0,
+            gameOver: false
+        };
+
+        nokiaGameLoopTimer = setInterval(function() {
+            if (gamePausedForSettings) return;
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+                return;
+            }
+            var nx = gameState.px + gameState.dx;
+            var ny = gameState.py + gameState.dy;
+            if (ny >= 0 && ny < rows && nx >= 0 && nx < cols && walls[ny].charAt(nx) === '0') {
+                gameState.px = nx;
+                gameState.py = ny;
+            }
+            if (gameState.dots[gameState.py][gameState.px]) {
+                gameState.dots[gameState.py][gameState.px] = false;
+                gameState.score += 10;
+                gameState.remaining--;
+                updateGameScoreLabel(gameState.score);
+                playNokiaSound('eat');
+                if (gameState.remaining <= 0) {
+                    for (var rr = 0; rr < rows; rr++) {
+                        for (var cc = 0; cc < cols; cc++) {
+                            if (walls[rr].charAt(cc) === '0') {
+                                gameState.dots[rr][cc] = true;
+                                gameState.remaining++;
+                            }
+                        }
+                    }
+                    playNokiaSound('win');
+                }
+            }
+
+            var dirs = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
+            for (var g = 0; g < gameState.ghosts.length; g++) {
+                var gh = gameState.ghosts[g];
+                var valid = [];
+                for (var d = 0; d < dirs.length; d++) {
+                    var gx = gh.x + dirs[d].x, gy = gh.y + dirs[d].y;
+                    if (gy >= 0 && gy < rows && gx >= 0 && gx < cols && walls[gy].charAt(gx) === '0') {
+                        valid.push({ x: gx, y: gy });
+                    }
+                }
+                if (valid.length > 0) {
+                    var pick = valid[Math.floor(Math.random() * valid.length)];
+                    gh.x = pick.x;
+                    gh.y = pick.y;
+                }
+                if (gh.x === gameState.px && gh.y === gameState.py) {
+                    gameState.gameOver = true;
+                    playNokiaSound('gameover');
+                }
+            }
+
+            ctx.fillStyle = '#020617';
+            ctx.fillRect(0, 0, 220, 240);
+            var ox = 11, oy = 12;
+            for (var r2 = 0; r2 < rows; r2++) {
+                for (var c2 = 0; c2 < cols; c2++) {
+                    if (walls[r2].charAt(c2) === '1') {
+                        ctx.fillStyle = '#1d4ed8';
+                        ctx.fillRect(ox + c2 * cell, oy + r2 * cell, cell - 1, cell - 1);
+                    } else if (gameState.dots[r2][c2]) {
+                        ctx.fillStyle = '#fde047';
+                        ctx.fillRect(ox + c2 * cell + 7, oy + r2 * cell + 7, 4, 4);
+                    }
+                }
+            }
+            ctx.fillStyle = '#facc15';
+            ctx.beginPath();
+            ctx.arc(ox + gameState.px * cell + 9, oy + gameState.py * cell + 9, 7, 0, Math.PI * 2);
+            ctx.fill();
+
+            for (var g2 = 0; g2 < gameState.ghosts.length; g2++) {
+                var gh2 = gameState.ghosts[g2];
+                ctx.fillStyle = gh2.color;
+                ctx.fillRect(ox + gh2.x * cell + 3, oy + gh2.y * cell + 3, 12, 12);
+            }
+
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+            }
+        }, Math.round(210 / df));
+    }
+
+    /* 9. CRICKET CHAMPION (NOKIA KEYPAD CRICKET) */
+    function initCricketGame() {
+        var df = getDifficultyFactor('cricket');
+        gameState = {
+            ballY: 45,
+            ballX: 110,
+            ballSpeed: 4.0 * df,
+            wickets: 3,
+            score: 0,
+            lastMsg: 'Press 5 / OK or 4 / 6 to Bat!',
+            swinging: 0,
+            gameOver: false,
+            swingInput: function(dir) {
+                if (gameState.gameOver) return;
+                gameState.swinging = 6;
+                if (gameState.ballY >= 165 && gameState.ballY <= 205) {
+                    var runs = (dir === 'UP' || dir === 'ACTION') ? (Math.random() < 0.45 ? 6 : 4) : (Math.random() < 0.6 ? 4 : 2);
+                    gameState.score += runs;
+                    gameState.lastMsg = runs === 6 ? 'SIXER! +6 RUNS!' : (runs === 4 ? 'FOUR! +4 RUNS!' : '+' + runs + ' RUNS!');
+                    updateGameScoreLabel(gameState.score);
+                    playNokiaSound('score');
+                    gameState.ballY = 45;
+                    gameState.ballX = 96 + Math.floor(Math.random() * 28);
+                } else {
+                    playNokiaSound('move');
+                }
+            }
+        };
+
+        nokiaGameLoopTimer = setInterval(function() {
+            if (gamePausedForSettings) return;
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+                return;
+            }
+            gameState.ballY += gameState.ballSpeed;
+            if (gameState.swinging > 0) gameState.swinging--;
+
+            if (gameState.ballY > 212) {
+                gameState.wickets--;
+                gameState.lastMsg = 'BOWLED OUT! Wickets Left: ' + gameState.wickets;
+                playNokiaSound('gameover');
+                gameState.ballY = 45;
+                if (gameState.wickets <= 0) {
+                    gameState.gameOver = true;
+                }
+            }
+
+            ctx.fillStyle = '#15803d';
+            ctx.fillRect(0, 0, 220, 240);
+            ctx.fillStyle = '#d97706';
+            ctx.fillRect(82, 35, 56, 185);
+            ctx.strokeStyle = '#ffffff';
+            ctx.strokeRect(82, 55, 56, 145);
+
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(98, 42, 4, 12);
+            ctx.fillRect(108, 42, 4, 12);
+            ctx.fillRect(118, 42, 4, 12);
+            ctx.fillRect(98, 200, 4, 12);
+            ctx.fillRect(108, 200, 4, 12);
+            ctx.fillRect(118, 200, 4, 12);
+
+            ctx.fillStyle = '#fde047';
+            ctx.fillRect(gameState.swinging > 0 ? 90 : 114, 184, gameState.swinging > 0 ? 36 : 10, 8);
+
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(gameState.ballX, gameState.ballY, 6, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 11px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(gameState.lastMsg, 110, 22);
+            ctx.fillText('Wickets: ' + gameState.wickets + ' | Runs: ' + gameState.score, 110, 232);
+
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+            }
+        }, 40);
+    }
+
+    /* 10. PENALTY SHOOTOUT (FOOTBALL GOAL STRIKER) */
+    function initPenaltyGame() {
+        var df = getDifficultyFactor('penalty');
+        gameState = {
+            score: 0,
+            misses: 0,
+            maxMisses: df > 1.1 ? 2 : 3,
+            ballX: 110, ballY: 195,
+            keeperX: 110,
+            msg: '4:Left | 2/5:Center | 6:Right',
+            gameOver: false,
+            kickInput: function(dir) {
+                if (gameState.gameOver) return;
+                var targetLane = dir === 'LEFT' ? 0 : (dir === 'RIGHT' ? 2 : 1);
+                var keeperLane = Math.floor(Math.random() * 3);
+                if (df > 1.1 && Math.random() < 0.45) keeperLane = targetLane;
+                var lanePos = [58, 110, 162];
+                gameState.ballX = lanePos[targetLane];
+                gameState.ballY = 68;
+                gameState.keeperX = lanePos[keeperLane];
+
+                if (targetLane === keeperLane) {
+                    gameState.misses++;
+                    gameState.msg = 'SAVED BY KEEPER! (' + gameState.misses + '/' + gameState.maxMisses + ')';
+                    playNokiaSound('gameover');
+                    if (gameState.misses >= gameState.maxMisses) {
+                        gameState.gameOver = true;
+                    }
+                } else {
+                    gameState.score += 10;
+                    gameState.msg = 'GOAL!! +10 PTS!';
+                    updateGameScoreLabel(gameState.score);
+                    playNokiaSound('score');
+                }
+                drawPenalty();
+                setTimeout(function() {
+                    if (!gameState || gameState.gameOver) return;
+                    gameState.ballX = 110;
+                    gameState.ballY = 195;
+                    drawPenalty();
+                }, 420);
+            }
+        };
+
+        function drawPenalty() {
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#16a34a';
+            ctx.fillRect(0, 0, 220, 240);
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(38, 42, 144, 55);
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(24, 42, 172, 110);
+
+            ctx.fillStyle = '#facc15';
+            ctx.fillRect(gameState.keeperX - 14, 62, 28, 14);
+
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(gameState.ballX, gameState.ballY, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 10.5px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(gameState.msg, 110, 24);
+            ctx.fillText('Goals: ' + (gameState.score / 10) + ' | Saved: ' + gameState.misses + '/' + gameState.maxMisses, 110, 228);
+
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+            }
+        }
+        drawPenalty();
+    }
+
+    /* 11. HELICOPTER CAVE (TUNNEL FLYER) */
+    function initCopterGame() {
+        var df = getDifficultyFactor('copter');
+        gameState = {
+            y: 110,
+            vy: 0,
+            bars: [{ x: 220, y: 80, h: 48 }],
+            tick: 0,
+            score: 0,
+            gameOver: false
+        };
+        nokiaGameLoopTimer = setInterval(function() {
+            if (gamePausedForSettings) return;
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+                return;
+            }
+            gameState.tick++;
+            gameState.vy += 0.32;
+            gameState.y += gameState.vy;
+
+            if (gameState.tick % Math.max(35, Math.round(52 / df)) === 0) {
+                gameState.bars.push({
+                    x: 220,
+                    y: 28 + Math.floor(Math.random() * 130),
+                    h: 46
+                });
+            }
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, 220, 240);
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(0, 0, 220, 20);
+            ctx.fillRect(0, 220, 220, 20);
+
+            if (gameState.y < 20 || gameState.y + 12 > 220) {
+                gameState.gameOver = true;
+                playNokiaSound('gameover');
+            }
+
+            for (var i = gameState.bars.length - 1; i >= 0; i--) {
+                var b = gameState.bars[i];
+                b.x -= 2.8 * df;
+                ctx.fillStyle = '#f97316';
+                ctx.fillRect(b.x, b.y, 18, b.h);
+                if (46 + 18 > b.x && 46 < b.x + 18 && gameState.y + 12 > b.y && gameState.y < b.y + b.h) {
+                    gameState.gameOver = true;
+                    playNokiaSound('gameover');
+                }
+                if (b.x < -20) {
+                    gameState.bars.splice(i, 1);
+                    gameState.score += 10;
+                    updateGameScoreLabel(gameState.score);
+                    playNokiaSound('score');
+                }
+            }
+
+            ctx.fillStyle = '#4ade80';
+            ctx.fillRect(46, gameState.y, 18, 10);
+            ctx.fillStyle = '#f8fafc';
+            ctx.fillRect(42, gameState.y - 3, 24, 2);
+
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+            }
+        }, 40);
+    }
+
+    /* 12. 2048 NOKIA PUZZLE */
+    function init2048Game() {
+        var grid = [
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0],
+            [0, 0, 0, 0]
+        ];
+        function addTile() {
+            var empty = [];
+            for (var r = 0; r < 4; r++) {
+                for (var c = 0; c < 4; c++) {
+                    if (grid[r][c] === 0) empty.push({ r: r, c: c });
+                }
+            }
+            if (empty.length === 0) return false;
+            var pick = empty[Math.floor(Math.random() * empty.length)];
+            grid[pick.r][pick.c] = Math.random() < 0.85 ? 2 : 4;
+            return true;
+        }
+        addTile();
+        addTile();
+
+        function slideLine(arr) {
+            var nonZero = arr.filter(function(v) { return v !== 0; });
+            var merged = [];
+            for (var i = 0; i < nonZero.length; i++) {
+                if (i + 1 < nonZero.length && nonZero[i] === nonZero[i + 1]) {
+                    var val = nonZero[i] * 2;
+                    merged.push(val);
+                    gameState.score += val;
+                    i++;
+                } else {
+                    merged.push(nonZero[i]);
+                }
+            }
+            while (merged.length < 4) merged.push(0);
+            return merged;
+        }
+
+        gameState = {
+            score: 0,
+            gameOver: false,
+            slideInput: function(dir) {
+                if (gameState.gameOver) return;
+                var before = JSON.stringify(grid);
+                if (dir === 'LEFT' || dir === 'RIGHT') {
+                    for (var r = 0; r < 4; r++) {
+                        var row = grid[r].slice();
+                        if (dir === 'RIGHT') row.reverse();
+                        row = slideLine(row);
+                        if (dir === 'RIGHT') row.reverse();
+                        grid[r] = row;
+                    }
+                } else if (dir === 'UP' || dir === 'DOWN') {
+                    for (var c = 0; c < 4; c++) {
+                        var col = [grid[0][c], grid[1][c], grid[2][c], grid[3][c]];
+                        if (dir === 'DOWN') col.reverse();
+                        col = slideLine(col);
+                        if (dir === 'DOWN') col.reverse();
+                        for (var r2 = 0; r2 < 4; r2++) grid[r2][c] = col[r2];
+                    }
+                }
+                if (JSON.stringify(grid) !== before) {
+                    addTile();
+                    updateGameScoreLabel(gameState.score);
+                    playNokiaSound('move');
+                }
+                draw2048();
+            }
+        };
+
+        function draw2048() {
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(0, 0, 220, 240);
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = 'bold 11px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('2048 Puzzle (Use 2/8/4/6)', 110, 18);
+
+            for (var r = 0; r < 4; r++) {
+                for (var c = 0; c < 4; c++) {
+                    var v = grid[r][c];
+                    var x = 14 + c * 48, y = 28 + r * 48;
+                    ctx.fillStyle = v === 0 ? '#334155' : (v >= 64 ? '#ea580c' : (v >= 16 ? '#d97706' : '#0284c7'));
+                    ctx.fillRect(x, y, 44, 44);
+                    if (v > 0) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 13px monospace';
+                        ctx.fillText(String(v), x + 22, y + 27);
+                    }
+                }
+            }
+        }
+        draw2048();
+    }
+
+    /* 13. TIC-TAC-TOE VS NOKIA AI */
+    function initTicTacToeGame() {
+        var cells = ['', '', '', '', '', '', '', '', ''];
+        gameState = {
+            cursor: 4,
+            score: 0,
+            statusTxt: 'Your Turn (X) - OK/5 to Mark',
+            gameOver: false,
+            tttInput: function(dir) {
+                if (dir === 'LEFT') gameState.cursor = (gameState.cursor + 8) % 9;
+                else if (dir === 'RIGHT') gameState.cursor = (gameState.cursor + 1) % 9;
+                else if (dir === 'UP') gameState.cursor = (gameState.cursor + 6) % 9;
+                else if (dir === 'DOWN') gameState.cursor = (gameState.cursor + 3) % 9;
+                else if (dir === 'ACTION') {
+                    if (cells[gameState.cursor] !== '') return;
+                    cells[gameState.cursor] = 'X';
+                    playNokiaSound('move');
+                    if (checkWin('X')) {
+                        gameState.score += 50;
+                        updateGameScoreLabel(gameState.score);
+                        gameState.statusTxt = 'YOU WIN! +50 PTS!';
+                        playNokiaSound('win');
+                        setTimeout(resetBoard, 900);
+                        drawTTT();
+                        return;
+                    }
+                    var empty = [];
+                    for (var i = 0; i < 9; i++) if (!cells[i]) empty.push(i);
+                    if (empty.length === 0) {
+                        gameState.statusTxt = 'DRAW MATCH!';
+                        setTimeout(resetBoard, 900);
+                        drawTTT();
+                        return;
+                    }
+                    var aiPick = empty[Math.floor(Math.random() * empty.length)];
+                    cells[aiPick] = 'O';
+                    if (checkWin('O')) {
+                        gameState.statusTxt = 'NOKIA AI WINS!';
+                        playNokiaSound('gameover');
+                        setTimeout(resetBoard, 900);
+                    }
+                }
+                drawTTT();
+            }
+        };
+
+        function checkWin(sym) {
+            var lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            for (var i = 0; i < lines.length; i++) {
+                var l = lines[i];
+                if (cells[l[0]] === sym && cells[l[1]] === sym && cells[l[2]] === sym) return true;
+            }
+            return false;
+        }
+
+        function resetBoard() {
+            for (var i = 0; i < 9; i++) cells[i] = '';
+            gameState.statusTxt = 'New Round! Your Turn (X)';
+            drawTTT();
+        }
+
+        function drawTTT() {
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, 220, 240);
+            ctx.fillStyle = '#4ade80';
+            ctx.font = 'bold 11px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText(gameState.statusTxt, 110, 20);
+
+            for (var i = 0; i < 9; i++) {
+                var r = Math.floor(i / 3), c = i % 3;
+                var x = 26 + c * 58, y = 36 + r * 58;
+                ctx.fillStyle = (i === gameState.cursor) ? '#1e3a8a' : '#1e293b';
+                ctx.fillRect(x, y, 52, 52);
+                ctx.strokeStyle = (i === gameState.cursor) ? '#facc15' : '#475569';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, y, 52, 52);
+                if (cells[i]) {
+                    ctx.fillStyle = cells[i] === 'X' ? '#38bdf8' : '#f43f5e';
+                    ctx.font = 'bold 24px monospace';
+                    ctx.fillText(cells[i], x + 26, y + 35);
+                }
+            }
+        }
+        drawTTT();
+    }
+
+    /* 14. MEMORY MATCH MATRIX */
+    function initMemoryGame() {
+        var syms = ['A', 'A', 'B', 'B', 'C', 'C', 'D', 'D', 'E', 'E', 'F', 'F'];
+        syms.sort(function() { return Math.random() - 0.5; });
+        var revealed = [];
+        var matched = [];
+        for (var i = 0; i < 12; i++) { revealed.push(false); matched.push(false); }
+
+        gameState = {
+            cursor: 0,
+            firstIdx: -1,
+            lock: false,
+            score: 0,
+            gameOver: false,
+            memInput: function(dir) {
+                if (gameState.lock) return;
+                if (dir === 'LEFT') gameState.cursor = (gameState.cursor + 11) % 12;
+                else if (dir === 'RIGHT') gameState.cursor = (gameState.cursor + 1) % 12;
+                else if (dir === 'UP') gameState.cursor = (gameState.cursor + 8) % 12;
+                else if (dir === 'DOWN') gameState.cursor = (gameState.cursor + 4) % 12;
+                else if (dir === 'ACTION') {
+                    var idx = gameState.cursor;
+                    if (revealed[idx] || matched[idx]) return;
+                    revealed[idx] = true;
+                    playNokiaSound('move');
+                    if (gameState.firstIdx === -1) {
+                        gameState.firstIdx = idx;
+                    } else {
+                        var f = gameState.firstIdx;
+                        gameState.firstIdx = -1;
+                        if (syms[f] === syms[idx]) {
+                            matched[f] = true;
+                            matched[idx] = true;
+                            gameState.score += 25;
+                            updateGameScoreLabel(gameState.score);
+                            playNokiaSound('score');
+                        } else {
+                            gameState.lock = true;
+                            setTimeout(function() {
+                                revealed[f] = false;
+                                revealed[idx] = false;
+                                gameState.lock = false;
+                                drawMem();
+                            }, 550);
+                        }
+                    }
+                }
+                drawMem();
+            }
+        };
+
+        function drawMem() {
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, 220, 240);
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = 'bold 11px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('Memory Match (OK/5 Flip)', 110, 20);
+
+            for (var i = 0; i < 12; i++) {
+                var r = Math.floor(i / 4), c = i % 4;
+                var x = 14 + c * 49, y = 34 + r * 62;
+                ctx.fillStyle = matched[i] ? '#15803d' : (revealed[i] ? '#0284c7' : '#334155');
+                ctx.fillRect(x, y, 44, 52);
+                if (i === gameState.cursor) {
+                    ctx.strokeStyle = '#facc15';
+                    ctx.lineWidth = 2.5;
+                    ctx.strokeRect(x, y, 44, 52);
+                }
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 18px monospace';
+                ctx.fillText((revealed[i] || matched[i]) ? syms[i] : '?', x + 22, y + 32);
+            }
+        }
+        drawMem();
+    }
+
+    /* 15. SKY JUMPER (DOODLE PLATFORM BOUNCE) */
+    function initJumperGame() {
+        var df = getDifficultyFactor('jumper');
+        var plats = [
+            { x: 85, y: 215 },
+            { x: 40, y: 170 },
+            { x: 120, y: 125 },
+            { x: 65, y: 80 },
+            { x: 130, y: 35 }
+        ];
+        gameState = {
+            px: 98,
+            py: 180,
+            vy: -5.5,
+            plats: plats,
+            score: 0,
+            gameOver: false
+        };
+        nokiaGameLoopTimer = setInterval(function() {
+            if (gamePausedForSettings) return;
+            var canvas = document.getElementById('nokiaGameCanvas');
+            if (!canvas) return;
+            var ctx = canvas.getContext('2d');
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+                return;
+            }
+            gameState.vy += 0.28 * df;
+            gameState.py += gameState.vy;
+
+            if (gameState.py < 95 && gameState.vy < 0) {
+                var shift = -gameState.vy;
+                gameState.py = 95;
+                for (var i = 0; i < gameState.plats.length; i++) {
+                    gameState.plats[i].y += shift;
+                    if (gameState.plats[i].y > 240) {
+                        gameState.plats[i].y = 0;
+                        gameState.plats[i].x = 10 + Math.floor(Math.random() * 155);
+                        gameState.score += 10;
+                        updateGameScoreLabel(gameState.score);
+                    }
+                }
+            }
+
+            if (gameState.vy > 0) {
+                for (var j = 0; j < gameState.plats.length; j++) {
+                    var p = gameState.plats[j];
+                    if (gameState.px + 14 > p.x && gameState.px < p.x + 46 &&
+                        gameState.py + 14 >= p.y && gameState.py + 14 <= p.y + 10) {
+                        gameState.vy = -6.4;
+                        playNokiaSound('flap');
+                    }
+                }
+            }
+
+            if (gameState.py > 238) {
+                gameState.gameOver = true;
+                playNokiaSound('gameover');
+            }
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, 220, 240);
+            ctx.fillStyle = '#22c55e';
+            for (var k = 0; k < gameState.plats.length; k++) {
+                ctx.fillRect(gameState.plats[k].x, gameState.plats[k].y, 46, 7);
+            }
+            ctx.fillStyle = '#facc15';
+            ctx.fillRect(gameState.px, gameState.py, 14, 14);
+
+            if (gameState.gameOver) {
+                drawGameOverOverlay(ctx, gameState.score);
+            }
+        }, 36);
+    }
+
     /* ═══════════════════════════════════════════════════════════
        NOKIA D-PAD & KEYPAD HARDWARE NAVIGATION ENGINE
     ═══════════════════════════════════════════════════════════ */
     function getVisibleNavItems() {
+        var gameSetModal = document.getElementById('gameSettingsModal');
+        if (gameSetModal && gameSetModal.classList.contains('active')) {
+            var gItems = gameSetModal.querySelectorAll('[data-nav]');
+            var visG = [];
+            for (var g = 0; g < gItems.length; g++) {
+                if (gItems[g].offsetParent !== null) visG.push(gItems[g]);
+            }
+            return visG;
+        }
         var modalInst = document.getElementById('instUpdateModal');
         if (modalInst && modalInst.classList.contains('active')) {
             var mItems = modalInst.querySelectorAll('[data-nav]');
@@ -4477,14 +5930,76 @@
         var instModalOpen = document.getElementById('instUpdateModal').classList.contains('active');
         var opModalOpen = document.getElementById('opCreateModal').classList.contains('active');
         var docPopupOpen = isDocActionPopupOpen();
+        var gameSettingsOpen = isGameSettingsModalOpen();
         var popupOpen = instModalOpen || opModalOpen;
 
         var isStarKey = (key === '*' || key === 'Multiply' || code === 42 || code === 106);
         var isHashKey = (key === '#' || code === 35 || code === 163);
         var isZeroKey = (key === '0' || code === 48 || code === 96);
 
+        // 0A. IF PER-GAME SETTINGS MODAL IS OPEN (Opened via * Key):
+        if (gameSettingsOpen) {
+            if (isStarKey) {
+                e.preventDefault();
+                saveAndApplyGameSettings();
+                return;
+            }
+            if (isHashKey || isZeroKey || key === 'Escape' || code === 27) {
+                e.preventDefault();
+                closeGameSettingsModal();
+                return;
+            }
+            if (key === '1' || code === 49) {
+                e.preventDefault();
+                cycleGameSettingDifficulty(1);
+                return;
+            }
+            if (key === '2' || code === 50) {
+                e.preventDefault();
+                toggleGameSettingSound();
+                return;
+            }
+            if (key === '3' || code === 51) {
+                e.preventDefault();
+                toggleGameSettingFullScreen();
+                return;
+            }
+            if (key === 'ArrowLeft' || code === 37 || key === 'ArrowRight' || code === 39) {
+                var dirStep = (key === 'ArrowRight' || code === 39) ? 1 : -1;
+                if (activeEl && activeEl.id === 'btnGameSetDiff') {
+                    e.preventDefault();
+                    cycleGameSettingDifficulty(dirStep);
+                    return;
+                }
+                if (activeEl && activeEl.id === 'btnGameSetSound') {
+                    e.preventDefault();
+                    toggleGameSettingSound();
+                    return;
+                }
+                if (activeEl && activeEl.id === 'btnGameSetFull') {
+                    e.preventDefault();
+                    toggleGameSettingFullScreen();
+                    return;
+                }
+                if (activeEl && activeEl.id === 'gameSettingSelectGame') {
+                    e.preventDefault();
+                    var nextSel = activeEl.selectedIndex + dirStep;
+                    if (nextSel >= 0 && nextSel < activeEl.options.length) {
+                        activeEl.selectedIndex = nextSel;
+                        onGameSettingTargetChange(activeEl.value);
+                    }
+                    return;
+                }
+            }
+        }
+
         // 0. IF NOKIA GAME STAGE IS ACTIVE:
-        if (isNokiaGameStageOpen()) {
+        if (isNokiaGameStageOpen() && !gameSettingsOpen) {
+            if (isStarKey) {
+                e.preventDefault();
+                openGameSettingsModal(currentNokiaGame);
+                return;
+            }
             if (isZeroKey || isHashKey || key === 'Escape' || code === 27) {
                 e.preventDefault();
                 stopNokiaGame();
@@ -4510,7 +6025,7 @@
                 handleGameInput('RIGHT');
                 return;
             }
-            if (key === '5' || code === 53 || code === 101 || key === 'Enter' || code === 13 || isStarKey) {
+            if (key === '5' || code === 53 || code === 101 || key === 'Enter' || code === 13) {
                 e.preventDefault();
                 handleGameInput('ACTION');
                 return;
@@ -4518,7 +6033,7 @@
             return;
         }
 
-        // 0B. IF FULL-PAGE DOCUMENT ACTION POPUP IS OPEN (View / Full Page / Download):
+        // 0B. IF FULL-PAGE DOCUMENT ACTION POPUP IS OPEN (View / Full Screen / Download):
         if (docPopupOpen) {
             if (isHashKey || key === 'Escape' || code === 27) {
                 e.preventDefault();
@@ -4597,13 +6112,6 @@
         }
 
         // 1B. IF PDF VIEWER IS CURRENTLY OPEN IN DOCUMENT LIBRARY:
-        //     * -> Zoom In
-        //     # -> Zoom Out
-        //     2 or ArrowUp -> Scroll Up
-        //     8 or ArrowDown -> Scroll Down
-        //     6 or ArrowRight -> Scroll Right
-        //     4 or ArrowLeft -> Scroll Left
-        //     0 -> Close PDF Viewer
         if (isPdfViewerOpen() && !popupOpen) {
             if (isStarKey) {
                 e.preventDefault();
@@ -4643,14 +6151,6 @@
         }
 
         // 1C. IF WHATSAPP FULLSCREEN VIEWER IS CURRENTLY OPEN IN LAB:
-        //     * -> Zoom In
-        //     # -> Zoom Out
-        //     2 or ArrowUp -> Scroll Up
-        //     8 or ArrowDown -> Scroll Down
-        //     6 or ArrowRight -> Scroll Right
-        //     4 or ArrowLeft -> Scroll Left
-        //     OK (Enter) -> Toggle Pan / Interact Mode
-        //     0 -> Close WhatsApp Viewer
         if (isWaViewerOpen() && !popupOpen) {
             if (isStarKey) {
                 e.preventDefault();
@@ -4723,7 +6223,7 @@
         }
 
         // 4. Key 0: On Home Page -> Open Guide; On any other page (when not typing) -> Go Home Page
-        if (isZeroKey && !isUnlockedInput && !popupOpen) {
+        if (isZeroKey && !isUnlockedInput && !popupOpen && !gameSettingsOpen) {
             e.preventDefault();
             if (currentModule === 'home') {
                 openModule('guide');
@@ -4734,13 +6234,21 @@
         }
 
         // 5. Key #: When inside a module (and not typing) -> Go Back
-        if (isHashKey && !isUnlockedInput && !popupOpen && currentModule !== 'home') {
+        if (isHashKey && !isUnlockedInput && !popupOpen && !gameSettingsOpen && currentModule !== 'home') {
             e.preventDefault();
             goBackStep();
             return;
         }
 
-        // 6. Number shortcuts 1-6 on Home Screen (and 1-5 on Games Screen)
+        // 5B. Key * on Game Page -> Open Separate Settings for Focused/Selected Game
+        if (currentModule === 'games' && !isNokiaGameStageOpen() && !gameSettingsOpen && isStarKey) {
+            e.preventDefault();
+            var targetGid = (activeEl && activeEl.getAttribute && activeEl.getAttribute('data-game-id')) || focusedGameMenuId || 'snake';
+            openGameSettingsModal(targetGid);
+            return;
+        }
+
+        // 6. Number shortcuts 1-6 on Home Screen (and 1-9 on Games Screen)
         if (currentModule === 'home' && !isUnlockedInput && !popupOpen) {
             if (key === '1' || code === 49) { e.preventDefault(); openModule('instruments'); return; }
             if (key === '2' || code === 50) { e.preventDefault(); openModule('documents'); return; }
@@ -4749,12 +6257,16 @@
             if (key === '5' || code === 53) { e.preventDefault(); openModule('testpage'); return; }
             if (key === '6' || code === 54) { e.preventDefault(); openModule('lab'); return; }
         }
-        if (currentModule === 'games' && !isNokiaGameStageOpen() && !isUnlockedInput && !popupOpen) {
+        if (currentModule === 'games' && !isNokiaGameStageOpen() && !gameSettingsOpen && !isUnlockedInput && !popupOpen) {
             if (key === '1' || code === 49) { e.preventDefault(); startNokiaGame('snake'); return; }
             if (key === '2' || code === 50) { e.preventDefault(); startNokiaGame('flappy'); return; }
             if (key === '3' || code === 51) { e.preventDefault(); startNokiaGame('brick'); return; }
             if (key === '4' || code === 52) { e.preventDefault(); startNokiaGame('racer'); return; }
             if (key === '5' || code === 53) { e.preventDefault(); startNokiaGame('space'); return; }
+            if (key === '6' || code === 54) { e.preventDefault(); startNokiaGame('bounce'); return; }
+            if (key === '7' || code === 55) { e.preventDefault(); startNokiaGame('tetris'); return; }
+            if (key === '8' || code === 56) { e.preventDefault(); startNokiaGame('pacman'); return; }
+            if (key === '9' || code === 57) { e.preventDefault(); startNokiaGame('cricket'); return; }
         }
 
         // 7. D-Pad Up / Down Navigation
@@ -4805,7 +6317,10 @@
 
         // 9. Escape / Backspace (when not typing in an unlocked text input)
         if (!isUnlockedInput && (key === 'Escape' || key === 'Backspace' || code === 27 || code === 8)) {
-            if (popupOpen) {
+            if (gameSettingsOpen) {
+                e.preventDefault();
+                closeGameSettingsModal();
+            } else if (popupOpen) {
                 e.preventDefault();
                 closeInstModal();
                 closeNewOpModal();
