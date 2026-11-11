@@ -296,8 +296,27 @@
             color: var(--text);
         }
 
-        .nokia-input[readonly] {
+        .search-trigger-btn {
+            width: 100%;
+            padding: 6px 8px;
+            font-size: 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 4px;
+            background: var(--card);
+            color: var(--muted);
+            text-align: left;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            font-family: inherit;
+        }
+
+        .search-trigger-btn.has-query {
+            color: var(--text);
+            font-weight: bold;
+            border-color: var(--primary);
         }
 
         .count-bar {
@@ -908,7 +927,8 @@
     ═══════════════════════════════════════════════════ -->
     <section id="view-instruments" class="view-section">
         <div class="search-bar">
-            <input type="text" id="instSearch" class="nokia-input" data-nav data-search-box="1" readonly placeholder="Press OK to Search instrument..." oninput="renderInstruments()" onclick="activateSearchBox(this)">
+            <button type="button" id="instSearchTrigger" class="search-trigger-btn" data-nav data-search-trigger="instSearch" data-placeholder="Press OK to Search instrument..." onclick="activateSearchByTrigger('instSearch')">Press OK to Search instrument...</button>
+            <input type="text" id="instSearch" class="nokia-input" data-nav data-search-box="1" disabled readonly style="display:none;" placeholder="Type instrument or location..." oninput="renderInstruments()" onblur="deactivateSearchBox(this)">
         </div>
         <div class="count-bar">
             <span id="instCountLabel">Loading instruments...</span>
@@ -927,7 +947,8 @@
                 <button type="button" class="cat-btn" id="catBtn-drawings" data-nav onclick="filterDocs('drawings')">Drawings</button>
             </div>
             <div class="search-bar">
-                <input type="text" id="docSearch" class="nokia-input" data-nav data-search-box="1" readonly placeholder="Press OK to Search PDF..." oninput="renderDocs()" onclick="activateSearchBox(this)">
+                <button type="button" id="docSearchTrigger" class="search-trigger-btn" data-nav data-search-trigger="docSearch" data-placeholder="Press OK to Search PDF..." onclick="activateSearchByTrigger('docSearch')">Press OK to Search PDF...</button>
+                <input type="text" id="docSearch" class="nokia-input" data-nav data-search-box="1" disabled readonly style="display:none;" placeholder="Type PDF name..." oninput="renderDocs()" onblur="deactivateSearchBox(this)">
             </div>
             <div class="count-bar">
                 <span id="docCountLabel">PDF Documents</span>
@@ -962,7 +983,8 @@
     ═══════════════════════════════════════════════════ -->
     <section id="view-operations" class="view-section">
         <div class="search-bar">
-            <input type="text" id="opSearch" class="nokia-input" data-nav data-search-box="1" readonly placeholder="Press OK to Search WO, Plant..." oninput="renderOperations()" onclick="activateSearchBox(this)">
+            <button type="button" id="opSearchTrigger" class="search-trigger-btn" data-nav data-search-trigger="opSearch" data-placeholder="Press OK to Search WO, Plant..." onclick="activateSearchByTrigger('opSearch')">Press OK to Search WO, Plant...</button>
+            <input type="text" id="opSearch" class="nokia-input" data-nav data-search-box="1" disabled readonly style="display:none;" placeholder="Type WO, Plant, Team..." oninput="renderOperations()" onblur="deactivateSearchBox(this)">
             <button type="button" class="btn-small" data-nav onclick="openNewOpModal()" style="white-space:nowrap;">+ New</button>
         </div>
         <div class="count-bar">
@@ -976,7 +998,8 @@
     ═══════════════════════════════════════════════════ -->
     <section id="view-contacts" class="view-section">
         <div class="search-bar">
-            <input type="text" id="contactSearch" class="nokia-input" data-nav data-search-box="1" readonly placeholder="Press OK to Search name or #..." oninput="renderContacts()" onclick="activateSearchBox(this)">
+            <button type="button" id="contactSearchTrigger" class="search-trigger-btn" data-nav data-search-trigger="contactSearch" data-placeholder="Press OK to Search name or #..." onclick="activateSearchByTrigger('contactSearch')">Press OK to Search name or #...</button>
+            <input type="text" id="contactSearch" class="nokia-input" data-nav data-search-box="1" disabled readonly style="display:none;" placeholder="Type name, code, phone..." oninput="renderContacts()" onblur="deactivateSearchBox(this)">
         </div>
         <div class="count-bar">
             <span id="contactCountLabel">Loading contacts...</span>
@@ -1303,16 +1326,54 @@
         return (m1 && m1.classList.contains('active')) || (m2 && m2.classList.contains('active'));
     }
 
-    /* ─── SEARCH BOX ACTIVATION (ONLY EDITABLE WHEN USER PRESSES OK) ─── */
-    function lockAllSearchBoxes() {
-        var boxes = document.querySelectorAll('[data-search-box="1"]');
-        for (var i = 0; i < boxes.length; i++) {
-            boxes[i].readOnly = true;
+    /* ─── SEARCH BOX ACTIVATION (STRICTLY REQUIRES EXPLICIT OK PRESS) ─── */
+    var moduleOpenedAt = 0;
+
+    function updateSearchTriggerLabel(inputEl) {
+        if (!inputEl || !inputEl.id) return;
+        var triggerBtn = document.getElementById(inputEl.id + 'Trigger');
+        if (!triggerBtn) return;
+        var val = (inputEl.value || '').trim();
+        var defText = triggerBtn.getAttribute('data-placeholder') || 'Press OK to Search...';
+        if (val) {
+            triggerBtn.textContent = 'Search: ' + val + ' (OK to Edit)';
+            triggerBtn.classList.add('has-query');
+        } else {
+            triggerBtn.textContent = defText;
+            triggerBtn.classList.remove('has-query');
         }
     }
 
-    function activateSearchBox(inputEl) {
+    function deactivateSearchBox(inputEl) {
         if (!inputEl) return;
+        inputEl.readOnly = true;
+        inputEl.disabled = true;
+        inputEl.style.display = 'none';
+        var triggerBtn = document.getElementById(inputEl.id + 'Trigger');
+        if (triggerBtn) {
+            updateSearchTriggerLabel(inputEl);
+            triggerBtn.style.display = 'flex';
+        }
+    }
+
+    function lockAllSearchBoxes() {
+        var boxes = document.querySelectorAll('[data-search-box="1"]');
+        for (var i = 0; i < boxes.length; i++) {
+            deactivateSearchBox(boxes[i]);
+        }
+    }
+
+    function activateSearchByTrigger(inputId) {
+        // Guard against accidental carry-over click/Enter when arriving on a module page
+        if (Date.now() - moduleOpenedAt < 350) return;
+        var inputEl = document.getElementById(inputId);
+        var triggerBtn = document.getElementById(inputId + 'Trigger');
+        if (!inputEl) return;
+        if (triggerBtn) {
+            triggerBtn.style.display = 'none';
+        }
+        inputEl.style.display = 'block';
+        inputEl.disabled = false;
         inputEl.readOnly = false;
         inputEl.focus();
         try {
@@ -1323,6 +1384,10 @@
 
     /* ─── MODULE NAVIGATION ─── */
     function openModule(mod) {
+        moduleOpenedAt = Date.now();
+        if (document.activeElement && typeof document.activeElement.blur === 'function') {
+            document.activeElement.blur();
+        }
         closeInstModal();
         closeNewOpModal();
         lockAllSearchBoxes();
@@ -1367,7 +1432,7 @@
             }
         }
         window.scrollTo(0, 0);
-        // Focus first item AFTER search box so search box is never pre-selected on page open
+        // Strictly focus first non-search item so search is never pre-selected on arrival
         focusFirstNavItem(true);
     }
 
@@ -2465,21 +2530,19 @@
             var items = activeView.querySelectorAll('[data-nav]');
             for (var i = 0; i < items.length; i++) {
                 var el = items[i];
-                if (el.offsetParent === null) continue;
-                if (skipSearchBox && el.getAttribute('data-search-box') === '1') {
+                if (el.offsetParent === null || el.disabled) continue;
+                if (skipSearchBox && (el.getAttribute('data-search-box') === '1' || el.hasAttribute('data-search-trigger'))) {
                     continue;
                 }
                 el.focus();
                 return;
             }
-            // Fallback if no other item exists
-            for (var j = 0; j < items.length; j++) {
-                if (items[j].offsetParent !== null) {
-                    items[j].focus();
-                    return;
-                }
+            // Fallback: never auto-focus the search box on module load; focus header back button if visible
+            var backBtn = document.getElementById('headerBackBtn');
+            if (backBtn && backBtn.offsetParent !== null) {
+                backBtn.focus();
             }
-        }, 40);
+        }, 50);
     }
 
     document.addEventListener('keydown', function(e) {
@@ -2487,7 +2550,8 @@
         var code = e.keyCode || e.which || 0;
         var activeEl = document.activeElement;
         var isSearchBox = activeEl && activeEl.getAttribute && activeEl.getAttribute('data-search-box') === '1';
-        var isUnlockedInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') && !activeEl.readOnly;
+        var isSearchTrigger = activeEl && activeEl.getAttribute && activeEl.hasAttribute('data-search-trigger');
+        var isUnlockedInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') && !activeEl.readOnly && !activeEl.disabled;
         var isSelectEl = activeEl && activeEl.tagName === 'SELECT';
 
         var instModalOpen = document.getElementById('instUpdateModal').classList.contains('active');
@@ -2599,16 +2663,19 @@
             }
         }
 
-        // 3. Pressing OK (Enter) on a locked Search Box -> Unlock & start typing
+        // 3. Pressing OK (Enter) on Search Trigger Button -> Enter Search Edit Mode
+        if ((key === 'Enter' || code === 13) && isSearchTrigger) {
+            e.preventDefault();
+            var targetInputId = activeEl.getAttribute('data-search-trigger');
+            activateSearchByTrigger(targetInputId);
+            return;
+        }
+
+        // 3B. Pressing OK (Enter) while typing inside Search Input -> Lock & move focus to results
         if ((key === 'Enter' || code === 13) && isSearchBox) {
             e.preventDefault();
-            if (activeEl.readOnly) {
-                activateSearchBox(activeEl);
-            } else {
-                // Pressing OK again moves focus to first search result
-                activeEl.readOnly = true;
-                focusFirstNavItem(true);
-            }
+            deactivateSearchBox(activeEl);
+            focusFirstNavItem(true);
             return;
         }
 
@@ -2645,13 +2712,16 @@
 
         if (isDown || isUp) {
             e.preventDefault();
-            if (isSearchBox && !activeEl.readOnly) {
-                activeEl.readOnly = true;
+            var fromTrigger = null;
+            if (isSearchBox) {
+                fromTrigger = document.getElementById(activeEl.id + 'Trigger');
+                deactivateSearchBox(activeEl);
             }
             var navItems = getVisibleNavItems();
             if (navItems.length === 0) return;
 
-            var idx = navItems.indexOf(activeEl);
+            var refEl = fromTrigger || activeEl;
+            var idx = navItems.indexOf(refEl);
             var nextIdx = 0;
             if (idx === -1) {
                 nextIdx = 0;
@@ -2663,9 +2733,6 @@
 
             var target = navItems[nextIdx];
             if (target) {
-                if (target.getAttribute('data-search-box') === '1') {
-                    target.readOnly = true;
-                }
                 target.focus();
                 if (typeof target.scrollIntoView === 'function') {
                     target.scrollIntoView({ block: 'nearest' });
