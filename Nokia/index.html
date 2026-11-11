@@ -433,14 +433,46 @@
             background: var(--card);
             border: 1.5px solid var(--border);
             border-radius: 5px;
-            padding: 8px;
+            padding: 7px 8px;
             display: flex;
-            align-items: center;
-            gap: 7px;
-            cursor: pointer;
+            flex-direction: column;
+            gap: 5px;
             width: 100%;
             text-align: left;
             color: var(--text);
+        }
+
+        .pdf-item-top {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .pdf-actions-row {
+            display: flex;
+            gap: 5px;
+            width: 100%;
+        }
+
+        .btn-pdf-act {
+            flex: 1;
+            padding: 4px 6px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 4px;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            border: 1px solid var(--primary);
+            background: var(--primary);
+            color: #ffffff;
+        }
+
+        .btn-pdf-act.download {
+            background: var(--success);
+            border-color: var(--success);
+            color: #ffffff;
         }
 
         .pdf-icon {
@@ -448,7 +480,7 @@
             color: var(--danger);
             font-weight: bold;
             font-size: 10px;
-            padding: 4px 5px;
+            padding: 3px 5px;
             border-radius: 3px;
             flex-shrink: 0;
         }
@@ -463,7 +495,7 @@
         .pdf-viewer-box {
             display: none;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
         }
 
         .pdf-viewer-box.active {
@@ -472,17 +504,18 @@
 
         .pdf-toolbar {
             display: flex;
-            gap: 5px;
+            gap: 4px;
             align-items: center;
             justify-content: space-between;
             background: var(--card);
-            padding: 6px;
+            padding: 5px 6px;
             border: 1px solid var(--border);
             border-radius: 4px;
+            flex-wrap: wrap;
         }
 
         .btn-small {
-            padding: 5px 8px;
+            padding: 4px 7px;
             font-size: 11px;
             font-weight: bold;
             border-radius: 4px;
@@ -500,13 +533,46 @@
             color: var(--text);
         }
 
-        .pdf-frame {
+        .pdf-viewport {
             width: 100%;
-            height: 72vh;
+            height: 74vh;
             min-height: 260px;
             border: 1.5px solid var(--border);
             border-radius: 4px;
+            background: #1e293b;
+            overflow: auto;
+            position: relative;
+        }
+
+        .pdf-canvas-stage {
+            position: relative;
+            width: 100%;
+            height: 2600px;
+            overflow: hidden;
             background: #fff;
+        }
+
+        .pdf-scale-inner {
+            position: relative;
+            width: 100%;
+            height: 2600px;
+            transform-origin: 0 0;
+        }
+
+        .pdf-frame {
+            width: 100%;
+            height: 2600px;
+            border: 0;
+            display: block;
+            background: #fff;
+            pointer-events: none;
+        }
+
+        .pdf-key-shield {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            background: transparent;
         }
 
         /* ─── SIMPLIFIED TEAM CONTACTS ─── */
@@ -869,15 +935,26 @@
             <div id="docList" class="item-list"></div>
         </div>
 
-        <!-- Embedded Clean PDF Viewer -->
+        <!-- Embedded Clean PDF Viewer with Keypad Zoom & 4-Way Scroll -->
         <div id="docViewerSection" class="pdf-viewer-box">
             <div class="pdf-toolbar">
-                <button type="button" class="btn-small secondary" data-nav onclick="closePdfViewer()">&#8592; PDF List</button>
-                <span id="activePdfTitle" style="font-size:11px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin:0 6px;">PDF</span>
-                <a id="directPdfLink" href="#" target="_blank" class="btn-small" data-nav>Full View</a>
+                <button type="button" class="btn-small secondary" data-nav onclick="closePdfViewer()">&#8592; Close</button>
+                <span id="activePdfTitle" style="font-size:11px;font-weight:bold;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;margin:0 4px;">PDF</span>
+                <button type="button" class="btn-small secondary" data-nav onclick="zoomPdf(-0.25)" title="Zoom Out (#)">-</button>
+                <span id="pdfZoomBadge" class="badge badge-loc" style="font-size:10px;">100%</span>
+                <button type="button" class="btn-small secondary" data-nav onclick="zoomPdf(0.25)" title="Zoom In (*)">+</button>
+                <a id="directPdfDownloadBtn" href="#" download target="pdfDownloadSink" class="btn-small" style="background:var(--success);border-color:var(--success);" data-nav onclick="showToast('Downloading PDF...')">Download</a>
             </div>
-            <iframe id="pdfViewerFrame" class="pdf-frame" src="about:blank"></iframe>
+            <div id="pdfViewport" class="pdf-viewport" tabindex="0" data-nav>
+                <div id="pdfCanvasStage" class="pdf-canvas-stage">
+                    <div id="pdfScaleInner" class="pdf-scale-inner">
+                        <iframe id="pdfViewerFrame" class="pdf-frame" src="about:blank"></iframe>
+                        <div id="pdfKeyShield" class="pdf-key-shield"></div>
+                    </div>
+                </div>
+            </div>
         </div>
+        <iframe id="pdfDownloadSink" name="pdfDownloadSink" style="display:none;"></iframe>
     </section>
 
     <!-- ═══════════════════════════════════════════════════
@@ -975,9 +1052,18 @@
         </div>
 
         <div class="guide-box" tabindex="0" data-nav>
+            <div class="guide-title">PDF Viewer Keys (While Viewing PDF)</div>
+            <div class="guide-row"><span class="guide-key">Key * / #</span><span class="guide-desc">Zoom In (*) / Zoom Out (#)</span></div>
+            <div class="guide-row"><span class="guide-key">Key 2 / 8</span><span class="guide-desc">Scroll Up (2) / Down (8)</span></div>
+            <div class="guide-row"><span class="guide-key">Key 4 / 6</span><span class="guide-desc">Scroll Left (4) / Right (6)</span></div>
+            <div class="guide-row"><span class="guide-key">&#9650; &#9660; &#9668; &#9658;</span><span class="guide-desc">Move / Scroll PDF in 4 ways</span></div>
+            <div class="guide-row"><span class="guide-key">Key 0</span><span class="guide-desc">Close PDF Viewer</span></div>
+        </div>
+
+        <div class="guide-box" tabindex="0" data-nav>
             <div class="guide-title">How to Use Modules</div>
             <div class="guide-row"><span class="guide-key">1. Instruments</span><span class="guide-desc">Press OK on item to update Location, Updated By &amp; Remark in Sheet</span></div>
-            <div class="guide-row"><span class="guide-key">2. Documents</span><span class="guide-desc">Press OK on any PDF to view directly</span></div>
+            <div class="guide-row"><span class="guide-key">2. Documents</span><span class="guide-desc">View PDF in page or Direct Download</span></div>
             <div class="guide-row"><span class="guide-key">3. Operations</span><span class="guide-desc">View Work Orders or press + New to add</span></div>
             <div class="guide-row"><span class="guide-key">4. Contacts</span><span class="guide-desc">View Tabreed &amp; Normal No. + Direct Call</span></div>
             <div class="guide-row"><span class="guide-key">5. Test Page</span><span class="guide-desc">Check keys; Hold &#9650;/&#9660; to scroll page</span></div>
@@ -1738,8 +1824,21 @@
     }
 
     /* ═══════════════════════════════════════════════════════════
-       2. DOCUMENT LIBRARY (SIMPLE & SAAF DIRECT PDF VIEW)
+       2. DOCUMENT LIBRARY (VIEW IN PAGE + DIRECT DOWNLOAD + ZOOM/PAN)
     ═══════════════════════════════════════════════════════════ */
+    var pdfZoomLevel = 1;
+    var lastViewedDocId = null;
+    var PDF_BASE_HEIGHT = 2600;
+
+    function isPdfViewerOpen() {
+        var viewer = document.getElementById('docViewerSection');
+        return currentModule === 'documents' && viewer && viewer.classList.contains('active');
+    }
+
+    function getDirectDownloadUrl(fileId) {
+        return 'https://drive.google.com/uc?export=download&id=' + encodeURIComponent(fileId);
+    }
+
     function filterDocs(cat) {
         activeDocCategory = cat;
         var btns = ['all', 'pdf', 'drawings'];
@@ -1769,33 +1868,128 @@
         var html = '';
         for (var i = 0; i < list.length; i++) {
             var doc = list[i];
-            html += '<button type="button" class="pdf-item" data-nav data-doc-id="' + escHtml(doc.id) + '" data-doc-title="' + escHtml(doc.title) + '" onclick="openPdfViewer(this.getAttribute(\'data-doc-id\'), this.getAttribute(\'data-doc-title\'))">' +
-                '<span class="pdf-icon">PDF</span>' +
-                '<div class="pdf-title">' + escHtml(doc.title) + '</div>' +
-                '<span class="badge badge-loc">' + escHtml(doc.catLabel) + '</span>' +
-            '</button>';
+            var dlUrl = getDirectDownloadUrl(doc.id);
+            html += '<div class="pdf-item">' +
+                '<div class="pdf-item-top">' +
+                    '<span class="pdf-icon">PDF</span>' +
+                    '<div class="pdf-title">' + escHtml(doc.title) + '</div>' +
+                    '<span class="badge badge-loc">' + escHtml(doc.catLabel) + '</span>' +
+                '</div>' +
+                '<div class="pdf-actions-row">' +
+                    '<button type="button" class="btn-pdf-act" data-nav data-doc-view-id="' + escHtml(doc.id) + '" data-doc-title="' + escHtml(doc.title) + '" onclick="openPdfViewer(this.getAttribute(\'data-doc-view-id\'), this.getAttribute(\'data-doc-title\'))">View</button>' +
+                    '<a href="' + escHtml(dlUrl) + '" download="' + escHtml(doc.title) + '" target="pdfDownloadSink" class="btn-pdf-act download" data-nav onclick="showToast(\'Downloading: \' + this.getAttribute(\'download\'))">Download</a>' +
+                '</div>' +
+            '</div>';
         }
         container.innerHTML = html;
     }
 
+    function applyPdfZoom(oldZoom) {
+        var vp = document.getElementById('pdfViewport');
+        var stage = document.getElementById('pdfCanvasStage');
+        var inner = document.getElementById('pdfScaleInner');
+        var badge = document.getElementById('pdfZoomBadge');
+        if (!vp || !stage || !inner) return;
+
+        var baseW = vp.clientWidth || 300;
+        var prevZoom = oldZoom || pdfZoomLevel;
+        var centerX = (vp.scrollLeft + vp.clientWidth / 2) / prevZoom;
+        var centerY = (vp.scrollTop + vp.clientHeight / 2) / prevZoom;
+
+        inner.style.width = baseW + 'px';
+        inner.style.height = PDF_BASE_HEIGHT + 'px';
+        inner.style.transform = 'scale(' + pdfZoomLevel + ')';
+
+        stage.style.width = Math.round(baseW * pdfZoomLevel) + 'px';
+        stage.style.height = Math.round(PDF_BASE_HEIGHT * pdfZoomLevel) + 'px';
+
+        if (badge) {
+            badge.textContent = Math.round(pdfZoomLevel * 100) + '%';
+        }
+
+        if (oldZoom) {
+            vp.scrollLeft = Math.max(0, Math.round(centerX * pdfZoomLevel - vp.clientWidth / 2));
+            vp.scrollTop = Math.max(0, Math.round(centerY * pdfZoomLevel - vp.clientHeight / 2));
+        }
+    }
+
+    function zoomPdf(delta) {
+        var prev = pdfZoomLevel;
+        var next = Math.round((pdfZoomLevel + delta) * 100) / 100;
+        if (next < 0.75) next = 0.75;
+        if (next > 3.0) next = 3.0;
+        if (next === prev) {
+            showToast('Zoom: ' + Math.round(pdfZoomLevel * 100) + '%');
+            return;
+        }
+        pdfZoomLevel = next;
+        applyPdfZoom(prev);
+        showToast('Zoom: ' + Math.round(pdfZoomLevel * 100) + '%');
+    }
+
+    function panPdf(dx, dy) {
+        var vp = document.getElementById('pdfViewport');
+        if (!vp) return;
+        if (dx !== 0) {
+            vp.scrollLeft += dx;
+        }
+        if (dy !== 0) {
+            var beforeTop = vp.scrollTop;
+            vp.scrollTop += dy;
+            if (vp.scrollTop === beforeTop) {
+                window.scrollBy(0, dy);
+            }
+        }
+    }
+
     function openPdfViewer(fileId, title) {
+        lastViewedDocId = fileId;
+        pdfZoomLevel = 1;
         document.getElementById('docListSection').style.display = 'none';
         var viewer = document.getElementById('docViewerSection');
         viewer.classList.add('active');
         document.getElementById('activePdfTitle').textContent = title;
+
         var previewUrl = 'https://drive.google.com/file/d/' + fileId + '/preview';
-        var viewUrl = 'https://drive.google.com/file/d/' + fileId + '/view';
+        var dlUrl = getDirectDownloadUrl(fileId);
         document.getElementById('pdfViewerFrame').src = previewUrl;
-        document.getElementById('directPdfLink').href = viewUrl;
+
+        var dlBtn = document.getElementById('directPdfDownloadBtn');
+        if (dlBtn) {
+            dlBtn.href = dlUrl;
+            dlBtn.setAttribute('download', title || 'document.pdf');
+        }
+
         window.scrollTo(0, 0);
-        focusFirstNavItem(false);
+        setTimeout(function() {
+            var vp = document.getElementById('pdfViewport');
+            if (vp) {
+                vp.scrollTop = 0;
+                vp.scrollLeft = 0;
+                applyPdfZoom(null);
+                vp.focus();
+            }
+        }, 40);
     }
 
     function closePdfViewer() {
         var viewer = document.getElementById('docViewerSection');
+        var wasOpen = viewer && viewer.classList.contains('active');
         if (viewer) viewer.classList.remove('active');
         document.getElementById('pdfViewerFrame').src = 'about:blank';
         document.getElementById('docListSection').style.display = 'block';
+        if (wasOpen && currentModule === 'documents') {
+            setTimeout(function() {
+                if (lastViewedDocId) {
+                    var btn = document.querySelector('#docList [data-doc-view-id="' + lastViewedDocId + '"]');
+                    if (btn) {
+                        btn.focus();
+                        return;
+                    }
+                }
+                focusFirstNavItem(true);
+            }, 30);
+        }
     }
 
     /* ═══════════════════════════════════════════════════════════
@@ -2338,6 +2532,52 @@
                     activeEl.selectedIndex = nextOpt;
                     onModalLocSelectChange(activeEl.value);
                 }
+                return;
+            }
+        }
+
+        // 1B. IF PDF VIEWER IS CURRENTLY OPEN IN DOCUMENT LIBRARY:
+        //     * -> Zoom In
+        //     # -> Zoom Out
+        //     2 or ArrowUp -> Scroll Up
+        //     8 or ArrowDown -> Scroll Down
+        //     6 or ArrowRight -> Scroll Right
+        //     4 or ArrowLeft -> Scroll Left
+        //     0 -> Close PDF Viewer
+        if (isPdfViewerOpen() && !popupOpen) {
+            if (isStarKey) {
+                e.preventDefault();
+                zoomPdf(0.25);
+                return;
+            }
+            if (isHashKey) {
+                e.preventDefault();
+                zoomPdf(-0.25);
+                return;
+            }
+            if (isZeroKey) {
+                e.preventDefault();
+                closePdfViewer();
+                return;
+            }
+            if (key === '2' || code === 50 || code === 98 || key === 'ArrowUp' || code === 38) {
+                e.preventDefault();
+                panPdf(0, -95);
+                return;
+            }
+            if (key === '8' || code === 56 || code === 104 || key === 'ArrowDown' || code === 40) {
+                e.preventDefault();
+                panPdf(0, 95);
+                return;
+            }
+            if (key === '6' || code === 54 || code === 102 || key === 'ArrowRight' || code === 39) {
+                e.preventDefault();
+                panPdf(95, 0);
+                return;
+            }
+            if (key === '4' || code === 52 || code === 100 || key === 'ArrowLeft' || code === 37) {
+                e.preventDefault();
+                panPdf(-95, 0);
                 return;
             }
         }
